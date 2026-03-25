@@ -374,13 +374,18 @@ services:
       # - CHOKIDAR_USEPOLLING=1
       # - WATCHFILES_FORCE_POLLING=true
       #
-      # PUSH NOTIFICATIONS (optional)
-      # Get notified on your phone when Claude finishes a task or hits an error.
-      # Uses Pushover (https://pushover.net). Also requires creating a flag file
+      # NOTIFICATIONS (optional)
+      # Get notified when Claude finishes a task or hits an error.
+      # Uses Apprise — supports 100+ services. Also requires creating a flag file
       # inside the container: touch ~/.claude/notify-on
       #
-      # - PUSHOVER_APP_TOKEN=your_token
-      # - PUSHOVER_USER_KEY=your_key
+      # - NOTIFY_DISCORD=discord://webhook_id/webhook_token
+      # - NOTIFY_TELEGRAM=tg://bot_token/chat_id
+      # - NOTIFY_PUSHOVER=pover://user_key@app_token
+      # - NOTIFY_SLACK=slack://token_a/token_b/token_c
+      # - NOTIFY_EMAIL=mailto://user:pass@gmail.com?to=you@gmail.com
+      # - NOTIFY_GOTIFY=gotify://hostname/token
+      # - NOTIFY_URLS=                                   # catch-all: comma-separated Apprise URLs
       #
       # AI PROVIDER API KEYS (optional)
       # These are for the OTHER AI CLIs — not Claude Code itself.
@@ -406,7 +411,7 @@ docker compose up -d
 | **Performance** | Node.js memory ceiling | Only if you hit OOM errors on large projects |
 | **User mapping** | File permissions between container and host | If you get "permission denied" (`id -u` and `id -g` on your host) |
 | **SMB/CIFS** | File watcher polling mode | Only if your volumes live on a NAS or network share |
-| **Notifications** | Push alerts to your phone via Pushover | If you want to walk away and know when Claude is done |
+| **Notifications** | Push alerts via Apprise (Discord, Telegram, Slack, Email, 100+ services) | If you want to walk away and know when Claude is done |
 | **AI providers** | API keys for Gemini, Codex, Cursor | If you want to use AI CLIs other than Claude |
 
 > **Every single environment variable is optional.** The container runs perfectly with just `TZ=UTC`. Everything else has sensible defaults or is handled through the web UI.
@@ -431,8 +436,13 @@ The complete reference. Every variable, what it defaults to, what it does.
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email (set once on first boot) |
 | `CHOKIDAR_USEPOLLING` | *(unset)* | Set to `1` for SMB/CIFS — enables polling file watchers |
 | `WATCHFILES_FORCE_POLLING` | *(unset)* | Set to `true` for SMB/CIFS — enables Python polling |
-| `PUSHOVER_APP_TOKEN` | *(unset)* | Pushover app token for push notifications |
-| `PUSHOVER_USER_KEY` | *(unset)* | Pushover user key for push notifications |
+| `NOTIFY_DISCORD` | *(unset)* | Discord webhook URL for notifications |
+| `NOTIFY_TELEGRAM` | *(unset)* | Telegram bot URL for notifications |
+| `NOTIFY_PUSHOVER` | *(unset)* | Pushover URL for notifications |
+| `NOTIFY_SLACK` | *(unset)* | Slack webhook URL for notifications |
+| `NOTIFY_EMAIL` | *(unset)* | Email (SMTP) URL for notifications |
+| `NOTIFY_GOTIFY` | *(unset)* | Gotify URL for notifications |
+| `NOTIFY_URLS` | *(unset)* | Catch-all — comma-separated [Apprise URLs](https://github.com/caronc/apprise/wiki) |
 | `GEMINI_API_KEY` | *(unset)* | Google Gemini API key |
 | `OPENAI_API_KEY` | *(unset)* | OpenAI API key (for Codex CLI — NOT ChatGPT) |
 | `CURSOR_API_KEY` | *(unset)* | Cursor API key |
@@ -661,7 +671,7 @@ holyclaude/
 ├── scripts/                 # Container lifecycle scripts
 │   ├── bootstrap.sh         # First-run setup
 │   ├── entrypoint.sh        # Container entrypoint
-│   └── notify.sh            # Notification helper
+│   └── notify.py            # Notification helper (Apprise)
 ├── s6-overlay/              # Process supervision (s6-rc services)
 ├── Dockerfile               # Single-stage build
 ├── docker-compose.yaml      # Quick start (minimal config)
@@ -742,16 +752,18 @@ This is how I personally run it. Edit `./data/claude/settings.json` on your host
 
 ## :bell: Notifications
 
-Walk away from your computer and know when Claude is done. Uses [Pushover](https://pushover.net/) for push notifications to your phone.
+Walk away from your computer and know when Claude is done. Uses [Apprise](https://github.com/caronc/apprise) for notifications — supports 100+ services including Discord, Telegram, Slack, Email, Pushover, Gotify, and more.
 
 **To enable:**
 
-1. Add to your compose `environment`:
+1. Add one or more `NOTIFY_*` variables to your compose `environment`:
    ```yaml
-   - PUSHOVER_APP_TOKEN=your_token
-   - PUSHOVER_USER_KEY=your_key
+   - NOTIFY_DISCORD=discord://webhook_id/webhook_token
+   - NOTIFY_TELEGRAM=tg://bot_token/chat_id
    ```
 2. Inside the container: `touch ~/.claude/notify-on`
+
+See [configuration docs](docs/configuration.md#notifications-apprise) for all supported variables and URL formats.
 
 **To disable:** `rm ~/.claude/notify-on`
 
@@ -761,7 +773,7 @@ Walk away from your computer and know when Claude is done. Uses [Pushover](https
 | `stop` | Claude finished the current task |
 | `error` | A tool use failure occurred |
 
-> Completely silent when not configured. No tokens set? No flag file? Zero network calls. Zero log spam. Zero overhead.
+> Completely silent when not configured. No `NOTIFY_*` vars set? No flag file? Zero network calls. Zero log spam. Zero overhead.
 
 <p align="right">
   <a href="#top">↑ back to top</a>
@@ -784,7 +796,7 @@ Your data persists in `./data/claude` and `./workspace` — upgrading only repla
 To pin a specific version instead of `latest`:
 
 ```yaml
-image: CoderLuii/HolyClaude:1.0.0   # instead of :latest
+image: CoderLuii/HolyClaude:1.1.0   # instead of :latest
 ```
 
 <p align="right">
@@ -877,7 +889,7 @@ These are not HolyClaude bugs — they're upstream issues or intentional trade-o
 | "Continue in Shell" button broken | CloudCLI upstream bug (race condition in terminal init) | Use the **Web Terminal** plugin instead (pre-installed) |
 | Cursor CLI "Command timeout" | No API key configured — cosmetic only, doesn't affect anything | Set `CURSOR_API_KEY` or ignore |
 | CloudCLI account lost on rebuild | SQLite can't persist on network mounts — intentional trade-off | Re-create account (~10 seconds) |
-| Web push notifications "not supported" | Browser limitation in CloudCLI, standard behavior | Use Pushover notifications instead |
+| Web push notifications "not supported" | Browser limitation in CloudCLI, standard behavior | Use Apprise notifications instead (see [Notifications](#bell-notifications)) |
 
 <p align="right">
   <a href="#top">↑ back to top</a>
@@ -938,7 +950,8 @@ What's coming next:
 | Status | Feature |
 |--------|---------|
 | 🔜 | **ARM-native builds** — optimized native ARM64 images, not just emulated |
-| 🔜 | **Webhook notifications** — Discord, Slack, and custom webhook alerts alongside Pushover |
+| 🔜 | **VS Code tunnel integration** — built-in VS Code Server or tunnel for connecting from VS Code desktop |
+| 🔜 | **Notification routing** — different notification destinations per event type (errors to Telegram, completions to Discord) |
 
 Have an idea? [Start a discussion](https://github.com/CoderLuii/HolyClaude/discussions) or [request a feature](https://github.com/CoderLuii/HolyClaude/issues/new?template=feature_request.yml).
 

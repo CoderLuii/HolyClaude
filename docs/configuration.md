@@ -49,14 +49,23 @@ Only needed if your volumes are on a network share (Samba, NAS, etc.):
 | `CHOKIDAR_USEPOLLING` | (unset) | Set to `1` — enables polling for file watchers |
 | `WATCHFILES_FORCE_POLLING` | (unset) | Set to `true` — enables polling for Python watchers |
 
-### Notifications (Pushover)
+### Notifications (Apprise)
+
+HolyClaude uses [Apprise](https://github.com/caronc/apprise) for notifications, supporting 100+ services including Discord, Telegram, Slack, Email, Pushover, Gotify, and more.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PUSHOVER_APP_TOKEN` | (unset) | Your Pushover application token |
-| `PUSHOVER_USER_KEY` | (unset) | Your Pushover user key |
+| `NOTIFY_DISCORD` | *(unset)* | Discord webhook — `discord://webhook_id/webhook_token` |
+| `NOTIFY_TELEGRAM` | *(unset)* | Telegram bot — `tg://bot_token/chat_id` |
+| `NOTIFY_PUSHOVER` | *(unset)* | Pushover — `pover://user_key@app_token` |
+| `NOTIFY_SLACK` | *(unset)* | Slack webhook — `slack://token_a/token_b/token_c` |
+| `NOTIFY_EMAIL` | *(unset)* | Email (SMTP) — `mailto://user:pass@gmail.com?to=you@gmail.com` |
+| `NOTIFY_GOTIFY` | *(unset)* | Gotify — `gotify://hostname/token` |
+| `NOTIFY_URLS` | *(unset)* | Catch-all — comma-separated [Apprise URLs](https://github.com/caronc/apprise/wiki) |
 
 Notifications also require the flag file `~/.claude/notify-on` to exist inside the container. Create it with `touch ~/.claude/notify-on`.
+
+**Migrating from Pushover (v1.0.0):** Replace `PUSHOVER_APP_TOKEN` and `PUSHOVER_USER_KEY` with a single variable: `NOTIFY_PUSHOVER=pover://user_key@app_token`
 
 ### AI Provider API Keys
 

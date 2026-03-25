@@ -43,9 +43,14 @@ services:
       # - CHOKIDAR_USEPOLLING=1
       # - WATCHFILES_FORCE_POLLING=true
 
-      # --- Notifications (Pushover — optional) ---
-      # - PUSHOVER_APP_TOKEN=
-      # - PUSHOVER_USER_KEY=
+      # --- Notifications (uncomment services you want) ---
+      # - NOTIFY_DISCORD=discord://webhook_id/webhook_token
+      # - NOTIFY_TELEGRAM=tg://bot_token/chat_id
+      # - NOTIFY_PUSHOVER=pover://user_key@app_token
+      # - NOTIFY_SLACK=slack://token_a/token_b/token_c
+      # - NOTIFY_EMAIL=mailto://user:pass@gmail.com?to=you@gmail.com
+      # - NOTIFY_GOTIFY=gotify://hostname/token
+      # - NOTIFY_URLS=                                   # catch-all: comma-separated Apprise URLs
 
       # --- AI provider API keys (optional — can also set via web UI) ---
       # - GEMINI_API_KEY=

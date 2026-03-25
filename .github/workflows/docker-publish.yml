@@ -1,4 +1,4 @@
-name: HolyClaude — Build & Push to Docker Hub
+name: HolyClaude — Build & Push to Docker Hub + GHCR
 
 on:
   workflow_dispatch:
@@ -12,12 +12,14 @@ concurrency:
 
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
+  GHCR_IMAGE: ghcr.io/coderluii/holyclaude
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     strategy:
       max-parallel: 1
@@ -47,19 +49,25 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Login to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v6
         with:
           images: |
             ${{ env.DOCKERHUB_IMAGE }}
+            ${{ env.GHCR_IMAGE }}
           tags: |
             type=raw,value=latest,enable=${{ matrix.variant == 'full' }}
             type=raw,value=slim,enable=${{ matrix.variant == 'slim' }}
             type=semver,pattern={{version}},enable=${{ matrix.variant == 'full' }}
             type=semver,pattern={{version}}-slim,enable=${{ matrix.variant == 'slim' }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ matrix.variant == 'full' }}
-            type=semver,pattern={{major}}.{{minor}}-slim,enable=${{ matrix.variant == 'slim' }}
 
       - name: Build and push
         uses: docker/build-push-action@v7

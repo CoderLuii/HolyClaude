@@ -9,6 +9,8 @@
 
 FROM node:22-bookworm-slim
 
+LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
+
 # ---------- Build args ----------
 ARG S6_OVERLAY_VERSION=3.2.0.2
 ARG TARGETARCH
@@ -124,7 +126,8 @@ RUN pip install --no-cache-dir --break-system-packages \
     openpyxl python-docx \
     jinja2 pyyaml python-dotenv markdown \
     rich click tqdm \
-    playwright
+    playwright \
+    apprise
 
 # ---------- Python packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
@@ -163,13 +166,13 @@ RUN echo "${VARIANT}" > /etc/holyclaude-variant
 # ---------- Copy config files ----------
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY scripts/bootstrap.sh /usr/local/bin/bootstrap.sh
-COPY scripts/notify.sh /usr/local/bin/notify.sh
+COPY scripts/notify.py /usr/local/bin/notify.py
 COPY config/settings.json /usr/local/share/holyclaude/settings.json
 COPY config/claude-memory-full.md /usr/local/share/holyclaude/claude-memory-full.md
 COPY config/claude-memory-slim.md /usr/local/share/holyclaude/claude-memory-slim.md
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     /usr/local/bin/bootstrap.sh \
-    /usr/local/bin/notify.sh
+    /usr/local/bin/notify.py
 
 # ---------- s6-overlay service definitions ----------
 COPY s6-overlay/s6-rc.d/cloudcli/type /etc/s6-overlay/s6-rc.d/cloudcli/type

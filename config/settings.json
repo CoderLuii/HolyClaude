@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/local/bin/notify.sh stop"
+            "command": "/usr/local/bin/notify.py stop"
           }
         ]
       }
@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/local/bin/notify.sh error"
+            "command": "/usr/local/bin/notify.py error"
           }
         ]
       }

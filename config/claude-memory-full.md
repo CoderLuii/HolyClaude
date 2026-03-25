@@ -119,12 +119,12 @@ gh issue list
 gh pr merge
 ```
 
-## Notifications (Pushover)
+## Notifications (Apprise)
 
-Optional push notifications to your phone. Disabled by default.
+Optional push notifications via [Apprise](https://github.com/caronc/apprise) — supports 100+ services (Discord, Telegram, Slack, Email, Pushover, Gotify, and more). Disabled by default.
 
 **To enable:**
-1. Set `PUSHOVER_APP_TOKEN` and `PUSHOVER_USER_KEY` environment variables
+1. Set one or more `NOTIFY_*` environment variables (e.g. `NOTIFY_DISCORD`, `NOTIFY_TELEGRAM`, `NOTIFY_PUSHOVER`)
 2. Create the flag file: `touch ~/.claude/notify-on`
 
 **To disable:** `rm ~/.claude/notify-on`
