@@ -246,7 +246,7 @@ The "I just want it running" template. Copy this entire block into a `docker-com
 
 services:
   holyclaude:
-    image: CoderLuii/HolyClaude:latest     # Full image (use :slim for smaller download)
+    image: coderluii/holyclaude:latest     # Full image (use :slim for smaller download)
     container_name: holyclaude
     hostname: holyclaude
     restart: unless-stopped
@@ -308,7 +308,7 @@ Same image, every knob exposed. Copy this entire block into a `docker-compose.ya
 
 services:
   holyclaude:
-    image: CoderLuii/HolyClaude:latest     # Full image (use :slim for smaller download)
+    image: coderluii/holyclaude:latest     # Full image (use :slim for smaller download)
     container_name: holyclaude
     hostname: holyclaude
     restart: unless-stopped
@@ -915,7 +915,7 @@ docker build --build-arg VARIANT=slim -t holyclaude:slim .
 docker buildx build --platform linux/arm64 -t holyclaude .
 ```
 
-Then use `image: holyclaude` instead of `image: CoderLuii/HolyClaude:latest` in your compose file.
+Then use `image: holyclaude` instead of `image: coderluii/holyclaude:latest` in your compose file.
 
 <p align="right">
   <a href="#top">↑ back to top</a>
