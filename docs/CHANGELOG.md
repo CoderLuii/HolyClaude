@@ -4,6 +4,11 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- CloudCLI is now installed directly from npm (`@cloudcli-ai/cloudcli@latest`) instead of a vendored tarball, so every image rebuild automatically picks up the latest version
+
 ## [1.2.2] - 04/10/2026
 
 ### Fixed
