@@ -3,4 +3,4 @@ cd /workspace
 export HOME=/home/claude
 export WORKSPACES_ROOT=/workspace
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--no-deprecation"
-exec s6-setuidgid claude claude-code-ui --port 3001
+exec s6-setuidgid claude cloudcli --port 3001
