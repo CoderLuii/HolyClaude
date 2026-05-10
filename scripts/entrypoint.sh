@@ -98,6 +98,19 @@ if [ ! -f "$SENTINEL" ]; then
     fi
 fi
 
+# ---------- Claude Code auto-update (every boot, best-effort) ----------
+# The image bakes in whatever Claude Code was current at build time. To pick up
+# new releases without rebuilding the image, run `claude update` on each boot.
+# Set CLAUDE_AUTO_UPDATE=false to skip (e.g. air-gapped or pinned environments).
+if [ "${CLAUDE_AUTO_UPDATE:-true}" = "true" ]; then
+    echo "[entrypoint] Checking for Claude Code updates..."
+    if runuser -u "$CLAUDE_USER" -- bash -lc 'claude update' 2>&1 | sed 's/^/[claude-update] /'; then
+        :
+    else
+        echo "[entrypoint] WARNING: claude update failed — continuing with installed version"
+    fi
+fi
+
 # ---------- Background: persist ~/.claude.json every 60s ----------
 (while true; do
     sleep 60

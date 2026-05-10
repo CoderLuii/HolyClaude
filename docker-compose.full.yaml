@@ -38,6 +38,9 @@ services:
       # --- Performance ---
       - NODE_OPTIONS=--max-old-space-size=4096     # Node.js memory limit (MB)
 
+      # --- Claude Code auto-update ---
+      - CLAUDE_AUTO_UPDATE=true                    # Run `claude update` on every container start (set false to pin)
+
       # --- User mapping (match your host UID/GID) ---
       - PUID=1000
       - PGID=1000

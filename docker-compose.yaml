@@ -23,4 +23,5 @@ services:
       - ./data/claude:/home/claude/.claude
       - ./workspace:/workspace
     environment:
-      - TZ=UTC          # Change to your timezone
+      - TZ=UTC                  # Change to your timezone
+      - CLAUDE_AUTO_UPDATE=true # Run `claude update` on every container start
