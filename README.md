@@ -737,7 +737,7 @@ graph TB
 
 ### How the pieces fit together
 
-1. **Container starts** — `entrypoint.sh` runs as root. Remaps UID/GID to match your host user, pre-creates required files (preventing Docker's "create it as a directory" bug), checks if this is a first boot.
+1. **Container starts** — `entrypoint.sh` runs as root. Remaps UID/GID to match your host user, restores the saved Claude Code session before bootstrap can touch it, and checks if this is a first boot.
 
 2. **First boot only** — `bootstrap.sh` runs once. Copies default settings, memory template, configures git identity. Creates a sentinel file (`.holyclaude-bootstrapped`) so it never runs again. Your customizations are safe from that point on.
 
@@ -803,6 +803,8 @@ holyclaude/
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Yes** |
 | Your code and projects | `/workspace` | `./workspace` | **Yes** |
 | CloudCLI account | `/home/claude/.cloudcli` | *(container only by default — see below)* | No (opt-in available) |
+
+HolyClaude restores the saved Claude Code session before startup can create a fresh default file. That keeps container rebuilds and recreates from replacing a real OAuth/API session with onboarding state.
 
 ### What survives `docker compose down && docker compose up`:
 - Your Anthropic authentication and API keys
@@ -1114,7 +1116,7 @@ Set them in your compose file:
 
 **Cause:** If a bind-mount target file doesn't exist before container start, Docker helpfully creates it as a directory. Thanks, Docker.
 
-**Fix:** Already handled — `entrypoint.sh` pre-creates it as a file.
+**Fix:** Already handled — `entrypoint.sh` restores the saved session file first, or creates a safe default file when no saved session exists.
 </details>
 
 See [docs/troubleshooting.md](docs/troubleshooting.md) for the complete guide including all SMB/CIFS gotchas and the full history of bugs we encountered and fixed.

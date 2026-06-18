@@ -702,7 +702,7 @@ graph TB
 
 ### Wie die Teile zusammenpassen
 
-1. **Container startet** — `entrypoint.sh` läuft als root. Ordnet UID/GID deinem Host-Benutzer zu, erstellt vorab erforderliche Dateien (verhindert Dockers "erstelle es als Verzeichnis"-Bug), prüft ob dies ein erster Start ist.
+1. **Container startet** — `entrypoint.sh` läuft als root. Ordnet UID/GID deinem Host-Benutzer zu, stellt die gespeicherte Claude Code Session wieder her, bevor Bootstrap sie berührt, und prüft ob dies ein erster Start ist.
 
 2. **Nur beim ersten Start** — `bootstrap.sh` läuft einmalig. Kopiert Standardeinstellungen, Memory-Template, konfiguriert Git-Identität. Erstellt eine Sentinel-Datei (`.holyclaude-bootstrapped`), sodass es nie wieder läuft. Deine Anpassungen sind ab diesem Punkt sicher.
 
@@ -768,6 +768,8 @@ holyclaude/
 | Claude Code Session (OAuth, Onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Ja** |
 | Dein Code und deine Projekte | `/workspace` | `./workspace` | **Ja** |
 | CloudCLI-Konto | `/home/claude/.cloudcli` | *(standardmäßig nur Container — siehe unten)* | Nein (Opt-in verfügbar) |
+
+HolyClaude stellt die gespeicherte Claude Code Session wieder her, bevor der Start eine frische Standarddatei erstellen kann. So ersetzen Rebuilds und Recreates keine echte OAuth/API-Session durch Onboarding-Status.
 
 ### Was `docker compose down && docker compose up` überlebt:
 - Deine Anthropic-Authentifizierung und API-Keys
@@ -1019,7 +1021,7 @@ In deiner compose-Datei setzen:
 
 **Ursache:** Wenn eine Bind-Mount-Zieldatei vor dem Container-Start nicht existiert, erstellt Docker sie hilfreicherweise als Verzeichnis. Danke, Docker.
 
-**Lösung:** Bereits behandelt — `entrypoint.sh` erstellt sie vorab als Datei.
+**Lösung:** Bereits behandelt — `entrypoint.sh` stellt zuerst die gespeicherte Session-Datei wieder her oder erstellt eine sichere Standarddatei, wenn keine gespeicherte Session existiert.
 </details>
 
 Siehe [docs/troubleshooting.md](docs/troubleshooting.md) für die vollständige Anleitung einschließlich aller SMB/CIFS-Eigenheiten und der vollständigen Geschichte der gefundenen und behobenen Bugs.

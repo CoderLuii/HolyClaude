@@ -702,7 +702,7 @@ graph TB
 
 ### Como encajan las piezas
 
-1. **El contenedor arranca** — `entrypoint.sh` se ejecuta como root. Reasigna UID/GID para que coincidan con tu usuario del host, pre-crea los archivos necesarios (previniendo el error de Docker de "crear como directorio"), comprueba si es el primer arranque.
+1. **El contenedor arranca** — `entrypoint.sh` se ejecuta como root. Reasigna UID/GID para que coincidan con tu usuario del host, restaura la sesion guardada de Claude Code antes de que bootstrap la toque y comprueba si es el primer arranque.
 
 2. **Solo el primer arranque** — `bootstrap.sh` se ejecuta una vez. Copia la configuracion predeterminada, la plantilla de memoria, configura la identidad de git. Crea un archivo centinela (`.holyclaude-bootstrapped`) para que nunca vuelva a ejecutarse. Tus personalizaciones estan a salvo desde ese momento.
 
@@ -768,6 +768,8 @@ holyclaude/
 | Sesion de Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Si** |
 | Tu codigo y proyectos | `/workspace` | `./workspace` | **Si** |
 | Cuenta de CloudCLI | `/home/claude/.cloudcli` | *(solo en el contenedor por defecto — ver abajo)* | No (opt-in disponible) |
+
+HolyClaude restaura la sesion guardada de Claude Code antes de que el arranque pueda crear un archivo por defecto nuevo. Asi los rebuilds y recreates no reemplazan una sesion OAuth/API real con estado de onboarding.
 
 ### Lo que sobrevive `docker compose down && docker compose up`:
 - Tu autenticacion de Anthropic y claves de API
@@ -1018,7 +1020,7 @@ Establecelos en tu archivo compose:
 
 **Causa:** Si un archivo destino de bind-mount no existe antes de que el contenedor arranque, Docker amablemente lo crea como directorio. Gracias, Docker.
 
-**Solucion:** Ya esta gestionado — `entrypoint.sh` lo pre-crea como archivo.
+**Solucion:** Ya esta gestionado — `entrypoint.sh` restaura primero el archivo de sesion guardado o crea un archivo por defecto seguro cuando no existe una sesion guardada.
 </details>
 
 Consulta [docs/troubleshooting.md](docs/troubleshooting.md) para la guia completa, incluidos todos los problemas de SMB/CIFS y el historial completo de errores que encontramos y corregimos.

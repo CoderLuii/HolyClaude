@@ -14,6 +14,16 @@ WORKSPACE_DIR="/workspace"
 PUID="${PUID:-1000}"
 PGID="${PGID:-1000}"
 
+if ! [[ "$PUID" =~ ^[0-9]+$ ]]; then
+    echo "[entrypoint] WARNING: invalid PUID '$PUID' - using 1000"
+    PUID=1000
+fi
+
+if ! [[ "$PGID" =~ ^[0-9]+$ ]]; then
+    echo "[entrypoint] WARNING: invalid PGID '$PGID' - using 1000"
+    PGID=1000
+fi
+
 CURRENT_UID=$(id -u "$CLAUDE_USER")
 CURRENT_GID=$(id -g "$CLAUDE_USER")
 
@@ -91,19 +101,9 @@ if [ ! -e "$CLAUDE_HOME/.cursor" ]; then
 fi
 
 # ---------- Persist ~/.claude.json (every boot) ----------
-# Claude Code overwrites symlinks, so we use copy-on-boot/copy-on-start.
-# On restart (file exists): save current to bind mount, then use it
-# On recreation (file gone): restore from bind mount
-# On first boot (neither exists): create default
-if [ -f "$CLAUDE_HOME/.claude.json" ]; then
-    cp "$CLAUDE_HOME/.claude.json" "$CLAUDE_HOME/.claude/.claude.json.persist"
-elif [ -f "$CLAUDE_HOME/.claude/.claude.json.persist" ]; then
-    cp "$CLAUDE_HOME/.claude/.claude.json.persist" "$CLAUDE_HOME/.claude.json"
-    chown "$PUID:$PGID" "$CLAUDE_HOME/.claude.json"
-else
-    echo '{"hasCompletedOnboarding":true,"installMethod":"native"}' > "$CLAUDE_HOME/.claude.json"
-    chown "$PUID:$PGID" "$CLAUDE_HOME/.claude.json"
-fi
+# Claude Code rewrites ~/.claude.json directly, so keep the durable copy inside
+# the bind-mounted ~/.claude directory and restore it before bootstrap starts.
+node /usr/local/bin/persist-claude-json.mjs
 
 # ---------- Ensure DISPLAY is set ----------
 export DISPLAY=:99
@@ -184,9 +184,15 @@ if [ -n "$DESLOPPIFY_SETUP" ] && [ "$DESLOPPIFY_SETUP" != "off" ]; then
 fi
 
 # ---------- Background: persist ~/.claude.json every 60s ----------
-(while true; do
+(persist_warning_shown=0
+while true; do
     sleep 60
-    [ -f "$CLAUDE_HOME/.claude.json" ] && cp "$CLAUDE_HOME/.claude.json" "$CLAUDE_HOME/.claude/.claude.json.persist" 2>/dev/null
+    if node /usr/local/bin/persist-claude-json.mjs --save-live --quiet; then
+        persist_warning_shown=0
+    elif [ "$persist_warning_shown" = "0" ]; then
+        echo "[entrypoint] WARNING: could not persist Claude session state; check host mount permissions"
+        persist_warning_shown=1
+    fi
 done) &
 
 # ---------- Hand off to s6-overlay ----------

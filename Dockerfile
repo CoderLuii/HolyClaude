@@ -238,12 +238,14 @@ RUN echo "${VARIANT}" > /etc/holyclaude-variant
 # ---------- Copy config files ----------
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY scripts/bootstrap.sh /usr/local/bin/bootstrap.sh
+COPY scripts/persist-claude-json.mjs /usr/local/bin/persist-claude-json.mjs
 COPY scripts/notify.py /usr/local/bin/notify.py
 COPY config/settings.json /usr/local/share/holyclaude/settings.json
 COPY config/claude-memory-full.md /usr/local/share/holyclaude/claude-memory-full.md
 COPY config/claude-memory-slim.md /usr/local/share/holyclaude/claude-memory-slim.md
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     /usr/local/bin/bootstrap.sh \
+    /usr/local/bin/persist-claude-json.mjs \
     /usr/local/bin/notify.py
 
 # ---------- s6-overlay service definitions ----------

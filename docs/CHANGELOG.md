@@ -4,6 +4,12 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.6] - 06/18/2026
+
+### Fixed
+- Restored saved Claude Code session state before startup can replace it with a fresh default file, keeping OAuth/API sessions intact across container recreation.
+- Added Docker image smoke coverage for Claude session persistence before release images publish.
+
 ## [1.3.5] - 06/17/2026
 
 ### Fixed

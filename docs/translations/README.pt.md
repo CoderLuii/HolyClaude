@@ -702,7 +702,7 @@ graph TB
 
 ### Como as peças se encaixam
 
-1. **Container inicia** — `entrypoint.sh` executa como root. Remapeia UID/GID para corresponder ao usuário do host, pré-cria arquivos necessários (prevenindo o bug do Docker de "criar como diretório"), verifica se é a primeira inicialização.
+1. **Container inicia** — `entrypoint.sh` executa como root. Remapeia UID/GID para corresponder ao usuário do host, restaura a sessão salva do Claude Code antes que o bootstrap possa tocá-la e verifica se é a primeira inicialização.
 
 2. **Somente na primeira inicialização** — `bootstrap.sh` executa uma vez. Copia configurações padrão, template de memória, configura identidade git. Cria um arquivo sentinel (`.holyclaude-bootstrapped`) para nunca executar novamente. Suas customizações estão seguras a partir desse ponto.
 
@@ -768,6 +768,8 @@ holyclaude/
 | Sessão Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Sim** |
 | Seu código e projetos | `/workspace` | `./workspace` | **Sim** |
 | Conta CloudCLI | `/home/claude/.cloudcli` | *(somente container por padrão — veja abaixo)* | Não (opt-in disponível) |
+
+HolyClaude restaura a sessão salva do Claude Code antes que a inicialização possa criar um novo arquivo padrão. Assim rebuilds e recreates não substituem uma sessão OAuth/API real por estado de onboarding.
 
 ### O que sobrevive a `docker compose down && docker compose up`:
 - Sua autenticação Anthropic e chaves de API
@@ -1019,7 +1021,7 @@ Defina no seu arquivo compose:
 
 **Causa:** Se um arquivo alvo de bind-mount não existir antes do início do container, o Docker o cria como diretório. Obrigado, Docker.
 
-**Correção:** Já tratado, o `entrypoint.sh` o pré-cria como arquivo.
+**Correção:** Já tratado, o `entrypoint.sh` restaura primeiro o arquivo de sessão salvo ou cria um arquivo padrão seguro quando não existe sessão salva.
 </details>
 
 Veja [docs/troubleshooting.md](docs/troubleshooting.md) para o guia completo incluindo todos os problemas de SMB/CIFS e o histórico completo de bugs que encontramos e corrigimos.

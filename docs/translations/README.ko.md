@@ -702,7 +702,7 @@ graph TB
 
 ### 구성 요소가 맞물리는 방식
 
-1. **컨테이너 시작** — `entrypoint.sh`가 root로 실행됩니다. UID/GID를 호스트 사용자에 맞게 재매핑하고, 필수 파일을 미리 생성하며 (Docker의 "디렉터리로 생성" 버그 방지), 첫 부팅 여부를 확인합니다.
+1. **컨테이너 시작** — `entrypoint.sh`가 root로 실행됩니다. UID/GID를 호스트 사용자에 맞게 재매핑하고, bootstrap이 건드리기 전에 저장된 Claude Code 세션을 복원하며, 첫 부팅 여부를 확인합니다.
 
 2. **첫 부팅 시에만** — `bootstrap.sh`가 한 번 실행됩니다. 기본 설정, 메모리 템플릿 복사, git 정보 설정. 이후 다시 실행되지 않도록 sentinel 파일(`.holyclaude-bootstrapped`)을 생성합니다. 이 시점부터 커스터마이징은 안전합니다.
 
@@ -768,6 +768,8 @@ holyclaude/
 | Claude Code 세션 (OAuth, 온보딩) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **예** |
 | 코드 및 프로젝트 | `/workspace` | `./workspace` | **예** |
 | CloudCLI 계정 | `/home/claude/.cloudcli` | *(기본적으로 컨테이너 전용 — 아래 참조)* | 아니요 (opt-in 가능) |
+
+HolyClaude는 시작 중 새 기본 파일을 만들기 전에 저장된 Claude Code 세션을 복원합니다. 그래서 rebuild와 recreate가 실제 OAuth/API 세션을 온보딩 상태로 바꾸지 않습니다.
 
 ### `docker compose down && docker compose up` 후에도 유지되는 것:
 - Anthropic 인증 및 API 키
@@ -1019,7 +1021,7 @@ compose 파일에서 설정하세요:
 
 **원인:** 컨테이너 시작 전에 바인드 마운트 대상 파일이 존재하지 않으면 Docker가 친절하게 디렉터리로 생성합니다. 감사합니다, Docker.
 
-**해결책:** 이미 처리되었습니다 — `entrypoint.sh`가 파일로 미리 생성합니다.
+**해결책:** 이미 처리되었습니다 — `entrypoint.sh`가 저장된 세션 파일을 먼저 복원하거나, 저장된 세션이 없을 때만 안전한 기본 파일을 만듭니다.
 </details>
 
 모든 SMB/CIFS 주의사항 및 경험하고 수정한 모든 버그의 전체 기록을 포함한 완전한 가이드는 [docs/troubleshooting.md](docs/troubleshooting.md)를 참조하세요.

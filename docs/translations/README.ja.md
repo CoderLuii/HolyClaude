@@ -702,7 +702,7 @@ graph TB
 
 ### 各部品がどのように組み合わさるか
 
-1. **コンテナ起動** — `entrypoint.sh` が root として実行。UID/GID をホストユーザーに合わせてリマップ、必要なファイルを事前作成（Docker の「ディレクトリとして作成してしまう」バグを防ぐ）、初回起動かどうかを確認。
+1. **コンテナ起動** — `entrypoint.sh` が root として実行。UID/GID をホストユーザーに合わせてリマップし、bootstrap が触れる前に保存済みの Claude Code セッションを復元し、初回起動かどうかを確認。
 
 2. **初回起動のみ** — `bootstrap.sh` が一度だけ実行される。デフォルト設定、メモリテンプレートのコピー、git ID の設定。センチネルファイル（`.holyclaude-bootstrapped`）を作成して二度と実行されないようにする。それ以降はカスタマイズが安全に保持される。
 
@@ -768,6 +768,8 @@ holyclaude/
 | Claude Code セッション（OAuth、オンボーディング） | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **残る** |
 | コードとプロジェクト | `/workspace` | `./workspace` | **残る** |
 | CloudCLI アカウント | `/home/claude/.cloudcli` | *(デフォルトはコンテナのみ — 下記参照)* | 残らない（opt-in 可能） |
+
+HolyClaude は起動時に新しいデフォルトファイルを作る前に、保存済みの Claude Code セッションを復元します。これで rebuild や recreate が本物の OAuth/API セッションをオンボーディング状態で置き換えることはありません。
 
 ### `docker compose down && docker compose up` 後も残るもの:
 - Anthropic 認証と API キー
@@ -1019,7 +1021,7 @@ compose ファイルに設定:
 
 **原因:** バインドマウントのターゲットファイルがコンテナ起動前に存在しない場合、Docker が親切にもディレクトリとして作成してしまう。ありがとう、Docker。
 
-**修正方法:** 既に対処済み — `entrypoint.sh` がファイルとして事前作成している。
+**修正方法:** 既に対処済み — `entrypoint.sh` が保存済みのセッションファイルを先に復元し、保存済みセッションがない場合だけ安全なデフォルトファイルを作成します。
 </details>
 
 すべての SMB/CIFS の落とし穴と、遭遇して修正したバグの全履歴を含む完全なガイドは [docs/troubleshooting.md](docs/troubleshooting.md) を参照。

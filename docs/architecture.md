@@ -14,7 +14,7 @@ HolyClaude is a single Docker container running multiple supervised services. Th
 │                                                  │
 │  entrypoint.sh (runs once)                       │
 │    ├── UID/GID remapping                         │
-│    ├── Pre-create required files                 │
+│    ├── Restore Claude session state              │
 │    ├── bootstrap.sh (first boot only)            │
 │    │     ├── Copy settings.json                  │
 │    │     ├── Copy CLAUDE.md (memory)             │
@@ -51,13 +51,15 @@ Runs every time the container starts. Responsibilities:
 
 2. **Workspace ownership fix** — Repairs the top-level `/workspace` bind mount if Docker auto-created it as `root:root` on first start.
 
-3. **File pre-creation** — Ensures `~/.claude.json` exists as a file (not a directory). Docker creates bind-mount targets as directories if they don't exist, which breaks Claude Code.
+3. **Claude session restore** — Restores `~/.claude/.claude.json.persist` to `~/.claude.json` before bootstrap and CloudCLI startup can create a fresh default file. Empty, invalid, symlinked, oversized, or onboarding-only files are not allowed to replace a valid saved session.
 
 4. **Bootstrap trigger** — Checks for sentinel file `.holyclaude-bootstrapped`. If absent, runs `bootstrap.sh`.
 
 5. **Optional Desloppify setup** — Reads `HOLYCLAUDE_DESLOPPIFY_SETUP` after bootstrap and before s6 starts. Setup runs as the `claude` user and only writes global agent skill files for the requested interface. It does not scan `/workspace` or create project-level `.desloppify/` state.
 
 6. **Handoff** — `exec /init` replaces the entrypoint process with s6-overlay, which becomes PID 1.
+
+The Claude session bridge is HolyClaude startup behavior. It does not update CloudCLI and does not replace the Docker update path.
 
 ### Bootstrap (`bootstrap.sh`)
 
@@ -66,7 +68,7 @@ Runs once on first container start. Creates the sentinel file so it doesn't re-r
 1. **Settings** — Copies `settings.json` from the image to `~/.claude/settings.json`
 2. **Memory** — Copies the variant-appropriate memory template (`claude-memory-full.md` or `claude-memory-slim.md`) to `~/.claude/CLAUDE.md`
 3. **Git** — Configures git identity from `GIT_USER_NAME`/`GIT_USER_EMAIL` env vars
-4. **Onboarding** — Creates `~/.claude.json` with `hasCompletedOnboarding: true` to skip the first-run wizard
+4. **Onboarding** — Uses the restored or default `~/.claude.json` created by the entrypoint session bridge
 5. **Permissions** — Fixes file ownership to match `PUID`/`PGID`
 
 ### s6-overlay

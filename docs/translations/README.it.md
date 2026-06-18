@@ -702,7 +702,7 @@ graph TB
 
 ### Come si incastrano i pezzi
 
-1. **Il container si avvia** — `entrypoint.sh` viene eseguito come root. Rimappa UID/GID per corrispondere al tuo utente host, pre-crea i file necessari (prevenendo il bug di Docker che li "crea come directory"), verifica se è il primo avvio.
+1. **Il container si avvia** — `entrypoint.sh` viene eseguito come root. Rimappa UID/GID per corrispondere al tuo utente host, ripristina la sessione Claude Code salvata prima che bootstrap possa toccarla e verifica se è il primo avvio.
 
 2. **Solo al primo avvio** — `bootstrap.sh` viene eseguito una volta. Copia le impostazioni predefinite, il template di memoria, configura l'identità git. Crea un file sentinella (`.holyclaude-bootstrapped`) così non viene mai eseguito di nuovo. Le tue personalizzazioni sono al sicuro da quel momento in poi.
 
@@ -768,6 +768,8 @@ holyclaude/
 | Sessione Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Sì** |
 | Il tuo codice e progetti | `/workspace` | `./workspace` | **Sì** |
 | Account CloudCLI | `/home/claude/.cloudcli` | *(solo container per default — vedi sotto)* | No (opt-in disponibile) |
+
+HolyClaude ripristina la sessione Claude Code salvata prima che l'avvio possa creare un nuovo file predefinito. Cosi rebuild e recreate non sostituiscono una vera sessione OAuth/API con lo stato di onboarding.
 
 ### Cosa sopravvive a `docker compose down && docker compose up`:
 - La tua autenticazione Anthropic e le chiavi API
@@ -1019,7 +1021,7 @@ Impostali nel tuo file compose:
 
 **Causa:** Se un file di destinazione di un bind-mount non esiste prima dell'avvio del container, Docker lo crea generosamente come directory. Grazie, Docker.
 
-**Soluzione:** Già gestita — `entrypoint.sh` lo pre-crea come file.
+**Soluzione:** Già gestita — `entrypoint.sh` ripristina prima il file di sessione salvato oppure crea un file predefinito sicuro quando non esiste una sessione salvata.
 </details>
 
 Consulta [docs/troubleshooting.md](docs/troubleshooting.md) per la guida completa, incluse tutte le problematiche SMB/CIFS e la storia completa dei bug incontrati e risolti.

@@ -142,6 +142,8 @@ environment:
 
 HolyClaude also auto-fixes the top-level `/workspace` ownership on boot if Docker created it as root. If you still have permission errors after startup, the remaining mismatch is in your host files, not the container's workspace mount point.
 
+On Synology, QNAP, SMB/CIFS, and some NFS mounts, `chmod` and `chown` from inside the container may be ignored by the host filesystem. Use the NAS share settings, mount options, or matching `PUID`/`PGID` values to make `./data/claude` and `./workspace` writable.
+
 ---
 
 ### `rm -rf *` doesn't delete dotfiles
@@ -165,7 +167,7 @@ Never delete the entire `./data/claude/` directory — this wipes your credentia
 
 **Cause:** If the bind-mount target doesn't exist as a file before container start, Docker creates it as a directory.
 
-**Fix:** Already handled in `entrypoint.sh` — it pre-creates the file if missing. If you're running a custom setup, ensure `~/.claude.json` exists as a file before starting the container.
+**Fix:** Already handled in `entrypoint.sh` — it restores the saved session file first, or creates a safe default file when no saved session exists. If you're running a custom setup, ensure `~/.claude.json` is a file and keep the durable copy in `~/.claude/.claude.json.persist`.
 
 ---
 
@@ -173,9 +175,17 @@ Never delete the entire `./data/claude/` directory — this wipes your credentia
 
 **Symptom:** After `docker compose down && up`, Claude Code prompts for OAuth / API key again.
 
-**Cause:** Versions before v1.1.7 didn't persist `~/.claude.json`, which holds the Claude Code session state. Container recreation wiped it.
+**Cause:** Versions before v1.3.6 could let a fresh container default file overwrite the saved `~/.claude/.claude.json.persist` copy before restore happened.
 
-**Fix:** Upgrade to v1.1.7 or later. The session is now auto-saved to `./data/claude/.claude.json.persist` on every boot and every 60 seconds, then restored on the next start. If you're on v1.1.7+ and still losing the session, check that `./data/claude/` is actually writable by the container user (PUID/PGID mismatch).
+**Fix:** Upgrade to v1.3.6 or later:
+```bash
+docker compose pull
+docker compose up -d
+```
+
+HolyClaude now restores `./data/claude/.claude.json.persist` before startup can create a fresh default file. It also refuses to replace a valid saved session with empty, invalid, or onboarding-only state.
+
+If you still lose the session, check that `./data/claude/` is writable by the container user. On Synology, QNAP, SMB/CIFS, or other NAS-backed mounts, Unix permission changes from inside the container are best effort. Fix the host share ownership or set `PUID`/`PGID` to match the account that owns the mounted folder.
 
 ---
 
@@ -289,7 +299,7 @@ Any SQLite database on CIFS will get "database is locked" errors. Keep SQLite da
 
 ### No Unix permissions
 
-`chmod`/`chown` silently succeed but don't actually change permissions on CIFS (depends on mount options). Use `uid=`, `gid=`, `file_mode=`, `dir_mode=` in mount options to set permissions.
+`chmod`/`chown` can silently succeed but not actually change permissions on CIFS. Use `uid=`, `gid=`, `file_mode=`, and `dir_mode=` in mount options, or fix the NAS share owner/group directly.
 
 ---
 

@@ -702,7 +702,7 @@ graph TB
 
 ### Comment les pièces s'assemblent
 
-1. **Le conteneur démarre** — `entrypoint.sh` s'exécute en tant que root. Remapping de l'UID/GID pour correspondre à votre utilisateur hôte, pré-création des fichiers requis (prévenant le bug Docker "créé en tant que répertoire"), vérification s'il s'agit d'un premier démarrage.
+1. **Le conteneur démarre** — `entrypoint.sh` s'exécute en tant que root. Remapping de l'UID/GID pour correspondre à votre utilisateur hôte, restauration de la session Claude Code enregistrée avant que bootstrap puisse la toucher, vérification s'il s'agit d'un premier démarrage.
 
 2. **Premier démarrage uniquement** — `bootstrap.sh` s'exécute une seule fois. Copie les paramètres par défaut, le modèle de mémoire, configure l'identité git. Crée un fichier sentinelle (`.holyclaude-bootstrapped`) pour qu'il ne s'exécute plus jamais. Vos personnalisations sont protégées à partir de ce moment.
 
@@ -768,6 +768,8 @@ holyclaude/
 | Session Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Oui** |
 | Votre code et projets | `/workspace` | `./workspace` | **Oui** |
 | Compte CloudCLI | `/home/claude/.cloudcli` | *(conteneur uniquement par défaut — voir ci-dessous)* | Non (opt-in disponible) |
+
+HolyClaude restaure la session Claude Code enregistrée avant que le démarrage puisse créer un nouveau fichier par défaut. Les rebuilds et recreates ne remplacent donc pas une vraie session OAuth/API par un état d'onboarding.
 
 ### Ce qui survit à `docker compose down && docker compose up` :
 - Votre authentification Anthropic et clés API
@@ -1019,7 +1021,7 @@ Définissez-les dans votre fichier compose :
 
 **Cause :** Si un fichier cible de bind-mount n'existe pas avant le démarrage du conteneur, Docker le crée utilement en tant que répertoire. Merci, Docker.
 
-**Correctif :** Déjà géré — `entrypoint.sh` le pré-crée en tant que fichier.
+**Correctif :** Déjà géré — `entrypoint.sh` restaure d'abord le fichier de session enregistré, ou crée un fichier par défaut sûr quand aucune session enregistrée n'existe.
 </details>
 
 Consultez [docs/troubleshooting.md](docs/troubleshooting.md) pour le guide complet incluant tous les problèmes SMB/CIFS et l'historique complet des bugs rencontrés et corrigés.

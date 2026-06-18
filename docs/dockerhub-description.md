@@ -72,7 +72,7 @@ Works with your existing Anthropic account — no proxy, no middleman:
 - **Claude Max/Pro plan** — OAuth sign-in through the web UI
 - **Anthropic API key** — Paste it in the web UI
 
-Credentials stored locally in your bind-mounted `./data/claude` directory. We don't touch them.
+Credentials are stored locally in your bind-mounted `./data/claude` directory. HolyClaude restores the saved Claude Code session before a fresh container file can replace it.
 
 ## Key Environment Variables
 
@@ -92,7 +92,7 @@ Credentials stored locally in your bind-mounted `./data/claude` directory. We do
 
 | Path | Purpose |
 |------|---------|
-| `/home/claude/.claude` | Credentials, settings, Claude memory — **persist this** |
+| `/home/claude/.claude` | Credentials, settings, Claude memory, and the saved Claude Code session — **persist this** |
 | `/workspace` | Your code and projects |
 
 ## Architecture

@@ -142,11 +142,11 @@ JSON
 fi
 
 # ---------- Fix ownership ----------
-chown -R "$PUID:$PGID" "$CLAUDE_HOME/.claude"
-chown "$PUID:$PGID" "$CLAUDE_HOME/.claude.json"
+chown -R "$PUID:$PGID" "$CLAUDE_HOME/.claude" 2>/dev/null || true
+chown "$PUID:$PGID" "$CLAUDE_HOME/.claude.json" 2>/dev/null || true
 
 # ---------- Create sentinel ----------
 touch "$CLAUDE_HOME/.claude/.holyclaude-bootstrapped"
-chown "$PUID:$PGID" "$CLAUDE_HOME/.claude/.holyclaude-bootstrapped"
+chown "$PUID:$PGID" "$CLAUDE_HOME/.claude/.holyclaude-bootstrapped" 2>/dev/null || true
 
 echo "[bootstrap] First-boot initialization complete."

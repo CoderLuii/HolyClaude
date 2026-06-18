@@ -702,7 +702,7 @@ graph TB
 
 ### टुकड़े कैसे fit होते हैं
 
-1. **Container शुरू होता है** — `entrypoint.sh` root के रूप में चलता है। UID/GID को आपके host user से मिलाने के लिए remap करता है, आवश्यक files pre-creates करता है (Docker के "directory के रूप में create करना" bug को रोकता है), check करता है कि यह first boot है या नहीं।
+1. **Container शुरू होता है** — `entrypoint.sh` root के रूप में चलता है। UID/GID को आपके host user से मिलाने के लिए remap करता है, bootstrap से पहले saved Claude Code session restore करता है, और check करता है कि यह first boot है या नहीं।
 
 2. **केवल पहले boot पर** — `bootstrap.sh` एक बार चलता है। Default settings, memory template copy करता है, git identity configure करता है। एक sentinel file (`.holyclaude-bootstrapped`) बनाता है ताकि यह दोबारा कभी न चले। उस बिंदु से आपके customizations सुरक्षित हैं।
 
@@ -768,6 +768,8 @@ holyclaude/
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **हां** |
 | आपका code और projects | `/workspace` | `./workspace` | **हां** |
 | CloudCLI अकाउंट | `/home/claude/.cloudcli` | *(default में केवल container में — नीचे देखें)* | नहीं (opt-in उपलब्ध) |
+
+HolyClaude startup में नया default file बनाने से पहले saved Claude Code session restore करता है। इससे rebuild और recreate real OAuth/API session को onboarding state से replace नहीं करते।
 
 ### `docker compose down && docker compose up` से क्या बचता है:
 - आपकी Anthropic authentication और API keys
@@ -1019,7 +1021,7 @@ id -g  # → यह आपका PGID है
 
 **कारण:** अगर container start से पहले bind-mount target file exist नहीं करती, Docker इसे helpfully एक directory के रूप में create करता है। धन्यवाद, Docker।
 
-**Fix:** पहले से handled — `entrypoint.sh` इसे file के रूप में pre-create करता है।
+**Fix:** पहले से handled — `entrypoint.sh` पहले saved session file restore करता है, या saved session न होने पर safe default file बनाता है।
 </details>
 
 सभी SMB/CIFS gotchas और उन bugs के पूरे इतिहास सहित complete guide के लिए [docs/troubleshooting.md](docs/troubleshooting.md) देखें जिन्हें हमने encounter और fix किया।
