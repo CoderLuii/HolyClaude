@@ -178,22 +178,24 @@ RUN if [ "$VARIANT" = "full" ]; then \
     npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.79.3; \
     fi
 
-COPY vendor/artifacts/cloudcli-ai-cloudcli-1.34.0.tgz /tmp/vendor/cloudcli-ai-cloudcli-1.34.0.tgz
+ARG CLOUDCLI_VERSION=1.35.1
+COPY vendor/artifacts/cloudcli-ai-cloudcli-${CLOUDCLI_VERSION}.tgz /tmp/vendor/cloudcli-ai-cloudcli.tgz
 
 # ---------- CloudCLI (web UI for Claude Code) ----------
-RUN npm i -g /tmp/vendor/cloudcli-ai-cloudcli-1.34.0.tgz && rm -f /tmp/vendor/cloudcli-ai-cloudcli-1.34.0.tgz
-COPY scripts/patch-cloudcli-apprise-notifications.mjs /tmp/patch-cloudcli-apprise-notifications.mjs
-COPY scripts/patch-cloudcli-codex-complete-exit-code.mjs /tmp/patch-cloudcli-codex-complete-exit-code.mjs
-COPY scripts/patch-cloudcli-codex-permissions.mjs /tmp/patch-cloudcli-codex-permissions.mjs
-COPY scripts/patch-cloudcli-disable-self-update.mjs /tmp/patch-cloudcli-disable-self-update.mjs
+RUN npm i -g /tmp/vendor/cloudcli-ai-cloudcli.tgz && rm -f /tmp/vendor/cloudcli-ai-cloudcli.tgz
+COPY scripts/patch-cloudcli-apprise-notifications.mjs \
+     scripts/patch-cloudcli-codex-permissions.mjs \
+     scripts/patch-cloudcli-disable-self-update.mjs \
+     /tmp/
 COPY --chown=claude:claude scripts/patch-cloudcli-web-terminal-rendering.mjs /tmp/patch-cloudcli-web-terminal-rendering.mjs
 RUN touch /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/.env
 
 # patch: disable CloudCLI npm self-update inside HolyClaude (issue #50)
 RUN node /tmp/patch-cloudcli-disable-self-update.mjs && rm -f /tmp/patch-cloudcli-disable-self-update.mjs
 
-# CloudCLI 1.34.0 already contains the WebSocket binary-frame fix and the newer
-# provider model flow. Keep build-time checks so regressions fail closed.
+# CloudCLI 1.35.1 already contains the WebSocket binary-frame fix, provider model
+# command flow, and explicit Codex completion exitCode values. Keep build-time
+# checks so regressions fail closed.
 RUN CLOUDCLI_WS_PROXY="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/websocket/services/plugin-websocket-proxy.service.js" && \
     grep -q "binary: isBinary" "$CLOUDCLI_WS_PROXY" && \
     echo "[patch] WebSocket frame type fix already present upstream"
@@ -207,9 +209,6 @@ RUN node /tmp/patch-cloudcli-apprise-notifications.mjs && rm -f /tmp/patch-cloud
 
 # patch: configure Codex CloudCLI chat permission mode (issue #18)
 RUN node /tmp/patch-cloudcli-codex-permissions.mjs && rm -f /tmp/patch-cloudcli-codex-permissions.mjs
-
-# patch: include explicit Codex success exitCode in CloudCLI completion events (issue #19)
-RUN node /tmp/patch-cloudcli-codex-complete-exit-code.mjs && rm -f /tmp/patch-cloudcli-codex-complete-exit-code.mjs
 
 # ---------- CloudCLI plugins (baked into image) ----------
 USER claude

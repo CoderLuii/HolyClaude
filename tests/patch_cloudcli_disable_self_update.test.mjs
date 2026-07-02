@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-disable-self-update.mjs');
-const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.34.0.tgz');
+const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.35.1.tgz');
 
 const indexTargets = [
   'server/index.js',

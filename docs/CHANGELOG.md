@@ -4,6 +4,13 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.8] - 07/02/2026
+
+### Changed
+- Upgraded vendored `@cloudcli-ai/cloudcli` from 1.34.0 to 1.35.1.
+- Retargeted the Apprise notification patch to CloudCLI's refactored notification orchestrator service.
+- Removed the Docker build-time Codex `exitCode` patch now that upstream 1.35.1 includes the fix.
+
 ## [1.3.7] - 06/18/2026
 
 ### Added

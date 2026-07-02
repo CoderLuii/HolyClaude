@@ -3,13 +3,17 @@ import { existsSync, readFileSync, statSync, writeFileSync } from 'fs';
 const DEFAULT_CLOUDCLI_ROOT = '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli';
 const cliTarget = process.argv[2];
 const ERROR_MESSAGE = '[patch] ERROR: CloudCLI notification orchestrator anchors not found';
-const IMPORT_ANCHOR = "import { notificationPreferencesDb, pushSubscriptionsDb, sessionsDb } from '../modules/database/index.js';";
 const SPAWN_IMPORT = "import { spawn } from 'child_process';";
-const STOP_ANCHOR = "function notifyRunStopped({ userId, provider, sessionId = null, stopReason = 'completed', sessionName = null })";
-const FAILED_ANCHOR = "function notifyRunFailed({ userId, provider, sessionId = null, error, sessionName = null })";
+const STOP_ANCHOR = 'function notifyRunStopped({ userId, provider, sessionId = null, stopReason = \'completed\', sessionName = null })';
+const FAILED_ANCHOR = 'function notifyRunFailed({ userId, provider, sessionId = null, error, sessionName = null })';
 const HELPER_MARKER = "const APPRISE_PROVIDER_ALLOWLIST = new Set(['codex']);";
 const HELPER_NAME = 'sendAppriseLifecycleNotification';
 const SANITIZE_MARKER = "replace(/\\x00/g, '').replace(/\\s+/g, ' ')";
+
+const databaseImportAnchors = [
+  "import { notificationPreferencesDb, pushSubscriptionsDb, sessionsDb } from '@/modules/database/index.js';",
+  "import { notificationPreferencesDb, pushSubscriptionsDb, sessionsDb } from '../../../modules/database/index.js';"
+];
 
 const helperCode = `
 const APPRISE_PROVIDER_ALLOWLIST = new Set(['codex']);
@@ -96,17 +100,22 @@ function resolveTargets() {
 
   const root = cliTarget || DEFAULT_CLOUDCLI_ROOT;
   return [
-    { label: 'source', path: `${root}/server/services/notification-orchestrator.js` },
-    { label: 'runtime', path: `${root}/dist-server/server/services/notification-orchestrator.js` }
+    { label: 'source', path: `${root}/server/modules/notifications/services/notification-orchestrator.service.js` },
+    { label: 'runtime', path: `${root}/dist-server/server/modules/notifications/services/notification-orchestrator.service.js` }
   ].filter((target) => existsSync(target.path));
+}
+
+function findDatabaseImportAnchor(source) {
+  return databaseImportAnchors.find((anchor) => source.includes(anchor)) || null;
 }
 
 function patchTarget(target) {
   let source = readFileSync(target.path, 'utf8');
+  const importAnchor = findDatabaseImportAnchor(source);
 
-  const requiredAnchorsPresent = source.includes(STOP_ANCHOR)
-    && source.includes(FAILED_ANCHOR)
-    && source.includes(IMPORT_ANCHOR);
+  const requiredAnchorsPresent = importAnchor
+    && source.includes(STOP_ANCHOR)
+    && source.includes(FAILED_ANCHOR);
   if (!requiredAnchorsPresent) {
     console.error(ERROR_MESSAGE);
     process.exit(1);
@@ -127,7 +136,7 @@ function patchTarget(target) {
   }
 
   if (!source.includes(SPAWN_IMPORT)) {
-    source = source.replace(IMPORT_ANCHOR, `${SPAWN_IMPORT}\n${IMPORT_ANCHOR}`);
+    source = source.replace(importAnchor, `${SPAWN_IMPORT}\n${importAnchor}`);
   }
 
   if (!source.includes(HELPER_MARKER)) {

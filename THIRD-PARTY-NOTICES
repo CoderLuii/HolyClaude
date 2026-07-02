@@ -10,7 +10,7 @@ licensed under MIT (see LICENSE).
 - Copyright: CloudCLI UI Contributors
 - Homepage: https://cloudcli.ai
 - npm: https://www.npmjs.com/package/@cloudcli-ai/cloudcli
-- Version: 1.34.0, installed from HolyClaude's vendored source-release tarball
+- Version: 1.35.1, installed from HolyClaude's vendored source-release tarball
 
 CloudCLI is installed as a standalone program via npm and runs as an
 independent process managed by s6-overlay.
@@ -29,7 +29,7 @@ build.
   chat, including `default`, `acceptEdits`, and `bypassPermissions` modes.
 - Apprise notification bridge: sends CloudCLI Codex run completion and failure
   lifecycle events through HolyClaude's existing `/usr/local/bin/notify.py`
-  hook.
+  hook. Targets CloudCLI's notification orchestrator service introduced in 1.35.x.
 - Build-time upstream checks: verify CloudCLI's WebSocket binary-frame handling
   and provider model command flow are present in the compiled runtime.
 
