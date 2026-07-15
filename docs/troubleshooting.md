@@ -169,7 +169,7 @@ Then close and reopen the Web Terminal tab. This keeps the Docker image the same
 
 **Fix:** Ensure `shm_size: 2g` or higher in your docker-compose file. If running many concurrent tabs, increase to `4g`. If you still get an immediate SIGTRAP, re-check the browser build path before only raising shm.
 
-In `v1.4.9`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the browser baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
+In `v1.5.0`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
 
 ---
 

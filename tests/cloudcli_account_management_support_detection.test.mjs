@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const detectorScript = path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs');
-const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.1-holyclaude-account-management.tgz');
+const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz');
 
 async function runDetector(targetPath) {
   const { stdout } = await execFileAsync(process.execPath, [detectorScript, targetPath], { cwd: repoRoot });

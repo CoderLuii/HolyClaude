@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { lstatSync, readFileSync, readlinkSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -10,9 +10,12 @@ const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchDir = path.join(repoRoot, 'vendor/patches/cloudcli-account-management');
 const artifactDir = path.join(repoRoot, 'vendor/artifacts');
 const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
-const upstreamCommit = '5884573a6975f53381759a28280afd9c8bb332c4';
-const packageVersion = '1.36.1';
+const upstreamCommit = '615e2ca2926a68e6e3336d49b592616654a69424';
+const packageVersion = '1.36.2';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
+const expectedBuildImage = 'node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb';
+const expectedNode = 'v26.5.0';
+const expectedNpm = '11.17.0';
 
 const args = new Map();
 for (let index = 2; index < process.argv.length; index += 2) {
@@ -40,6 +43,10 @@ function sha256(filePath) {
   return createHash('sha256').update(readFileSync(filePath)).digest('hex');
 }
 
+function sha256Text(value) {
+  return createHash('sha256').update(value).digest('hex');
+}
+
 function collectFiles(root, prefix = '') {
   const entries = [];
   for (const entry of readdirSync(root, { withFileTypes: true })) {
@@ -52,6 +59,37 @@ function collectFiles(root, prefix = '') {
     }
   }
   return entries;
+}
+
+function hashFiles(root, files) {
+  const hash = createHash('sha256');
+  for (const file of [...files].sort()) {
+    const fullPath = path.join(root, file);
+    const entry = lstatSync(fullPath);
+    hash.update(file);
+    hash.update('\0');
+    if (entry.isSymbolicLink()) {
+      hash.update(`symlink:${readlinkSync(fullPath)}`);
+    } else if (entry.isDirectory()) {
+      hash.update(`gitlink:${runCapture('git', ['ls-files', '--stage', '--', file], { cwd: root })}`);
+    } else {
+      hash.update(readFileSync(fullPath));
+    }
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
+function normalizeDependencyTree(node) {
+  const dependencies = {};
+  for (const name of Object.keys(node.dependencies ?? {}).sort()) {
+    const dependency = node.dependencies[name];
+    dependencies[name] = {
+      version: dependency.version,
+      dependencies: normalizeDependencyTree(dependency).dependencies,
+    };
+  }
+  return { dependencies };
 }
 
 async function prepareSource(workdir) {
@@ -69,6 +107,15 @@ async function prepareSource(workdir) {
 
 const workdir = await mkdtemp(path.join(tmpdir(), 'holyclaude-cloudcli-account-'));
 try {
+  const buildImage = process.env.HOLYCLAUDE_CLOUDCLI_BUILD_IMAGE;
+  const actualNode = runCapture('node', ['--version']);
+  const actualNpm = runCapture('npm', ['--version']);
+  if (buildImage !== expectedBuildImage || actualNode !== expectedNode || actualNpm !== expectedNpm) {
+    throw new Error(
+      `Run scripts/build-cloudcli-account-management-artifact-container.mjs; expected ${expectedBuildImage}, ${expectedNode}, npm ${expectedNpm}, got ${buildImage ?? 'unknown image'}, ${actualNode}, npm ${actualNpm}`,
+    );
+  }
+
   await prepareSource(workdir);
   const actualCommit = sourceArg ? runCapture('git', ['rev-parse', 'HEAD'], { cwd: path.resolve(sourceArg) }) : upstreamCommit;
   if (actualCommit !== upstreamCommit) {
@@ -81,23 +128,56 @@ try {
 
   for (const patch of patches) {
     // The checked-in patch is whitespace-normalized so repo release checks stay clean.
-    // The upstream commit is verified above; use zero context so CloudCLI 1.36.1's
+    // The upstream commit is verified above; use zero context so CloudCLI's
     // whitespace-bearing blank lines do not force trailing whitespace into this repo.
     run('git', ['apply', '-C0', path.join(patchDir, patch)], { cwd: workdir });
   }
+
+  const trackedFiles = runCapture('git', ['ls-files', '-z'], { cwd: workdir })
+    .split('\0')
+    .filter(Boolean);
+  const sourceTreeHash = hashFiles(workdir, trackedFiles);
 
   run('npm', ['ci'], { cwd: workdir });
   run('npm', ['run', 'typecheck'], { cwd: workdir });
   run('npm', ['run', 'build'], { cwd: workdir });
   run('npm', ['run', 'lint'], { cwd: workdir });
+  run('npm', ['shrinkwrap', '--omit=dev'], { cwd: workdir });
 
-  const packOutput = runCapture('npm', ['pack', '--pack-destination', artifactDir], { cwd: workdir });
-  const generatedName = packOutput.split('\n').at(-1);
-  const generatedPath = path.join(artifactDir, generatedName);
+  const packDirs = [path.join(workdir, 'pack-a'), path.join(workdir, 'pack-b')];
+  for (const packDir of packDirs) {
+    await mkdir(packDir);
+  }
+  const packedPaths = packDirs.map((packDir) => {
+    const packOutput = runCapture('npm', ['pack', '--pack-destination', packDir], { cwd: workdir });
+    return path.join(packDir, packOutput.split('\n').at(-1));
+  });
+  if (sha256(packedPaths[0]) !== sha256(packedPaths[1])) {
+    throw new Error('Two clean npm pack runs produced different CloudCLI artifacts');
+  }
+
   const artifactPath = path.join(artifactDir, artifactFile);
   await rm(artifactPath, { force: true });
-  await cp(generatedPath, artifactPath);
-  await rm(generatedPath, { force: true });
+  await cp(packedPaths[0], artifactPath);
+
+  const dependencyTreeHashes = [];
+  for (const name of ['install-a', 'install-b']) {
+    const prefix = path.join(workdir, name);
+    const cache = path.join(workdir, `${name}-cache`);
+    await mkdir(prefix);
+    run('npm', ['install', '--global', '--prefix', prefix, artifactPath], {
+      cwd: workdir,
+      env: { ...process.env, npm_config_cache: cache },
+    });
+    const tree = JSON.parse(runCapture('npm', ['ls', '--global', '--all', '--json', '--prefix', prefix], {
+      cwd: workdir,
+      env: { ...process.env, npm_config_cache: cache },
+    }));
+    dependencyTreeHashes.push(sha256Text(JSON.stringify(normalizeDependencyTree(tree))));
+  }
+  if (dependencyTreeHashes[0] !== dependencyTreeHashes[1]) {
+    throw new Error('Two clean CloudCLI installations produced different production dependency trees');
+  }
 
   const unpackDir = path.join(workdir, 'pack-check');
   await mkdir(unpackDir);
@@ -117,17 +197,22 @@ try {
       license: 'AGPL-3.0-or-later',
     },
     build: {
-      node: runCapture('node', ['--version']),
-      npm: runCapture('npm', ['--version']),
-      commands: ['npm ci', 'npm run typecheck', 'npm run build', 'npm run lint', 'npm pack'],
-      generatedAt: '2026-07-09T00:00:00Z',
+      image: expectedBuildImage,
+      node: actualNode,
+      npm: actualNpm,
+      commands: ['npm ci', 'npm run typecheck', 'npm run build', 'npm run lint', 'npm shrinkwrap --omit=dev', 'npm pack (twice)', 'npm install -g (twice)'],
+      generatedAt: '2026-07-15T00:00:00Z',
       sourceDateNote: 'Timestamp is fixed in this manifest so reproducibility checks compare stable fields.',
+      sourceTreeSha256: sourceTreeHash,
     },
     artifact: {
       file: artifactFile,
       sha256: sha256(artifactPath),
       size: statSync(artifactPath).size,
       packageFileListSha256: fileListHash,
+      shrinkwrapSha256: sha256(path.join(workdir, 'npm-shrinkwrap.json')),
+      productionDependencyTreeSha256: dependencyTreeHashes[0],
+      duplicatePackSha256: sha256(packedPaths[1]),
     },
     patches: patches.map((patch) => ({ file: patch, sha256: sha256(path.join(patchDir, patch)) })),
     verification: {

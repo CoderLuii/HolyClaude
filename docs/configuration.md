@@ -256,7 +256,7 @@ security_opt:
   - seccomp=unconfined  # Current browser profile; hardening is a separate pass
 ```
 
-This is HolyClaude's retained browser profile for v1.4.9. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
+This is HolyClaude's retained browser profile for v1.5.0. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
 
 ---
 

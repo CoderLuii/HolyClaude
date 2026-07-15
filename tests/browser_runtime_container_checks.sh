@@ -93,6 +93,7 @@ const targets = [
   '/home/claude/.cache/ms-playwright',
   '/root/.cache/ms-playwright',
   '/ms-playwright',
+  '/usr/lib/chromium',
   '/usr/local/lib/node_modules/playwright',
   '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/playwright'
 ];
@@ -161,11 +162,32 @@ assert_runtime_identity() {
   require_eq "CHROME_PATH" "${CHROME_PATH:-}" "/usr/bin/chromium"
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
+  test -x /usr/lib/chromium/chromium
+  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "150.0.7871.114-1~deb12u1"
   local cloudcli_version
   local cloudcli_package_version
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   cloudcli_package_version="$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
-  require_eq "CloudCLI package version" "$cloudcli_package_version" "1.36.1"
+  require_eq "CloudCLI package version" "$cloudcli_package_version" "1.36.2"
+  require_eq "Node version" "$(node --version)" "v26.5.0"
+  require_eq "npm version" "$(npm --version)" "11.17.0"
+  require_eq "pnpm version" "$(pnpm --version)" "11.13.0"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.144.4"
+  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.50.0"
+  require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.6.2"
+  require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.0"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.210"
+  if [ "$VARIANT" = "full" ]; then
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.111.0"
+    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.1"
+    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.80.7"
+    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "2144.10"
+  else
+    test ! -e /usr/local/lib/node_modules/wrangler
+    test ! -e /usr/local/lib/node_modules/opencode-ai
+    test ! -e /usr/local/lib/node_modules/@earendil-works/pi-coding-agent
+    test ! -e /home/claude/.local/share/junie/current
+  fi
   evidence "variant=$VARIANT user=$(id -un)"
   evidence "chromium_path=/usr/bin/chromium chrome_path=$CHROME_PATH puppeteer_path=$PUPPETEER_EXECUTABLE_PATH"
   evidence "chromium_version=$(/usr/bin/chromium --version)"

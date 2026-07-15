@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.4.9"
+        default: "1.5.0"
         type: string
   push:
     tags:
@@ -24,6 +24,8 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
+  SYFT_VERSION: 1.46.0
+  GRYPE_VERSION: 0.115.0
 
 # Required repository secrets:
 # - DOCKERHUB_USERNAME: Docker Hub account that owns coderluii/holyclaude
@@ -91,6 +93,19 @@ jobs:
           sudo apt-get clean
           docker system prune -af --volumes
           df -h
+
+      - name: Provision full-image scanner swap
+        if: matrix.variant == 'full'
+        run: |
+          set -euo pipefail
+          swap_file=/holyclaude-scanner.swap
+          test ! -e "${swap_file}"
+          sudo fallocate -l 16G "${swap_file}"
+          sudo chmod 600 "${swap_file}"
+          sudo mkswap "${swap_file}"
+          sudo swapon "${swap_file}"
+          free -h
+          swapon --show --bytes | grep -F "${swap_file}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
@@ -224,6 +239,98 @@ jobs:
             --variant "${{ matrix.variant }}" \
             --expected-arch "${{ matrix.arch }}"
 
+      - name: Verify reproducible CloudCLI plugin installs
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bash tests/plugin_reproducibility_smoke.sh \
+            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}"
+
+      - name: Smoke non-root startup
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          bash tests/docker_rootless_smoke.sh \
+            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
+            "${{ matrix.variant }}-${{ matrix.arch }}"
+
+      - name: Install pinned security scanners
+        shell: bash
+        run: |
+          set -euo pipefail
+          scanner_arch="${{ matrix.arch }}"
+          install_scanner() {
+            local tool="$1"
+            local version="$2"
+            local archive="${tool}_${version}_linux_${scanner_arch}.tar.gz"
+            local base="https://github.com/anchore/${tool}/releases/download/v${version}"
+            curl -fsSLO "${base}/${archive}"
+            curl -fsSLO "${base}/${tool}_${version}_checksums.txt"
+            grep -F "  ${archive}" "${tool}_${version}_checksums.txt" | sha256sum -c -
+            tar -xzf "${archive}" -C /usr/local/bin "${tool}"
+            rm -f "${archive}" "${tool}_${version}_checksums.txt"
+          }
+          install_scanner syft "${SYFT_VERSION}"
+          install_scanner grype "${GRYPE_VERSION}"
+          syft version
+          grype version
+
+      - name: Generate digest-bound security evidence
+        shell: bash
+        env:
+          GOGC: "50"
+          GOMEMLIMIT: 8GiB
+        run: |
+          set -euo pipefail
+          evidence_dir="security-evidence/${{ matrix.variant }}-${{ matrix.arch }}"
+          image="${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}"
+          mkdir -p "${evidence_dir}"
+          syft "${image}" --parallelism 1 \
+            -o "cyclonedx-json=${evidence_dir}/sbom.cyclonedx.json" \
+            -o "spdx-json=${evidence_dir}/sbom.spdx.json"
+          grype "sbom:${evidence_dir}/sbom.cyclonedx.json" -o json > "${evidence_dir}/grype.json"
+          node scripts/evaluate-security-report.mjs \
+            --report "${evidence_dir}/grype.json" \
+            --ledger security/advisory-reviews.json \
+            --vex security/openvex.json \
+            --output-dir "${evidence_dir}" \
+            --variant "${{ matrix.variant }}" \
+            --arch "${{ matrix.arch }}"
+          EVIDENCE_DIR="${evidence_dir}" \
+          IMAGE="${image}" \
+          DOCKERHUB_DIGEST="${{ steps.digests.outputs.dockerhub_digest }}" \
+          GHCR_DIGEST="${{ steps.digests.outputs.ghcr_digest }}" \
+          VARIANT="${{ matrix.variant }}" \
+          ARCH="${{ matrix.arch }}" \
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ["EVIDENCE_DIR"])
+          with (root / "grype.json").open(encoding="utf-8") as handle:
+              report = json.load(handle)
+
+          with (root / "policy.json").open(encoding="utf-8") as handle:
+              policy = json.load(handle)
+
+          metadata = {
+              "variant": os.environ["VARIANT"],
+              "arch": os.environ["ARCH"],
+              "image": os.environ["IMAGE"],
+              "dockerhubDigest": os.environ["DOCKERHUB_DIGEST"],
+              "ghcrDigest": os.environ["GHCR_DIGEST"],
+              "rawCriticalCount": policy["rawCriticalCount"],
+              "effectiveCriticalCount": policy["effectiveCriticalCount"],
+              "rawHighCount": policy["rawHighCount"],
+              "mappedHighCount": policy["mappedHighCount"],
+          }
+          with (root / "metadata.json").open("w", encoding="utf-8") as handle:
+              json.dump(metadata, handle, indent=2, sort_keys=True)
+              handle.write("\n")
+          PY
+          (cd "${evidence_dir}" && sha256sum *.json > SHA256SUMS)
+
       - name: Smoke GHCR candidate digest
         timeout-minutes: 45
         run: |
@@ -269,6 +376,15 @@ jobs:
         with:
           name: candidate-evidence-${{ matrix.variant }}-${{ matrix.arch }}
           path: evidence/${{ matrix.variant }}-${{ matrix.arch }}.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload security evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: security-evidence-${{ matrix.variant }}-${{ matrix.arch }}
+          path: security-evidence/${{ matrix.variant }}-${{ matrix.arch }}
           if-no-files-found: error
           retention-days: 14
 

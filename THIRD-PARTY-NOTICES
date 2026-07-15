@@ -10,7 +10,7 @@ licensed under MIT (see LICENSE).
 - Copyright: CloudCLI UI Contributors
 - Homepage: https://cloudcli.ai
 - npm: https://www.npmjs.com/package/@cloudcli-ai/cloudcli
-- Version: 1.36.1, installed from HolyClaude's vendored source-release tarball
+- Version: 1.36.2, installed from HolyClaude's vendored source-release tarball
 
 CloudCLI is installed as a standalone program via npm and runs as an
 independent process managed by s6-overlay.
@@ -36,6 +36,8 @@ build.
   rotates the local password hash in place, and invalidates older REST, SSE,
   and WebSocket tokens after a password change until upstream CloudCLI ships
   equivalent support.
+- Node 26 lock correction: resolves `better-sqlite3` 12.11.1 inside
+  CloudCLI's declared dependency range before the vendored artifact is built.
 - Build-time upstream checks: verify CloudCLI's WebSocket binary-frame handling
   provider model command flow, Codex final exit codes, Apprise call sites, and
   Codex provider completion fields are present in the compiled runtime.
@@ -65,7 +67,28 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 
 - License: ISC
 - Source: https://github.com/just-containers/s6-overlay
-- Version: 3.2.3.0
+- Version: 3.2.3.1
+
+## fzf
+
+- License: MIT
+- Source: https://github.com/junegunn/fzf
+- Version: 0.74.0, installed from checksum-verified upstream archives
+
+## esbuild
+
+- License: MIT
+- Source: https://github.com/evanw/esbuild
+- Versions: 0.15.18, 0.18.20, and 0.25.12
+
+HolyClaude keeps the JavaScript package versions required by the bundled full-image tools, but rebuilds their native esbuild executables from the matching upstream tags with Go 1.26.5. This removes the older Go runtimes without changing the packages' JavaScript APIs.
+
+## Chromium
+
+- License: BSD-3-Clause and other open-source licenses listed by Chromium
+- Source: https://www.chromium.org/Home/
+- Debian source package: https://packages.debian.org/source/bookworm/chromium
+- Version: 150.0.7871.114-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 
@@ -107,7 +130,7 @@ create `.desloppify/`, or modify project files unless a user runs Desloppify.
 - License: MIT
 - Source: https://github.com/earendil-works/pi
 - npm: https://www.npmjs.com/package/@earendil-works/pi-coding-agent
-- Version: 0.80.6, installed in the full image only
+- Version: 0.80.7, installed in the full image only
 
 For a complete list of installed packages and their licenses, inspect the
 Docker image directly or refer to the Dockerfile.

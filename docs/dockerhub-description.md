@@ -44,7 +44,7 @@ That's it. Open your browser, sign in, start building.
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Chromium + Xvfb + Playwright 1.61.0, baked at build time with Playwright Chromium build 1228 for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 150.0.7871.114 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 
@@ -54,7 +54,7 @@ That's it. Open your browser, sign in, start building.
 
 🔎 **Desloppify included** — The `desloppify` CLI ships in both images. It is passive by default and only scans when you run it.
 
-⚙️ **s6-overlay 3.2.3.0** — Proper PID 1 process supervision with graceful shutdown and automatic service restarts
+⚙️ **s6-overlay 3.2.3.1** — Proper PID 1 process supervision with graceful shutdown and automatic service restarts
 
 🔒 **Security** — Docker UID/GID remapping via PUID/PGID, rootless Podman keep-id profile, no credential proxying, everything stays local
 

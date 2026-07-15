@@ -46,6 +46,14 @@ docker_cmd() {
   docker "$@"
 }
 
+docker_literal_cmd() {
+  if [ -n "${MSYSTEM:-}" ]; then
+    MSYS2_ARG_CONV_EXCL='*' docker "$@"
+  else
+    docker "$@"
+  fi
+}
+
 cleanup() {
   docker_cmd rm -f "$CONTAINER" >/dev/null 2>&1 || true
   rm -rf "$TMP_DIR"
@@ -113,9 +121,13 @@ else
   echo "browser-smoke: external_network=bridge_network_unavailable"
 fi
 
-docker_cmd cp "$HELPER" "$CONTAINER:/tmp/browser_runtime_container_checks.sh"
-docker_cmd exec "$CONTAINER" chmod 0755 /tmp/browser_runtime_container_checks.sh
-docker_cmd exec \
+HELPER_HOST_PATH="$HELPER"
+if command -v cygpath >/dev/null 2>&1; then
+  HELPER_HOST_PATH="$(cygpath -w "$HELPER")"
+fi
+docker_literal_cmd cp "$HELPER_HOST_PATH" "$CONTAINER:/tmp/browser_runtime_container_checks.sh"
+docker_literal_cmd exec "$CONTAINER" chmod 0755 /tmp/browser_runtime_container_checks.sh
+docker_literal_cmd exec \
   -u claude \
   -e HOLYCLAUDE_BROWSER_SMOKE_VARIANT="$VARIANT" \
   "$CONTAINER" \

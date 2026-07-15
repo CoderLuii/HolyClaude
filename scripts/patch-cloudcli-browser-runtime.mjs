@@ -5,6 +5,8 @@ const CLOUDCLI_ROOT = process.argv[2] || DEFAULT_CLOUDCLI_ROOT;
 const ERROR_MESSAGE = '[patch] ERROR: CloudCLI browser runtime anchors not found';
 const PATCH_MARKER = '// HolyClaude canonical browser runtime';
 const EXECUTABLE_PATH_FIELD = 'executablePath: process.env.CHROME_PATH,';
+const READINESS_ANCHOR = 'const executablePath = playwright.chromium.executablePath();';
+const READINESS_FIELD = 'const executablePath = process.env.CHROME_PATH || playwright.chromium.executablePath();';
 
 const targets = [
   {
@@ -55,19 +57,35 @@ function patchTarget(target) {
 
   const markerCount = countOccurrences(source, PATCH_MARKER);
   const fieldCount = countOccurrences(source, EXECUTABLE_PATH_FIELD);
-  if (markerCount === 1 && fieldCount === 1 && source.includes(patchedAnchor)) {
+  const readinessFieldCount = countOccurrences(source, READINESS_FIELD);
+  if (
+    markerCount === 1
+    && fieldCount === 1
+    && readinessFieldCount === 1
+    && source.includes(patchedAnchor)
+  ) {
     console.log(`[patch] CloudCLI browser runtime already patched (${target.label})`);
     return;
   }
 
-  if (markerCount !== 0 || fieldCount !== 0 || countOccurrences(source, launchAnchor) !== 1) {
+  if (
+    markerCount !== 0
+    || fieldCount !== 0
+    || readinessFieldCount !== 0
+    || countOccurrences(source, launchAnchor) !== 1
+    || countOccurrences(source, READINESS_ANCHOR) !== 1
+  ) {
     fail();
   }
 
-  source = source.replace(launchAnchor, patchedAnchor);
+  source = source
+    .replace(launchAnchor, patchedAnchor)
+    .replace(READINESS_ANCHOR, READINESS_FIELD);
   if (
     countOccurrences(source, PATCH_MARKER) !== 1
     || countOccurrences(source, EXECUTABLE_PATH_FIELD) !== 1
+    || countOccurrences(source, READINESS_FIELD) !== 1
+    || countOccurrences(source, READINESS_ANCHOR) !== 0
     || !source.includes(patchedAnchor)
   ) {
     fail();

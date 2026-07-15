@@ -1,0 +1,105 @@
+schema-version: 1
+release: v1.5.0
+reviewed-at: 2026-07-15
+expires-at: 2026-08-14
+
+base-images:
+  - name: Go esbuild builder
+    reference: golang:1.26.5-bookworm
+    digest: sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651
+    status: added
+  - name: HolyClaude runtime
+    reference: node:26.5.0-bookworm-slim
+    digest: sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
+    status: refreshed
+
+release-assets:
+  - name: s6-overlay
+    version: 3.2.3.1
+    verification: official per-asset sha256 files
+    status: updated
+  - name: fzf
+    version: 0.74.0
+    verification: official release checksum list
+    status: updated
+
+installers:
+  - name: Claude Code
+    version: 2.1.210
+    installer-sha256: b3f79015b54c751440a6488f07b1b64f9088742b9052bc1bd356d13108320d2a
+    amd64-output-sha256: e7d2ceb53ed4c2ced1fe7fc1c6331c98dc5f7b4c9b2722d9c5fa3dd5dff6f719
+    arm64-output-sha256: 84feb193c1d91f3b5eba836ed47c0e4dee953195abba950917c3e101eff174e8
+    status: pinned
+  - name: Junie
+    version: "2144.10"
+    installer-sha256: a56dcb1ffdcb0f3b7a61fbfa16bdd08635e654ebbcd2315120c16f2ee61fa12b
+    amd64-archive-sha256: c5bbf8adc4c8c0aae0ea1ffda72654dc2f0c590ae276ddc0f336983cb5947eff
+    arm64-archive-sha256: 64d6be41e15e12503ebc113eb580e4fed59f44f3fcdfa7e4f7f771a6900b9443
+    status: pinned
+  - name: Cursor CLI
+    build-id: 2026.07.09-a3815c0
+    installer-sha256: 3dcefacb00a72c4f39958e836e2467ec74476c22d484f1879bd61fc072f72cce
+    launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
+    amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
+    arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
+    status: retained
+  - name: Azure CLI apt bootstrap
+    version: 2.88.0-1~bookworm
+    installer-sha256: 01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
+    status: pinned
+  - name: GitHub CLI apt repository
+    version: 2.96.0
+    keyring-sha256: 6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b
+    status: pinned
+
+vendored-artifacts:
+  - name: CloudCLI HolyClaude account-management artifact
+    version: 1.36.2
+    manifest: vendor/artifacts/cloudcli-account-management.manifest.json
+    sha256: 8e5add4bd93ca1a94a824a850e6192c80f8b8fcb1c2223048c263497f658d04c
+    status: updated
+
+plugins:
+  - name: Project Stats
+    repository: https://github.com/cloudcli-ai/cloudcli-plugin-starter
+    commit: 4895cd3fd33362471e739b786493aba048487bcc
+    install: npm ci using committed upstream lock
+    status: retained
+  - name: Web Terminal
+    repository: https://github.com/cloudcli-ai/cloudcli-plugin-terminal
+    commit: 8aa41f614c216d961e7c0d9c3e67982c6b2d9da3
+    lock: vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json
+    install: npm ci
+    status: retained
+
+github-actions:
+  - name: actions/checkout
+    version: v7.0.0
+    commit: 9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+  - name: actions/upload-artifact
+    version: v7.0.1
+    commit: 043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+  - name: actions/download-artifact
+    version: v8.0.1
+    commit: 3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+  - name: docker/setup-buildx-action
+    version: v4.2.0
+    commit: bb05f3f5519dd87d3ba754cc423b652a5edd6d2c
+  - name: docker/login-action
+    version: v4.4.0
+    commit: af1e73f918a031802d376d3c8bbc3fe56130a9b0
+  - name: docker/build-push-action
+    version: v7.3.0
+    commit: 53b7df96c91f9c12dcc8a07bcb9ccacbed38856a
+  - name: peter-evans/dockerhub-description
+    version: v5.0.0
+    commit: 1b9a80c056b620d92cedb9d9b5a223409c68ddfa
+
+deferred-migrations:
+  - npm 12
+  - TypeScript 7
+  - Vercel 56
+  - EAS 21
+  - Debian 13
+  - OpenNext
+  - embedded OCI attestations

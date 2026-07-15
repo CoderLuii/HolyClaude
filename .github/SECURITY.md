@@ -60,7 +60,15 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.4.9 vendors CloudCLI `1.36.1`.
+HolyClaude v1.5.0 vendors CloudCLI `1.36.2`. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+
+## Release Evidence
+
+The release gate keeps the original Grype report and then evaluates every raw Critical match against [`security/advisory-reviews.json`](../security/advisory-reviews.json). Reviews must identify the exact vulnerability, package, version, type, and installed path. They also need a supported authority and an unexpired review date. Missing, duplicate, broad, or expired matches stop the release.
+
+[`security/openvex.json`](../security/openvex.json) is limited to findings where the affected code is absent or outside HolyClaude's shipped service paths. Vendor severity corrections stay in the review ledger instead of being presented as VEX. Effective Critical findings cannot be accepted. A temporary effective High exception requires `CoderLuii` approval, names the exact component, and expires within 30 days.
+
+The workflow publishes the raw SBOMs and scanner report beside the reviewed Critical report, mapped High report, OpenVEX document, policy result, and image digest metadata. This means the evidence remains inspectable without changing the two-platform Docker manifest.
 
 ## Credential Storage
 

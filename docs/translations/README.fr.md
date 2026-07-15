@@ -299,7 +299,7 @@ Ouvrez `http://localhost:3001`. Créez un compte CloudCLI. Connectez-vous avec v
 
 **C'est toute la configuration. Vous avez terminé.**
 
-> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.4.9 et traitez le durcissement comme un changement séparé.
+> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.0 et traitez le durcissement comme un changement séparé.
 
 > **Pourquoi `shm_size: 2g` ?** Docker alloue 64 Mo de mémoire partagée aux conteneurs par défaut. HolyClaude conserve 2 Go comme valeur par défaut retenue pour cette version parce que Chromium utilise beaucoup `/dev/shm` pour le rendu des onglets. À 64 Mo, les onglets plantent ; si l'usage navigateur est intensif, montez à 4 Go.
 

@@ -299,7 +299,7 @@ docker compose up -d
 
 **Das ist das gesamte Setup. Du bist fertig.**
 
-> **Warum diese Browser-Rechte?** Diese Version behält HolyClaudes aktuelles Browser-Profil bei. `SYS_ADMIN` und `seccomp=unconfined` erweitern Prozessrechte und verringern die Isolation; `SYS_PTRACE` dient dem Debugging. Lass dieses Profil für v1.4.9 unverändert und behandle Hardening als separaten Schritt.
+> **Warum diese Browser-Rechte?** Diese Version behält HolyClaudes aktuelles Browser-Profil bei. `SYS_ADMIN` und `seccomp=unconfined` erweitern Prozessrechte und verringern die Isolation; `SYS_PTRACE` dient dem Debugging. Lass dieses Profil für v1.5.0 unverändert und behandle Hardening als separaten Schritt.
 
 > **Warum `shm_size: 2g`?** Docker gibt Containern standardmäßig 64 MB Shared Memory. HolyClaude behält 2 GB als beibehaltenen Standard für diese Version bei, weil Chromium `/dev/shm` stark für das Tab-Rendering nutzt. Bei 64 MB brechen Tabs; bei intensivem Browser-Einsatz auf 4 GB erhöhen.
 

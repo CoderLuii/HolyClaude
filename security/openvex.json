@@ -1,0 +1,73 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "urn:holyclaude:openvex:v1.5.0",
+  "author": "CoderLuii",
+  "timestamp": "2026-07-15T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {
+      "@id": "urn:holyclaude:vex:zlib-cve-2023-45853",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2023-45853", "name": "CVE-2023-45853"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Debian does not build the affected contrib/minizip code in the zlib binary packages present in HolyClaude."
+    },
+    {
+      "@id": "urn:holyclaude:vex:mbedtls-cve-2025-47917",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-47917", "name": "CVE-2025-47917"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "HolyClaude services do not call the affected X.509 writing API, and the vendor states internal uses are not affected."
+    },
+    {
+      "@id": "urn:holyclaude:vex:cursor-node-cve-2025-55130",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-55130", "name": "CVE-2025-55130"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The pinned Cursor launcher does not enable Node's experimental Permission Model."
+    },
+    {
+      "@id": "urn:holyclaude:vex:perl-cve-2026-12087",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-12087", "name": "CVE-2026-12087"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "No shipped service calls Perl Socket pack_ip_mreq_source; Perl is available only to explicit developer workloads."
+    },
+    {
+      "@id": "urn:holyclaude:vex:perl-cve-2026-13221",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-13221", "name": "CVE-2026-13221"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "No shipped service evaluates attacker-controlled Perl regular expressions; Perl is available only to explicit developer workloads."
+    },
+    {
+      "@id": "urn:holyclaude:vex:openexr-cve-2026-42216",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-42216", "name": "CVE-2026-42216"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "No shipped HolyClaude service parses EXR IDManifest data."
+    },
+    {
+      "@id": "urn:holyclaude:vex:openexr-cve-2026-42217",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-42217", "name": "CVE-2026-42217"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "No shipped HolyClaude service parses attacker-controlled EXR scanline data."
+    },
+    {
+      "@id": "urn:holyclaude:vex:perl-cve-2026-57433",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-57433", "name": "CVE-2026-57433"},
+      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.0?variant=slim"}],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "No shipped service deserializes attacker-controlled Perl Storable data; Perl is available only to explicit developer workloads."
+    }
+  ]
+}

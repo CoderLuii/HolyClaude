@@ -4,6 +4,32 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 07/15/2026
+
+### Changed
+- Updated s6-overlay to 3.2.3.1 and replaced Debian's fzf package with checksum-verified fzf 0.74.0 archives for `amd64` and `arm64`.
+- Updated pnpm to 11.13.0, Wrangler to 4.111.0, Codex to 0.144.4, OpenCode to 1.18.1, and Pi Coding Agent to 0.80.7. Kept tree-sitter-language-pack at 1.6.2 because the next published version is outside Desloppify 1.0's supported range.
+- Pinned Claude Code to 2.1.210 and Junie to 2144.10. The build now verifies their installers and architecture-specific release payloads.
+- Locked the current Cursor installer, embedded build ID, launcher, and architecture-specific Node binary instead of relying on an unsupported version argument.
+- Updated the vendored CloudCLI baseline to 1.36.2 and refreshed `better-sqlite3` to 12.11.1 for the exact HolyClaude Node 26 build.
+- Added a reviewed Web Terminal lock and switched both bundled CloudCLI plugins to clean `npm ci` installs.
+- Added digest-bound CycloneDX, SPDX, and Grype evidence for every release candidate while keeping the final image indexes limited to `amd64` and `arm64`.
+- Kept Playwright aligned at 1.61.0 for Node and Python while switching both bindings to the pinned Debian Chromium 150.0.7871.114 Bookworm security build.
+- Pinned the Azure CLI installer and package result, the GitHub CLI repository key and package version, and the release-critical build inputs recorded in `security/immutable-inputs.yml`.
+
+### Fixed
+- Made the CloudCLI source artifact reproducible under the exact HolyClaude Node image and npm version, including duplicate package and clean-install dependency-tree checks.
+- Verified official checksums before extracting s6-overlay, fzf, Claude Code, and Junie release inputs.
+- Removed the separate Playwright browser download and made direct Chromium, both Playwright bindings, and CloudCLI Browser Use share the same verified system browser.
+- Rebuilt the three esbuild native binaries retained by the full toolset from their existing package versions with Go 1.26.5, removing vulnerable old Go runtimes without changing their JavaScript APIs.
+- Made full-image SBOM generation memory-bounded and provisioned dedicated scanner swap without colliding with the runner-managed `/swapfile`.
+- Clarified that `better-sqlite3` 12.11.1 is verified by HolyClaude's exact Node 26 build and native database smoke even though its upstream engine metadata currently lists Node through 25.
+
+### Security
+- Added a fail-closed advisory-review gate. Every raw Critical scanner match must resolve to one exact, current review; effective Critical findings still block release.
+- Added scoped OpenVEX statements only for demonstrably unaffected code paths, plus mapped High evidence with package, version, location, owner, fix availability, and follow-up fields.
+- Added an exact, expiring Debian vendor-severity review for `CVE-2026-7598` against `libssh2-1 1.10.0-3+b1`. Debian classifies the Bookworm finding as a Minor issue.
+
 ## [1.4.9] - 07/13/2026
 
 ### Changed

@@ -1,18 +1,10 @@
 #!/bin/sh
 set -eu
 
-BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/ms-playwright}"
-BROWSER_BIN=""
+BROWSER_BIN="${HOLYCLAUDE_CHROMIUM_BINARY:-/usr/lib/chromium/chromium}"
 
-for candidate in "$BROWSERS_PATH"/chromium-*/chrome-linux*/chrome; do
-    if [ -x "$candidate" ]; then
-        BROWSER_BIN="$candidate"
-        break
-    fi
-done
-
-if [ -z "$BROWSER_BIN" ]; then
-    echo "holyclaude-chromium: Playwright Chromium executable not found under $BROWSERS_PATH/chromium-*/chrome-linux*/chrome" >&2
+if [ ! -x "$BROWSER_BIN" ]; then
+    echo "holyclaude-chromium: Debian Chromium executable not found at $BROWSER_BIN" >&2
     exit 127
 fi
 

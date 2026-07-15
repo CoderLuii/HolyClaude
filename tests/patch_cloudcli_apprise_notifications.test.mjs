@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-apprise-notifications.mjs');
-const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.1-holyclaude-account-management.tgz');
+const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz');
 
 const notificationTargets = [
   'server/modules/notifications/services/notification-orchestrator.service.js',

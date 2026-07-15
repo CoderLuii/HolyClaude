@@ -299,7 +299,7 @@ Abra `http://localhost:3001`. Crie uma conta CloudCLI. Entre com sua conta Anthr
 
 **Essa é toda a configuração. Você terminou.**
 
-> **Por que estas capacidades do navegador?** Esta versão mantém o perfil atual de navegador do HolyClaude. `SYS_ADMIN` e `seccomp=unconfined` ampliam privilégios de processo e reduzem o isolamento; `SYS_PTRACE` é para depuração. Mantenha esse perfil como está para a v1.4.9 e trate o hardening como uma mudança separada.
+> **Por que estas capacidades do navegador?** Esta versão mantém o perfil atual de navegador do HolyClaude. `SYS_ADMIN` e `seccomp=unconfined` ampliam privilégios de processo e reduzem o isolamento; `SYS_PTRACE` é para depuração. Mantenha esse perfil como está para a v1.5.0 e trate o hardening como uma mudança separada.
 
 > **Por que `shm_size: 2g`?** O Docker dá aos containers 64MB de memória compartilhada por padrão. O HolyClaude mantém 2GB como o padrão retido para esta versão porque o Chromium usa muito `/dev/shm` para renderização de abas. Com 64MB, as abas travam; se usar muito o navegador, suba para 4GB.
 

@@ -65,11 +65,11 @@ is_read_only_mount_path() {
 }
 
 disable_sshd_service() {
-    rm -f /etc/s6-overlay/s6-rc.d/user/contents.d/sshd 2>/dev/null || true
+    rm -f /etc/s6-overlay/user-bundles.d/user/contents.d/sshd 2>/dev/null || true
 }
 
 configure_remote_shell() {
-    SSHD_MARKER="/etc/s6-overlay/s6-rc.d/user/contents.d/sshd"
+    SSHD_MARKER="/etc/s6-overlay/user-bundles.d/user/contents.d/sshd"
     MOSH_ENV="/run/holyclaude-ssh/mosh.env"
     SSH_AUTH_KEYS_DIR="/etc/ssh/authorized_keys"
     SSH_AUTH_KEYS_TARGET="$SSH_AUTH_KEYS_DIR/claude"

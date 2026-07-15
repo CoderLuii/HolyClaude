@@ -138,16 +138,22 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 
 ### Browser Runtime
 
-v1.4.9 keeps the browser stack baked at build time:
+v1.5.0 keeps the browser stack baked at build time:
 
 - Playwright 1.61.0 is installed for both Node and Python
-- Playwright Chromium build 1228 is installed in both image variants for `amd64` and `arm64`
+- Debian Chromium 150.0.7871.114 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
 - `/usr/bin/chromium` remains the supported wrapper, and `CHROME_PATH` / `PUPPETEER_EXECUTABLE_PATH` still point there
-- HolyClaude patches CloudCLI Browser Use to launch that same wrapper instead of Playwright's optional headless-shell binary
+- Node Playwright, Python Playwright, and CloudCLI Browser Use launch that same wrapper instead of downloading a separate browser
 - There is no runtime browser download
 - Lighthouse ships in the full image only
 
-Earlier 1.4.7 passed native `amd64` and `arm64` browser runs, but the apt Chromium package was still unpinned. v1.4.8 removes that moving target.
+Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to its installer hash and embedded build output, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.0 and expires the review instead of letting it silently age.
+
+CloudCLI 1.36.2 is built inside the exact Node 26.5.0 image with npm 11.17.0; two package runs and two clean global installs must agree before its vendored artifact is accepted. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5.
+
+Each full/slim and `amd64`/`arm64` candidate produces digest-bound CycloneDX, SPDX, and Grype files. The release evaluator requires every raw Critical match to resolve to exactly one current component review. OpenVEX is reserved for demonstrably unaffected code paths; vendor severity corrections stay in the review ledger. The raw reports, reviewed findings, mapped High findings, VEX, policy result, and digest metadata are uploaded as separate evidence so the published image index still contains exactly the two runtime platforms.
+
+Earlier 1.4.7 passed native `amd64` and `arm64` browser runs with an unpinned apt package, and v1.4.8 moved to Playwright's packaged browser. v1.5.0 returns to Debian's browser only with the exact Bookworm security version pinned and checked during the build.
 
 ### Optional SSH Service
 

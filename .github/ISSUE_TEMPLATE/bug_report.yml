@@ -21,7 +21,7 @@ body:
     id: version
     attributes:
       label: Image Tag / Version
-      description: "e.g. latest, slim, 1.4.9"
+      description: "e.g. latest, slim, 1.5.0"
       placeholder: "latest"
     validations:
       required: true

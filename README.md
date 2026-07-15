@@ -45,7 +45,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.4.9, the base moves to Node 26.5.0 and the compatible CLI, npm, and Python package set is refreshed. Playwright stays aligned at 1.61.0 for Node and Python with Chromium build 1228 baked into the image. There is no runtime browser download.
+In v1.5.0, the compatible CLI and runtime set is refreshed without changing ports, volumes, variants, or Compose usage. CloudCLI moves to 1.36.2 with a reproducible Node 26 build, s6-overlay moves to 3.2.3.1, and fzf now comes from its checksum-verified upstream release. Playwright stays aligned at 1.61.0 for Node and Python, while both bindings launch the pinned Debian Chromium 150.0.7871.114 security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
 
 So you start installing things. One by one. Then Chromium won't launch because Docker's shared memory is 64MB. Then Xvfb isn't configured. Then the UID inside the container doesn't match your host and everything is permission denied. Then you realize Claude Code's installer hangs when WORKDIR is root-owned. Then SQLite locks on your NAS mount. Then—
 
@@ -1126,7 +1126,7 @@ docker compose pull && docker compose up -d
 To pin a specific version instead of `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.4.9   # instead of :latest
+image: coderluii/holyclaude:1.5.0   # instead of :latest
 ```
 
 <p align="right">

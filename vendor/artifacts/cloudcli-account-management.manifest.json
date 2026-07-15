@@ -3,34 +3,45 @@
   "state": "holyclaude-bridge-complete",
   "upstream": {
     "repository": "https://github.com/siteboon/claudecodeui.git",
-    "commit": "5884573a6975f53381759a28280afd9c8bb332c4",
+    "commit": "615e2ca2926a68e6e3336d49b592616654a69424",
     "package": "@cloudcli-ai/cloudcli",
-    "version": "1.36.1",
+    "version": "1.36.2",
     "license": "AGPL-3.0-or-later"
   },
   "build": {
-    "node": "v24.18.0",
-    "npm": "11.16.0",
+    "image": "node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb",
+    "node": "v26.5.0",
+    "npm": "11.17.0",
     "commands": [
       "npm ci",
       "npm run typecheck",
       "npm run build",
       "npm run lint",
-      "npm pack"
+      "npm shrinkwrap --omit=dev",
+      "npm pack (twice)",
+      "npm install -g (twice)"
     ],
-    "generatedAt": "2026-07-09T00:00:00Z",
-    "sourceDateNote": "Timestamp is fixed in this manifest so reproducibility checks compare stable fields."
+    "generatedAt": "2026-07-15T00:00:00Z",
+    "sourceDateNote": "Timestamp is fixed in this manifest so reproducibility checks compare stable fields.",
+    "sourceTreeSha256": "765defe67abbe261a761aa3da00a1c80f4c2a533b2fd5405afb0368a99042af2"
   },
   "artifact": {
-    "file": "cloudcli-ai-cloudcli-1.36.1-holyclaude-account-management.tgz",
-    "sha256": "9e702624549e28ec20b4b1805ca70225e677f356b796a247c241e3bbcac7ef66",
-    "size": 4299848,
-    "packageFileListSha256": "2a7dec5bcc8bd261eb4fd911458617be0b00cd2e9157c056a41fc97f5118c32b"
+    "file": "cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz",
+    "sha256": "8e5add4bd93ca1a94a824a850e6192c80f8b8fcb1c2223048c263497f658d04c",
+    "size": 4489320,
+    "packageFileListSha256": "cebac6bbc2330e1f930fa8dc151d55ca3aca4684ef8e260671d78d0f98a2348c",
+    "shrinkwrapSha256": "c6144d9d2e1ddf49e8ac4076b7da6c068bd451731bfb91075ee271455be1084a",
+    "productionDependencyTreeSha256": "268e7149a8a1bf61661c4c7e13694f1e4b7d67c5529d9b1ebe6293de5d21a88d",
+    "duplicatePackSha256": "8e5add4bd93ca1a94a824a850e6192c80f8b8fcb1c2223048c263497f658d04c"
   },
   "patches": [
     {
       "file": "0001-local-account-management.patch",
       "sha256": "b0c2c2ff026654e8c40e312a1f49a27ee63ab1169ad25e71a500ad9617360722"
+    },
+    {
+      "file": "0002-node26-better-sqlite3-lock.patch",
+      "sha256": "e09d1139d0a9f54905027ea45a615694f2d58cd00d8cac1307231c4018d5d9fa"
     }
   ],
   "verification": {

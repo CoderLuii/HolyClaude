@@ -11,7 +11,7 @@ const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-base-path.mjs');
 const disableSelfUpdateScript = path.join(repoRoot, 'scripts/patch-cloudcli-disable-self-update.mjs');
-const cloudCliArtifact = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.1-holyclaude-account-management.tgz');
+const cloudCliArtifact = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz');
 
 async function createPackageFixture() {
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-base-path-'));

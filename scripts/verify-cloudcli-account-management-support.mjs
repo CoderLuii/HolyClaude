@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 
 const DEFAULT_CLOUDCLI_ROOT = '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli';
 const inputPath = process.argv[2] || DEFAULT_CLOUDCLI_ROOT;
-const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1']);
+const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2']);
 
 let cleanupPath = null;
 

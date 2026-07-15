@@ -51,10 +51,18 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
 
   assert.equal(manifest.bridge, 'cloudcli-account-management');
   assert.equal(manifest.state, 'holyclaude-bridge-complete');
-  assert.equal(manifest.upstream.version, '1.36.1');
+  assert.equal(manifest.upstream.version, '1.36.2');
+  assert.equal(manifest.build.node, 'v26.5.0');
+  assert.equal(manifest.build.npm, '11.17.0');
+  assert.match(manifest.build.image, /^node:26\.5\.0-bookworm-slim@sha256:[0-9a-f]{64}$/);
+  assert.match(manifest.artifact.shrinkwrapSha256, /^[0-9a-f]{64}$/);
+  assert.match(manifest.artifact.productionDependencyTreeSha256, /^[0-9a-f]{64}$/);
+  assert.equal(manifest.artifact.duplicatePackSha256, manifest.artifact.sha256);
   assert.equal(sha256(artifactBuffer), manifest.artifact.sha256);
 
   const cloudcliRoot = await unpackArtifact(artifactPath);
+  const shrinkwrap = JSON.parse(await readFile(path.join(cloudcliRoot, 'npm-shrinkwrap.json'), 'utf8'));
+  assert.equal(shrinkwrap.packages['node_modules/better-sqlite3'].version, '12.11.1');
   const packageFileListSha256 = createHash('sha256')
     .update((await collectFiles(cloudcliRoot)).sort().join('\n'))
     .digest('hex');

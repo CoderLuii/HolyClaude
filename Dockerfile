@@ -7,12 +7,42 @@
 #   docker build --build-arg VARIANT=slim -t holyclaude:slim .
 # ==============================================================================
 
-FROM node:26.5.0-bookworm-slim@sha256:e999d087492c7227c85adc70574cf9d3cce774c3e6d7b8dfe473ee6b142c8f2c
+FROM golang:1.26.5-bookworm@sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651 AS esbuild-builder
+
+ARG TARGETARCH
+RUN set -eux; \
+    for ESBUILD_VERSION in 0.15.18 0.18.20 0.25.12; do \
+      mkdir -p "/out/${ESBUILD_VERSION}"; \
+      CGO_ENABLED=0 GOOS=linux GOARCH="$TARGETARCH" GOBIN="/out/${ESBUILD_VERSION}" \
+        go install "github.com/evanw/esbuild/cmd/esbuild@v${ESBUILD_VERSION}"; \
+      test "$("/out/${ESBUILD_VERSION}/esbuild" --version)" = "$ESBUILD_VERSION"; \
+    done
+
+FROM node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
 
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 
 # ---------- Build args ----------
-ARG S6_OVERLAY_VERSION=3.2.3.0
+ARG S6_OVERLAY_VERSION=3.2.3.1
+ARG FZF_VERSION=0.74.0
+ARG CHROMIUM_DEBIAN_VERSION=150.0.7871.114-1~deb12u1
+ARG CLAUDE_CODE_VERSION=2.1.210
+ARG CLAUDE_INSTALLER_SHA256=b3f79015b54c751440a6488f07b1b64f9088742b9052bc1bd356d13108320d2a
+ARG CLAUDE_BINARY_SHA256_AMD64=e7d2ceb53ed4c2ced1fe7fc1c6331c98dc5f7b4c9b2722d9c5fa3dd5dff6f719
+ARG CLAUDE_BINARY_SHA256_ARM64=84feb193c1d91f3b5eba836ed47c0e4dee953195abba950917c3e101eff174e8
+ARG JUNIE_VERSION=2144.10
+ARG JUNIE_INSTALLER_SHA256=a56dcb1ffdcb0f3b7a61fbfa16bdd08635e654ebbcd2315120c16f2ee61fa12b
+ARG JUNIE_ARCHIVE_SHA256_AMD64=c5bbf8adc4c8c0aae0ea1ffda72654dc2f0c590ae276ddc0f336983cb5947eff
+ARG JUNIE_ARCHIVE_SHA256_ARM64=64d6be41e15e12503ebc113eb580e4fed59f44f3fcdfa7e4f7f771a6900b9443
+ARG CURSOR_BUILD_ID=2026.07.09-a3815c0
+ARG CURSOR_INSTALLER_SHA256=3dcefacb00a72c4f39958e836e2467ec74476c22d484f1879bd61fc072f72cce
+ARG CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
+ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
+ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
+ARG AZURE_CLI_VERSION=2.88.0-1~bookworm
+ARG AZURE_CLI_INSTALLER_SHA256=01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
+ARG GITHUB_CLI_VERSION=2.96.0
+ARG GITHUB_CLI_KEYRING_SHA256=6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b
 ARG TARGETARCH
 ARG VARIANT=full
 
@@ -25,26 +55,30 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage" \
     CHROME_PATH=/usr/bin/chromium \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
     NODE_PATH=/usr/local/lib/node_modules
 
 # ---------- s6-overlay v3 (multi-arch) ----------
 RUN apt-get update && apt-get install -y --no-install-recommends xz-utils curl ca-certificates && rm -rf /var/lib/apt/lists/*
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp/
 RUN S6_ARCH=$(case "$TARGETARCH" in arm64) echo "aarch64";; *) echo "x86_64";; esac) && \
-    curl -fsSL -o /tmp/s6-overlay-arch.tar.xz \
-      "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz" && \
+    for S6_ASSET in noarch "$S6_ARCH"; do \
+      curl -fsSL -o "/tmp/s6-overlay-${S6_ASSET}.tar.xz" \
+        "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ASSET}.tar.xz"; \
+      curl -fsSL -o "/tmp/s6-overlay-${S6_ASSET}.tar.xz.sha256" \
+        "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ASSET}.tar.xz.sha256"; \
+      (cd /tmp && sha256sum -c "s6-overlay-${S6_ASSET}.tar.xz.sha256"); \
+    done && \
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
-    tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz && \
-    rm /tmp/s6-overlay-*.tar.xz
+    tar -C / -Jxpf "/tmp/s6-overlay-${S6_ARCH}.tar.xz" && \
+    rm /tmp/s6-overlay-*.tar.xz /tmp/s6-overlay-*.tar.xz.sha256
 
 # ---------- System packages (always installed) ----------
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core utilities
-    git curl wget jq ripgrep fd-find unzip zip tree tmux fzf bat bubblewrap \
+    git curl wget jq ripgrep fd-find unzip zip tree tmux bat bubblewrap \
     # Build tools
     build-essential pkg-config python3 python3-pip python3-venv \
-    # Browser runtime dependencies are installed by Playwright below.
+    # Browser runtime, pinned to the Bookworm security build.
+    chromium="${CHROMIUM_DEBIAN_VERSION}" chromium-common="${CHROMIUM_DEBIAN_VERSION}" chromium-sandbox="${CHROMIUM_DEBIAN_VERSION}" \
     # Fonts
     fonts-liberation2 fonts-dejavu-core fonts-noto-core fonts-noto-color-emoji fonts-inter \
     # Locale support
@@ -63,6 +97,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
+# ---------- fzf (official multi-arch release) ----------
+RUN FZF_ARCH=$(case "$TARGETARCH" in arm64) echo "arm64";; *) echo "amd64";; esac) && \
+    FZF_ASSET="fzf-${FZF_VERSION}-linux_${FZF_ARCH}.tar.gz" && \
+    curl -fsSL -o "/tmp/${FZF_ASSET}" \
+      "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/${FZF_ASSET}" && \
+    curl -fsSL -o /tmp/fzf-checksums.txt \
+      "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" && \
+    (cd /tmp && grep -F "  ${FZF_ASSET}" fzf-checksums.txt | sha256sum -c -) && \
+    tar -xzf "/tmp/${FZF_ASSET}" -C /usr/local/bin fzf && \
+    test "$(/usr/local/bin/fzf --version | awk '{print $1}')" = "$FZF_VERSION" && \
+    rm -f "/tmp/${FZF_ASSET}" /tmp/fzf-checksums.txt
+
 RUN rm -f /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub
 
 # ---------- bubblewrap setuid (Codex CLI sandbox on restricted kernels) ----------
@@ -77,16 +123,22 @@ RUN if [ "$VARIANT" = "full" ]; then \
 
 # ---------- Azure CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash \
-    && rm -rf /var/lib/apt/lists/*; \
+    curl -fsSL https://aka.ms/InstallAzureCLIDeb -o /tmp/azure-cli-install.sh && \
+    echo "$AZURE_CLI_INSTALLER_SHA256  /tmp/azure-cli-install.sh" | sha256sum -c - && \
+    bash /tmp/azure-cli-install.sh && \
+    test "$(dpkg-query -W -f='${Version}' azure-cli)" = "$AZURE_CLI_VERSION" && \
+    rm -f /tmp/azure-cli-install.sh && rm -rf /var/lib/apt/lists/*; \
     fi
 
 # ---------- GitHub CLI ----------
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-      | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null && \
+      -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
+    echo "$GITHUB_CLI_KEYRING_SHA256  /usr/share/keyrings/githubcli-archive-keyring.gpg" | sha256sum -c - && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
       > /etc/apt/sources.list.d/github-cli.list && \
-    apt-get update && apt-get install -y gh && rm -rf /var/lib/apt/lists/*
+    apt-get update && apt-get install -y "gh=$GITHUB_CLI_VERSION" && \
+    test "$(dpkg-query -W -f='${Version}' gh)" = "$GITHUB_CLI_VERSION" && \
+    rm -rf /var/lib/apt/lists/*
 
 # ---------- bat symlink (Debian names it batcat) ----------
 RUN ln -sf /usr/bin/batcat /usr/local/bin/bat 2>/dev/null || true
@@ -105,7 +157,13 @@ RUN usermod -l claude -d /home/claude -m node && \
 # CRITICAL: WORKDIR must be non-root-owned or the installer hangs
 WORKDIR /workspace
 USER claude
-RUN curl -fsSL https://claude.ai/install.sh | bash
+RUN CLAUDE_BINARY_SHA256=$(case "$TARGETARCH" in arm64) echo "$CLAUDE_BINARY_SHA256_ARM64";; *) echo "$CLAUDE_BINARY_SHA256_AMD64";; esac) && \
+    curl -fsSL https://claude.ai/install.sh -o /tmp/claude-install.sh && \
+    echo "$CLAUDE_INSTALLER_SHA256  /tmp/claude-install.sh" | sha256sum -c - && \
+    bash /tmp/claude-install.sh "$CLAUDE_CODE_VERSION" && \
+    test "$(/home/claude/.local/bin/claude --version | awk '{print $1}')" = "$CLAUDE_CODE_VERSION" && \
+    echo "$CLAUDE_BINARY_SHA256  $(readlink -f /home/claude/.local/bin/claude)" | sha256sum -c - && \
+    rm -f /tmp/claude-install.sh
 USER root
 RUN rm -f /home/claude/.claude.json
 ENV PATH="/home/claude/.local/bin:${PATH}"
@@ -114,7 +172,7 @@ ENV PATH="/home/claude/.local/bin:${PATH}"
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.61.0 \
     typescript@6.0.3 tsx@4.23.1 \
-    pnpm@11.12.0 \
+    pnpm@11.13.0 \
     vite@8.1.4 esbuild@0.28.1 \
     eslint@10.7.0 prettier@3.9.5 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.3 \
@@ -123,7 +181,7 @@ RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
 # ---------- npm global packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
     npm i -g \
-      wrangler@4.110.0 vercel@54.21.0 netlify-cli@26.2.0 \
+      wrangler@4.111.0 vercel@54.21.0 netlify-cli@26.2.0 \
       pm2@7.0.3 \
       prisma@7.8.0 drizzle-kit@0.31.10 \
       eas-cli@20.5.1 \
@@ -132,6 +190,25 @@ RUN if [ "$VARIANT" = "full" ]; then \
       @marp-team/marp-cli@4.4.1 && \
     npm i -g --legacy-peer-deps @cloudflare/next-on-pages@1.13.16; \
     fi
+
+# Rebuild the exact esbuild versions retained by full-only tools with the
+# pinned Go toolchain, replacing old upstream native executables only.
+COPY --from=esbuild-builder /out/0.15.18/esbuild /tmp/esbuild-0.15.18
+COPY --from=esbuild-builder /out/0.18.20/esbuild /tmp/esbuild-0.18.20
+COPY --from=esbuild-builder /out/0.25.12/esbuild /tmp/esbuild-0.25.12
+RUN if [ "$VARIANT" = "full" ]; then \
+      ESBUILD_PACKAGE_ARCH=$(case "$TARGETARCH" in arm64) echo "linux-arm64";; *) echo "linux-x64";; esac) && \
+      install -m 0755 /tmp/esbuild-0.15.18 \
+        /usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/esbuild/bin/esbuild && \
+      install -m 0755 /tmp/esbuild-0.18.20 \
+        "/usr/local/lib/node_modules/drizzle-kit/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/${ESBUILD_PACKAGE_ARCH}/bin/esbuild" && \
+      install -m 0755 /tmp/esbuild-0.25.12 \
+        "/usr/local/lib/node_modules/drizzle-kit/node_modules/@esbuild/${ESBUILD_PACKAGE_ARCH}/bin/esbuild" && \
+      test "$(/usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/esbuild/bin/esbuild --version)" = "0.15.18" && \
+      test "$(/usr/local/lib/node_modules/drizzle-kit/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/${ESBUILD_PACKAGE_ARCH}/bin/esbuild --version)" = "0.18.20" && \
+      test "$(/usr/local/lib/node_modules/drizzle-kit/node_modules/@esbuild/${ESBUILD_PACKAGE_ARCH}/bin/esbuild --version)" = "0.25.12"; \
+    fi && \
+    rm -f /tmp/esbuild-0.15.18 /tmp/esbuild-0.18.20 /tmp/esbuild-0.25.12
 
 # ---------- Python packages (slim — always installed) ----------
 RUN pip install --no-cache-dir --break-system-packages \
@@ -147,18 +224,18 @@ RUN pip install --no-cache-dir --break-system-packages \
     apprise==1.12.0
 
 COPY scripts/holyclaude-chromium /usr/local/bin/holyclaude-chromium
-RUN mkdir -p /ms-playwright && \
-    playwright install --with-deps --no-shell chromium && \
-    rm -rf /var/lib/apt/lists/* && \
-    chmod -R a+rX /ms-playwright && \
+RUN test "$(dpkg-query -W -f='${Version}' chromium)" = "$CHROMIUM_DEBIAN_VERSION" && \
+    test "$(dpkg-query -W -f='${Version}' chromium-common)" = "$CHROMIUM_DEBIAN_VERSION" && \
+    test "$(dpkg-query -W -f='${Version}' chromium-sandbox)" = "$CHROMIUM_DEBIAN_VERSION" && \
+    test -x /usr/lib/chromium/chromium && \
     chmod +x /usr/local/bin/holyclaude-chromium && \
     ln -sf /usr/local/bin/holyclaude-chromium /usr/bin/chromium && \
-    NODE_CHROMIUM_PATH="$(node --input-type=module -e "import { createRequire } from 'node:module'; import { existsSync } from 'node:fs'; const require = createRequire('file:///usr/local/lib/node_modules/playwright/package.json'); const playwright = require('playwright'); const executablePath = playwright.chromium.executablePath(); if (!existsSync(executablePath)) throw new Error('missing Node Playwright Chromium at ' + executablePath); console.log(executablePath);")" && \
-    PYTHON_CHROMIUM_PATH="$(python3 -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()")" && \
-    test "$NODE_CHROMIUM_PATH" = "$PYTHON_CHROMIUM_PATH" && \
-    test -x "$NODE_CHROMIUM_PATH" && \
-    runuser -u claude -- test -r "$NODE_CHROMIUM_PATH" && \
-    runuser -u claude -- test -x "$NODE_CHROMIUM_PATH"
+    test "$(node -p "require('/usr/local/lib/node_modules/playwright/package.json').version")" = "1.61.0" && \
+    test "$(python3 -c "import importlib.metadata; print(importlib.metadata.version('playwright'))")" = "1.61.0" && \
+    test "$(/usr/bin/chromium --version | awk '{print $2}')" = "${CHROMIUM_DEBIAN_VERSION%%-*}" && \
+    runuser -u claude -- test -r /usr/lib/chromium/chromium && \
+    runuser -u claude -- test -x /usr/lib/chromium/chromium && \
+    runuser -u claude -- /usr/bin/chromium --version
 
 # ---------- Python packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
@@ -171,9 +248,21 @@ RUN if [ "$VARIANT" = "full" ]; then \
     fi
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.50.0 @openai/codex@0.144.1 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.50.0 @openai/codex@0.144.4 task-master-ai@0.43.1
 USER claude
-RUN curl -fsSL https://cursor.com/install | bash && \
+RUN CURSOR_NODE_SHA256=$(case "$TARGETARCH" in arm64) echo "$CURSOR_NODE_SHA256_ARM64";; *) echo "$CURSOR_NODE_SHA256_AMD64";; esac) && \
+    curl -fsSL https://cursor.com/install -o /tmp/cursor-install.sh && \
+    echo "$CURSOR_INSTALLER_SHA256  /tmp/cursor-install.sh" | sha256sum -c - && \
+    grep -Fq "$CURSOR_BUILD_ID" /tmp/cursor-install.sh && \
+    bash /tmp/cursor-install.sh && \
+    test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
+    CURSOR_DIR="/home/claude/.local/share/cursor-agent/versions/$CURSOR_BUILD_ID" && \
+    echo "$CURSOR_LAUNCHER_SHA256  $CURSOR_DIR/cursor-agent" | sha256sum -c - && \
+    echo "$CURSOR_NODE_SHA256  $CURSOR_DIR/node" | sha256sum -c - && \
+    ! grep -aFq -- '--permission' "$CURSOR_DIR/cursor-agent" && \
+    ! grep -aFq -- '--allow-fs-read' "$CURSOR_DIR/cursor-agent" && \
+    ! grep -aFq -- '--allow-fs-write' "$CURSOR_DIR/cursor-agent" && \
+    rm -f /tmp/cursor-install.sh && \
     if [ ! -e /home/claude/.local/bin/cursor ] && [ -e /home/claude/.local/bin/cursor-agent ]; then \
       ln -s /home/claude/.local/bin/cursor-agent /home/claude/.local/bin/cursor; \
     fi
@@ -182,28 +271,39 @@ USER root
 # ---------- Junie CLI (full only) ----------
 USER claude
 RUN if [ "$VARIANT" = "full" ]; then \
-    curl -fsSL https://junie.jetbrains.com/install.sh | bash; \
+    JUNIE_PLATFORM=$(case "$TARGETARCH" in arm64) echo "aarch64";; *) echo "amd64";; esac) && \
+    JUNIE_ARCHIVE_SHA256=$(case "$TARGETARCH" in arm64) echo "$JUNIE_ARCHIVE_SHA256_ARM64";; *) echo "$JUNIE_ARCHIVE_SHA256_AMD64";; esac) && \
+    JUNIE_ARCHIVE="junie-release-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.zip" && \
+    curl -fsSL "https://github.com/jetbrains-junie/junie/releases/download/${JUNIE_VERSION}/${JUNIE_ARCHIVE}" -o "/tmp/${JUNIE_ARCHIVE}" && \
+    echo "$JUNIE_ARCHIVE_SHA256  /tmp/${JUNIE_ARCHIVE}" | sha256sum -c - && \
+    curl -fsSL https://junie.jetbrains.com/install.sh -o /tmp/junie-install.sh && \
+    echo "$JUNIE_INSTALLER_SHA256  /tmp/junie-install.sh" | sha256sum -c - && \
+    JUNIE_VERSION="$JUNIE_VERSION" bash /tmp/junie-install.sh && \
+    test "$(readlink /home/claude/.local/share/junie/current)" = "/home/claude/.local/share/junie/versions/$JUNIE_VERSION" && \
+    rm -f "/tmp/${JUNIE_ARCHIVE}" /tmp/junie-install.sh; \
     fi
 USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g opencode-ai@1.17.18; \
+    npm i -g opencode-ai@1.18.1; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.80.6; \
+    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.80.7; \
     fi
 
-ARG CLOUDCLI_VERSION=1.36.1
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.36.1-holyclaude-account-management.tgz
+ARG CLOUDCLI_VERSION=1.36.2
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz
 COPY vendor/artifacts/${CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT} /tmp/vendor/cloudcli-ai-cloudcli.tgz
 COPY vendor/artifacts/cloudcli-account-management.manifest.json /tmp/vendor/cloudcli-account-management.manifest.json
+COPY --chown=claude:claude vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json /tmp/vendor/web-terminal-package-lock.json
 
 # ---------- CloudCLI (web UI for Claude Code) ----------
 RUN npm i -g /tmp/vendor/cloudcli-ai-cloudcli.tgz && rm -f /tmp/vendor/cloudcli-ai-cloudcli.tgz
-RUN node --input-type=module -e "import { createRequire } from 'node:module'; import { existsSync } from 'node:fs'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); const playwright = require('playwright'); const executablePath = playwright.chromium.executablePath(); if (!existsSync(executablePath)) throw new Error('missing CloudCLI-resolved Playwright Chromium at ' + executablePath); console.log(executablePath);"
+RUN test "$(node --input-type=module -e "import { createRequire } from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); process.stdout.write(require('playwright/package.json').version);")" = "1.61.0" && \
+    test -x /usr/bin/chromium
 COPY scripts/patch-cloudcli-apprise-notifications.mjs /tmp/patch-cloudcli-apprise-notifications.mjs
 COPY scripts/patch-cloudcli-base-path.mjs /tmp/patch-cloudcli-base-path.mjs
 COPY scripts/patch-cloudcli-browser-runtime.mjs /tmp/patch-cloudcli-browser-runtime.mjs
@@ -219,12 +319,13 @@ RUN node /tmp/patch-cloudcli-browser-runtime.mjs && rm -f /tmp/patch-cloudcli-br
 RUN CLOUDCLI_BROWSER_USE="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/browser-use/browser-use.service.js" && \
     grep -Fq "// HolyClaude canonical browser runtime" "$CLOUDCLI_BROWSER_USE" && \
     grep -Fq "executablePath: process.env.CHROME_PATH," "$CLOUDCLI_BROWSER_USE" && \
+    grep -Fq "const executablePath = process.env.CHROME_PATH || playwright.chromium.executablePath();" "$CLOUDCLI_BROWSER_USE" && \
     echo "[patch] CloudCLI Browser Use canonical Chromium applied to runtime"
 
 # patch: disable CloudCLI npm self-update inside HolyClaude (issue #50)
 RUN node /tmp/patch-cloudcli-disable-self-update.mjs && rm -f /tmp/patch-cloudcli-disable-self-update.mjs
 
-# CloudCLI 1.36.1 already contains the WebSocket binary-frame fix, provider
+# CloudCLI 1.36.2 already contains the WebSocket binary-frame fix, provider
 # model flow, and final Codex complete exit codes. Keep checks fail-closed.
 RUN CLOUDCLI_WS_PROXY="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/websocket/services/plugin-websocket-proxy.service.js" && \
     grep -q "binary: isBinary" "$CLOUDCLI_WS_PROXY" && \
@@ -280,18 +381,19 @@ RUN mkdir -p /home/claude/.claude-code-ui/plugins && \
     git fetch --depth 1 origin 4895cd3fd33362471e739b786493aba048487bcc && \
     git checkout --detach FETCH_HEAD && \
     test "$(git rev-parse --short=12 HEAD)" = "4895cd3fd333" && \
-    npm install && npm run build && \
+    npm ci && npm run build && \
     git init /home/claude/.claude-code-ui/plugins/web-terminal && \
     cd /home/claude/.claude-code-ui/plugins/web-terminal && \
     git remote add origin https://github.com/cloudcli-ai/cloudcli-plugin-terminal.git && \
     git fetch --depth 1 origin 8aa41f614c216d961e7c0d9c3e67982c6b2d9da3 && \
     git checkout --detach FETCH_HEAD && \
     test "$(git rev-parse --short=12 HEAD)" = "8aa41f614c21" && \
+    cp /tmp/vendor/web-terminal-package-lock.json package-lock.json && \
     node /tmp/patch-cloudcli-web-terminal-rendering.mjs /home/claude/.claude-code-ui/plugins/web-terminal && \
-    npm install && npm run build && \
-    rm -f /tmp/patch-cloudcli-web-terminal-rendering.mjs && \
+    npm ci && npm run build && \
     echo '{"project-stats":{"name":"project-stats","source":"https://github.com/cloudcli-ai/cloudcli-plugin-starter","enabled":true},"web-terminal":{"name":"web-terminal","source":"https://github.com/cloudcli-ai/cloudcli-plugin-terminal","enabled":true}}' > /home/claude/.claude-code-ui/plugins.json
 USER root
+RUN rm -f /tmp/patch-cloudcli-web-terminal-rendering.mjs /tmp/vendor/web-terminal-package-lock.json
 
 # ---------- Store variant for bootstrap ----------
 RUN echo "${VARIANT}" > /etc/holyclaude-variant
@@ -330,9 +432,9 @@ RUN chmod +x /etc/s6-overlay/s6-rc.d/cloudcli/run \
     /etc/s6-overlay/s6-rc.d/persist-claude-json/run \
     /etc/s6-overlay/s6-rc.d/xvfb/run \
     /etc/s6-overlay/s6-rc.d/sshd/run && \
-    touch /etc/s6-overlay/s6-rc.d/user/contents.d/cloudcli && \
-    touch /etc/s6-overlay/s6-rc.d/user/contents.d/persist-claude-json && \
-    touch /etc/s6-overlay/s6-rc.d/user/contents.d/xvfb
+    touch /etc/s6-overlay/user-bundles.d/user/contents.d/cloudcli && \
+    touch /etc/s6-overlay/user-bundles.d/user/contents.d/persist-claude-json && \
+    touch /etc/s6-overlay/user-bundles.d/user/contents.d/xvfb
 
 # ---------- Working directory ----------
 WORKDIR /workspace
