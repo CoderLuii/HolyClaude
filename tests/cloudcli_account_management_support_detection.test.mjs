@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const detectorScript = path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs');
-const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz');
+const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
 
 async function runDetector(targetPath) {
   const { stdout } = await execFileAsync(process.execPath, [detectorScript, targetPath], { cwd: repoRoot });
@@ -70,7 +70,7 @@ test('CloudCLI account-management detector fails closed for an unsupported known
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-cloudcli-unsupported-'));
   await mkdir(path.join(fixtureRoot, 'server/routes'), { recursive: true });
   await mkdir(path.join(fixtureRoot, 'dist-server/server/routes'), { recursive: true });
-  await writeFile(path.join(fixtureRoot, 'package.json'), JSON.stringify({ name: '@cloudcli-ai/cloudcli', version: '1.36.1' }));
+  await writeFile(path.join(fixtureRoot, 'package.json'), JSON.stringify({ name: '@cloudcli-ai/cloudcli', version: '1.36.3' }));
   await writeFile(path.join(fixtureRoot, 'server/routes/auth.js'), "router.post('/logout', authenticateToken, () => {});");
   await writeFile(path.join(fixtureRoot, 'dist-server/server/routes/auth.js'), "router.post('/logout', authenticateToken, () => {});");
 

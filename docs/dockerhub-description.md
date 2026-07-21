@@ -44,17 +44,17 @@ That's it. Open your browser, sign in, start building.
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 150.0.7871.114 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 150.0.7871.124 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 
-🛠️ **50+ Dev Tools** — Node.js 26, Python 3, TypeScript, git, GitHub CLI, database clients (PostgreSQL, SQLite, Redis), deployment CLIs (Vercel, Wrangler, Netlify, Azure), and more
+🛠️ **50+ Dev Tools** — Node.js 26, Python 3, TypeScript, git, GitHub CLI, database clients (PostgreSQL, SQLite, Redis), deployment CLIs (Vercel, Wrangler, Netlify, Azure), and more. Netlify deployment remains available; its optional local Go/Rust functions proxy is omitted because the current upstream binary uses an outdated Go runtime.
 
 🔐 **Optional SSH/Mosh** — Key-only `sshd` and Mosh are installed in both variants, disabled by default, and meant for localhost/VPN/Tailscale access only
 
 🔎 **Desloppify included** — The `desloppify` CLI ships in both images. It is passive by default and only scans when you run it.
 
-⚙️ **s6-overlay 3.2.3.1** — Proper PID 1 process supervision with graceful shutdown and automatic service restarts
+⚙️ **s6-overlay 3.2.3.2** — Proper PID 1 process supervision with graceful shutdown and automatic service restarts
 
 🔒 **Security** — Docker UID/GID remapping via PUID/PGID, rootless Podman keep-id profile, no credential proxying, everything stays local
 

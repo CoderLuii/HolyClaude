@@ -79,7 +79,7 @@
     {
       "id": "cursor-node-permission-model-disabled",
       "vulnerabilities": ["CVE-2025-55130"],
-      "component": {"names": ["node"], "versions": ["24.5.0"], "types": ["binary"], "locationPatterns": ["^/home/claude/\\.local/share/cursor-agent/versions/2026\\.07\\.09-a3815c0/node$"]},
+      "component": {"names": ["node"], "versions": ["24.5.0"], "types": ["binary"], "locationPatterns": ["^/home/claude/\\.local/share/cursor-agent/versions/2026\\.07\\.17-3e2a980/node$"]},
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Cursor CLI",
@@ -116,7 +116,7 @@
     {
       "id": "curl-bookworm-minor",
       "vulnerabilities": ["CVE-2026-10536", "CVE-2026-11856", "CVE-2026-8924", "CVE-2026-8927"],
-      "component": {"names": ["curl", "libcurl3-gnutls", "libcurl4", "libcurl4-openssl-dev"], "versions": ["7.88.1", "7.88.1-10+deb12u15"], "types": ["binary", "deb"], "locationPatterns": ["^/(usr/bin/curl$|usr/share/doc/|var/lib/dpkg/)"]},
+      "component": {"names": ["curl", "libcurl3-gnutls", "libcurl4", "libcurl4-openssl-dev"], "versions": ["7.88.1", "7.88.1-10+deb12u15"], "types": ["binary", "deb"], "locationPatterns": ["^/usr/bin/curl$", "^/usr/share/doc/", "^/var/lib/dpkg/"]},
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
@@ -178,7 +178,7 @@
     {
       "id": "ffmpeg-bookworm-fixed",
       "vulnerabilities": ["CVE-2026-40962"],
-      "component": {"names": ["ffmpeg"], "versions": ["5.1.9"], "types": ["binary"], "locationPatterns": ["^/(usr/bin/ffmpeg|usr/lib/.*/libav.*|usr/lib/.*/libswresample.*)$"]},
+      "component": {"names": ["ffmpeg"], "versions": ["5.1.9"], "types": ["binary"], "locationPatterns": ["^/usr/bin/ffmpeg$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavcodec\\.so\\.59\\.37\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavdevice\\.so\\.59\\.7\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavfilter\\.so\\.8\\.44\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavformat\\.so\\.59\\.27\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavutil\\.so\\.57\\.28\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libswresample\\.so\\.4\\.7\\.100$"]},
       "disposition": "fixed",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
@@ -240,7 +240,7 @@
     {
       "id": "imagemagick-vendor-low",
       "vulnerabilities": ["CVE-2026-56372"],
-      "component": {"namePatterns": ["^(imagemagick|imagemagick-6.*|libmagick(core|wand).*)$"], "versions": ["8:6.9.11.60+dfsg-1.6+deb12u12"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "component": {"names": ["imagemagick", "imagemagick-6-common", "imagemagick-6.q16", "libmagickcore-6-arch-config", "libmagickcore-6-headers", "libmagickcore-6.q16-6", "libmagickcore-6.q16-6-extra", "libmagickcore-6.q16-dev", "libmagickcore-dev", "libmagickwand-6-headers", "libmagickwand-6.q16-6", "libmagickwand-6.q16-dev", "libmagickwand-dev"], "versions": ["8:6.9.11.60+dfsg-1.6+deb12u12"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
@@ -265,7 +265,7 @@
     {
       "id": "glib-bookworm-minor",
       "vulnerabilities": ["CVE-2026-58016"],
-      "component": {"namePatterns": ["^libglib2\\.0-"], "versions": ["2.74.6-2+deb12u9"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "component": {"names": ["libglib2.0-0", "libglib2.0-bin", "libglib2.0-data", "libglib2.0-dev", "libglib2.0-dev-bin"], "versions": ["2.74.6-2+deb12u9"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
@@ -297,84 +297,6 @@
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as Minor and postponed."
-    },
-    {
-      "id": "netlify-proxy-go-2021-0319",
-      "vulnerabilities": ["GO-2021-0319"],
-      "component": {"names": ["stdlib"], "versions": ["go1.16.7"], "types": ["go-module"], "locationPatterns": ["^/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-(x64|arm64)/bin/local-functions-proxy$"]},
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Netlify CLI",
-      "authority": {"name": "Go vulnerability database", "url": "https://pkg.go.dev/vuln/GO-2021-0319"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "approvedBy": "CoderLuii",
-      "rationale": "The closed-source upstream helper is invoked only for explicit local Go/Rust function emulation under the developer's UID; it is not a HolyClaude service or remote listener."
-    },
-    {
-      "id": "netlify-proxy-go-2023-1703",
-      "vulnerabilities": ["GO-2023-1703"],
-      "component": {"names": ["stdlib"], "versions": ["go1.16.7"], "types": ["go-module"], "locationPatterns": ["^/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-(x64|arm64)/bin/local-functions-proxy$"]},
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Netlify CLI",
-      "authority": {"name": "Go vulnerability database", "url": "https://pkg.go.dev/vuln/GO-2023-1703"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "approvedBy": "CoderLuii",
-      "rationale": "The closed-source upstream helper is invoked only for explicit local Go/Rust function emulation under the developer's UID; it is not a HolyClaude service or remote listener."
-    },
-    {
-      "id": "netlify-proxy-go-2023-1752",
-      "vulnerabilities": ["GO-2023-1752"],
-      "component": {"names": ["stdlib"], "versions": ["go1.16.7"], "types": ["go-module"], "locationPatterns": ["^/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-(x64|arm64)/bin/local-functions-proxy$"]},
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Netlify CLI",
-      "authority": {"name": "Go vulnerability database", "url": "https://pkg.go.dev/vuln/GO-2023-1752"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "approvedBy": "CoderLuii",
-      "rationale": "The closed-source upstream helper is invoked only for explicit local Go/Rust function emulation under the developer's UID; it is not a HolyClaude service or remote listener."
-    },
-    {
-      "id": "netlify-proxy-go-2024-2887",
-      "vulnerabilities": ["GO-2024-2887"],
-      "component": {"names": ["stdlib"], "versions": ["go1.16.7"], "types": ["go-module"], "locationPatterns": ["^/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-(x64|arm64)/bin/local-functions-proxy$"]},
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Netlify CLI",
-      "authority": {"name": "Go vulnerability database", "url": "https://pkg.go.dev/vuln/GO-2024-2887"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "approvedBy": "CoderLuii",
-      "rationale": "The closed-source upstream helper is invoked only for explicit local Go/Rust function emulation under the developer's UID; it is not a HolyClaude service or remote listener."
-    },
-    {
-      "id": "netlify-proxy-go-2025-3563",
-      "vulnerabilities": ["GO-2025-3563"],
-      "component": {"names": ["stdlib"], "versions": ["go1.16.7"], "types": ["go-module"], "locationPatterns": ["^/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-(x64|arm64)/bin/local-functions-proxy$"]},
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Netlify CLI",
-      "authority": {"name": "Go vulnerability database", "url": "https://pkg.go.dev/vuln/GO-2025-3563"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "approvedBy": "CoderLuii",
-      "rationale": "The closed-source upstream helper is invoked only for explicit local Go/Rust function emulation under the developer's UID; it is not a HolyClaude service or remote listener."
-    },
-    {
-      "id": "netlify-proxy-go-2026-4337",
-      "vulnerabilities": ["GO-2026-4337"],
-      "component": {"names": ["stdlib"], "versions": ["go1.16.7"], "types": ["go-module"], "locationPatterns": ["^/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-(x64|arm64)/bin/local-functions-proxy$"]},
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Netlify CLI",
-      "authority": {"name": "Go vulnerability database", "url": "https://pkg.go.dev/vuln/GO-2026-4337"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "approvedBy": "CoderLuii",
-      "rationale": "The closed-source upstream helper is invoked only for explicit local Go/Rust function emulation under the developer's UID; it is not a HolyClaude service or remote listener."
     }
   ]
 }

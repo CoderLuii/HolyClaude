@@ -299,7 +299,7 @@ docker compose up -d
 
 **Das ist das gesamte Setup. Du bist fertig.**
 
-> **Warum diese Browser-Rechte?** Diese Version behält HolyClaudes aktuelles Browser-Profil bei. `SYS_ADMIN` und `seccomp=unconfined` erweitern Prozessrechte und verringern die Isolation; `SYS_PTRACE` dient dem Debugging. Lass dieses Profil für v1.5.0 unverändert und behandle Hardening als separaten Schritt.
+> **Warum diese Browser-Rechte?** Diese Version behält HolyClaudes aktuelles Browser-Profil bei. `SYS_ADMIN` und `seccomp=unconfined` erweitern Prozessrechte und verringern die Isolation; `SYS_PTRACE` dient dem Debugging. Lass dieses Profil für v1.5.1 unverändert und behandle Hardening als separaten Schritt.
 
 > **Warum `shm_size: 2g`?** Docker gibt Containern standardmäßig 64 MB Shared Memory. HolyClaude behält 2 GB als beibehaltenen Standard für diese Version bei, weil Chromium `/dev/shm` stark für das Tab-Rendering nutzt. Bei 64 MB brechen Tabs; bei intensivem Browser-Einsatz auf 4 GB erhöhen.
 
@@ -573,7 +573,7 @@ Das Full-Image enthält alles oben Genannte, plus:
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Cloudflare Workers-Deployment |
 | `vercel` | Vercel-Deployment |
-| `netlify-cli` | Netlify-Deployment |
+| `netlify-cli` | Netlify-Deployment; der optionale lokale Proxy für Go-/Rust-Funktionen ist nicht enthalten |
 | `az` | Azure CLI für Cloud-Deployment und -Management |
 | `prisma`, `drizzle-kit` | Die zwei beliebtesten Node.js-ORMs |
 | `pm2` | Produktions-Prozessmanager |

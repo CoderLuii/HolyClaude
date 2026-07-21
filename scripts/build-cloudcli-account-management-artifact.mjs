@@ -1,21 +1,27 @@
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { lstatSync, readFileSync, readlinkSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchDir = path.join(repoRoot, 'vendor/patches/cloudcli-account-management');
-const artifactDir = path.join(repoRoot, 'vendor/artifacts');
 const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
-const upstreamCommit = '615e2ca2926a68e6e3336d49b592616654a69424';
-const packageVersion = '1.36.2';
+const upstreamCommit = '27eaf0146a46aa8a55178f3d394360ff7465420f';
+const packageVersion = '1.36.3';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
 const expectedBuildImage = 'node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb';
 const expectedNode = 'v26.5.0';
-const expectedNpm = '11.17.0';
+const expectedNpm = '11.18.0';
+const expectedBuildPackages = {
+  'build-essential': '12.9',
+  'ca-certificates': '20230311+deb12u1',
+  git: '1:2.39.5-0+deb12u3',
+  'pkg-config': '1.8.1-1',
+  python3: '3.11.2-1+b1',
+};
 
 const args = new Map();
 for (let index = 2; index < process.argv.length; index += 2) {
@@ -23,7 +29,12 @@ for (let index = 2; index < process.argv.length; index += 2) {
 }
 
 const sourceArg = args.get('--source');
+const outputArg = args.get('--output-dir');
 const keepWorkdir = args.get('--keep-workdir') === 'true';
+if (!outputArg) {
+  throw new Error('Use scripts/build-cloudcli-account-management-artifact-container.mjs to run two clean builds');
+}
+const outputDir = path.resolve(outputArg);
 
 function run(command, argsList, options = {}) {
   execFileSync(command, argsList, {
@@ -92,16 +103,38 @@ function normalizeDependencyTree(node) {
   return { dependencies };
 }
 
-async function prepareSource(workdir) {
-  if (sourceArg) {
-    await cp(path.resolve(sourceArg), workdir, {
-      recursive: true,
-      filter: (sourcePath) => !sourcePath.includes(`${path.sep}.git${path.sep}`) && !sourcePath.endsWith(`${path.sep}.git`),
-    });
-    return;
-  }
+function readJson(filePath) {
+  return JSON.parse(readFileSync(filePath, 'utf8'));
+}
 
-  run('git', ['clone', '--no-checkout', upstreamRepo, workdir]);
+function verifyVersionInputs(workdir) {
+  const packageJson = readJson(path.join(workdir, 'package.json'));
+  const packageLock = readJson(path.join(workdir, 'package-lock.json'));
+  if (packageJson.version !== packageVersion
+    || packageLock.version !== packageVersion
+    || packageLock.packages?.['']?.version !== packageVersion) {
+    throw new Error(`CloudCLI package.json and package-lock.json must both be ${packageVersion}`);
+  }
+  if (packageLock.packages?.['node_modules/better-sqlite3']?.version !== '12.11.1') {
+    throw new Error('CloudCLI package-lock.json must resolve better-sqlite3 12.11.1');
+  }
+}
+
+function verifyShrinkwrap(workdir) {
+  const packageJson = readJson(path.join(workdir, 'package.json'));
+  const shrinkwrap = readJson(path.join(workdir, 'npm-shrinkwrap.json'));
+  if (packageJson.version !== packageVersion
+    || shrinkwrap.version !== packageVersion
+    || shrinkwrap.packages?.['']?.version !== packageVersion) {
+    throw new Error(`CloudCLI package.json and npm-shrinkwrap.json must both be ${packageVersion}`);
+  }
+  if (shrinkwrap.packages?.['node_modules/better-sqlite3']?.version !== '12.11.1') {
+    throw new Error('CloudCLI npm-shrinkwrap.json must resolve better-sqlite3 12.11.1');
+  }
+}
+
+async function prepareSource(workdir) {
+  run('git', ['clone', '--no-checkout', sourceArg ? path.resolve(sourceArg) : upstreamRepo, workdir]);
   run('git', ['checkout', upstreamCommit], { cwd: workdir });
 }
 
@@ -115,22 +148,42 @@ try {
       `Run scripts/build-cloudcli-account-management-artifact-container.mjs; expected ${expectedBuildImage}, ${expectedNode}, npm ${expectedNpm}, got ${buildImage ?? 'unknown image'}, ${actualNode}, npm ${actualNpm}`,
     );
   }
+  const actualBuildPackages = Object.fromEntries(
+    Object.keys(expectedBuildPackages).map((name) => [
+      name,
+      runCapture('dpkg-query', ['-W', '-f=${Version}', name]),
+    ]),
+  );
+  if (JSON.stringify(actualBuildPackages) !== JSON.stringify(expectedBuildPackages)) {
+    throw new Error(
+      `CloudCLI build package drift: expected ${JSON.stringify(expectedBuildPackages)}, got ${JSON.stringify(actualBuildPackages)}`,
+    );
+  }
+  const buildEnvironmentHash = sha256Text(JSON.stringify({
+    image: buildImage,
+    node: actualNode,
+    npm: actualNpm,
+    packages: actualBuildPackages,
+  }));
 
   await prepareSource(workdir);
-  const actualCommit = sourceArg ? runCapture('git', ['rev-parse', 'HEAD'], { cwd: path.resolve(sourceArg) }) : upstreamCommit;
+  const actualCommit = runCapture('git', ['rev-parse', 'HEAD'], { cwd: workdir });
   if (actualCommit !== upstreamCommit) {
     throw new Error(`Expected CloudCLI source commit ${upstreamCommit}, got ${actualCommit}`);
   }
+  verifyVersionInputs(workdir);
 
   const patches = readdirSync(patchDir)
     .filter((name) => name.endsWith('.patch'))
     .sort();
+  if (patches.length !== 1 || patches[0] !== '0001-local-account-management.patch') {
+    throw new Error(`Expected only 0001-local-account-management.patch, got ${patches.join(', ')}`);
+  }
 
   for (const patch of patches) {
-    // The checked-in patch is whitespace-normalized so repo release checks stay clean.
-    // The upstream commit is verified above; use zero context so CloudCLI's
-    // whitespace-bearing blank lines do not force trailing whitespace into this repo.
-    run('git', ['apply', '-C0', path.join(patchDir, patch)], { cwd: workdir });
+    const patchPath = path.join(patchDir, patch);
+    run('git', ['apply', '--check', '--index', patchPath], { cwd: workdir });
+    run('git', ['apply', '--index', patchPath], { cwd: workdir });
   }
 
   const trackedFiles = runCapture('git', ['ls-files', '-z'], { cwd: workdir })
@@ -139,52 +192,49 @@ try {
   const sourceTreeHash = hashFiles(workdir, trackedFiles);
 
   run('npm', ['ci'], { cwd: workdir });
+  run('node', [
+    '--input-type=module',
+    '-e',
+    "import Database from 'better-sqlite3'; const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (id INTEGER)'); db.close();",
+  ], { cwd: workdir });
   run('npm', ['run', 'typecheck'], { cwd: workdir });
   run('npm', ['run', 'build'], { cwd: workdir });
   run('npm', ['run', 'lint'], { cwd: workdir });
   run('npm', ['shrinkwrap', '--omit=dev'], { cwd: workdir });
+  verifyShrinkwrap(workdir);
 
-  const packDirs = [path.join(workdir, 'pack-a'), path.join(workdir, 'pack-b')];
-  for (const packDir of packDirs) {
-    await mkdir(packDir);
-  }
-  const packedPaths = packDirs.map((packDir) => {
-    const packOutput = runCapture('npm', ['pack', '--pack-destination', packDir], { cwd: workdir });
-    return path.join(packDir, packOutput.split('\n').at(-1));
-  });
-  if (sha256(packedPaths[0]) !== sha256(packedPaths[1])) {
-    throw new Error('Two clean npm pack runs produced different CloudCLI artifacts');
-  }
+  const packDir = path.join(workdir, 'pack');
+  await mkdir(packDir);
+  const packOutput = runCapture('npm', ['pack', '--pack-destination', packDir], { cwd: workdir });
+  const packedPath = path.join(packDir, packOutput.split('\n').at(-1));
 
-  const artifactPath = path.join(artifactDir, artifactFile);
+  await mkdir(outputDir, { recursive: true });
+  const artifactPath = path.join(outputDir, artifactFile);
   await rm(artifactPath, { force: true });
-  await cp(packedPaths[0], artifactPath);
+  await cp(packedPath, artifactPath);
+  run('node', [path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs'), artifactPath], { cwd: workdir });
 
-  const dependencyTreeHashes = [];
-  for (const name of ['install-a', 'install-b']) {
-    const prefix = path.join(workdir, name);
-    const cache = path.join(workdir, `${name}-cache`);
-    await mkdir(prefix);
-    run('npm', ['install', '--global', '--prefix', prefix, artifactPath], {
-      cwd: workdir,
-      env: { ...process.env, npm_config_cache: cache },
-    });
-    const tree = JSON.parse(runCapture('npm', ['ls', '--global', '--all', '--json', '--prefix', prefix], {
-      cwd: workdir,
-      env: { ...process.env, npm_config_cache: cache },
-    }));
-    dependencyTreeHashes.push(sha256Text(JSON.stringify(normalizeDependencyTree(tree))));
-  }
-  if (dependencyTreeHashes[0] !== dependencyTreeHashes[1]) {
-    throw new Error('Two clean CloudCLI installations produced different production dependency trees');
-  }
+  const installPrefix = path.join(workdir, 'install');
+  const installCache = path.join(workdir, 'install-cache');
+  await mkdir(installPrefix);
+  run('npm', ['install', '--global', '--prefix', installPrefix, artifactPath], {
+    cwd: workdir,
+    env: { ...process.env, npm_config_cache: installCache },
+  });
+  const dependencyTree = JSON.parse(runCapture('npm', ['ls', '--global', '--all', '--json', '--prefix', installPrefix], {
+    cwd: workdir,
+    env: { ...process.env, npm_config_cache: installCache },
+  }));
+  const productionDependencyTreeHash = sha256Text(JSON.stringify(normalizeDependencyTree(dependencyTree)));
 
   const unpackDir = path.join(workdir, 'pack-check');
   await mkdir(unpackDir);
   run('tar', ['-xzf', artifactPath, '-C', unpackDir]);
-  const fileListHash = createHash('sha256')
+  const packageFileListHash = createHash('sha256')
     .update(collectFiles(path.join(unpackDir, 'package')).sort().join('\n'))
     .digest('hex');
+  const shrinkwrapHash = sha256(path.join(workdir, 'npm-shrinkwrap.json'));
+  const artifactHash = sha256(artifactPath);
 
   const manifest = {
     bridge: 'cloudcli-account-management',
@@ -200,19 +250,31 @@ try {
       image: expectedBuildImage,
       node: actualNode,
       npm: actualNpm,
-      commands: ['npm ci', 'npm run typecheck', 'npm run build', 'npm run lint', 'npm shrinkwrap --omit=dev', 'npm pack (twice)', 'npm install -g (twice)'],
-      generatedAt: '2026-07-15T00:00:00Z',
+      packages: actualBuildPackages,
+      environmentSha256: buildEnvironmentHash,
+      commands: [
+        'git apply --check --index',
+        'git apply --index',
+        'npm ci',
+        'native better-sqlite3 smoke',
+        'npm run typecheck',
+        'npm run build',
+        'npm run lint',
+        'npm shrinkwrap --omit=dev',
+        'npm pack',
+        'npm install -g',
+      ],
+      generatedAt: '2026-07-21T00:00:00Z',
       sourceDateNote: 'Timestamp is fixed in this manifest so reproducibility checks compare stable fields.',
       sourceTreeSha256: sourceTreeHash,
     },
     artifact: {
       file: artifactFile,
-      sha256: sha256(artifactPath),
+      sha256: artifactHash,
       size: statSync(artifactPath).size,
-      packageFileListSha256: fileListHash,
-      shrinkwrapSha256: sha256(path.join(workdir, 'npm-shrinkwrap.json')),
-      productionDependencyTreeSha256: dependencyTreeHashes[0],
-      duplicatePackSha256: sha256(packedPaths[1]),
+      packageFileListSha256: packageFileListHash,
+      shrinkwrapSha256: shrinkwrapHash,
+      productionDependencyTreeSha256: productionDependencyTreeHash,
     },
     patches: patches.map((patch) => ({ file: patch, sha256: sha256(path.join(patchDir, patch)) })),
     verification: {
@@ -227,13 +289,20 @@ try {
     ],
     removal: 'Remove when a fixed upstream npm package verifies as upstream-complete without HolyClaude bridge markers.',
   };
+  const hashes = {
+    artifactSha256: artifactHash,
+    buildEnvironmentSha256: buildEnvironmentHash,
+    sourceTreeSha256: sourceTreeHash,
+    packageFileListSha256: packageFileListHash,
+    shrinkwrapSha256: shrinkwrapHash,
+    productionDependencyTreeSha256: productionDependencyTreeHash,
+  };
 
   writeFileSync(
-    path.join(artifactDir, 'cloudcli-account-management.manifest.json'),
-    `${JSON.stringify(manifest, null, 2)}\n`,
+    path.join(outputDir, 'cloudcli-account-management.build.json'),
+    `${JSON.stringify({ manifest, hashes }, null, 2)}\n`,
   );
-
-  console.log(`[cloudcli-account] wrote ${artifactPath}`);
+  console.log(`[cloudcli-account] wrote independent build output to ${outputDir}`);
 } finally {
   if (!keepWorkdir) {
     await rm(workdir, { recursive: true, force: true });

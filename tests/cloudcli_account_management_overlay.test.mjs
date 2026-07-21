@@ -11,6 +11,8 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = path.join(repoRoot, 'vendor/artifacts/cloudcli-account-management.manifest.json');
+const buildScriptPath = path.join(repoRoot, 'scripts/build-cloudcli-account-management-artifact.mjs');
+const containerBuildScriptPath = path.join(repoRoot, 'scripts/build-cloudcli-account-management-artifact-container.mjs');
 
 function sha256(buffer) {
   return createHash('sha256').update(buffer).digest('hex');
@@ -51,9 +53,10 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
 
   assert.equal(manifest.bridge, 'cloudcli-account-management');
   assert.equal(manifest.state, 'holyclaude-bridge-complete');
-  assert.equal(manifest.upstream.version, '1.36.2');
+  assert.equal(manifest.upstream.commit, '27eaf0146a46aa8a55178f3d394360ff7465420f');
+  assert.equal(manifest.upstream.version, '1.36.3');
   assert.equal(manifest.build.node, 'v26.5.0');
-  assert.equal(manifest.build.npm, '11.17.0');
+  assert.equal(manifest.build.npm, '11.18.0');
   assert.match(manifest.build.image, /^node:26\.5\.0-bookworm-slim@sha256:[0-9a-f]{64}$/);
   assert.match(manifest.artifact.shrinkwrapSha256, /^[0-9a-f]{64}$/);
   assert.match(manifest.artifact.productionDependencyTreeSha256, /^[0-9a-f]{64}$/);
@@ -61,7 +64,11 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   assert.equal(sha256(artifactBuffer), manifest.artifact.sha256);
 
   const cloudcliRoot = await unpackArtifact(artifactPath);
+  const packageJson = JSON.parse(await readFile(path.join(cloudcliRoot, 'package.json'), 'utf8'));
   const shrinkwrap = JSON.parse(await readFile(path.join(cloudcliRoot, 'npm-shrinkwrap.json'), 'utf8'));
+  assert.equal(packageJson.version, '1.36.3');
+  assert.equal(shrinkwrap.version, '1.36.3');
+  assert.equal(shrinkwrap.packages[''].version, '1.36.3');
   assert.equal(shrinkwrap.packages['node_modules/better-sqlite3'].version, '12.11.1');
   const packageFileListSha256 = createHash('sha256')
     .update((await collectFiles(cloudcliRoot)).sort().join('\n'))
@@ -71,6 +78,55 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   for (const patch of manifest.patches) {
     const patchBuffer = await readFile(path.join(repoRoot, 'vendor/patches/cloudcli-account-management', patch.file));
     assert.equal(sha256(patchBuffer), patch.sha256, `${patch.file} hash should match manifest`);
+    const patchSource = patchBuffer.toString('utf8');
+    assert.doesNotMatch(patchSource, /\r/, `${patch.file} should use LF line endings`);
+    assert.doesNotMatch(patchSource, /[ \t]+$/m, `${patch.file} should not contain trailing whitespace`);
+  }
+  assert.deepEqual(manifest.patches.map(({ file }) => file), ['0001-local-account-management.patch']);
+  assert.equal(manifest.reproducibility.independentContainerBuilds, 2);
+  for (const key of [
+    'artifactSha256',
+    'sourceTreeSha256',
+    'packageFileListSha256',
+    'shrinkwrapSha256',
+    'productionDependencyTreeSha256',
+  ]) {
+    assert.equal(manifest.reproducibility.builds[0][key], manifest.reproducibility.builds[1][key]);
+  }
+});
+
+test('CloudCLI manifest binds exact bootstrap package versions', async () => {
+  const manifest = await readManifest();
+  assert.deepEqual(manifest.build.packages, {
+    'build-essential': '12.9',
+    'ca-certificates': '20230311+deb12u1',
+    git: '1:2.39.5-0+deb12u3',
+    'pkg-config': '1.8.1-1',
+    python3: '3.11.2-1+b1',
+  });
+  assert.match(manifest.build.environmentSha256, /^[a-f0-9]{64}$/);
+  for (const build of manifest.reproducibility.builds) {
+    assert.equal(build.buildEnvironmentSha256, manifest.build.environmentSha256);
+  }
+});
+
+test('CloudCLI artifact build applies patches exactly and compares two clean container builds', async () => {
+  const buildScript = await readFile(buildScriptPath, 'utf8');
+  const containerBuildScript = await readFile(containerBuildScriptPath, 'utf8');
+
+  assert.match(buildScript, /run\('git', \['apply', '--check', '--index', patchPath\]/);
+  assert.match(buildScript, /run\('git', \['apply', '--index', patchPath\]/);
+  assert.doesNotMatch(buildScript, /-C0/);
+  assert.match(buildScript, /runCapture\('git', \['ls-files', '-z'\]/);
+  assert.match(containerBuildScript, /\['build-a', 'build-b'\]/);
+  for (const key of [
+    'artifactSha256',
+    'sourceTreeSha256',
+    'packageFileListSha256',
+    'shrinkwrapSha256',
+    'productionDependencyTreeSha256',
+  ]) {
+    assert.ok(containerBuildScript.includes(key), `container build should compare ${key}`);
   }
 });
 

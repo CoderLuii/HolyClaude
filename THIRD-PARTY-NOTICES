@@ -10,7 +10,7 @@ licensed under MIT (see LICENSE).
 - Copyright: CloudCLI UI Contributors
 - Homepage: https://cloudcli.ai
 - npm: https://www.npmjs.com/package/@cloudcli-ai/cloudcli
-- Version: 1.36.2, installed from HolyClaude's vendored source-release tarball
+- Version: 1.36.3, installed from HolyClaude's vendored source-release tarball
 
 CloudCLI is installed as a standalone program via npm and runs as an
 independent process managed by s6-overlay.
@@ -36,8 +36,6 @@ build.
   rotates the local password hash in place, and invalidates older REST, SSE,
   and WebSocket tokens after a password change until upstream CloudCLI ships
   equivalent support.
-- Node 26 lock correction: resolves `better-sqlite3` 12.11.1 inside
-  CloudCLI's declared dependency range before the vendored artifact is built.
 - Build-time upstream checks: verify CloudCLI's WebSocket binary-frame handling
   provider model command flow, Codex final exit codes, Apprise call sites, and
   Codex provider completion fields are present in the compiled runtime.
@@ -67,13 +65,13 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 
 - License: ISC
 - Source: https://github.com/just-containers/s6-overlay
-- Version: 3.2.3.1
+- Version: 3.2.3.2
 
 ## fzf
 
 - License: MIT
 - Source: https://github.com/junegunn/fzf
-- Version: 0.74.0, installed from checksum-verified upstream archives
+- Version: 0.74.1, installed from checksum-verified upstream archives
 
 ## esbuild
 
@@ -88,7 +86,7 @@ HolyClaude keeps the JavaScript package versions required by the bundled full-im
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 150.0.7871.114-1~deb12u1, installed from Bookworm security packages
+- Version: 150.0.7871.124-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 
@@ -114,6 +112,29 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 - Source: https://github.com/nodejs/node
 - Version: 26.5.0 base image
 
+## node-tar
+
+- License: ISC
+- Source: https://github.com/isaacs/node-tar
+- npm: https://www.npmjs.com/package/tar
+- Version: 7.5.20, installed in the full image only
+
+HolyClaude uses the checksum-verified npm archive to replace the `tar` 7.5.7
+copies bundled by EAS CLI 20.5.1 and Vercel CLI 54.21.1. The replacement
+contains the upstream fix for `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw`.
+
+## Netlify CLI
+
+- License: MIT
+- Source: https://github.com/netlify/cli
+- npm: https://www.npmjs.com/package/netlify-cli
+- Version: 26.2.0, installed in the full image only
+
+HolyClaude removes Netlify CLI's optional `local-functions-proxy` executable.
+The current architecture packages ship that executable with Go 1.16.7. The
+Netlify deployment CLI remains installed; local Go/Rust function emulation is
+not included.
+
 ## Desloppify
 
 - License: OSNL-0.2
@@ -130,7 +151,7 @@ create `.desloppify/`, or modify project files unless a user runs Desloppify.
 - License: MIT
 - Source: https://github.com/earendil-works/pi
 - npm: https://www.npmjs.com/package/@earendil-works/pi-coding-agent
-- Version: 0.80.7, installed in the full image only
+- Version: 0.81.0, installed in the full image only
 
 For a complete list of installed packages and their licenses, inspect the
 Docker image directly or refer to the Dockerfile.

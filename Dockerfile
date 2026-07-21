@@ -23,19 +23,23 @@ FROM node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 
 # ---------- Build args ----------
-ARG S6_OVERLAY_VERSION=3.2.3.1
-ARG FZF_VERSION=0.74.0
-ARG CHROMIUM_DEBIAN_VERSION=150.0.7871.114-1~deb12u1
-ARG CLAUDE_CODE_VERSION=2.1.210
+ARG S6_OVERLAY_VERSION=3.2.3.2
+ARG S6_NOARCH_SHA256=5379750ed30a84bbd2e2dd74847ba6b5bd29cd0b2e3ea2ec58049b57eb2eda12
+ARG S6_ARCHIVE_SHA256_AMD64=e6befcc96a437a3831386ecfc51808c5d3e939dc5fe3c02ae9284599e8aa2408
+ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd712115693a2f8b4c
+ARG FZF_VERSION=0.74.1
+ARG FZF_ARCHIVE_SHA256_AMD64=df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b
+ARG FZF_ARCHIVE_SHA256_ARM64=f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183
+ARG CHROMIUM_DEBIAN_VERSION=150.0.7871.124-1~deb12u1
+ARG CLAUDE_CODE_VERSION=2.1.216
 ARG CLAUDE_INSTALLER_SHA256=b3f79015b54c751440a6488f07b1b64f9088742b9052bc1bd356d13108320d2a
-ARG CLAUDE_BINARY_SHA256_AMD64=e7d2ceb53ed4c2ced1fe7fc1c6331c98dc5f7b4c9b2722d9c5fa3dd5dff6f719
-ARG CLAUDE_BINARY_SHA256_ARM64=84feb193c1d91f3b5eba836ed47c0e4dee953195abba950917c3e101eff174e8
-ARG JUNIE_VERSION=2144.10
-ARG JUNIE_INSTALLER_SHA256=a56dcb1ffdcb0f3b7a61fbfa16bdd08635e654ebbcd2315120c16f2ee61fa12b
-ARG JUNIE_ARCHIVE_SHA256_AMD64=c5bbf8adc4c8c0aae0ea1ffda72654dc2f0c590ae276ddc0f336983cb5947eff
-ARG JUNIE_ARCHIVE_SHA256_ARM64=64d6be41e15e12503ebc113eb580e4fed59f44f3fcdfa7e4f7f771a6900b9443
-ARG CURSOR_BUILD_ID=2026.07.09-a3815c0
-ARG CURSOR_INSTALLER_SHA256=3dcefacb00a72c4f39958e836e2467ec74476c22d484f1879bd61fc072f72cce
+ARG CLAUDE_BINARY_SHA256_AMD64=74deca45220b8080ec75ab099bd5a5980e41a2b5879846a008fb115d436de085
+ARG CLAUDE_BINARY_SHA256_ARM64=9e3a6aecc5164f607e1183aea2092c7d7705d146e504a6207df291776996a8ea
+ARG JUNIE_VERSION=2285.5
+ARG JUNIE_ARCHIVE_SHA256_AMD64=5d867c00bbfbc36604972592623e4a1b2677150e7f2309203a0d809cd3400521
+ARG JUNIE_ARCHIVE_SHA256_ARM64=6f7b2fd1419f7615dbf3de28616397d1b8c90d055d691102da48292fcc510dae
+ARG CURSOR_BUILD_ID=2026.07.17-3e2a980
+ARG CURSOR_INSTALLER_SHA256=113bd5068597904810a94daf6056fa2f3f45829e1c4e52937dfe3b3d009d2a23
 ARG CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -43,6 +47,8 @@ ARG AZURE_CLI_VERSION=2.88.0-1~bookworm
 ARG AZURE_CLI_INSTALLER_SHA256=01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
 ARG GITHUB_CLI_VERSION=2.96.0
 ARG GITHUB_CLI_KEYRING_SHA256=6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b
+ARG NODE_TAR_VERSION=7.5.20
+ARG NODE_TAR_SHA256=2382f1b186959c031d834805f7676f8dd8d203d2ead5f6c1365ee346e5b48c0f
 ARG TARGETARCH
 ARG VARIANT=full
 
@@ -60,12 +66,15 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # ---------- s6-overlay v3 (multi-arch) ----------
 RUN apt-get update && apt-get install -y --no-install-recommends xz-utils curl ca-certificates && rm -rf /var/lib/apt/lists/*
 RUN S6_ARCH=$(case "$TARGETARCH" in arm64) echo "aarch64";; *) echo "x86_64";; esac) && \
+    S6_ARCH_SHA256=$(case "$TARGETARCH" in arm64) echo "$S6_ARCHIVE_SHA256_ARM64";; *) echo "$S6_ARCHIVE_SHA256_AMD64";; esac) && \
     for S6_ASSET in noarch "$S6_ARCH"; do \
+      S6_EXPECTED_SHA256=$(case "$S6_ASSET" in noarch) echo "$S6_NOARCH_SHA256";; *) echo "$S6_ARCH_SHA256";; esac); \
       curl -fsSL -o "/tmp/s6-overlay-${S6_ASSET}.tar.xz" \
         "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ASSET}.tar.xz"; \
       curl -fsSL -o "/tmp/s6-overlay-${S6_ASSET}.tar.xz.sha256" \
         "https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ASSET}.tar.xz.sha256"; \
-      (cd /tmp && sha256sum -c "s6-overlay-${S6_ASSET}.tar.xz.sha256"); \
+      test "$(cut -d' ' -f1 "/tmp/s6-overlay-${S6_ASSET}.tar.xz.sha256")" = "$S6_EXPECTED_SHA256"; \
+      echo "$S6_EXPECTED_SHA256  /tmp/s6-overlay-${S6_ASSET}.tar.xz" | sha256sum -c -; \
     done && \
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
     tar -C / -Jxpf "/tmp/s6-overlay-${S6_ARCH}.tar.xz" && \
@@ -99,12 +108,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # ---------- fzf (official multi-arch release) ----------
 RUN FZF_ARCH=$(case "$TARGETARCH" in arm64) echo "arm64";; *) echo "amd64";; esac) && \
+    FZF_ARCHIVE_SHA256=$(case "$TARGETARCH" in arm64) echo "$FZF_ARCHIVE_SHA256_ARM64";; *) echo "$FZF_ARCHIVE_SHA256_AMD64";; esac) && \
     FZF_ASSET="fzf-${FZF_VERSION}-linux_${FZF_ARCH}.tar.gz" && \
     curl -fsSL -o "/tmp/${FZF_ASSET}" \
       "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/${FZF_ASSET}" && \
     curl -fsSL -o /tmp/fzf-checksums.txt \
       "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt" && \
-    (cd /tmp && grep -F "  ${FZF_ASSET}" fzf-checksums.txt | sha256sum -c -) && \
+    test "$(grep -F "  ${FZF_ASSET}" /tmp/fzf-checksums.txt | cut -d' ' -f1)" = "$FZF_ARCHIVE_SHA256" && \
+    echo "$FZF_ARCHIVE_SHA256  /tmp/${FZF_ASSET}" | sha256sum -c - && \
     tar -xzf "/tmp/${FZF_ASSET}" -C /usr/local/bin fzf && \
     test "$(/usr/local/bin/fzf --version | awk '{print $1}')" = "$FZF_VERSION" && \
     rm -f "/tmp/${FZF_ASSET}" /tmp/fzf-checksums.txt
@@ -169,26 +180,65 @@ RUN rm -f /home/claude/.claude.json
 ENV PATH="/home/claude/.local/bin:${PATH}"
 
 # ---------- npm global packages (slim — always installed) ----------
+RUN npm install -g npm@11.18.0 && \
+    test "$(npm --version)" = "11.18.0"
+
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.61.0 \
     typescript@6.0.3 tsx@4.23.1 \
-    pnpm@11.13.0 \
-    vite@8.1.4 esbuild@0.28.1 \
-    eslint@10.7.0 prettier@3.9.5 \
+    pnpm@11.15.1 \
+    vite@8.1.5 esbuild@0.28.1 \
+    eslint@10.7.0 prettier@3.9.6 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.3 \
     dotenv-cli@11.0.0
 
 # ---------- npm global packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
     npm i -g \
-      wrangler@4.111.0 vercel@54.21.0 netlify-cli@26.2.0 \
+      wrangler@4.112.0 vercel@54.21.1 netlify-cli@26.2.0 \
       pm2@7.0.3 \
-      prisma@7.8.0 drizzle-kit@0.31.10 \
+      prisma@7.9.0 drizzle-kit@0.31.10 \
       eas-cli@20.5.1 \
-      lighthouse@13.4.0 @lhci/cli@0.15.1 \
+      lighthouse@13.4.1 @lhci/cli@0.15.1 \
       sharp-cli@5.2.0 json-server@1.0.0-beta.15 http-server@14.1.1 \
-      @marp-team/marp-cli@4.4.1 && \
+      @marp-team/marp-cli@4.5.0 && \
     npm i -g --legacy-peer-deps @cloudflare/next-on-pages@1.13.16; \
+    fi
+
+# EAS 20 and Vercel 54 pin tar 7.5.7. Replace only their installed copies
+# with the checksum-bound fix for CVE-2026-59873, then update exact metadata.
+COPY scripts/patch-global-node-tar.mjs /tmp/patch-global-node-tar.mjs
+RUN if [ "$VARIANT" = "full" ]; then \
+      node /tmp/patch-global-node-tar.mjs --root / --check-baseline && \
+      curl -fsSL "https://registry.npmjs.org/tar/-/tar-${NODE_TAR_VERSION}.tgz" -o /tmp/node-tar.tgz && \
+      echo "$NODE_TAR_SHA256  /tmp/node-tar.tgz" | sha256sum -c - && \
+      for target in \
+        /usr/local/lib/node_modules/eas-cli/node_modules/tar \
+        /usr/local/lib/node_modules/vercel/node_modules/tar; do \
+        rm -rf "$target" && \
+        mkdir -p "$target" && \
+        tar -xzf /tmp/node-tar.tgz --strip-components=1 -C "$target"; \
+      done && \
+      node /tmp/patch-global-node-tar.mjs --root / && \
+      test "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
+      node -e "for (const path of ['/usr/local/lib/node_modules/eas-cli/node_modules/tar', '/usr/local/lib/node_modules/vercel/node_modules/tar']) { if (typeof require(path).list !== 'function') throw new Error('invalid tar module at ' + path); }" && \
+      eas --version >/dev/null && \
+      vercel --version >/dev/null && \
+      rm -f /tmp/node-tar.tgz; \
+    fi
+
+# Netlify CLI 26.2.0 bundles an optional local Go/Rust functions proxy built
+# with Go 1.16.7. Keep the deployment CLI, but remove that stale executable.
+RUN if [ "$VARIANT" = "full" ]; then \
+      NETLIFY_PROXY_ARCH=$(case "$TARGETARCH" in arm64) echo "arm64";; *) echo "x64";; esac) && \
+      NETLIFY_PROXY_ROOT="/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-${NETLIFY_PROXY_ARCH}" && \
+      test "$(node -p "require('${NETLIFY_PROXY_ROOT}/package.json').version")" = "1.1.1" && \
+      test -x "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
+      rm -f "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
+      test ! -e "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "26.2.0" && \
+      netlify --version >/dev/null; \
     fi
 
 # Rebuild the exact esbuild versions retained by full-only tools with the
@@ -217,7 +267,7 @@ RUN pip install --no-cache-dir --break-system-packages \
     pandas==3.0.3 numpy==2.4.6 \
     openpyxl==3.1.5 python-docx==1.2.0 \
     jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.2 markdown==3.10.2 \
-    rich==15.0.0 click==8.4.2 tqdm==4.68.4 \
+    rich==15.0.0 click==8.4.2 tqdm==4.69.0 \
     'desloppify[full]==1.0' bandit==1.9.4 defusedxml==0.7.1 \
     tree-sitter==0.26.0 tree-sitter-language-pack==1.6.2 stevedore==5.9.0 \
     playwright==1.61.0 \
@@ -242,13 +292,13 @@ RUN if [ "$VARIANT" = "full" ]; then \
     pip install --no-cache-dir --break-system-packages \
       reportlab==5.0.0 weasyprint==69.0 cairosvg==2.9.0 fpdf2==2.8.7 PyMuPDF==1.28.0 pdfkit==1.0.0 img2pdf==0.6.3 \
       xlsxwriter==3.2.9 xlrd==2.0.2 \
-      matplotlib==3.11.0 seaborn==0.13.2 \
+      matplotlib==3.11.1 seaborn==0.13.2 \
       python-pptx==1.0.2 \
-      fastapi==0.139.0 uvicorn==0.51.0; \
+      fastapi==0.139.2 uvicorn==0.51.0; \
     fi
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.50.0 @openai/codex@0.144.4 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.51.0 @openai/codex@0.144.6 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_NODE_SHA256=$(case "$TARGETARCH" in arm64) echo "$CURSOR_NODE_SHA256_ARM64";; *) echo "$CURSOR_NODE_SHA256_AMD64";; esac) && \
     curl -fsSL https://cursor.com/install -o /tmp/cursor-install.sh && \
@@ -276,32 +326,45 @@ RUN if [ "$VARIANT" = "full" ]; then \
     JUNIE_ARCHIVE="junie-release-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.zip" && \
     curl -fsSL "https://github.com/jetbrains-junie/junie/releases/download/${JUNIE_VERSION}/${JUNIE_ARCHIVE}" -o "/tmp/${JUNIE_ARCHIVE}" && \
     echo "$JUNIE_ARCHIVE_SHA256  /tmp/${JUNIE_ARCHIVE}" | sha256sum -c - && \
-    curl -fsSL https://junie.jetbrains.com/install.sh -o /tmp/junie-install.sh && \
-    echo "$JUNIE_INSTALLER_SHA256  /tmp/junie-install.sh" | sha256sum -c - && \
-    JUNIE_VERSION="$JUNIE_VERSION" bash /tmp/junie-install.sh && \
+    JUNIE_TARGET="/home/claude/.local/share/junie/versions/$JUNIE_VERSION" && \
+    JUNIE_STAGING="/home/claude/.local/share/junie/versions/.${JUNIE_VERSION}.tmp" && \
+    rm -rf "$JUNIE_STAGING" "$JUNIE_TARGET" && \
+    mkdir -p "$JUNIE_STAGING" /home/claude/.local/bin && \
+    JUNIE_TOP_LEVEL=$(unzip -Z1 "/tmp/${JUNIE_ARCHIVE}" | cut -d/ -f1 | sort -u | tr '\n' ' ') && \
+    test "$JUNIE_TOP_LEVEL" = "junie junie-app shim " && \
+    unzip -q "/tmp/${JUNIE_ARCHIVE}" 'junie-app/*' -d "$JUNIE_STAGING" && \
+    test -x "$JUNIE_STAGING/junie-app/bin/junie" && \
+    mv "$JUNIE_STAGING/junie-app" "$JUNIE_TARGET" && \
+    rmdir "$JUNIE_STAGING" && \
+    ln -sfn "$JUNIE_TARGET" /home/claude/.local/share/junie/current && \
+    ln -sfn /home/claude/.local/share/junie/current/bin/junie /home/claude/.local/bin/junie && \
     test "$(readlink /home/claude/.local/share/junie/current)" = "/home/claude/.local/share/junie/versions/$JUNIE_VERSION" && \
-    rm -f "/tmp/${JUNIE_ARCHIVE}" /tmp/junie-install.sh; \
+    /home/claude/.local/bin/junie --version >/dev/null && \
+    rm -f "/tmp/${JUNIE_ARCHIVE}"; \
     fi
 USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g opencode-ai@1.18.1; \
+    npm i -g opencode-ai@1.18.4; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.80.7; \
+    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.81.0; \
     fi
 
-ARG CLOUDCLI_VERSION=1.36.2
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.36.2-holyclaude-account-management.tgz
+ARG CLOUDCLI_VERSION=1.36.3
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7
 COPY vendor/artifacts/${CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT} /tmp/vendor/cloudcli-ai-cloudcli.tgz
 COPY vendor/artifacts/cloudcli-account-management.manifest.json /tmp/vendor/cloudcli-account-management.manifest.json
 COPY --chown=claude:claude vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json /tmp/vendor/web-terminal-package-lock.json
 
 # ---------- CloudCLI (web UI for Claude Code) ----------
-RUN npm i -g /tmp/vendor/cloudcli-ai-cloudcli.tgz && rm -f /tmp/vendor/cloudcli-ai-cloudcli.tgz
+RUN echo "$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  /tmp/vendor/cloudcli-ai-cloudcli.tgz" | sha256sum -c - && \
+    npm i -g /tmp/vendor/cloudcli-ai-cloudcli.tgz && \
+    rm -f /tmp/vendor/cloudcli-ai-cloudcli.tgz
 RUN test "$(node --input-type=module -e "import { createRequire } from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); process.stdout.write(require('playwright/package.json').version);")" = "1.61.0" && \
     test -x /usr/bin/chromium
 COPY scripts/patch-cloudcli-apprise-notifications.mjs /tmp/patch-cloudcli-apprise-notifications.mjs
@@ -325,7 +388,7 @@ RUN CLOUDCLI_BROWSER_USE="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist
 # patch: disable CloudCLI npm self-update inside HolyClaude (issue #50)
 RUN node /tmp/patch-cloudcli-disable-self-update.mjs && rm -f /tmp/patch-cloudcli-disable-self-update.mjs
 
-# CloudCLI 1.36.2 already contains the WebSocket binary-frame fix, provider
+# CloudCLI 1.36.3 already contains the WebSocket binary-frame fix, provider
 # model flow, and final Codex complete exit codes. Keep checks fail-closed.
 RUN CLOUDCLI_WS_PROXY="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/websocket/services/plugin-websocket-proxy.service.js" && \
     grep -q "binary: isBinary" "$CLOUDCLI_WS_PROXY" && \

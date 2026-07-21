@@ -1,9 +1,13 @@
 schema-version: 1
-release: v1.5.0
-reviewed-at: 2026-07-15
-expires-at: 2026-08-14
+release: v1.5.1
+reviewed-at: 2026-07-21
+expires-at: 2026-08-20
 
 base-images:
+  - name: Actionlint workflow validator
+    reference: rhysd/actionlint:1.7.7
+    digest: sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9
+    status: pinned
   - name: Go esbuild builder
     reference: golang:1.26.5-bookworm
     digest: sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651
@@ -15,30 +19,69 @@ base-images:
 
 release-assets:
   - name: s6-overlay
-    version: 3.2.3.1
+    version: 3.2.3.2
+    noarch-archive-sha256: 5379750ed30a84bbd2e2dd74847ba6b5bd29cd0b2e3ea2ec58049b57eb2eda12
+    amd64-archive-sha256: e6befcc96a437a3831386ecfc51808c5d3e939dc5fe3c02ae9284599e8aa2408
+    arm64-archive-sha256: b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd712115693a2f8b4c
     verification: official per-asset sha256 files
+    verification-mode: committed-hash
     status: updated
   - name: fzf
-    version: 0.74.0
+    version: 0.74.1
+    amd64-archive-sha256: df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b
+    arm64-archive-sha256: f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183
     verification: official release checksum list
+    verification-mode: committed-hash
     status: updated
+  - name: Debian Chromium package trio
+    version: 150.0.7871.124-1~deb12u1
+    verification: Bookworm security package indexes for amd64 and arm64
+    verification-mode: repository-index
+    status: updated
+  - name: Syft
+    version: 1.49.0
+    amd64-archive-sha256: 7aa2f03ee92739cf643279ba3990548b9925d4e22cae13f46831ee62821147fe
+    arm64-archive-sha256: c7c32de183c32368de197edba75e8dba7632915f7761bacd55149a9ca7fe0fa4
+    verification: official release checksum list
+    verification-mode: committed-hash
+    status: updated
+  - name: Grype
+    version: 0.116.0
+    amd64-archive-sha256: 40aff724297312f91ea390d003bed8d8651c74cc7f5b26732db80b3a408d2fc5
+    arm64-archive-sha256: 7af3eed24f469b0cf3ab5ec4508d9c12f4bb9c2c6be714f32973c7b5d63cb6a5
+    verification: official release checksum list
+    verification-mode: committed-hash
+    status: updated
+  - name: SBOM Utility
+    version: 0.19.2
+    amd64-archive-sha256: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
+    arm64-archive-sha256: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
+    verification: GitHub release asset digest
+    verification-mode: committed-hash
+    status: pinned
+  - name: node-tar npm package
+    version: 7.5.20
+    archive-sha256: 2382f1b186959c031d834805f7676f8dd8d203d2ead5f6c1365ee346e5b48c0f
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
 
 installers:
   - name: Claude Code
-    version: 2.1.210
+    version: 2.1.216
     installer-sha256: b3f79015b54c751440a6488f07b1b64f9088742b9052bc1bd356d13108320d2a
-    amd64-output-sha256: e7d2ceb53ed4c2ced1fe7fc1c6331c98dc5f7b4c9b2722d9c5fa3dd5dff6f719
-    arm64-output-sha256: 84feb193c1d91f3b5eba836ed47c0e4dee953195abba950917c3e101eff174e8
+    amd64-output-sha256: 74deca45220b8080ec75ab099bd5a5980e41a2b5879846a008fb115d436de085
+    arm64-output-sha256: 9e3a6aecc5164f607e1183aea2092c7d7705d146e504a6207df291776996a8ea
     status: pinned
   - name: Junie
-    version: "2144.10"
-    installer-sha256: a56dcb1ffdcb0f3b7a61fbfa16bdd08635e654ebbcd2315120c16f2ee61fa12b
-    amd64-archive-sha256: c5bbf8adc4c8c0aae0ea1ffda72654dc2f0c590ae276ddc0f336983cb5947eff
-    arm64-archive-sha256: 64d6be41e15e12503ebc113eb580e4fed59f44f3fcdfa7e4f7f771a6900b9443
+    version: "2285.5"
+    amd64-archive-sha256: 5d867c00bbfbc36604972592623e4a1b2677150e7f2309203a0d809cd3400521
+    arm64-archive-sha256: 6f7b2fd1419f7615dbf3de28616397d1b8c90d055d691102da48292fcc510dae
+    install: direct from verified release archive
     status: pinned
   - name: Cursor CLI
-    build-id: 2026.07.09-a3815c0
-    installer-sha256: 3dcefacb00a72c4f39958e836e2467ec74476c22d484f1879bd61fc072f72cce
+    build-id: 2026.07.17-3e2a980
+    installer-sha256: 113bd5068597904810a94daf6056fa2f3f45829e1c4e52937dfe3b3d009d2a23
     launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -54,9 +97,13 @@ installers:
 
 vendored-artifacts:
   - name: CloudCLI HolyClaude account-management artifact
-    version: 1.36.2
+    version: 1.36.3
+    upstream-commit: 27eaf0146a46aa8a55178f3d394360ff7465420f
+    artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    sha256: 8e5add4bd93ca1a94a824a850e6192c80f8b8fcb1c2223048c263497f658d04c
+    manifest-sha256: b694845501117acd7181a07217768be2eae0e71816605d2efe9c0b2234aed040
+    sha256: e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7
+    verification: two independent clean builds in the pinned Node image
     status: updated
 
 plugins:
@@ -74,8 +121,8 @@ plugins:
 
 github-actions:
   - name: actions/checkout
-    version: v7.0.0
-    commit: 9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+    version: v7.0.1
+    commit: 3d3c42e5aac5ba805825da76410c181273ba90b1
   - name: actions/upload-artifact
     version: v7.0.1
     commit: 043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
@@ -103,3 +150,4 @@ deferred-migrations:
   - Debian 13
   - OpenNext
   - embedded OCI attestations
+  - tree-sitter-language-pack newer than 1.6.2 until Python 3.11 artifacts are published

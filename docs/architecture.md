@@ -138,20 +138,24 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 
 ### Browser Runtime
 
-v1.5.0 keeps the browser stack baked at build time:
+v1.5.1 keeps the browser stack baked at build time:
 
 - Playwright 1.61.0 is installed for both Node and Python
-- Debian Chromium 150.0.7871.114 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
+- Debian Chromium 150.0.7871.124 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
 - `/usr/bin/chromium` remains the supported wrapper, and `CHROME_PATH` / `PUPPETEER_EXECUTABLE_PATH` still point there
 - Node Playwright, Python Playwright, and CloudCLI Browser Use launch that same wrapper instead of downloading a separate browser
 - There is no runtime browser download
 - Lighthouse ships in the full image only
 
-Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to its installer hash and embedded build output, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.0 and expires the review instead of letting it silently age.
+Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to its installer hash and embedded build output, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.1 and expires the review instead of letting it silently age.
 
-CloudCLI 1.36.2 is built inside the exact Node 26.5.0 image with npm 11.17.0; two package runs and two clean global installs must agree before its vendored artifact is accepted. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5.
+CloudCLI 1.36.3 is built twice in independent containers from the exact Node 26.5.0 image with npm 11.18.0. Both builds must agree on the artifact, source tree, file list, shrinkwrap, and production dependency tree hashes before the vendored artifact is accepted. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5. EAS CLI 20.5.1 and Vercel CLI 54.21.1 remain on their compatible major lines; their two bundled `tar` 7.5.7 directories are replaced with checksum-bound `tar` 7.5.20 after the build verifies the exact parent packages and dependency specs.
 
-Each full/slim and `amd64`/`arm64` candidate produces digest-bound CycloneDX, SPDX, and Grype files. The release evaluator requires every raw Critical match to resolve to exactly one current component review. OpenVEX is reserved for demonstrably unaffected code paths; vendor severity corrections stay in the review ledger. The raw reports, reviewed findings, mapped High findings, VEX, policy result, and digest metadata are uploaded as separate evidence so the published image index still contains exactly the two runtime platforms.
+Netlify CLI 26.2.0 remains available for deployments. Its optional `local-functions-proxy` executable is removed at build time because the current upstream package still contains a binary built with Go 1.16.7. This affects local Go/Rust function emulation only; it does not remove the Netlify deployment CLI.
+
+Each full/slim and `amd64`/`arm64` candidate produces digest-bound CycloneDX, SPDX, and Grype files. The raw Syft CycloneDX 1.7 file is retained. Before schema validation, the workflow records and hashes one narrow compatibility conversion: the current SPDX `Artistic-dist` identifier moves from CycloneDX's older `license.id` enum to its schema-supported `license.name` field. Any other schema error still fails the release. The release evaluator requires every raw Critical match to resolve to exactly one current component review. Grype's built-in `linux-libc-dev` suppression is accepted only when its exact package, indirect-match metadata, upstream `linux` package, and disabled-rule descriptor agree; every other ignored match fails closed. OpenVEX is reserved for demonstrably unaffected code paths; vendor severity corrections stay in the review ledger. The raw reports, reviewed findings, ignored-match audit, mapped High findings, VEX, policy result, and digest metadata are uploaded as separate evidence so the published image index still contains exactly the two runtime platforms.
+
+Release branches use commit-keyed candidate tags. The workflow builds and tests full and slim images on native `amd64` and `arm64` runners, then records the exact platform digests from Docker Hub and GHCR. A matching `vX.Y.Z` tag promotes those tested digests into the version tags before moving `latest` and `slim`. If a final smoke fails after the mutable aliases move, the workflow restores those aliases to their recorded pre-release indexes; version tags remain immutable.
 
 Earlier 1.4.7 passed native `amd64` and `arm64` browser runs with an unpinned apt package, and v1.4.8 moved to Playwright's packaged browser. v1.5.0 returns to Debian's browser only with the exact Bookworm security version pinned and checked during the build.
 

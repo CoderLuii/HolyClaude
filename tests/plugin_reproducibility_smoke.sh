@@ -30,17 +30,20 @@ install_and_hash() {
   cd "$target"
   npm ci >/dev/null
   npm run build >/dev/null
-  npm ls --all --omit=dev --json | sha256sum | awk '{print $1}'
+  tree_hash="$(npm ls --all --omit=dev --json | sha256sum | awk '{print $1}')"
+  dist_hash="$(cd dist && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"
+  printf '%s %s\n' "$tree_hash" "$dist_hash"
 }
 
 for plugin in project-stats web-terminal; do
   first="$(install_and_hash "$plugin" first)"
   second="$(install_and_hash "$plugin" second)"
   if [ "$first" != "$second" ]; then
-    echo "$plugin production dependency trees differ: $first != $second" >&2
+    echo "$plugin dependency tree or build output differs: $first != $second" >&2
     exit 1
   fi
-  printf 'plugin-reproducibility: %s production-tree=%s\n' "$plugin" "$first"
+  printf 'plugin-reproducibility: %s production-tree=%s build-output=%s\n' \
+    "$plugin" "${first%% *}" "${first#* }"
 done
 
 node <<'NODE'

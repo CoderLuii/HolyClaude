@@ -299,7 +299,7 @@ Abre `http://localhost:3001`. Crea una cuenta de CloudCLI. Inicia sesion con tu 
 
 **Eso es toda la configuracion. Ya terminaste.**
 
-> **¿Por que estas capacidades del navegador?** Este lanzamiento conserva el perfil actual de navegador de HolyClaude. `SYS_ADMIN` y `seccomp=unconfined` amplian privilegios de proceso y reducen el aislamiento; `SYS_PTRACE` es para depuracion. Mantén este perfil tal como está para v1.5.0 y trata el endurecimiento como un cambio aparte.
+> **¿Por que estas capacidades del navegador?** Este lanzamiento conserva el perfil actual de navegador de HolyClaude. `SYS_ADMIN` y `seccomp=unconfined` amplian privilegios de proceso y reducen el aislamiento; `SYS_PTRACE` es para depuracion. Mantén este perfil tal como está para v1.5.1 y trata el endurecimiento como un cambio aparte.
 
 > **¿Por que `shm_size: 2g`?** Docker otorga a los contenedores 64MB de memoria compartida por defecto. HolyClaude conserva 2GB como el valor predeterminado retenido para este lanzamiento porque Chromium usa `/dev/shm` intensamente para el renderizado de pestanas. Con 64MB, las pestanas se cuelgan; si el navegador se usa mucho, subelo a 4GB.
 
@@ -573,7 +573,7 @@ La imagen completa incluye todo lo anterior, mas:
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Despliegue en Cloudflare Workers |
 | `vercel` | Despliegue en Vercel |
-| `netlify-cli` | Despliegue en Netlify |
+| `netlify-cli` | Despliegue en Netlify; se omite el proxy local opcional para funciones Go/Rust |
 | `az` | CLI de Azure para despliegue y gestion en la nube |
 | `prisma`, `drizzle-kit` | Los dos ORMs mas populares de Node.js |
 | `pm2` | Gestor de procesos para produccion |

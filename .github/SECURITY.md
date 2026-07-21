@@ -60,15 +60,19 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.5.0 vendors CloudCLI `1.36.2`. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+HolyClaude v1.5.1 vendors CloudCLI `1.36.3`. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
 
 ## Release Evidence
 
 The release gate keeps the original Grype report and then evaluates every raw Critical match against [`security/advisory-reviews.json`](../security/advisory-reviews.json). Reviews must identify the exact vulnerability, package, version, type, and installed path. They also need a supported authority and an unexpired review date. Missing, duplicate, broad, or expired matches stop the release.
 
+Grype suppresses indirect kernel findings for Debian's `linux-libc-dev` headers by default. HolyClaude audits that built-in behavior instead of accepting ignored findings generally: the package, upstream `linux` relationship, indirect-match metadata, rule name, and disabled descriptor must all match exactly. Any changed or additional ignored match stops the release, and the accepted records are preserved as `ignored-findings.json` in the evidence bundle.
+
+The full image keeps EAS CLI 20.5.1 and Vercel CLI 54.21.1 on their tested compatibility lines. Both upstream packages bundled `tar` 7.5.7 when `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw` was published. The Docker build replaces only those two installed copies with checksum-verified `tar` 7.5.20, updates their exact dependency metadata, and fails if the parent package versions or dependency specs drift.
+
 [`security/openvex.json`](../security/openvex.json) is limited to findings where the affected code is absent or outside HolyClaude's shipped service paths. Vendor severity corrections stay in the review ledger instead of being presented as VEX. Effective Critical findings cannot be accepted. A temporary effective High exception requires `CoderLuii` approval, names the exact component, and expires within 30 days.
 
-The workflow publishes the raw SBOMs and scanner report beside the reviewed Critical report, mapped High report, OpenVEX document, policy result, and image digest metadata. This means the evidence remains inspectable without changing the two-platform Docker manifest.
+The workflow publishes the raw Syft SBOMs and scanner report beside the reviewed Critical report, mapped High report, OpenVEX document, policy result, and image digest metadata. CycloneDX's embedded SPDX enum currently predates `Artistic-dist`, so the workflow also preserves a hashed normalization record and validates a copy that represents that identifier through CycloneDX's `license.name` field. Other schema errors still stop the release. This keeps the evidence inspectable without changing the two-platform Docker manifest.
 
 ## Credential Storage
 

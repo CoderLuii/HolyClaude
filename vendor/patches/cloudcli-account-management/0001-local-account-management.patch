@@ -1,5 +1,17 @@
+diff --git a/package.json b/package.json
+index 39bba9ecfed8c96b2d0810cfe7dc2dcc08ebdf60..a601c33f4d4c044ae49b57c1ba958b45deb15a81 100644
+--- a/package.json
++++ b/package.json
+@@ -16,6 +16,7 @@
+     "dist/",
+     "dist-server/",
+     "scripts/",
++    "npm-shrinkwrap.json",
+     "README.md"
+   ],
+   "homepage": "https://cloudcli.ai",
 diff --git a/server/middleware/auth.js b/server/middleware/auth.js
-index c40237b..247f827 100644
+index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a584bb1943f 100644
 --- a/server/middleware/auth.js
 +++ b/server/middleware/auth.js
 @@ -2,9 +2,21 @@ import jwt from 'jsonwebtoken';
@@ -72,7 +84,7 @@ index c40237b..247f827 100644
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
 diff --git a/server/modules/database/repositories/app-config.ts b/server/modules/database/repositories/app-config.ts
-index 691a1b4..e929b35 100644
+index 691a1b4eb2721c1c983d41b4d5b272df1e170f62..e929b35629d6a3566a1abff00b43b5d9552e6e2b 100644
 --- a/server/modules/database/repositories/app-config.ts
 +++ b/server/modules/database/repositories/app-config.ts
 @@ -29,6 +29,15 @@ export const appConfigDb = {
@@ -92,7 +104,7 @@ index 691a1b4..e929b35 100644
    set(key: string, value: string): void {
      const db = getConnection();
 diff --git a/server/modules/database/repositories/users.ts b/server/modules/database/repositories/users.ts
-index 25bb57b..adfa0a6 100644
+index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6313c93c9 100644
 --- a/server/modules/database/repositories/users.ts
 +++ b/server/modules/database/repositories/users.ts
 @@ -66,6 +66,22 @@ export const userDb = {
@@ -119,7 +131,7 @@ index 25bb57b..adfa0a6 100644
    updateLastLogin(userId: number): void {
      try {
 diff --git a/server/routes/auth.js b/server/routes/auth.js
-index dcb2e3f..0dcafdf 100644
+index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..0dcafdf2990d071ffa228797d0221d4d2eb54a8a 100644
 --- a/server/routes/auth.js
 +++ b/server/routes/auth.js
 @@ -1,11 +1,15 @@
@@ -139,15 +151,10 @@ index dcb2e3f..0dcafdf 100644
 
  // Check auth status and setup requirements
  router.get('/status', async (req, res) => {
-@@ -31,7 +35,7 @@ router.post('/register', async (req, res) => {
-       return res.status(400).json({ error: 'Username and password are required' });
-     }
-
+@@ -35,2 +39,2 @@ router.post('/register', async (req, res) => {
 -    if (username.length < 3 || password.length < 6) {
 +    if (username.length < 3 || password.length < PASSWORD_MIN_LENGTH) {
        return res.status(400).json({ error: 'Username must be at least 3 characters, password at least 6 characters' });
-     }
-
 @@ -127,6 +131,54 @@ router.get('/user', authenticateToken, (req, res) => {
    });
  });
@@ -204,7 +211,7 @@ index dcb2e3f..0dcafdf 100644
  router.post('/logout', authenticateToken, (req, res) => {
    // In a simple JWT system, logout is mainly client-side
 diff --git a/src/components/auth/context/AuthContext.tsx b/src/components/auth/context/AuthContext.tsx
-index 69bdd8a..323c4e5 100644
+index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f310305095 100644
 --- a/src/components/auth/context/AuthContext.tsx
 +++ b/src/components/auth/context/AuthContext.tsx
 @@ -3,6 +3,7 @@ import { IS_PLATFORM } from '../../../constants/config';
@@ -260,7 +267,7 @@ index 69bdd8a..323c4e5 100644
        logout,
        needsSetup,
 diff --git a/src/components/auth/types.ts b/src/components/auth/types.ts
-index e745a37..a9b1515 100644
+index e745a3727fee890991bd2aa70b0ead71533499fb..a9b151563655db4bbf489c9156f52d36436a2649 100644
 --- a/src/components/auth/types.ts
 +++ b/src/components/auth/types.ts
 @@ -42,6 +42,7 @@ export type AuthContextValue = {
@@ -272,7 +279,7 @@ index e745a37..a9b1515 100644
  };
 
 diff --git a/src/components/settings/constants/constants.ts b/src/components/settings/constants/constants.ts
-index 8c42908..cb4bbc4 100644
+index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057eecf8e1b 100644
 --- a/src/components/settings/constants/constants.ts
 +++ b/src/components/settings/constants/constants.ts
 @@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
@@ -292,7 +299,7 @@ index 8c42908..cb4bbc4 100644
    { id: 'appearance', label: 'Appearance', keywords: 'appearance theme dark light language', icon: Palette },
    { id: 'git', label: 'Git', keywords: 'git github commits', icon: GitBranch },
 diff --git a/src/components/settings/types/types.ts b/src/components/settings/types/types.ts
-index 514de2f..2318ce6 100644
+index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5ce8243158 100644
 --- a/src/components/settings/types/types.ts
 +++ b/src/components/settings/types/types.ts
 @@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
@@ -305,7 +312,7 @@ index 514de2f..2318ce6 100644
  export type AgentCategory = 'account' | 'permissions' | 'mcp' | 'skills';
  export type ProjectSortOrder = 'name' | 'date';
 diff --git a/src/components/settings/view/Settings.tsx b/src/components/settings/view/Settings.tsx
-index 37f40bc..d49b47e 100644
+index 37f40bc96d5ad1de989e558082ec37cd90038392..d49b47ed9ef96b6559c5b59e94f69306ab42577a 100644
 --- a/src/components/settings/view/Settings.tsx
 +++ b/src/components/settings/view/Settings.tsx
 @@ -6,6 +6,7 @@ import ProviderLoginModal from '../../provider-auth/view/ProviderLoginModal';
@@ -326,7 +333,7 @@ index 37f40bc..d49b47e 100644
                  <AppearanceSettingsTab
                    projectSortOrder={projectSortOrder}
 diff --git a/src/components/settings/view/SettingsMainTabs.tsx b/src/components/settings/view/SettingsMainTabs.tsx
-index 5c15f6d..269a5d8 100644
+index 5c15f6de91b2d12acebbe163e18c35df4ae3dad0..269a5d8d89eebd42a0cdbc4137256b6ad3853281 100644
 --- a/src/components/settings/view/SettingsMainTabs.tsx
 +++ b/src/components/settings/view/SettingsMainTabs.tsx
 @@ -1,4 +1,4 @@
@@ -344,7 +351,7 @@ index 5c15f6d..269a5d8 100644
    { id: 'appearance', labelKey: 'mainTabs.appearance' },
    { id: 'git', labelKey: 'mainTabs.git', icon: GitBranch },
 diff --git a/src/components/settings/view/SettingsSidebar.tsx b/src/components/settings/view/SettingsSidebar.tsx
-index 3b76976..edf35c2 100644
+index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65a67a2397 100644
 --- a/src/components/settings/view/SettingsSidebar.tsx
 +++ b/src/components/settings/view/SettingsSidebar.tsx
 @@ -1,4 +1,4 @@
@@ -388,7 +395,7 @@ index 3b76976..edf35c2 100644
            })}
 diff --git a/src/components/settings/view/tabs/AccountSettingsTab.tsx b/src/components/settings/view/tabs/AccountSettingsTab.tsx
 new file mode 100644
-index 0000000..59818af
+index 0000000000000000000000000000000000000000..59818afa7f66b10cddd76ed455d833a0912d59c3
 --- /dev/null
 +++ b/src/components/settings/view/tabs/AccountSettingsTab.tsx
 @@ -0,0 +1,171 @@
@@ -564,7 +571,7 @@ index 0000000..59818af
 +  );
 +}
 diff --git a/src/utils/api.js b/src/utils/api.js
-index e5eb3fb..7532dce 100644
+index e5eb3fbcd4bd8545af1aca11bcc15375a6153422..7532dce7f302870081a8e7d964a36934d3949e5a 100644
 --- a/src/utils/api.js
 +++ b/src/utils/api.js
 @@ -58,6 +58,10 @@ export const api = {

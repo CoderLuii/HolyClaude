@@ -299,7 +299,7 @@ Ouvrez `http://localhost:3001`. Créez un compte CloudCLI. Connectez-vous avec v
 
 **C'est toute la configuration. Vous avez terminé.**
 
-> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.0 et traitez le durcissement comme un changement séparé.
+> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.1 et traitez le durcissement comme un changement séparé.
 
 > **Pourquoi `shm_size: 2g` ?** Docker alloue 64 Mo de mémoire partagée aux conteneurs par défaut. HolyClaude conserve 2 Go comme valeur par défaut retenue pour cette version parce que Chromium utilise beaucoup `/dev/shm` pour le rendu des onglets. À 64 Mo, les onglets plantent ; si l'usage navigateur est intensif, montez à 4 Go.
 
@@ -573,7 +573,7 @@ L'image complète inclut tout ce qui précède, plus :
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Déploiement Cloudflare Workers |
 | `vercel` | Déploiement Vercel |
-| `netlify-cli` | Déploiement Netlify |
+| `netlify-cli` | Déploiement Netlify ; le proxy local facultatif pour les fonctions Go/Rust n'est pas inclus |
 | `az` | CLI Azure pour le déploiement cloud et la gestion |
 | `prisma`, `drizzle-kit` | Les deux ORMs Node.js les plus populaires |
 | `pm2` | Gestionnaire de processus en production |

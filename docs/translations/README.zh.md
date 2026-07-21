@@ -299,7 +299,7 @@ docker compose up -d
 
 **配置到此结束，你已经准备好了。**
 
-> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.0 请保持这个配置不变，把加固当成单独的改动。
+> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.1 请保持这个配置不变，把加固当成单独的改动。
 
 > **为什么是 `shm_size: 2g`？** Docker 默认只给容器 64MB 共享内存。HolyClaude 把 2GB 保留为本版本的默认值，因为 Chromium 在标签页渲染时会大量使用 `/dev/shm`。64MB 会让标签页崩掉；浏览器用得多就升到 4GB。
 
@@ -573,7 +573,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Cloudflare Workers 部署 |
 | `vercel` | Vercel 部署 |
-| `netlify-cli` | Netlify 部署 |
+| `netlify-cli` | Netlify 部署（不包含可选的本地 Go/Rust 函数代理） |
 | `az` | Azure CLI，用于云部署和管理 |
 | `prisma`, `drizzle-kit` | 两个最流行的 Node.js ORM |
 | `pm2` | 生产环境进程管理器 |

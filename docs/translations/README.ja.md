@@ -299,7 +299,7 @@ docker compose up -d
 
 **セットアップはこれだけ。完了。**
 
-> **なぜこのブラウザ権限なのか？** このリリースでは HolyClaude の現在のブラウザ設定をそのまま維持します。`SYS_ADMIN` と `seccomp=unconfined` はプロセス権限を広げて分離を弱め、`SYS_PTRACE` はデバッグ用です。v1.5.0 ではこの設定を維持し、ハードニングは別の変更として扱ってください。
+> **なぜこのブラウザ権限なのか？** このリリースでは HolyClaude の現在のブラウザ設定をそのまま維持します。`SYS_ADMIN` と `seccomp=unconfined` はプロセス権限を広げて分離を弱め、`SYS_PTRACE` はデバッグ用です。v1.5.1 ではこの設定を維持し、ハードニングは別の変更として扱ってください。
 
 > **なぜ `shm_size: 2g` なのか？** Docker の共有メモリは既定で 64MB しかありません。HolyClaude はこのリリースの既定値として 2GB を維持しています。Chromium はタブ描画で `/dev/shm` をかなり使うためです。64MB だとタブが落ちます。ブラウザを多用するなら 4GB に増やしてください。
 
@@ -573,7 +573,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Cloudflare Workers デプロイ |
 | `vercel` | Vercel デプロイ |
-| `netlify-cli` | Netlify デプロイ |
+| `netlify-cli` | Netlify デプロイ（オプションのローカル Go/Rust 関数プロキシは含まれません） |
 | `az` | クラウドデプロイと管理のための Azure CLI |
 | `prisma`, `drizzle-kit` | 最も人気の 2 つの Node.js ORM |
 | `pm2` | 本番プロセスマネージャー |

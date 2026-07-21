@@ -4,6 +4,33 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.1] - 07/21/2026
+
+### Changed
+- Updated s6-overlay to 3.2.3.2 and fzf to 0.74.1 using checksum-verified upstream archives for `amd64` and `arm64`.
+- Updated pnpm to 11.15.1, Vite to 8.1.5, Prettier to 3.9.6, Wrangler to 4.112.0, Prisma to 7.9.0, Lighthouse to 13.4.1, and Marp CLI to 4.5.0.
+- Updated Gemini CLI to 0.51.0, Codex to 0.144.6, OpenCode to 1.18.4, and Pi Coding Agent to 0.81.0.
+- Updated tqdm to 4.69.0, Matplotlib to 3.11.1, and FastAPI to 0.139.2.
+- Pinned Claude Code to 2.1.216, Junie to 2285.5, and the current Cursor installer and embedded build ID.
+- Updated Syft to 1.49.0 and Grype to 0.116.0 for release evidence generation.
+- Updated the Debian Chromium package trio to 150.0.7871.124 after the Bookworm security build became available for both image architectures. Kept tree-sitter-language-pack at 1.6.2 because 1.6.3 does not publish a compatible Python 3.11 Linux artifact.
+- Updated npm to 11.18.0 and Vercel CLI to 54.21.1.
+
+### Fixed
+- Updated the vendored CloudCLI baseline to 1.36.3, removed its obsolete local `better-sqlite3` lock patch, and kept the account-management and runtime overlays behind two clean reproducibility builds.
+- Installed Junie from the exact verified release archive instead of allowing its installer to fetch a second unverified payload.
+- Added Dependabot coverage for GitHub Actions and Docker base images.
+- Made release-branch candidates immutable and commit-keyed, then promoted the exact tested platform digests instead of rebuilding them after tagging.
+- Kept Netlify CLI 26.2.0 for deployments but removed its optional local Go/Rust functions proxy, which upstream still ships as a binary built with Go 1.16.7.
+
+### Security
+- Replaced the two `tar` 7.5.7 copies bundled by EAS CLI and Vercel CLI with checksum-verified `tar` 7.5.20, which contains the fix for `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw`. The build verifies both parent package versions and dependency specs before applying the replacement.
+- Tightened advisory matching to exact component name, version, type, and location selectors, with duplicate, wildcard, mismatched, and expired records rejected.
+- Added deterministic immutable-input expiry checks and captured each Grype database build with the digest-bound release evidence.
+- Preserved the raw Syft CycloneDX SBOM and added a recorded schema-compatibility conversion for the current SPDX `Artistic-dist` identifier before CycloneDX validation.
+- Added rollback metadata for mutable `latest` and `slim` aliases while keeping published semantic-version tags immutable.
+- Audited Grype's built-in `linux-libc-dev` suppression by exact package, match type, upstream package, and rule descriptor; any other ignored match now stops the release.
+
 ## [1.5.0] - 07/15/2026
 
 ### Changed

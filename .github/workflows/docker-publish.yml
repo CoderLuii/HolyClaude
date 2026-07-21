@@ -8,14 +8,16 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.0"
+        default: "1.5.1"
         type: string
   push:
+    branches:
+      - "release/**"
     tags:
       - "v*"
 
 concurrency:
-  group: docker-publish-${{ github.ref_type == 'tag' && github.ref_name || github.run_id }}
+  group: holyclaude-docker-release
   cancel-in-progress: false
 
 permissions:
@@ -24,8 +26,15 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
-  SYFT_VERSION: 1.46.0
-  GRYPE_VERSION: 0.115.0
+  SYFT_VERSION: 1.49.0
+  GRYPE_VERSION: 0.116.0
+  SYFT_SHA256_AMD64: 7aa2f03ee92739cf643279ba3990548b9925d4e22cae13f46831ee62821147fe
+  SYFT_SHA256_ARM64: c7c32de183c32368de197edba75e8dba7632915f7761bacd55149a9ca7fe0fa4
+  GRYPE_SHA256_AMD64: 40aff724297312f91ea390d003bed8d8651c74cc7f5b26732db80b3a408d2fc5
+  GRYPE_SHA256_ARM64: 7af3eed24f469b0cf3ab5ec4508d9c12f4bb9c2c6be714f32973c7b5d63cb6a5
+  SBOM_UTILITY_VERSION: 0.19.2
+  SBOM_UTILITY_SHA256_AMD64: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
+  SBOM_UTILITY_SHA256_ARM64: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
 
 # Required repository secrets:
 # - DOCKERHUB_USERNAME: Docker Hub account that owns coderluii/holyclaude
@@ -37,31 +46,83 @@ env:
 # promotion, Docker Hub description sync, and other release follow-up.
 
 jobs:
-  validate-release-tag:
+  validate-release-ref:
     if: github.event_name == 'push'
-    name: validate release tag
+    name: validate release source
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 15
     permissions:
       contents: read
+    outputs:
+      release: ${{ steps.source.outputs.release }}
 
     steps:
-      - name: Require single-digit semver tag
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require matching release ref and commit
+        id: source
         shell: bash
         run: |
           set -euo pipefail
-          if [[ ! "${GITHUB_REF_NAME}" =~ ^v[0-9]\.[0-9]\.[0-9]$ ]]; then
-            echo "Release tag must match ^v[0-9]\\.[0-9]\\.[0-9]$" >&2
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            release="${GITHUB_REF_NAME}"
+          elif [[ "${GITHUB_REF_NAME}" =~ ^release/(v[0-9]\.[0-9]\.[0-9])$ ]]; then
+            release="${BASH_REMATCH[1]}"
+          else
+            echo "Release refs must be vX.Y.Z tags or release/vX.Y.Z branches" >&2
             exit 1
           fi
+          if [[ ! "${release}" =~ ^v[0-9]\.[0-9]\.[0-9]$ ]]; then
+            echo "Release must match ^v[0-9]\\.[0-9]\\.[0-9]$" >&2
+            exit 1
+          fi
+          test "$(git log -1 --format=%s)" = "${release}"
+          test "$(head -n 1 docs/CHANGELOG.md)" = "# Changelog"
+          grep -Fq "## [${release#v}]" docs/CHANGELOG.md
+          grep -Fq "release: ${release}" security/immutable-inputs.yml
+          grep -Fq "@${release#v}?variant=full" security/openvex.json
+          grep -Fq "@${release#v}?variant=slim" security/openvex.json
+          baseline="9afdf5a17517d33c79b1546db6c09854cbe26c36"
+          test "$(git rev-parse HEAD^)" = "${baseline}"
+          test "$(git rev-parse 'v1.5.0^{commit}')" = "${baseline}"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            git fetch --no-tags origin master
+            test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
+          fi
+          as_of="$(date -u +%F)"
+          node scripts/verify-immutable-inputs.mjs \
+            --file security/immutable-inputs.yml \
+            --as-of "${as_of}" \
+            --release "${release}"
+          echo "release=${release}" >> "${GITHUB_OUTPUT}"
+
+      - name: Run release source checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/*.sh tests/*.sh
+          sh -n scripts/holyclaude-chromium scripts/holyclaude-mosh-server
+          for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
+          node --test tests/*.test.mjs
+          python3 -m unittest tests/test_notify.py
+          git diff --check HEAD^ HEAD
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/repo" \
+            -w /repo \
+            rhysd/actionlint@sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9
 
   build-candidate:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v')
     name: candidate (${{ matrix.variant }}, ${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
-    needs: validate-release-tag
+    needs: validate-release-ref
     permissions:
+      actions: read
       contents: read
       packages: write
 
@@ -84,7 +145,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Free up disk space
         run: |
@@ -128,8 +189,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          short_sha="${GITHUB_SHA::12}"
-          candidate="candidate-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${short_sha}-${{ matrix.variant }}-${{ matrix.arch }}"
+          candidate="candidate-${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${{ matrix.variant }}-${{ matrix.arch }}"
           dockerhub_ref="${DOCKERHUB_IMAGE}:${candidate}"
           ghcr_ref="${GHCR_IMAGE}:${candidate}"
           {
@@ -153,7 +213,7 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.version=${{ github.ref_name }}
+            org.opencontainers.image.version=${{ needs.validate-release-ref.outputs.release }}
           build-args: |
             VARIANT=${{ matrix.variant }}
           cache-from: type=gha,scope=${{ matrix.variant }}-${{ matrix.arch }}
@@ -223,6 +283,23 @@ jobs:
 
           dockerhub_digest="$(capture_platform_digest dockerhub "${{ steps.refs.outputs.dockerhub_ref }}")"
           ghcr_digest="$(capture_platform_digest ghcr "${{ steps.refs.outputs.ghcr_ref }}")"
+          python3 - <<'PY'
+          import json
+
+          with open("candidate-manifests/dockerhub-manifest.json", encoding="utf-8") as handle:
+              dockerhub = json.load(handle)
+          with open("candidate-manifests/ghcr-manifest.json", encoding="utf-8") as handle:
+              ghcr = json.load(handle)
+
+          def content(manifest):
+              return (
+                  manifest["config"]["digest"],
+                  [layer["digest"] for layer in manifest["layers"]],
+              )
+
+          if content(dockerhub) != content(ghcr):
+              raise SystemExit("Docker Hub and GHCR candidates have different config or ordered layer digests")
+          PY
           {
             echo "dockerhub_digest=${dockerhub_digest}"
             echo "ghcr_digest=${ghcr_digest}"
@@ -262,18 +339,45 @@ jobs:
           install_scanner() {
             local tool="$1"
             local version="$2"
+            local expected_sha256="$3"
             local archive="${tool}_${version}_linux_${scanner_arch}.tar.gz"
             local base="https://github.com/anchore/${tool}/releases/download/v${version}"
             curl -fsSLO "${base}/${archive}"
             curl -fsSLO "${base}/${tool}_${version}_checksums.txt"
             grep -F "  ${archive}" "${tool}_${version}_checksums.txt" | sha256sum -c -
+            printf '%s  %s\n' "${expected_sha256}" "${archive}" | sha256sum -c -
             tar -xzf "${archive}" -C /usr/local/bin "${tool}"
             rm -f "${archive}" "${tool}_${version}_checksums.txt"
           }
-          install_scanner syft "${SYFT_VERSION}"
-          install_scanner grype "${GRYPE_VERSION}"
+          case "${scanner_arch}" in
+            amd64)
+              syft_sha256="${SYFT_SHA256_AMD64}"
+              grype_sha256="${GRYPE_SHA256_AMD64}"
+              ;;
+            arm64)
+              syft_sha256="${SYFT_SHA256_ARM64}"
+              grype_sha256="${GRYPE_SHA256_ARM64}"
+              ;;
+            *)
+              echo "Unsupported scanner architecture: ${scanner_arch}" >&2
+              exit 1
+              ;;
+          esac
+          install_scanner syft "${SYFT_VERSION}" "${syft_sha256}"
+          install_scanner grype "${GRYPE_VERSION}" "${grype_sha256}"
+          sbom_utility_archive="sbom-utility-v${SBOM_UTILITY_VERSION}-linux-${scanner_arch}.tar.gz"
+          sbom_utility_sha256="${SBOM_UTILITY_SHA256_AMD64}"
+          if [[ "${scanner_arch}" == "arm64" ]]; then
+            sbom_utility_sha256="${SBOM_UTILITY_SHA256_ARM64}"
+          fi
+          curl -fsSLO "https://github.com/CycloneDX/sbom-utility/releases/download/v${SBOM_UTILITY_VERSION}/${sbom_utility_archive}"
+          printf '%s  %s\n' "${sbom_utility_sha256}" "${sbom_utility_archive}" | sha256sum -c -
+          tar -xzf "${sbom_utility_archive}" -C /usr/local/bin sbom-utility
+          rm -f "${sbom_utility_archive}"
           syft version
           grype version
+          sbom-utility version
+          grype db update
 
       - name: Generate digest-bound security evidence
         shell: bash
@@ -285,10 +389,40 @@ jobs:
           evidence_dir="security-evidence/${{ matrix.variant }}-${{ matrix.arch }}"
           image="${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}"
           mkdir -p "${evidence_dir}"
+          grype db status -o json > "${evidence_dir}/grype-db-status.json"
+          GRYPE_DB_STATUS="${evidence_dir}/grype-db-status.json" python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from urllib.parse import parse_qs, urlparse
+
+          path = Path(os.environ["GRYPE_DB_STATUS"])
+          with path.open(encoding="utf-8") as handle:
+              status = json.load(handle)
+          checksum = parse_qs(urlparse(status.get("from", "")).query).get("checksum", [""])[0]
+          if not status.get("valid") or not status.get("built") or not checksum.startswith("sha256:"):
+              raise SystemExit(f"Grype database evidence is incomplete: {status}")
+          evidence = {
+              "schemaVersion": status.get("schemaVersion"),
+              "built": status["built"],
+              "source": status["from"],
+              "checksum": checksum,
+          }
+          with path.with_name("grype-db-evidence.json").open("w", encoding="utf-8") as handle:
+              json.dump(evidence, handle, indent=2, sort_keys=True)
+              handle.write("\n")
+          PY
           syft "${image}" --parallelism 1 \
-            -o "cyclonedx-json=${evidence_dir}/sbom.cyclonedx.json" \
+            -o "cyclonedx-json=${evidence_dir}/sbom.cyclonedx.syft.json" \
             -o "spdx-json=${evidence_dir}/sbom.spdx.json"
-          grype "sbom:${evidence_dir}/sbom.cyclonedx.json" -o json > "${evidence_dir}/grype.json"
+          node scripts/normalize-sbom-license-ids.mjs \
+            --input "${evidence_dir}/sbom.cyclonedx.syft.json" \
+            --output "${evidence_dir}/sbom.cyclonedx.json" \
+            --evidence "${evidence_dir}/sbom-license-normalization.json"
+          sbom-utility validate --input-file "${evidence_dir}/sbom.cyclonedx.json" --quiet
+          sbom-utility validate --input-file "${evidence_dir}/sbom.spdx.json" --quiet
+          printf '{}\n' > "${RUNNER_TEMP}/grype-empty.yaml"
+          grype --config "${RUNNER_TEMP}/grype-empty.yaml" "sbom:${evidence_dir}/sbom.cyclonedx.json" -o json > "${evidence_dir}/grype.json"
           node scripts/evaluate-security-report.mjs \
             --report "${evidence_dir}/grype.json" \
             --ledger security/advisory-reviews.json \
@@ -303,6 +437,7 @@ jobs:
           VARIANT="${{ matrix.variant }}" \
           ARCH="${{ matrix.arch }}" \
           python3 - <<'PY'
+          import hashlib
           import json
           import os
           from pathlib import Path
@@ -310,6 +445,63 @@ jobs:
           root = Path(os.environ["EVIDENCE_DIR"])
           with (root / "grype.json").open(encoding="utf-8") as handle:
               report = json.load(handle)
+
+          with (root / "sbom.cyclonedx.json").open(encoding="utf-8") as handle:
+              cyclonedx = json.load(handle)
+          if cyclonedx.get("bomFormat") != "CycloneDX" or not cyclonedx.get("specVersion"):
+              raise SystemExit("invalid CycloneDX document")
+
+          with (root / "sbom.spdx.json").open(encoding="utf-8") as handle:
+              spdx = json.load(handle)
+          if not spdx.get("spdxVersion") or not spdx.get("SPDXID"):
+              raise SystemExit("invalid SPDX document")
+
+          with (root / "sbom-license-normalization.json").open(encoding="utf-8") as handle:
+              normalization = json.load(handle)
+          normalizations = normalization.get("normalizations", [])
+          if normalization.get("schemaVersion") != 1 or len(normalizations) != 1:
+              raise SystemExit("invalid SBOM license normalization evidence")
+          normalization_record = normalizations[0]
+          normalization_count = normalization_record.get("count")
+          if not isinstance(normalization_count, int) or normalization_count < 1:
+              raise SystemExit("SBOM license normalization count is invalid")
+          if normalization_record.get("id") != "Artistic-dist":
+              raise SystemExit("unexpected SBOM license normalization identifier")
+
+          raw_path = root / "sbom.cyclonedx.syft.json"
+          normalized_path = root / "sbom.cyclonedx.json"
+          input_digest = hashlib.sha256(raw_path.read_bytes()).hexdigest()
+          if normalization.get("inputSha256") != input_digest:
+              raise SystemExit("SBOM license normalization inputSha256 mismatch")
+          output_digest = hashlib.sha256(normalized_path.read_bytes()).hexdigest()
+          if normalization.get("outputSha256") != output_digest:
+              raise SystemExit("SBOM license normalization outputSha256 mismatch")
+
+          with raw_path.open(encoding="utf-8") as handle:
+              raw_cyclonedx = json.load(handle)
+
+          def count_license_field(node, field):
+              if isinstance(node, list):
+                  return sum(count_license_field(item, field) for item in node)
+              if not isinstance(node, dict):
+                  return 0
+              count = 0
+              if isinstance(node.get("licenses"), list):
+                  count += sum(
+                      1
+                      for choice in node["licenses"]
+                      if isinstance(choice, dict)
+                      and isinstance(choice.get("license"), dict)
+                      and choice["license"].get(field) == "Artistic-dist"
+                  )
+              return count + sum(count_license_field(child, field) for child in node.values())
+
+          if count_license_field(raw_cyclonedx, "id") != normalization_count:
+              raise SystemExit("raw CycloneDX license normalization count mismatch")
+          if count_license_field(cyclonedx, "id") != 0:
+              raise SystemExit("normalized CycloneDX retains Artistic-dist as a license id")
+          if count_license_field(cyclonedx, "name") != normalization_count:
+              raise SystemExit("normalized CycloneDX license name count mismatch")
 
           with (root / "policy.json").open(encoding="utf-8") as handle:
               policy = json.load(handle)
@@ -324,12 +516,13 @@ jobs:
               "effectiveCriticalCount": policy["effectiveCriticalCount"],
               "rawHighCount": policy["rawHighCount"],
               "mappedHighCount": policy["mappedHighCount"],
+              "cycloneDxLicenseNormalizationCount": normalization_count,
           }
           with (root / "metadata.json").open("w", encoding="utf-8") as handle:
               json.dump(metadata, handle, indent=2, sort_keys=True)
               handle.write("\n")
           PY
-          (cd "${evidence_dir}" && sha256sum *.json > SHA256SUMS)
+          (cd "${evidence_dir}" && sha256sum ./*.json > SHA256SUMS)
 
       - name: Smoke GHCR candidate digest
         timeout-minutes: 45
@@ -350,6 +543,10 @@ jobs:
           import os
 
           record = {
+              "source_sha": os.environ["SOURCE_SHA"],
+              "release": os.environ["RELEASE"],
+              "run_id": os.environ["RUN_ID"],
+              "run_attempt": os.environ["RUN_ATTEMPT"],
               "variant": os.environ["VARIANT"],
               "arch": os.environ["ARCH"],
               "platform": f"linux/{os.environ['ARCH']}",
@@ -365,6 +562,10 @@ jobs:
           PY
         env:
           VARIANT: ${{ matrix.variant }}
+          SOURCE_SHA: ${{ github.sha }}
+          RELEASE: ${{ needs.validate-release-ref.outputs.release }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
           ARCH: ${{ matrix.arch }}
           DOCKERHUB_REF: ${{ steps.refs.outputs.dockerhub_ref }}
           DOCKERHUB_DIGEST: ${{ steps.digests.outputs.dockerhub_digest }}
@@ -377,7 +578,8 @@ jobs:
           name: candidate-evidence-${{ matrix.variant }}-${{ matrix.arch }}
           path: evidence/${{ matrix.variant }}-${{ matrix.arch }}.json
           if-no-files-found: error
-          retention-days: 14
+          overwrite: true
+          retention-days: 90
 
       - name: Upload security evidence
         if: always()
@@ -386,7 +588,41 @@ jobs:
           name: security-evidence-${{ matrix.variant }}-${{ matrix.arch }}
           path: security-evidence/${{ matrix.variant }}-${{ matrix.arch }}
           if-no-files-found: error
-          retention-days: 14
+          overwrite: true
+          retention-days: 90
+
+  resolve-candidate-run:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    name: resolve tested candidate run
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    needs: validate-release-ref
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      run_id: ${{ steps.run.outputs.run_id }}
+
+    steps:
+      - name: Find successful release-branch run for this commit
+        id: run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_branch="release/${GITHUB_REF_NAME}"
+          run_id="$(gh api --method GET \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/docker-publish.yml/runs" \
+            -f head_sha="${GITHUB_SHA}" \
+            -f event=push \
+            --paginate \
+            --jq "[.workflow_runs[] | select(.head_branch == \"${expected_branch}\" and .status == \"completed\" and .conclusion == \"success\")] | sort_by(.run_number) | last | .id // empty")"
+          if [[ -z "${run_id}" ]]; then
+            echo "No successful ${expected_branch} candidate run exists for ${GITHUB_SHA}" >&2
+            exit 1
+          fi
+          echo "run_id=${run_id}" >> "${GITHUB_OUTPUT}"
 
   promote:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -394,19 +630,116 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     needs:
-      - validate-release-tag
-      - build-candidate
+      - validate-release-ref
+      - resolve-candidate-run
     permissions:
+      actions: read
       contents: read
       packages: write
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: Download candidate evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           pattern: candidate-evidence-*
           path: evidence
           merge-multiple: true
+          run-id: ${{ needs.resolve-candidate-run.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Download candidate security evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: security-evidence-*
+          path: security-evidence
+          run-id: ${{ needs.resolve-candidate-run.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Revalidate candidate security evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t reports < <(find security-evidence -type f -name grype.json | sort)
+          if [[ "${#reports[@]}" -ne 4 ]]; then
+            echo "Expected four candidate Grype reports, found ${#reports[@]}" >&2
+            exit 1
+          fi
+          mapfile -t checksum_files < <(find security-evidence -type f -name SHA256SUMS | sort)
+          if [[ "${#checksum_files[@]}" -ne 4 ]]; then
+            echo "Expected four candidate checksum files, found ${#checksum_files[@]}" >&2
+            exit 1
+          fi
+          for checksum_file in "${checksum_files[@]}"; do
+            evidence_dir="$(dirname "${checksum_file}")"
+            (cd "${evidence_dir}" && sha256sum -c SHA256SUMS)
+          done
+
+          python3 - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          digest_pattern = re.compile(r"sha256:[0-9a-f]{64}")
+          expected_targets = {("full", "amd64"), ("full", "arm64"), ("slim", "amd64"), ("slim", "arm64")}
+
+          def load_records(paths, label):
+              records = {}
+              for path in paths:
+                  with path.open(encoding="utf-8") as handle:
+                      record = json.load(handle)
+                  if not isinstance(record, dict):
+                      raise SystemExit(f"{label} record is not an object: {path}")
+                  target = (record.get("variant"), record.get("arch"))
+                  if target in records:
+                      raise SystemExit(f"duplicate {label} target: {target}")
+                  records[target] = record
+              if set(records) != expected_targets:
+                  raise SystemExit(f"unexpected {label} targets: {sorted(records)}")
+              return records
+
+          candidates = load_records(sorted(Path("evidence").glob("*.json")), "candidate")
+          metadata_records = load_records(
+              sorted(Path("security-evidence").glob("**/metadata.json")),
+              "security metadata",
+          )
+
+          for target in sorted(expected_targets):
+              record = candidates[target]
+              metadata = metadata_records[target]
+              for key in ("dockerhub_digest", "ghcr_digest"):
+                  if not digest_pattern.fullmatch(record.get(key, "")):
+                      raise SystemExit(f"invalid {key} for {target}: {record.get(key)}")
+              if metadata["dockerhubDigest"] != record["dockerhub_digest"]:
+                  raise SystemExit(f"Docker Hub evidence digest mismatch for {target}")
+              if metadata["ghcrDigest"] != record["ghcr_digest"]:
+                  raise SystemExit(f"GHCR evidence digest mismatch for {target}")
+              expected_image = f"{record['dockerhub_ref']}@{record['dockerhub_digest']}"
+              if metadata.get("image") != expected_image:
+                  raise SystemExit(f"security evidence image mismatch for {target}")
+          PY
+
+          rm -rf security-revalidation
+          mkdir -p security-revalidation
+          for report in "${reports[@]}"; do
+            evidence_dir="$(dirname "${report}")"
+            metadata="${evidence_dir}/metadata.json"
+            variant="$(jq -r .variant "${metadata}")"
+            arch="$(jq -r .arch "${metadata}")"
+            output="security-revalidation/${variant}-${arch}"
+            node scripts/evaluate-security-report.mjs \
+              --report "${report}" \
+              --ledger security/advisory-reviews.json \
+              --vex security/openvex.json \
+              --output-dir "${output}" \
+              --variant "${variant}" \
+              --arch "${arch}"
+          done
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
@@ -423,6 +756,25 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Snapshot mutable aliases
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p promotion
+          : > promotion/rollback.tsv
+          for ref in \
+            "${DOCKERHUB_IMAGE}:latest" \
+            "${DOCKERHUB_IMAGE}:slim" \
+            "${GHCR_IMAGE}:latest" \
+            "${GHCR_IMAGE}:slim"; do
+            digest="$(docker buildx imagetools inspect "${ref}" --format '{{json .Manifest}}' | jq -r .digest)"
+            if [[ ! "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+              echo "Could not capture rollback digest for ${ref}" >&2
+              exit 1
+            fi
+            printf '%s\t%s@%s\n' "${ref}" "${ref}" "${digest}" >> promotion/rollback.tsv
+          done
 
       - name: Validate evidence and write promotion plan
         id: plan
@@ -461,6 +813,10 @@ jobs:
               raise SystemExit(f"unexpected target records: {sorted(seen_targets)}")
 
           required = {
+              "source_sha",
+              "release",
+              "run_id",
+              "run_attempt",
               "variant",
               "arch",
               "platform",
@@ -475,6 +831,20 @@ jobs:
                   raise SystemExit(f"missing fields for {record}: {missing}")
               if record["platform"] != f"linux/{record['arch']}":
                   raise SystemExit(f"platform mismatch in {record}")
+              if record["source_sha"] != os.environ["GITHUB_SHA"]:
+                  raise SystemExit(f"candidate source SHA mismatch in {record}")
+              if record["release"] != os.environ["GITHUB_REF_NAME"]:
+                  raise SystemExit(f"candidate release mismatch in {record}")
+              if record["run_id"] != os.environ["CANDIDATE_RUN_ID"]:
+                  raise SystemExit(f"candidate run ID mismatch in {record}")
+              if not record["run_id"].isdigit() or not record["run_attempt"].isdigit():
+                  raise SystemExit(f"invalid candidate run identity in {record}")
+              expected_suffix = (
+                  f"candidate-{record['source_sha']}-{record['run_id']}-"
+                  f"{record['run_attempt']}-{record['variant']}-{record['arch']}"
+              )
+              if not record["dockerhub_ref"].endswith(expected_suffix) or not record["ghcr_ref"].endswith(expected_suffix):
+                  raise SystemExit(f"candidate ref mismatch in {record}")
               for registry in ("dockerhub", "ghcr"):
                   digest = record[f"{registry}_digest"]
                   if not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
@@ -500,13 +870,21 @@ jobs:
               "version": version,
               "variants": {
                   "full": {
-                      "dockerhub_tags": [f"{dockerhub_image}:latest", f"{dockerhub_image}:{version}"],
-                      "ghcr_tags": [f"{ghcr_image}:latest", f"{ghcr_image}:{version}"],
+                      "dockerhub_version_tags": [f"{dockerhub_image}:{version}"],
+                      "dockerhub_mutable_tags": [f"{dockerhub_image}:latest"],
+                      "dockerhub_all_tags": [f"{dockerhub_image}:{version}", f"{dockerhub_image}:latest"],
+                      "ghcr_version_tags": [f"{ghcr_image}:{version}"],
+                      "ghcr_mutable_tags": [f"{ghcr_image}:latest"],
+                      "ghcr_all_tags": [f"{ghcr_image}:{version}", f"{ghcr_image}:latest"],
                       "records": by_variant["full"],
                   },
                   "slim": {
-                      "dockerhub_tags": [f"{dockerhub_image}:slim", f"{dockerhub_image}:{version}-slim"],
-                      "ghcr_tags": [f"{ghcr_image}:slim", f"{ghcr_image}:{version}-slim"],
+                      "dockerhub_version_tags": [f"{dockerhub_image}:{version}-slim"],
+                      "dockerhub_mutable_tags": [f"{dockerhub_image}:slim"],
+                      "dockerhub_all_tags": [f"{dockerhub_image}:{version}-slim", f"{dockerhub_image}:slim"],
+                      "ghcr_version_tags": [f"{ghcr_image}:{version}-slim"],
+                      "ghcr_mutable_tags": [f"{ghcr_image}:slim"],
+                      "ghcr_all_tags": [f"{ghcr_image}:{version}-slim", f"{ghcr_image}:slim"],
                       "records": by_variant["slim"],
                   },
               },
@@ -520,8 +898,9 @@ jobs:
         env:
           DOCKERHUB_IMAGE: ${{ env.DOCKERHUB_IMAGE }}
           GHCR_IMAGE: ${{ env.GHCR_IMAGE }}
+          CANDIDATE_RUN_ID: ${{ needs.resolve-candidate-run.outputs.run_id }}
 
-      - name: Promote tested digests
+      - name: Publish and verify immutable version tags
         shell: bash
         run: |
           set -euo pipefail
@@ -533,6 +912,22 @@ jobs:
               plan = json.load(f)
 
           print("set -euo pipefail")
+          print(r'''inspect_tag_state() {
+            local tag="$1" output attempt
+            for attempt in 1 2 3; do
+              if output="$(docker buildx imagetools inspect "${tag}" 2>&1)"; then
+                printf '%s\n' exists
+                return 0
+              fi
+              if grep -Eiq 'manifest unknown|name unknown|not found' <<<"${output}"; then
+                printf '%s\n' absent
+                return 0
+              fi
+              if [[ "${attempt}" -lt 3 ]]; then sleep $((attempt * 5)); fi
+            done
+            printf 'Could not determine whether immutable tag exists: %s\n%s\n' "${tag}" "${output}" >&2
+            return 1
+          }''')
           for variant, spec in plan["variants"].items():
               dockerhub_sources = [
                   f"{record['dockerhub_ref']}@{record['dockerhub_digest']}"
@@ -542,14 +937,97 @@ jobs:
                   f"{record['ghcr_ref']}@{record['ghcr_digest']}"
                   for record in spec["records"]
               ]
-              for tag in spec["dockerhub_tags"]:
+              for tag in spec["dockerhub_version_tags"]:
                   args = ["docker", "buildx", "imagetools", "create", "-t", tag, *dockerhub_sources]
-                  print(" ".join(shlex.quote(arg) for arg in args))
-              for tag in spec["ghcr_tags"]:
+                  quoted_tag = shlex.quote(tag)
+                  print(f"tag_state=\"$(inspect_tag_state {quoted_tag})\"")
+                  print("if [[ \"${tag_state}\" == exists ]]; then")
+                  print(f"  echo 'Version tag already exists; verifying immutable content: {tag}'")
+                  print("else")
+                  print("  " + " ".join(shlex.quote(arg) for arg in args))
+                  print("fi")
+              for tag in spec["ghcr_version_tags"]:
                   args = ["docker", "buildx", "imagetools", "create", "-t", tag, *ghcr_sources]
-                  print(" ".join(shlex.quote(arg) for arg in args))
+                  quoted_tag = shlex.quote(tag)
+                  print(f"tag_state=\"$(inspect_tag_state {quoted_tag})\"")
+                  print("if [[ \"${tag_state}\" == exists ]]; then")
+                  print(f"  echo 'Version tag already exists; verifying immutable content: {tag}'")
+                  print("else")
+                  print("  " + " ".join(shlex.quote(arg) for arg in args))
+                  print("fi")
           PY
           bash promotion/commands.sh
+
+          python3 - <<'PY' > promotion/verify-version.sh
+          import json
+          import shlex
+
+          with open("promotion/plan.json", encoding="utf-8") as handle:
+              plan = json.load(handle)
+          print("set -euo pipefail")
+          print("mkdir -p promotion/version-manifests")
+          for spec in plan["variants"].values():
+              for registry in ("dockerhub", "ghcr"):
+                  for tag in spec[f"{registry}_version_tags"]:
+                      safe = tag.replace("/", "_").replace(":", "_")
+                      path = f"promotion/version-manifests/{safe}.json"
+                      print(f"docker buildx imagetools inspect {shlex.quote(tag)} --raw > {shlex.quote(path)}")
+          PY
+          bash promotion/verify-version.sh
+          python3 - <<'PY'
+          import json
+
+          with open("promotion/plan.json", encoding="utf-8") as handle:
+              plan = json.load(handle)
+          for variant, spec in plan["variants"].items():
+              for registry in ("dockerhub", "ghcr"):
+                  expected = {record["arch"]: record[f"{registry}_digest"] for record in spec["records"]}
+                  for tag in spec[f"{registry}_version_tags"]:
+                      safe = tag.replace("/", "_").replace(":", "_")
+                      with open(f"promotion/version-manifests/{safe}.json", encoding="utf-8") as handle:
+                          manifest = json.load(handle)
+                      entries = manifest.get("manifests", [])
+                      actual = {entry.get("platform", {}).get("architecture"): entry.get("digest") for entry in entries}
+                      if len(entries) != 2 or actual != expected:
+                          raise SystemExit(f"{tag} does not contain the tested {variant} platform digests")
+          PY
+
+      - name: Prepare rollback evidence
+        run: touch promotion/rollback-required
+
+      - name: Upload rollback evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: rollback-evidence
+          path: |
+            promotion/rollback.tsv
+            promotion/rollback-required
+          if-no-files-found: error
+          overwrite: true
+          retention-days: 90
+
+      - name: Move mutable aliases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > promotion/mutable-commands.sh
+          import json
+          import shlex
+
+          with open("promotion/plan.json", encoding="utf-8") as handle:
+              plan = json.load(handle)
+          print("set -euo pipefail")
+          for spec in plan["variants"].values():
+              for registry in ("dockerhub", "ghcr"):
+                  sources = [
+                      f"{record[f'{registry}_ref']}@{record[f'{registry}_digest']}"
+                      for record in spec["records"]
+                  ]
+                  for tag in spec[f"{registry}_mutable_tags"]:
+                      args = ["docker", "buildx", "imagetools", "create", "-t", tag, *sources]
+                      print(" ".join(shlex.quote(arg) for arg in args))
+          PY
+          bash promotion/mutable-commands.sh
 
       - name: Verify promoted manifests
         shell: bash
@@ -566,7 +1044,7 @@ jobs:
           print("mkdir -p promotion/manifests")
           for variant, spec in plan["variants"].items():
               for registry in ("dockerhub", "ghcr"):
-                  for tag in spec[f"{registry}_tags"]:
+                  for tag in spec[f"{registry}_all_tags"]:
                       safe = tag.replace("/", "_").replace(":", "_")
                       print(
                           "docker buildx imagetools inspect "
@@ -603,7 +1081,7 @@ jobs:
                       for record in spec["records"]
                   }
                   tag_digests = []
-                  for tag in spec[f"{registry}_tags"]:
+                  for tag in spec[f"{registry}_all_tags"]:
                       safe = tag.replace("/", "_").replace(":", "_")
                       with open(f"promotion/manifests/{safe}.json", encoding="utf-8") as f:
                           manifest = json.load(f)
@@ -657,8 +1135,8 @@ jobs:
               final["variants"][variant] = {}
               for registry in ("dockerhub", "ghcr"):
                   final["variants"][variant][registry] = {
-                      "primary_tag": spec[f"{registry}_tags"][0],
-                      "all_tags": spec[f"{registry}_tags"],
+                      "primary_tag": spec[f"{registry}_version_tags"][0],
+                      "all_tags": spec[f"{registry}_all_tags"],
                       "manifest_digest": verified_manifest_digests[(variant, registry)],
                       "platform_digests": {
                           record["arch"]: record[f"{registry}_digest"]
@@ -671,15 +1149,21 @@ jobs:
           PY
 
       - name: Upload promotion evidence
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: promotion-evidence
           path: |
             promotion/plan.json
             promotion/final-digests.json
+            promotion/rollback.tsv
+            promotion/rollback-required
             promotion/manifests/*.json
+            promotion/version-manifests/*.json
+            security-revalidation/**/*.json
           if-no-files-found: error
-          retention-days: 14
+          overwrite: true
+          retention-days: 90
 
   post-publish-smoke:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
@@ -730,13 +1214,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download promotion evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: promotion-evidence
-          path: promotion
+          path: .
 
       - name: Login to Docker Hub
         if: matrix.registry == 'dockerhub'
@@ -789,6 +1273,79 @@ jobs:
             --variant "${{ matrix.variant }}" \
             --expected-arch "${{ matrix.arch }}"
 
+  rollback-mutable-aliases:
+    if: >-
+      always() &&
+      (needs.promote.result == 'failure' || needs.promote.result == 'cancelled' ||
+      needs.post-publish-smoke.result == 'failure' || needs.post-publish-smoke.result == 'cancelled')
+    name: Roll back mutable aliases after failed final smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    needs:
+      - promote
+      - post-publish-smoke
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+
+    steps:
+      - name: Download rollback evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: rollback-evidence
+          path: .
+
+      - name: Check whether mutable aliases may have moved
+        id: moved
+        shell: bash
+        run: |
+          if [[ -f promotion/rollback-required ]]; then
+            echo "value=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "value=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.moved.outputs.value == 'true'
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Login to Docker Hub
+        if: steps.moved.outputs.value == 'true'
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GHCR
+        if: steps.moved.outputs.value == 'true'
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Restore recorded aliases
+        if: steps.moved.outputs.value == 'true'
+        shell: bash
+        run: |
+          set -uo pipefail
+          failed=0
+          while IFS=$'\t' read -r target source; do
+            expected_digest="${source##*@}"
+            if ! docker buildx imagetools create -t "${target}" "${source}"; then
+              echo "Failed to restore ${target}" >&2
+              failed=1
+              continue
+            fi
+            actual_digest="$(docker buildx imagetools inspect "${target}" --format '{{json .Manifest}}' | jq -r .digest)"
+            if [[ "${actual_digest}" != "${expected_digest}" ]]; then
+              echo "Rollback digest mismatch for ${target}: ${actual_digest} != ${expected_digest}" >&2
+              failed=1
+            fi
+          done < promotion/rollback.tsv
+          exit "${failed}"
+
   published-browser-smoke:
     if: github.event_name == 'workflow_dispatch'
     name: published smoke (${{ matrix.variant }}, ${{ matrix.arch }})
@@ -820,7 +1377,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Pull published image
         run: |
@@ -846,7 +1403,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Update Docker Hub description
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0

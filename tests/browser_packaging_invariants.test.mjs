@@ -15,7 +15,7 @@ test('Dockerfile uses pinned Playwright bindings and the canonical browser path'
 });
 
 test('Dockerfile pins the Bookworm security Chromium packages', () => {
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=150\.0\.7871\.114-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=150\.0\.7871\.124-1~deb12u1/);
   assert.match(dockerfile, /chromium="\$\{CHROMIUM_DEBIAN_VERSION\}"/);
   assert.match(dockerfile, /chromium-common="\$\{CHROMIUM_DEBIAN_VERSION\}"/);
   assert.match(dockerfile, /chromium-sandbox="\$\{CHROMIUM_DEBIAN_VERSION\}"/);
