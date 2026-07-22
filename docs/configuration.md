@@ -40,7 +40,7 @@ Docker Compose also supports a local `.env` file for variable interpolation. Hol
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NODE_OPTIONS` | `--max-old-space-size=4096` | Node.js heap memory limit in MB |
+| `NODE_OPTIONS` | Full Compose: `--max-old-space-size=4096` | Optional Node.js heap limit. The quick Compose file and raw image do not set a heap-size default. |
 | `HOLYCLAUDE_BASE_PATH` | *(unset)* | Optional web UI subpath such as `/holyclaude`. Use this only when a reverse proxy mounts HolyClaude below a path. No trailing slash. |
 
 ### Web UI Base Path
@@ -175,10 +175,10 @@ HolyClaude provides configurable near-parity permission modes for Codex. These s
 
 | Variable | Default | Valid values | Applies to | Behavior |
 |----------|---------|--------------|------------|----------|
-| `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` | `acceptEdits` | `default`, `acceptEdits`, `bypassPermissions` | CloudCLI Codex chat | Runtime container config read by the CloudCLI Codex provider. Recreate the container after changing it. |
+| `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` | `acceptEdits` fallback | `default`, `acceptEdits`, `bypassPermissions` | CloudCLI Codex requests without `permissionMode` | Runtime fallback for requests that omit an explicit mode. Recreate the container after changing it. |
 | `HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE` | `default` | `default`, `acceptEdits`, `bypassPermissions` | Raw `codex` CLI | First-boot-only seed for new `~/.codex/config.toml`. Existing configs are not overwritten, and the generated value persists until you edit the file. |
 
-`acceptEdits` is the recommended value for both settings. `bypassPermissions` gives Codex full access with no approval. Docker still limits access to the container and mounted volumes, but anything reachable through `/workspace`, `/home/claude`, and other mounts can be read or changed. Use bypass only for trusted local workspaces.
+The current browser client sends an explicit `permissionMode`, and that request value wins. The chat environment variable is a fallback for direct WebSocket/API clients or custom frontends that omit it. The raw Codex first-boot default is `default`; `acceptEdits` is an optional choice for trusted self-hosted workspaces. `bypassPermissions` gives Codex full access with no approval. Docker still limits access to the container and mounted volumes, but anything reachable through `/workspace`, `/home/claude`, and other mounts can be read or changed. Use bypass only for trusted local workspaces.
 
 ---
 
@@ -256,7 +256,7 @@ security_opt:
   - seccomp=unconfined  # Current browser profile; hardening is a separate pass
 ```
 
-This is HolyClaude's retained browser profile for v1.5.1. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
+This is HolyClaude's retained browser profile for v1.5.2. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
 
 ---
 

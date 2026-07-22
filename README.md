@@ -45,7 +45,9 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.1, the compatible CLI and runtime set is refreshed without changing ports, volumes, variants, or Compose usage. CloudCLI moves to 1.36.3 through the same reproducible Node 26 build gate, s6-overlay moves to 3.2.3.2, and fzf moves to 0.74.1 from checksum-verified upstream archives. Playwright stays aligned at 1.61.0 for Node and Python, while both bindings launch the pinned Debian Chromium 150.0.7871.124 Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
+In v1.5.2, the compatible CLI and runtime set remains unchanged while the documentation and product-facts contract are synchronized with the published image. CloudCLI stays at 1.36.3, s6-overlay stays at 3.2.3.2, and fzf stays at 0.74.1. Playwright remains aligned at 1.61.0 for Node and Python, with both bindings launching the pinned Debian Chromium 150.0.7871.124 Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
+
+Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
 So you start installing things. One by one. Then Chromium won't launch because Docker's shared memory is 64MB. Then Xvfb isn't configured. Then the UID inside the container doesn't match your host and everything is permission denied. Then you realize Claude Code's installer hangs when WORKDIR is root-owned. Then SQLite locks on your NAS mount. Then—
 
@@ -64,7 +66,7 @@ Your existing Anthropic account works directly:
 - **Anthropic API key** — set it through the web UI, same billing as always
 - **No extra cost** — HolyClaude is free and open source. You only pay Anthropic for what you use, like you already do.
 
-> HolyClaude doesn't touch your credentials. They're stored locally in your bind-mounted volume (`./data/claude/`), same as they would be on bare metal.
+> HolyClaude operates no credential relay. Bundled tools read credentials from container files, bind mounts, or environment variables, then contact the providers you configure directly.
 
 <p align="right">
   <a href="#top">↑ back to top</a>
@@ -180,7 +182,7 @@ So I made a container that does all of it. And then I hit every possible bug so 
 | **AI CLIs** | 8 providers, one container | Install each one separately across 3 package managers |
 | **Dev tools** | 50+ tools, ready | `apt-get install` / `npm i -g` / `pip install` for the next hour |
 | **Process management** | s6-overlay (auto-restart, graceful shutdown) | Write your own supervisord config or hope Docker restart works |
-| **Persistence** | Bind mounts, credentials survive everything | Figure out Docker volumes, debug "why is this a directory not a file" |
+| **Persistence** | Bind-mounted tool config and workspace survive rebuilds | Figure out Docker volumes, debug "why is this a directory not a file" |
 | **Updates** | `docker pull && docker compose up -d` | Update 50 tools manually, pray nothing breaks |
 | **Multi-arch** | AMD64 + ARM64 | Pray your Dockerfile builds on ARM |
 
@@ -223,7 +225,7 @@ HolyClaude runs the **official Claude Code CLI** from Anthropic. Your existing a
 | OpenCode | Configure via `opencode` TUI (OpenRouter and other providers) |
 | Pi Coding Agent | Configure through `pi` (supports multiple providers) |
 
-> **HolyClaude is free and open source.** You only pay your AI providers for usage, same as you already do. We don't proxy, intercept, or touch your credentials. They live in your local bind mount.
+> **HolyClaude is free and open source.** You only pay your AI providers for usage, same as you already do. HolyClaude does not relay provider credentials. Bundled tools read them from container files, bind mounts, or environment variables and contact providers directly.
 
 <p align="right">
   <a href="#top">↑ back to top</a>
@@ -442,7 +444,8 @@ services:
       # - HOLYCLAUDE_BASE_PATH=/holyclaude
       #
       # CODEX PERMISSION MODES (optional)
-      # CloudCLI Codex chat reads HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE at runtime.
+      # CloudCLI Codex chat uses this only when a request omits permissionMode.
+      # The current browser client sends permissionMode explicitly.
       # Raw codex CLI reads HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE only when first creating ~/.codex/config.toml.
       # Valid values: default, acceptEdits, bypassPermissions. Recommended: acceptEdits.
       # bypassPermissions gives full access with no approval. Use it only for trusted local workspaces.
@@ -508,7 +511,7 @@ The complete reference. Every variable, what it defaults to, what it does.
 | `TZ` | `UTC` | Container timezone |
 | `PUID` | `1000` | Container user ID for Docker-style UID/GID remapping |
 | `PGID` | `1000` | Container group ID for Docker-style UID/GID remapping |
-| `NODE_OPTIONS` | `--max-old-space-size=4096` | Node.js heap memory limit in MB |
+| `NODE_OPTIONS` | Full Compose: `--max-old-space-size=4096` | Optional Node.js heap limit. The quick Compose file and raw image do not set a heap-size default. |
 | `HOLYCLAUDE_BASE_PATH` | *(unset)* | Optional web UI subpath such as `/holyclaude` for Tailscale Serve `--set-path` or reverse proxies |
 | `GIT_USER_NAME` | `HolyClaude User` | Git commit author (set once on first boot) |
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email (set once on first boot) |
@@ -529,7 +532,7 @@ The complete reference. Every variable, what it defaults to, what it does.
 | `GEMINI_API_KEY` | *(unset)* | Google Gemini API key |
 | `OPENAI_API_KEY` | *(unset)* | OpenAI API key (for Codex CLI, or use `codex login --device-auth` for ChatGPT subscription) |
 | `CURSOR_API_KEY` | *(unset)* | Cursor API key |
-| `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` | `acceptEdits` | CloudCLI Codex chat runtime mode. Valid: `default`, `acceptEdits`, `bypassPermissions` |
+| `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` | `acceptEdits` fallback | CloudCLI Codex chat fallback when a request omits `permissionMode`. The current browser client sends an explicit value. Valid: `default`, `acceptEdits`, `bypassPermissions` |
 | `HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE` | `default` | Raw `codex` CLI first-boot mode for new `~/.codex/config.toml` only. Valid: `default`, `acceptEdits`, `bypassPermissions` |
 | `HOLYCLAUDE_DESLOPPIFY_SETUP` | `off` | Optional Desloppify global skill setup. Valid: `off`, `all`, `claude`, `codex`, `gemini`, `opencode`, or comma-separated subsets |
 | `HOLYCLAUDE_SSH_ENABLE` | `false` | Enables the optional `sshd` service when a safe `authorized_keys` mount is present |
@@ -831,7 +834,7 @@ holyclaude/
 │   ├── entrypoint.sh        # Container entrypoint
 │   └── notify.py            # Notification helper (Apprise)
 ├── s6-overlay/              # Process supervision (s6-rc services)
-├── Dockerfile               # Single-stage build
+├── Dockerfile               # Multi-stage build
 ├── docker-compose.yaml      # Quick start (minimal config)
 ├── docker-compose.full.yaml # Full config (all options)
 ├── docker-compose.podman-rootless.yaml # Rootless Podman keep-id profile
@@ -849,7 +852,7 @@ holyclaude/
 
 | What | Where (container) | Where (host) | Survives rebuild? |
 |------|-------------------|-------------|-------------------|
-| Settings, credentials, API keys | `/home/claude/.claude` | `./data/claude` | **Yes** |
+| Claude settings and persisted tool config | `/home/claude/.claude` | `./data/claude` | **Yes** |
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Yes** |
 | Your code and projects | `/workspace` | `./workspace` | **Yes** |
 | CloudCLI account | `/home/claude/.cloudcli` | *(container only by default — see below)* | No (opt-in available) |
@@ -857,11 +860,11 @@ holyclaude/
 HolyClaude restores the saved Claude Code session before startup can create a fresh default file. That keeps container rebuilds and recreates from replacing a real OAuth/API session with onboarding state.
 
 ### What survives `docker compose down && docker compose up`:
-- Your Anthropic authentication and API keys
+- File-based Anthropic authentication and Claude Code API-key settings
 - Claude Code settings, memory (`CLAUDE.md`), and OAuth session (no re-login)
 - All your code in `./workspace`
 - Git configuration
-- Codex, Gemini, and Cursor CLI auth (since v1.1.7)
+- Codex, Gemini, and Cursor file-based config and authentication stored below `/home/claude/.claude` (since v1.1.7). Environment-provided keys remain in your Compose or host environment.
 
 ### What you'll redo (10 seconds):
 - CloudCLI web account — quick signup, that's it (unless you opt into persistence below)
@@ -873,11 +876,13 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **Never delete `./data/claude/` entirely.** That's where your credentials live. Delete the sentinel file if you want a fresh bootstrap. Delete specific config files if you want to reset settings. But never nuke the whole folder.
+> **Never delete `./data/claude/` entirely.** It contains saved Claude Code sessions and tool configuration. Delete the sentinel file if you want a fresh bootstrap, or delete only the specific config file you intend to reset.
 
 ### Persisting the CloudCLI account (optional, local storage only)
 
 By default, the CloudCLI account database (`~/.cloudcli`) is container-local and gets wiped on rebuild. Re-creating the account takes 10 seconds, so most people leave it as-is.
+
+CloudCLI is a single-user service. Remote access shares the same CloudCLI account, `/workspace`, and mounted credential context; it does not create separate users or tenant isolation.
 
 If you want it to survive rebuilds, add a **named Docker volume** to your compose file:
 
@@ -934,10 +939,10 @@ HolyClaude also ships configurable near-parity permission modes for Codex, with 
 
 | Setting | Applies to | Default | When it is read |
 |---------|------------|---------|-----------------|
-| `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` | CloudCLI Codex chat in the browser | `acceptEdits` | Runtime container config, read by the CloudCLI Codex provider |
+| `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` | CloudCLI Codex requests that omit `permissionMode` | `acceptEdits` fallback | Runtime container config, used only when the request has no explicit value |
 | `HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE` | Raw `codex` CLI config at `~/.codex/config.toml` | `default` | First boot only, when the file does not already exist |
 
-Valid values for both are `default`, `acceptEdits`, and `bypassPermissions`. `acceptEdits` is recommended. For CloudCLI Codex chat, the value is runtime container configuration, so changing it and recreating the container changes future chat runs. For the raw `codex` CLI, the value only seeds a new `~/.codex/config.toml`; existing configs are not overwritten, and the generated value persists until you edit that file yourself.
+Valid values for both are `default`, `acceptEdits`, and `bypassPermissions`. `acceptEdits` is the fallback recommended for trusted self-hosted workspaces. The current CloudCLI browser client sends an explicit `permissionMode`, and that request value wins. `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` is only the fallback for direct WebSocket/API clients or custom frontends that omit it. For the raw `codex` CLI, `default` is the first-boot default; the setting only seeds a new `~/.codex/config.toml`, existing configs are not overwritten, and the generated value persists until you edit that file yourself.
 
 `bypassPermissions` maps Codex to full access with no approval. Inside Docker, that still runs within the container and mounted volumes, but it can read and change anything reachable through those mounts, especially `/workspace` and persisted config under `/home/claude`. Use it only for trusted local workspaces, and don't expose CloudCLI directly to the public internet.
 
@@ -974,11 +979,7 @@ These are the two options I actually recommend:
 | **[Tailscale](https://tailscale.com)** | Personal use, small teams | WireGuard mesh VPN. Install Tailscale on your server + your laptop/phone, and you reach `http://holyclaude:3001` from anywhere as if you were on the LAN. No ports opened, no DNS, no certs. Free for personal use. |
 | **[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)** | Sharing with others, public hostname | Cloudflare proxies the connection, so port `3001` stays closed. You get a real domain with HTTPS, and you can put Cloudflare Access (Google/GitHub SSO) in front of it. Free tier covers most personal use. |
 
-Both give you:
-- Zero open ports on your router
-- Encrypted transport end to end
-- Real identity-based auth (not a shared password)
-- Audit logs
+Both avoid forwarding HolyClaude's application port through your router. Tailscale provides encrypted mesh transport and identity controls. Cloudflare Tunnel provides encrypted transport to Cloudflare's edge; configure Cloudflare Access separately when you need identity-based access controls and Access audit logs.
 
 ### Tailscale subpath mounts
 
@@ -1126,7 +1127,7 @@ docker compose pull && docker compose up -d
 To pin a specific version instead of `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.1   # instead of :latest
+image: coderluii/holyclaude:1.5.2   # instead of :latest
 ```
 
 <p align="right">

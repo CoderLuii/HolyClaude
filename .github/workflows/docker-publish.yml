@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.1"
+        default: "1.5.2"
         type: string
   push:
     branches:
@@ -86,9 +86,9 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="9afdf5a17517d33c79b1546db6c09854cbe26c36"
+          baseline="4c1bd9a109e22a88d577bbcd13ca4ec7f0d38156"
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.0^{commit}')" = "${baseline}"
+          test "$(git rev-parse 'v1.5.1^{commit}')" = "4c1bd9a109e22a88d577bbcd13ca4ec7f0d38156"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -107,6 +107,7 @@ jobs:
           bash -n scripts/*.sh tests/*.sh
           sh -n scripts/holyclaude-chromium scripts/holyclaude-mosh-server
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
+          node scripts/verify-product-facts.mjs
           node --test tests/*.test.mjs
           python3 -m unittest tests/test_notify.py
           git diff --check HEAD^ HEAD

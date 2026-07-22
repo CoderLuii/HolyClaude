@@ -1,5 +1,5 @@
 schema-version: 1
-release: v1.5.1
+release: v1.5.2
 reviewed-at: 2026-07-21
 expires-at: 2026-08-20
 
@@ -81,10 +81,12 @@ installers:
     status: pinned
   - name: Cursor CLI
     build-id: 2026.07.17-3e2a980
-    installer-sha256: 113bd5068597904810a94daf6056fa2f3f45829e1c4e52937dfe3b3d009d2a23
+    amd64-archive-sha256: 1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3
+    arm64-archive-sha256: 827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c
     launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
+    install: direct from verified build archive
     status: retained
   - name: Azure CLI apt bootstrap
     version: 2.88.0-1~bookworm

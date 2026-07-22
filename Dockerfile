@@ -20,7 +20,9 @@ RUN set -eux; \
 
 FROM node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
 
+ARG HOLYCLAUDE_VERSION=1.5.2
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
+LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
 # ---------- Build args ----------
 ARG S6_OVERLAY_VERSION=3.2.3.2
@@ -39,7 +41,8 @@ ARG JUNIE_VERSION=2285.5
 ARG JUNIE_ARCHIVE_SHA256_AMD64=5d867c00bbfbc36604972592623e4a1b2677150e7f2309203a0d809cd3400521
 ARG JUNIE_ARCHIVE_SHA256_ARM64=6f7b2fd1419f7615dbf3de28616397d1b8c90d055d691102da48292fcc510dae
 ARG CURSOR_BUILD_ID=2026.07.17-3e2a980
-ARG CURSOR_INSTALLER_SHA256=113bd5068597904810a94daf6056fa2f3f45829e1c4e52937dfe3b3d009d2a23
+ARG CURSOR_ARCHIVE_SHA256_AMD64=1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3
+ARG CURSOR_ARCHIVE_SHA256_ARM64=827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c
 ARG CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -300,22 +303,28 @@ RUN if [ "$VARIANT" = "full" ]; then \
 # ---------- AI CLI providers ----------
 RUN npm i -g @google/gemini-cli@0.51.0 @openai/codex@0.144.6 task-master-ai@0.43.1
 USER claude
-RUN CURSOR_NODE_SHA256=$(case "$TARGETARCH" in arm64) echo "$CURSOR_NODE_SHA256_ARM64";; *) echo "$CURSOR_NODE_SHA256_AMD64";; esac) && \
-    curl -fsSL https://cursor.com/install -o /tmp/cursor-install.sh && \
-    echo "$CURSOR_INSTALLER_SHA256  /tmp/cursor-install.sh" | sha256sum -c - && \
-    grep -Fq "$CURSOR_BUILD_ID" /tmp/cursor-install.sh && \
-    bash /tmp/cursor-install.sh && \
-    test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
+RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in arm64) echo "arm64";; *) echo "x64";; esac) && \
+    CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; esac) && \
+    CURSOR_NODE_SHA256=$(case "$TARGETARCH" in arm64) echo "$CURSOR_NODE_SHA256_ARM64";; *) echo "$CURSOR_NODE_SHA256_AMD64";; esac) && \
     CURSOR_DIR="/home/claude/.local/share/cursor-agent/versions/$CURSOR_BUILD_ID" && \
+    curl -fsSL "https://downloads.cursor.com/lab/${CURSOR_BUILD_ID}/linux/${CURSOR_ASSET_ARCH}/agent-cli-package.tar.gz" -o /tmp/cursor-agent.tar.gz && \
+    echo "$CURSOR_ARCHIVE_SHA256  /tmp/cursor-agent.tar.gz" | sha256sum -c - && \
+    test "$(tar -tzf /tmp/cursor-agent.tar.gz | cut -d/ -f1 | sort -u)" = "dist-package" && \
+    tar -tzf /tmp/cursor-agent.tar.gz | grep -Fxq 'dist-package/cursor-agent' && \
+    tar -tzf /tmp/cursor-agent.tar.gz | grep -Fxq 'dist-package/node' && \
+    rm -rf "$CURSOR_DIR" && \
+    mkdir -p "$CURSOR_DIR" /home/claude/.local/bin && \
+    tar --strip-components=1 -xzf /tmp/cursor-agent.tar.gz -C "$CURSOR_DIR" && \
+    ln -sfn "$CURSOR_DIR/cursor-agent" /home/claude/.local/bin/agent && \
+    ln -sfn "$CURSOR_DIR/cursor-agent" /home/claude/.local/bin/cursor-agent && \
+    ln -sfn "$CURSOR_DIR/cursor-agent" /home/claude/.local/bin/cursor && \
+    test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
     echo "$CURSOR_LAUNCHER_SHA256  $CURSOR_DIR/cursor-agent" | sha256sum -c - && \
     echo "$CURSOR_NODE_SHA256  $CURSOR_DIR/node" | sha256sum -c - && \
     ! grep -aFq -- '--permission' "$CURSOR_DIR/cursor-agent" && \
     ! grep -aFq -- '--allow-fs-read' "$CURSOR_DIR/cursor-agent" && \
     ! grep -aFq -- '--allow-fs-write' "$CURSOR_DIR/cursor-agent" && \
-    rm -f /tmp/cursor-install.sh && \
-    if [ ! -e /home/claude/.local/bin/cursor ] && [ -e /home/claude/.local/bin/cursor-agent ]; then \
-      ln -s /home/claude/.local/bin/cursor-agent /home/claude/.local/bin/cursor; \
-    fi
+    rm -f /tmp/cursor-agent.tar.gz
 USER root
 
 # ---------- Junie CLI (full only) ----------

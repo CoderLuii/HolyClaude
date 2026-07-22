@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/CoderLuii/HolyClaude/master/contracts/product-facts.v1.schema.json",
+  "title": "HolyClaude product facts",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "release",
+    "registries",
+    "variants",
+    "platforms",
+    "cloudcli",
+    "aiClis",
+    "ports",
+    "network",
+    "browser",
+    "features",
+    "notifications",
+    "securityBoundary",
+    "licenses",
+    "capabilityProfile"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "const": "./product-facts.v1.schema.json"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "release": {
+      "$ref": "#/$defs/release"
+    },
+    "registries": {
+      "$ref": "#/$defs/registries"
+    },
+    "variants": {
+      "$ref": "#/$defs/variants"
+    },
+    "platforms": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "linux/amd64",
+          "linux/arm64"
+        ]
+      }
+    },
+    "cloudcli": {
+      "$ref": "#/$defs/tool"
+    },
+    "aiClis": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/cli"
+      }
+    },
+    "ports": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "$ref": "#/$defs/port"
+      }
+    },
+    "network": {
+      "type": "object",
+      "required": [
+        "defaultBind",
+        "cloudcliUrl"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "defaultBind": {
+          "const": "127.0.0.1"
+        },
+        "cloudcliUrl": {
+          "const": "http://localhost:3001"
+        }
+      }
+    },
+    "browser": {
+      "$ref": "#/$defs/browser"
+    },
+    "features": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
+    },
+    "notifications": {
+      "$ref": "#/$defs/notifications"
+    },
+    "securityBoundary": {
+      "$ref": "#/$defs/securityBoundary"
+    },
+    "licenses": {
+      "$ref": "#/$defs/licenses"
+    },
+    "capabilityProfile": {
+      "$ref": "#/$defs/capabilityProfile"
+    }
+  },
+  "$defs": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+(?:\\.[0-9]+)+(?:-[0-9A-Za-z.]+)?$"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "variants": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "full",
+          "slim"
+        ]
+      }
+    },
+    "release": {
+      "type": "object",
+      "required": [
+        "tag",
+        "dockerVersion"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "dockerVersion": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "registry": {
+      "type": "object",
+      "required": [
+        "repository",
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://",
+          "format": "uri"
+        }
+      }
+    },
+    "registries": {
+      "type": "object",
+      "required": [
+        "dockerHub",
+        "ghcr"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dockerHub": {
+          "$ref": "#/$defs/registry"
+        },
+        "ghcr": {
+          "$ref": "#/$defs/registry"
+        }
+      }
+    },
+    "tool": {
+      "type": "object",
+      "required": [
+        "name",
+        "command",
+        "version",
+        "variants"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "variants": {
+          "$ref": "#/$defs/variants"
+        }
+      }
+    },
+    "cli": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "command",
+        "version",
+        "variants"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "version": {
+          "$ref": "#/$defs/version"
+        },
+        "variants": {
+          "$ref": "#/$defs/variants"
+        }
+      }
+    },
+    "port": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "protocol",
+        "start",
+        "end",
+        "publishedByDefault",
+        "defaultBinding"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "protocol": {
+          "enum": [
+            "tcp",
+            "udp"
+          ]
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "publishedByDefault": {
+          "type": "boolean"
+        },
+        "defaultBinding": {
+          "const": "127.0.0.1"
+        }
+      }
+    },
+    "browser": {
+      "type": "object",
+      "required": [
+        "chromium",
+        "playwright"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "chromium": {
+          "type": "object",
+          "required": [
+            "name",
+            "version",
+            "executable"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "const": "Debian Chromium"
+            },
+            "version": {
+              "$ref": "#/$defs/version"
+            },
+            "executable": {
+              "const": "/usr/bin/chromium"
+            }
+          }
+        },
+        "playwright": {
+          "type": "object",
+          "required": [
+            "version",
+            "browserDownload",
+            "executable"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "$ref": "#/$defs/version"
+            },
+            "browserDownload": {
+              "const": false
+            },
+            "executable": {
+              "const": "/usr/bin/chromium"
+            }
+          }
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "required": [
+        "id",
+        "enabled"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "enabled": {
+          "const": true
+        }
+      }
+    },
+    "notifications": {
+      "type": "object",
+      "required": [
+        "marker",
+        "integrations"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "marker": {
+          "const": "~/.claude/notify-on"
+        },
+        "integrations": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "claude-code",
+              "codex-cli",
+              "gemini-cli",
+              "cloudcli-codex"
+            ]
+          }
+        }
+      }
+    },
+    "securityBoundary": {
+      "type": "object",
+      "required": [
+        "cloudcliAccountModel",
+        "sharedContext",
+        "remoteSharingCreatesUserIsolation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cloudcliAccountModel": {
+          "const": "single-user"
+        },
+        "sharedContext": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "workspace",
+              "credentials"
+            ]
+          }
+        },
+        "remoteSharingCreatesUserIsolation": {
+          "const": false
+        }
+      }
+    },
+    "licenses": {
+      "type": "object",
+      "required": [
+        "source",
+        "thirdPartyNotices"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "type": "string",
+          "pattern": "^https://",
+          "format": "uri"
+        },
+        "thirdPartyNotices": {
+          "type": "string",
+          "pattern": "^https://",
+          "format": "uri"
+        }
+      }
+    },
+    "capabilityProfile": {
+      "type": "object",
+      "required": [
+        "capAdd",
+        "securityOpt",
+        "shmSize"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "capAdd": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "SYS_ADMIN",
+              "SYS_PTRACE"
+            ]
+          }
+        },
+        "securityOpt": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "const": "seccomp=unconfined"
+          }
+        },
+        "shmSize": {
+          "const": "2g"
+        }
+      }
+    }
+  }
+}

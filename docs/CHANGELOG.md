@@ -4,6 +4,20 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.2] - 07/22/2026
+
+### Added
+- Added a versioned product-facts contract, JSON Schema, verifier, and regression tests for release identity, image variants, ports, CLI inventory, browser versions, and supported capabilities.
+
+### Changed
+- Synchronized the README, translated READMEs, Docker Hub description, architecture, configuration, troubleshooting, and security guidance with the verified image behavior.
+- Kept the v1.5.1 runtime and dependency set unchanged while publishing the corrected product facts as v1.5.2.
+- Bound the retained Cursor Agent build to checksum-verified amd64 and arm64 archives instead of the moving bootstrap installer.
+
+### Fixed
+- Corrected full and slim CLI membership, translated image-tag examples and links, packaged Chromium wording, and Codex permission fallback documentation.
+- Clarified local credential handling, optional account persistence, and CloudCLI's single-user workspace boundary.
+
 ## [1.5.1] - 07/21/2026
 
 ### Changed

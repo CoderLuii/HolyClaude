@@ -56,7 +56,7 @@ That's it. Open your browser, sign in, start building.
 
 ⚙️ **s6-overlay 3.2.3.2** — Proper PID 1 process supervision with graceful shutdown and automatic service restarts
 
-🔒 **Security** — Docker UID/GID remapping via PUID/PGID, rootless Podman keep-id profile, no credential proxying, everything stays local
+🔒 **Security** — Docker UID/GID remapping via PUID/PGID, rootless Podman keep-id profile, and no HolyClaude credential relay; bundled tools contact configured providers directly
 
 ## Image Variants
 
@@ -71,12 +71,12 @@ Docker Hub reports compressed transfer size. Docker, Synology Container Manager,
 
 ## Authentication
 
-Works with your existing Anthropic account — no proxy, no middleman:
+Works with your existing Anthropic account. HolyClaude operates no credential relay:
 
 - **Claude Max/Pro plan** — OAuth sign-in through the web UI
 - **Anthropic API key** — Paste it in the web UI
 
-Credentials are stored locally in your bind-mounted `./data/claude` directory. HolyClaude restores the saved Claude Code session before a fresh container file can replace it.
+The default Compose files store Claude Code session data in the bind-mounted `./data/claude` directory. Other bundled tools may read credentials from their own container files, bind mounts, or environment variables and contact configured providers directly. HolyClaude restores the saved Claude Code session before a fresh container file can replace it.
 
 ## Key Environment Variables
 
@@ -116,7 +116,7 @@ Leave it unset for root-hostname serving.
 
 | Path | Purpose |
 |------|---------|
-| `/home/claude/.claude` | Credentials, settings, Claude memory, and the saved Claude Code session — **persist this** |
+| `/home/claude/.claude` | Claude settings, file-based credentials stored there, Claude memory, and the saved Claude Code session — **persist this** |
 | `/workspace` | Your code and projects |
 
 ## Architecture

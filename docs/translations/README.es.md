@@ -51,7 +51,7 @@ Tu cuenta de Anthropic existente funciona directamente:
 - **Clave de API de Anthropic** — configurala a traves de la interfaz web, la misma facturacion de siempre
 - **Sin costo adicional** — HolyClaude es gratuito y de codigo abierto. Solo pagas a Anthropic por lo que usas, como ya lo haces.
 
-> HolyClaude no toca tus credenciales. Se almacenan localmente en tu volumen bind-mounted (`./data/claude/`), igual que estarian en bare metal.
+> HolyClaude no opera un relay de credenciales. Las herramientas incluidas leen credenciales desde archivos del contenedor, bind mounts o variables de entorno y contactan directamente a los proveedores configurados.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>
@@ -167,7 +167,7 @@ Asi que hice un contenedor que lo hace todo. Y luego encontre cada error posible
 | **CLIs de IA** | 8 proveedores, un contenedor | Instalar cada uno por separado en 3 gestores de paquetes |
 | **Herramientas de dev** | Mas de 50 herramientas, listas | `apt-get install` / `npm i -g` / `pip install` durante la proxima hora |
 | **Gestion de procesos** | s6-overlay (reinicio automatico, apagado elegante) | Escribir tu propia configuracion de supervisord o confiar en que el reinicio de Docker funcione |
-| **Persistencia** | Bind mounts, las credenciales sobreviven todo | Descifrar los volumenes de Docker, depurar "por que esto es un directorio y no un archivo" |
+| **Persistencia** | Los bind mounts conservan la configuracion de herramientas basada en archivos y el workspace entre reconstrucciones | Descifrar los volumenes de Docker, depurar "por que esto es un directorio y no un archivo" |
 | **Actualizaciones** | `docker pull && docker compose up -d` | Actualizar 50 herramientas manualmente, rezar para que nada se rompa |
 | **Multi-arquitectura** | AMD64 + ARM64 | Rezar para que tu Dockerfile compile en ARM |
 
@@ -210,7 +210,7 @@ HolyClaude ejecuta el **CLI oficial de Claude Code** de Anthropic. Tu cuenta exi
 | OpenCode | Configurar via TUI de `opencode` (admite OpenRouter y multiples proveedores) |
 | Pi Coding Agent | Configurar mediante `pi` (admite multiples proveedores) |
 
-> **HolyClaude es gratuito y de codigo abierto.** Solo pagas a tus proveedores de IA por el uso, igual que ya lo haces. No hacemos proxy, no interceptamos ni tocamos tus credenciales. Viven en tu bind mount local.
+> **HolyClaude es gratuito y de codigo abierto.** Solo pagas a tus proveedores de IA por el uso. HolyClaude no opera un relay de credenciales. Las herramientas incluidas leen credenciales desde archivos del contenedor, bind mounts o variables de entorno y contactan directamente a los proveedores configurados.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>
@@ -299,7 +299,7 @@ Abre `http://localhost:3001`. Crea una cuenta de CloudCLI. Inicia sesion con tu 
 
 **Eso es toda la configuracion. Ya terminaste.**
 
-> **¿Por que estas capacidades del navegador?** Este lanzamiento conserva el perfil actual de navegador de HolyClaude. `SYS_ADMIN` y `seccomp=unconfined` amplian privilegios de proceso y reducen el aislamiento; `SYS_PTRACE` es para depuracion. Mantén este perfil tal como está para v1.5.1 y trata el endurecimiento como un cambio aparte.
+> **¿Por que estas capacidades del navegador?** Este lanzamiento conserva el perfil actual de navegador de HolyClaude. `SYS_ADMIN` y `seccomp=unconfined` amplian privilegios de proceso y reducen el aislamiento; `SYS_PTRACE` es para depuracion. Mantén este perfil tal como está para v1.5.2 y trata el endurecimiento como un cambio aparte.
 
 > **¿Por que `shm_size: 2g`?** Docker otorga a los contenedores 64MB de memoria compartida por defecto. HolyClaude conserva 2GB como el valor predeterminado retenido para este lanzamiento porque Chromium usa `/dev/shm` intensamente para el renderizado de pestanas. Con 64MB, las pestanas se cuelgan; si el navegador se usa mucho, subelo a 4GB.
 
@@ -457,7 +457,7 @@ La referencia completa. Cada variable, su valor predeterminado y lo que hace.
 | `TZ` | `UTC` | Zona horaria del contenedor |
 | `PUID` | `1000` | ID de usuario del contenedor para remapeo Docker; Podman rootless usa `docker-compose.podman-rootless.yaml` |
 | `PGID` | `1000` | ID de grupo del contenedor para remapeo Docker; Podman rootless usa `docker-compose.podman-rootless.yaml` |
-| `NODE_OPTIONS` | `--max-old-space-size=4096` | Limite de memoria del heap de Node.js en MB |
+| `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Limite de memoria del heap de Node.js en MB |
 | `GIT_USER_NAME` | `HolyClaude User` | Autor de commit de Git (se establece una vez en el primer arranque) |
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email de commit de Git (se establece una vez en el primer arranque) |
 | `CHOKIDAR_USEPOLLING` | *(no definido)* | Establece en `1` para SMB/CIFS — activa observadores de archivos por sondeo |
@@ -554,17 +554,16 @@ Este no es un contenedor minimalista. Es una estacion de trabajo de desarrollo c
 | **OpenAI Codex** | `codex` | El agente de codificacion de OpenAI |
 | **Cursor** | `cursor` | El agente de IA de Cursor |
 | **TaskMaster AI** | `task-master` | Planificacion y orquestacion de tareas |
-| **Junie** | `junie` | El agente de codificacion de IA de JetBrains |
-| **OpenCode** | `opencode` | Agente de IA de codigo abierto (OpenRouter y multiples proveedores) |
-| **Pi Coding Agent** | `pi` | Harness de agente minimalista (multiples proveedores) |
 
-Ocho CLIs de IA. Un contenedor. Cambia entre ellos al instante. Ninguna otra imagen Docker hace esto.
 
 </details>
 
 ### Solo imagen completa (paquetes adicionales)
 
 La imagen completa incluye todo lo anterior, mas:
+
+**Solo en esta variante:** Junie (`junie`), OpenCode (`opencode`) y Pi (`pi`).
+
 
 <details>
 <summary><strong>Paquetes adicionales de npm — despliegue, ORMs, rendimiento</strong></summary>
@@ -628,9 +627,9 @@ Ocho CLIs de IA. Un contenedor. Ninguna otra imagen Docker te da esto.
 | **OpenAI Codex** | `codex` | `OPENAI_API_KEY` o `codex login --device-auth` | **Si** — ChatGPT Plus/Pro/Team/Enterprise o clave de API |
 | **Cursor** | `cursor` | Variable de entorno `CURSOR_API_KEY` | Clave de API |
 | **TaskMaster AI** | `task-master` | Usa las claves de proveedor de IA existentes | Funciona con las claves configuradas |
-| **Junie** | `junie` | Suscripcion JetBrains AI | Se requiere cuenta de JetBrains |
+| **Junie** | `junie` | Suscripcion JetBrains AI | Se requiere cuenta de JetBrains; **Solo en la imagen completa** |
 | **OpenCode** | `opencode` | Configurar via TUI | Admite OpenRouter y multiples proveedores; solo full image |
-| **Pi Coding Agent** | `pi` | Configurar mediante Pi | Admite multiples proveedores |
+| **Pi Coding Agent** | `pi` | Configurar mediante Pi | Admite multiples proveedores; **Solo en la imagen completa** |
 
 > Claude Code es el CLI principal. Los demas estan ahi porque a veces quieres una segunda opinion, o las fortalezas de un modelo especifico, o estas comparando resultados. Tenerlos todos a un `Tab` de distancia es todo el punto.
 
@@ -665,7 +664,7 @@ Targets manuales soportados por upstream: `cursor`, `copilot`, `windsurf`, `qwen
 
 HolyClaude funciona con [Ollama](https://ollama.com) como alternativa a una suscripcion de Anthropic. Configura dos variables de entorno y usa modelos locales o en la nube.
 
-Consulta la guia de configuracion completa: **[docs/ollama.md](docs/ollama.md)**
+Consulta la guia de configuracion completa: **[docs/ollama.md](../ollama.md)**
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>
@@ -712,7 +711,7 @@ graph TB
 
 5. **Xvfb proporciona una pantalla de compatibilidad** — Xvfb sigue disponible en `:99` para las herramientas que usan una pantalla visible. Chromium headless moderno, Playwright y Lighthouse no requieren Xvfb en todos los casos.
 
-Consulta [docs/architecture.md](docs/architecture.md) para el analisis tecnico completo, incluido por que elegimos s6 sobre supervisord, por que los plugins estan integrados en la imagen y por que `runuser` en lugar de `su`.
+Consulta [docs/architecture.md](../architecture.md) para el analisis tecnico completo, incluido por que elegimos s6 sobre supervisord, por que los plugins estan integrados en la imagen y por que `runuser` en lugar de `su`.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>
@@ -747,7 +746,7 @@ holyclaude/
 │   ├── entrypoint.sh        # Punto de entrada del contenedor
 │   └── notify.py            # Asistente de notificaciones (Apprise)
 ├── s6-overlay/              # Supervision de procesos (servicios s6-rc)
-├── Dockerfile               # Compilacion de una sola etapa
+├── Dockerfile               # Compilacion multietapa
 ├── docker-compose.yaml      # Inicio rapido (configuracion minima)
 ├── docker-compose.full.yaml # Configuracion completa (todas las opciones)
 ├── LICENSE
@@ -764,7 +763,7 @@ holyclaude/
 
 | Que | Donde (contenedor) | Donde (host) | ¿Sobrevive reconstruccion? |
 |------|-------------------|-------------|-------------------|
-| Configuracion, credenciales, claves de API | `/home/claude/.claude` | `./data/claude` | **Si** |
+| Configuracion de Claude y configuracion persistente de herramientas | `/home/claude/.claude` | `./data/claude` | **Si** |
 | Sesion de Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Si** |
 | Tu codigo y proyectos | `/workspace` | `./workspace` | **Si** |
 | Cuenta de CloudCLI | `/home/claude/.cloudcli` | *(solo en el contenedor por defecto — ver abajo)* | No (opt-in disponible) |
@@ -772,11 +771,11 @@ holyclaude/
 HolyClaude restaura la sesion guardada de Claude Code antes de que el arranque pueda crear un archivo por defecto nuevo. Asi los rebuilds y recreates no reemplazan una sesion OAuth/API real con estado de onboarding.
 
 ### Lo que sobrevive `docker compose down && docker compose up`:
-- Tu autenticacion de Anthropic y claves de API
+- Autenticacion de Anthropic basada en archivos y ajustes de clave API de Claude Code
 - Configuracion y memoria de Claude Code (`CLAUDE.md`) y sesion OAuth (sin volver a iniciar sesion)
 - Todo tu codigo en `./workspace`
 - Configuracion de Git
-- Auth de Codex, Gemini y Cursor CLI (desde v1.1.7)
+- Configuracion y autenticacion basadas en archivos de Codex, Gemini y Cursor bajo `/home/claude/.claude`. Las claves proporcionadas por variables de entorno permanecen en Compose o en el entorno del host.
 
 ### Lo que tendras que repetir (10 segundos):
 - Cuenta web de CloudCLI — registro rapido, eso es todo (a menos que actives la persistencia abajo)
@@ -788,7 +787,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **Nunca elimines `./data/claude/` por completo.** Ahi es donde viven tus credenciales. Elimina el archivo centinela si quieres un bootstrap nuevo. Elimina archivos de configuracion especificos si quieres restablecer ajustes. Pero nunca borres toda la carpeta.
+> **`./data/claude/`:** No elimines la carpeta por completo. Contiene datos guardados de sesion y configuracion de Claude Code. Para un bootstrap nuevo, elimina solo el archivo centinela; para restablecer ajustes, elimina solo el archivo de configuracion correspondiente.
 
 ### Persistir la cuenta de CloudCLI (opcional, solo almacenamiento local)
 
@@ -876,12 +875,6 @@ Estas son las dos opciones que realmente recomiendo:
 | **[Tailscale](https://tailscale.com)** | Uso personal, equipos pequenos | VPN mesh WireGuard. Instala Tailscale en tu servidor + tu laptop/telefono, y accedes a `http://holyclaude:3001` desde cualquier lugar como si estuvieras en la LAN. Sin puertos abiertos, sin DNS, sin certificados. Gratis para uso personal. |
 | **[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)** | Compartir con otros, hostname publico | Cloudflare proxea la conexion, asi que el puerto `3001` permanece cerrado. Obtienes un dominio real con HTTPS, y puedes poner Cloudflare Access (Google/GitHub SSO) delante. El nivel gratuito cubre la mayoria del uso personal. |
 
-Ambos te dan:
-- Cero puertos abiertos en tu router
-- Transporte cifrado de extremo a extremo
-- Autenticacion real basada en identidad (no una contrasena compartida)
-- Registros de auditoria
-
 ### Si insistes en exponerlo directamente (por favor no lo hagas)
 
 Si absolutamente tienes que saltarte el tunel (tutorial de self-hosting, red de laboratorio aislada, lo que sea), como minimo absoluto:
@@ -912,7 +905,7 @@ Alejate de tu computadora y enterate cuando Claude haya terminado. Usa [Apprise]
    ```
 2. Dentro del contenedor: `touch ~/.claude/notify-on`
 
-Consulta la [documentacion de configuracion](docs/configuration.md#notifications-apprise) para todas las variables admitidas y formatos de URL.
+Consulta la [documentacion de configuracion](../configuration.md#notifications-apprise) para todas las variables admitidas y formatos de URL.
 
 **Para desactivar:** `rm ~/.claude/notify-on`
 
@@ -947,7 +940,7 @@ No ejecutes `cloudcli update` ni `npm install -g @cloudcli-ai/cloudcli@latest` d
 Para fijar una version especifica en lugar de `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.4.1   # instead of :latest
+image: coderluii/holyclaude:1.5.2   # instead of :latest
 ```
 
 <p align="right">
@@ -1023,7 +1016,7 @@ Establecelos en tu archivo compose:
 **Solucion:** Ya esta gestionado — `entrypoint.sh` restaura primero el archivo de sesion guardado o crea un archivo por defecto seguro cuando no existe una sesion guardada.
 </details>
 
-Consulta [docs/troubleshooting.md](docs/troubleshooting.md) para la guia completa, incluidos todos los problemas de SMB/CIFS y el historial completo de errores que encontramos y corregimos.
+Consulta [docs/troubleshooting.md](../troubleshooting.md) para la guia completa, incluidos todos los problemas de SMB/CIFS y el historial completo de errores que encontramos y corregimos.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>
@@ -1189,7 +1182,7 @@ La imagen Docker de HolyClaude incluye software de terceros, cada uno bajo su pr
 | s6-overlay | ISC | [just-containers/s6-overlay](https://github.com/just-containers/s6-overlay) |
 | Node.js | MIT | [nodejs/node](https://github.com/nodejs/node) |
 
-Consulta [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES) para obtener detalles completos, incluidos los avisos de modificacion. El codigo fuente propio de HolyClaude esta bajo licencia MIT.
+Consulta [THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES) para obtener detalles completos, incluidos los avisos de modificacion. El codigo fuente propio de HolyClaude esta bajo licencia MIT.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>
@@ -1199,7 +1192,7 @@ Consulta [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES) para obtener detalles comple
 
 ## :page_facing_up: Licencia
 
-MIT — consulta [LICENSE](LICENSE). Usalo como quieras.
+MIT — consulta [LICENSE](../../LICENSE). Usalo como quieras.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>

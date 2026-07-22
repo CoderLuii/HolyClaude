@@ -10,7 +10,7 @@ You are running inside a **HolyClaude Docker container** (slim variant). Core to
 - **User:** `claude` (Docker UID/GID configurable via PUID/PGID; rootless Podman uses keep-id)
 - **Working directory:** `/workspace` (bind-mounted from host)
 - **Home directory:** `/home/claude`
-- **Persistent storage:** `~/.claude/` is bind-mounted — settings, credentials, and this file survive container rebuilds
+- **Persistent storage:** `~/.claude/` is bind-mounted — settings, file-based credentials stored there, and this file survive container rebuilds
 - **Process manager:** s6-overlay v3 (PID 1) — manages all long-running services
 - **Display:** Xvfb virtual display at `:99` for headless browser operations
 - **Variant:** SLIM — lighter image, install extras as needed
@@ -147,7 +147,7 @@ These take longer to install (~1-2 minutes) because they require system dependen
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
 - **Playwright 1.61.0** installed for Node and Python — baked at build time, no runtime browser download
-- **Playwright Chromium build 1228** is baked into the image for `amd64` and `arm64`
+- **Debian Chromium 150.0.7871.124** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 
@@ -193,7 +193,7 @@ Claude Code runs in `acceptEdits` mode by default:
 - To enable full bypass: change `acceptEdits` to `bypassPermissions` in `~/.claude/settings.json`
 
 Codex has separate configurable near-parity controls:
-- CloudCLI Codex chat: `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE`, read at runtime by CloudCLI. Valid values: `default`, `acceptEdits`, `bypassPermissions`. Recommended: `acceptEdits`.
+- CloudCLI Codex chat: `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` is a server-side fallback only when a request omits `permissionMode`. The current browser client sends an explicit value, which takes precedence. Valid fallback values: `default`, `acceptEdits`, `bypassPermissions`.
 - Raw `codex` CLI: `HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE`, used only when creating a new `~/.codex/config.toml` on first boot. Existing configs are not overwritten, and the generated value persists until you edit it.
 - `bypassPermissions` gives full access with no approval inside the Docker container and mounted volumes. Use it only for trusted local workspaces.
 

@@ -27,7 +27,7 @@ These are the current compose defaults for HolyClaude's browser profile. `SYS_AD
 
 The default `acceptEdits` mode is right for most users. `bypassPermissions` is documented for power users who understand the implications.
 
-Codex support uses configurable near-parity modes, not identical security. `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` controls CloudCLI Codex chat at runtime, while `HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE` only seeds a new raw `codex` CLI `~/.codex/config.toml` on first boot. Valid values are `default`, `acceptEdits`, and `bypassPermissions`; `acceptEdits` is recommended.
+Codex support uses configurable near-parity modes, not identical security. The current CloudCLI browser client sends `permissionMode` explicitly. `HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE` is only a fallback for requests that omit it, and an explicit request value wins. `HOLYCLAUDE_CODEX_CLI_PERMISSION_MODE` only seeds a new raw `codex` CLI `~/.codex/config.toml` on first boot; its default is `default`. Valid values are `default`, `acceptEdits`, and `bypassPermissions`.
 
 Pi Coding Agent runs with the same container user permissions as the `pi` process that launches it. HolyClaude does not add a separate Pi permission gate, so use it in trusted workspaces and keep the container boundary in mind.
 
@@ -60,7 +60,9 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.5.1 vendors CloudCLI `1.36.3`. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+HolyClaude v1.5.2 vendors CloudCLI `1.36.3`. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+
+CloudCLI is a single-user service. Its account controls one shared workspace and credential context. Putting CloudCLI behind a tunnel or sharing its URL does not create separate users, tenants, workspaces, or credential boundaries.
 
 ## Release Evidence
 
@@ -76,9 +78,10 @@ The workflow publishes the raw Syft SBOMs and scanner report beside the reviewed
 
 ## Credential Storage
 
-- API keys and authentication tokens are stored in `./data/claude/` on the host (bind-mounted to `~/.claude/` in the container)
-- Credentials never leave the container — HolyClaude does not proxy, intercept, or transmit credentials to any third party
-- The container communicates directly with AI provider APIs (Anthropic, Google, OpenAI) using your credentials
+- Claude Code session data is stored in `./data/claude/` on the host by the default Compose files. Other bundled tools may read credentials from their own container files, bind mounts, or environment variables.
+- HolyClaude operates no credential relay and does not proxy or intercept provider credentials
+- Bundled tools read credentials from container-local files, bind mounts, or environment variables and send authenticated requests directly to the providers you configure
+- Provider requests necessarily carry the authentication material required by that provider; do not treat the container as a boundary that keeps credentials off the network
 
 ## Network Access
 
@@ -97,7 +100,7 @@ If you need to reach HolyClaude from outside your local network, use:
 - **[Tailscale](https://tailscale.com)** — WireGuard mesh VPN, zero open ports, identity-based auth. Recommended for personal and small-team use.
 - **[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)** — Outbound-only tunnel to Cloudflare's edge, optional Cloudflare Access SSO in front. Recommended when you need a public hostname or shared access.
 
-Both options are free for personal use, encrypt the connection end-to-end, and never require opening a port on your router. See the [Remote Access & Exposure](../README.md#shield-remote-access--exposure) section of the README for full details.
+Both options avoid forwarding HolyClaude's application port through your router. Tailscale provides encrypted mesh transport and identity controls. Cloudflare Tunnel provides encrypted transport to Cloudflare's edge; Cloudflare Access is a separate configuration step when you need identity controls and Access audit logs. See the [Remote Access & Exposure](../README.md#shield-remote-access--exposure) section of the README for full details.
 
 ## Reporting a Vulnerability
 

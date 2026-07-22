@@ -51,7 +51,7 @@
 - **Anthropic API key** — वेब UI में अपनी API key डालें, हमेशा की तरह वही बिलिंग
 - **कोई अतिरिक्त लागत नहीं** — HolyClaude मुफ़्त और ओपन सोर्स है। आप Anthropic को सिर्फ उसी चीज़ के लिए पे करते हैं जो आप use करते हैं, जैसा आप पहले से करते हैं।
 
-> HolyClaude आपके credentials को नहीं छूता। वे आपके bind-mounted volume (`./data/claude/`) में locally स्टोर होते हैं, वैसे ही जैसे bare metal पर होते।
+> HolyClaude credentials को relay नहीं करता। शामिल tools container files, bind mounts, या environment variables से credentials पढ़ते हैं और configured providers से सीधे संपर्क करते हैं।
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>
@@ -167,7 +167,7 @@ http://localhost:3001
 | **AI CLIs** | 8 providers, एक कंटेनर | हर एक को 3 package managers में अलग-अलग इंस्टॉल करें |
 | **Dev tools** | 50+ टूल्स, तैयार | अगले एक घंटे के लिए `apt-get install` / `npm i -g` / `pip install` |
 | **Process management** | s6-overlay (auto-restart, graceful shutdown) | अपना supervisord config लिखें या Docker restart काम करने की उम्मीद रखें |
-| **Persistence** | Bind mounts, credentials सब कुछ survive करते हैं | Docker volumes समझें, "यह directory क्यों है file नहीं" डीबग करें |
+| **Persistence** | Bind mounts file-based tool config और workspace को rebuild के बाद भी सुरक्षित रखते हैं | Docker volumes समझें, "यह directory क्यों है file नहीं" डीबग करें |
 | **अपडेट** | `docker pull && docker compose up -d` | 50 टूल्स मैन्युअली अपडेट करें, प्रार्थना करें कुछ टूटे नहीं |
 | **Multi-arch** | AMD64 + ARM64 | प्रार्थना करें कि आपका Dockerfile ARM पर बिल्ड हो |
 
@@ -210,7 +210,7 @@ HolyClaude Anthropic का **आधिकारिक Claude Code CLI** चल�
 | OpenCode | `opencode` TUI के ज़रिए कॉन्फ़िगर करें (OpenRouter और कई providers समर्थित) |
 | Pi Coding Agent | `pi` के ज़रिए configure करें (कई providers समर्थित) |
 
-> **HolyClaude मुफ़्त और ओपन सोर्स है।** आप अपने AI providers को उपयोग के लिए पे करते हैं, जैसा आप पहले से करते हैं। हम आपके credentials को proxy, intercept, या touch नहीं करते। वे आपके local bind mount में रहते हैं।
+> **HolyClaude मुफ़्त और ओपन सोर्स है।** आप केवल अपने AI providers के उपयोग के लिए भुगतान करते हैं। HolyClaude credentials को relay नहीं करता। शामिल tools container files, bind mounts, या environment variables से credentials पढ़ते हैं और configured providers से सीधे संपर्क करते हैं।
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>
@@ -299,7 +299,7 @@ docker compose up -d
 
 **बस यही पूरा सेटअप है। आप कर चुके हैं।**
 
-> **ये browser capabilities क्यों?** यह रिलीज HolyClaude का current browser profile बनाए रखती है। `SYS_ADMIN` और `seccomp=unconfined` process privileges बढ़ाते हैं और isolation कम करते हैं; `SYS_PTRACE` debugging के लिए है। v1.5.1 के लिए इस profile को जस का तस रखें और hardening को अलग बदलाव मानें।
+> **ये browser capabilities क्यों?** यह रिलीज HolyClaude का current browser profile बनाए रखती है। `SYS_ADMIN` और `seccomp=unconfined` process privileges बढ़ाते हैं और isolation कम करते हैं; `SYS_PTRACE` debugging के लिए है। v1.5.2 के लिए इस profile को जस का तस रखें और hardening को अलग बदलाव मानें।
 
 > **`shm_size: 2g` क्यों?** Docker डिफ़ॉल्ट रूप से containers को 64MB shared memory देता है। HolyClaude इस रिलीज़ के लिए 2GB को retained default रखता है क्योंकि Chromium tab rendering के लिए `/dev/shm` का भारी उपयोग करता है। 64MB पर tabs crash होते हैं; heavy browser use के लिए 4GB करें।
 
@@ -457,7 +457,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `TZ` | `UTC` | Container timezone |
 | `PUID` | `1000` | Docker-style container user ID; rootless Podman के लिए `docker-compose.podman-rootless.yaml` इस्तेमाल करें |
 | `PGID` | `1000` | Docker-style container group ID; rootless Podman के लिए `docker-compose.podman-rootless.yaml` इस्तेमाल करें |
-| `NODE_OPTIONS` | `--max-old-space-size=4096` | Node.js heap memory limit in MB |
+| `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js heap memory limit in MB |
 | `GIT_USER_NAME` | `HolyClaude User` | Git commit author (पहले boot पर एक बार सेट) |
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email (पहले boot पर एक बार सेट) |
 | `CHOKIDAR_USEPOLLING` | *(unset)* | SMB/CIFS के लिए `1` सेट करें — polling file watchers enable करता है |
@@ -554,17 +554,16 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | **OpenAI Codex** | `codex` | OpenAI का coding agent |
 | **Cursor** | `cursor` | Cursor का AI agent |
 | **TaskMaster AI** | `task-master` | Task planning और orchestration |
-| **Junie** | `junie` | JetBrains का AI coding agent |
-| **OpenCode** | `opencode` | Open source AI agent (OpenRouter और multiple providers) |
-| **Pi Coding Agent** | `pi` | Minimal agent harness (multiple providers) |
 
-आठ AI CLIs। एक container। एक `Tab` दबाकर उनके बीच switch करें। कोई अन्य Docker image यह नहीं करती।
 
 </details>
 
 ### केवल Full image (अतिरिक्त packages)
 
 Full image में ऊपर सब कुछ, plus:
+
+**केवल इस variant में:** Junie (`junie`), OpenCode (`opencode`), और Pi (`pi`)।
+
 
 <details>
 <summary><strong>अतिरिक्त npm packages — deployment, ORMs, performance</strong></summary>
@@ -628,9 +627,9 @@ Full image में ऊपर सब कुछ, plus:
 | **OpenAI Codex** | `codex` | `OPENAI_API_KEY` या `codex login --device-auth` | **हां** — ChatGPT Plus/Pro/Team/Enterprise या API key |
 | **Cursor** | `cursor` | `CURSOR_API_KEY` env var | API key |
 | **TaskMaster AI** | `task-master` | मौजूदा AI provider keys उपयोग करता है | configured keys के साथ काम करता है |
-| **Junie** | `junie` | JetBrains AI सब्सक्रिप्शन | JetBrains अकाउंट आवश्यक |
+| **Junie** | `junie` | JetBrains AI सब्सक्रिप्शन | JetBrains अकाउंट आवश्यक; **केवल full image में** |
 | **OpenCode** | `opencode` | TUI के ज़रिए configure करें | OpenRouter और कई providers समर्थित; सिर्फ full image |
-| **Pi Coding Agent** | `pi` | Pi के ज़रिए configure करें | कई providers समर्थित |
+| **Pi Coding Agent** | `pi` | Pi के ज़रिए configure करें | कई providers समर्थित; **केवल full image में** |
 
 > Claude Code primary CLI है। बाकी इसलिए हैं क्योंकि कभी-कभी आप दूसरी राय चाहते हैं, या किसी specific model की खूबियां चाहते हैं, या outputs की तुलना कर रहे हैं। एक `Tab` दूर सभी का होना ही पूरा point है।
 
@@ -665,7 +664,7 @@ Manual upstream targets: `cursor`, `copilot`, `windsurf`, `qwen`, `amp`, `rovode
 
 HolyClaude Anthropic सब्सक्रिप्शन के विकल्प के रूप में [Ollama](https://ollama.com) के साथ काम करता है। दो environment variables सेट करें और local या cloud models उपयोग करें।
 
-पूरा setup guide देखें: **[docs/ollama.md](docs/ollama.md)**
+पूरा setup guide देखें: **[docs/ollama.md](../ollama.md)**
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>
@@ -712,7 +711,7 @@ graph TB
 
 5. **Xvfb compatibility display देता है** — Visible display इस्तेमाल करने वाले tools के लिए Xvfb `:99` पर उपलब्ध रहता है। Modern headless Chromium, Playwright और Lighthouse को हर स्थिति में Xvfb की जरूरत नहीं होती।
 
-पूरे technical deep-dive के लिए [docs/architecture.md](docs/architecture.md) देखें — जिसमें यह भी शामिल है कि हमने supervisord पर s6 क्यों चुना, plugins image में क्यों baked हैं, और `su` के बजाय `runuser` क्यों।
+पूरे technical deep-dive के लिए [docs/architecture.md](../architecture.md) देखें — जिसमें यह भी शामिल है कि हमने supervisord पर s6 क्यों चुना, plugins image में क्यों baked हैं, और `su` के बजाय `runuser` क्यों।
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>
@@ -747,7 +746,7 @@ holyclaude/
 │   ├── entrypoint.sh        # Container entrypoint
 │   └── notify.py            # Notification helper (Apprise)
 ├── s6-overlay/              # Process supervision (s6-rc services)
-├── Dockerfile               # Single-stage build
+├── Dockerfile               # मल्टी-स्टेज बिल्ड
 ├── docker-compose.yaml      # Quick start (minimal config)
 ├── docker-compose.full.yaml # Full config (all options)
 ├── LICENSE
@@ -764,7 +763,7 @@ holyclaude/
 
 | क्या | कहां (container) | कहां (host) | rebuild survive करता है? |
 |------|-------------------|-------------|-------------------|
-| Settings, credentials, API keys | `/home/claude/.claude` | `./data/claude` | **हां** |
+| Claude settings और persisted tool config | `/home/claude/.claude` | `./data/claude` | **हां** |
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **हां** |
 | आपका code और projects | `/workspace` | `./workspace` | **हां** |
 | CloudCLI अकाउंट | `/home/claude/.cloudcli` | *(default में केवल container में — नीचे देखें)* | नहीं (opt-in उपलब्ध) |
@@ -772,11 +771,11 @@ holyclaude/
 HolyClaude startup में नया default file बनाने से पहले saved Claude Code session restore करता है। इससे rebuild और recreate real OAuth/API session को onboarding state से replace नहीं करते।
 
 ### `docker compose down && docker compose up` से क्या बचता है:
-- आपकी Anthropic authentication और API keys
+- File-based Anthropic authentication और Claude Code API-key settings
 - Claude Code settings, memory (`CLAUDE.md`) और OAuth session (दोबारा login नहीं)
 - `./workspace` में आपका सारा code
 - Git configuration
-- Codex, Gemini और Cursor CLI auth (v1.1.7 से)
+- `/home/claude/.claude` में stored Codex, Gemini, और Cursor file-based config और authentication। Environment variables से दी गई keys Compose या host environment में रहती हैं।
 
 ### आप क्या दोबारा करेंगे (10 सेकंड):
 - CloudCLI वेब अकाउंट — quick signup, बस इतना ही (जब तक नीचे persistence enable न करें)
@@ -788,7 +787,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/` को पूरी तरह कभी न delete करें।** वहां आपके credentials रहते हैं। अगर आप fresh bootstrap चाहते हैं तो sentinel file delete करें। Settings reset करने के लिए specific config files delete करें। लेकिन पूरा folder कभी न मिटाएं।
+> **`./data/claude/`:** इस folder को पूरी तरह delete न करें। इसमें saved Claude Code session और configuration data होता है। Fresh bootstrap के लिए केवल sentinel file हटाएं; settings reset करने के लिए केवल संबंधित configuration file हटाएं।
 
 ### CloudCLI account को persist करना (optional, केवल local storage)
 
@@ -876,12 +875,6 @@ Password एक speed bump है, दरवाज़ा नहीं। HolyCla
 | **[Tailscale](https://tailscale.com)** | Personal use, small teams | WireGuard mesh VPN। अपने server + laptop/phone पर Tailscale install करें, और आप `http://holyclaude:3001` को कहीं से भी access कर सकते हैं जैसे LAN पर हों। कोई open ports नहीं, कोई DNS नहीं, कोई certs नहीं। Personal use के लिए free। |
 | **[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)** | दूसरों के साथ share करना, public hostname | Cloudflare connection proxy करता है, इसलिए port `3001` बंद रहता है। आपको HTTPS के साथ real domain मिलता है, और आप Cloudflare Access (Google/GitHub SSO) सामने रख सकते हैं। Free tier ज़्यादातर personal use cover करता है। |
 
-दोनों आपको देते हैं:
-- Router पर zero open ports
-- End to end encrypted transport
-- Real identity-based auth (shared password नहीं)
-- Audit logs
-
 ### अगर आप इसे directly expose करने पर जोर देते हैं (please मत करें)
 
 अगर आपको absolutely tunnel skip करना है (self-hosting tutorial, isolated lab network, जो भी हो), कम से कम:
@@ -913,7 +906,7 @@ Password एक speed bump है, दरवाज़ा नहीं। HolyCla
    ```
 2. Container के अंदर: `touch ~/.claude/notify-on`
 
-सभी supported variables और URL formats के लिए [configuration docs](docs/configuration.md#notifications-apprise) देखें।
+सभी supported variables और URL formats के लिए [configuration docs](../configuration.md#notifications-apprise) देखें।
 
 **Disable करने के लिए:** `rm ~/.claude/notify-on`
 
@@ -948,7 +941,7 @@ Container के अंदर `cloudcli update` या `npm install -g @cloudcli
 `latest` के बजाय specific version pin करने के लिए:
 
 ```yaml
-image: coderluii/holyclaude:1.4.1   # instead of :latest
+image: coderluii/holyclaude:1.5.2   # instead of :latest
 ```
 
 <p align="right">
@@ -1024,7 +1017,7 @@ id -g  # → यह आपका PGID है
 **Fix:** पहले से handled — `entrypoint.sh` पहले saved session file restore करता है, या saved session न होने पर safe default file बनाता है।
 </details>
 
-सभी SMB/CIFS gotchas और उन bugs के पूरे इतिहास सहित complete guide के लिए [docs/troubleshooting.md](docs/troubleshooting.md) देखें जिन्हें हमने encounter और fix किया।
+सभी SMB/CIFS gotchas और उन bugs के पूरे इतिहास सहित complete guide के लिए [docs/troubleshooting.md](../troubleshooting.md) देखें जिन्हें हमने encounter और fix किया।
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>
@@ -1190,7 +1183,7 @@ HolyClaude Docker image में third-party software शामिल है, �
 | s6-overlay | ISC | [just-containers/s6-overlay](https://github.com/just-containers/s6-overlay) |
 | Node.js | MIT | [nodejs/node](https://github.com/nodejs/node) |
 
-पूरी details के लिए [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES) देखें जिसमें modification notices शामिल हैं। HolyClaude का अपना source code MIT licensed है।
+पूरी details के लिए [THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES) देखें जिसमें modification notices शामिल हैं। HolyClaude का अपना source code MIT licensed है।
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>
@@ -1200,7 +1193,7 @@ HolyClaude Docker image में third-party software शामिल है, �
 
 ## :page_facing_up: लाइसेंस
 
-MIT — [LICENSE](LICENSE) देखें। इसे जैसे चाहें उपयोग करें।
+MIT — [LICENSE](../../LICENSE) देखें। इसे जैसे चाहें उपयोग करें।
 
 <p align="right">
   <a href="#top">↑ शीर्ष पर वापस जाएं</a>

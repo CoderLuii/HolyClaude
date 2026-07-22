@@ -51,7 +51,7 @@
 - **Anthropic API 키** — 웹 UI에서 설정, 평소와 동일한 청구
 - **추가 비용 없음** — HolyClaude는 무료 오픈 소스입니다. Anthropic에는 이미 사용하던 대로만 지불하면 됩니다.
 
-> HolyClaude는 자격 증명에 손대지 않습니다. 바인드 마운트된 볼륨(`./data/claude/`)에 로컬로 저장되며, 베어 메탈과 동일합니다.
+> HolyClaude는 자격 증명을 중계하지 않습니다. 포함된 도구는 컨테이너 파일, 바인드 마운트 또는 환경 변수에서 자격 증명을 읽고 설정된 제공자에 직접 연결합니다.
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>
@@ -167,7 +167,7 @@ http://localhost:3001
 | **AI CLI** | 8개 제공자, 하나의 컨테이너 | 3개의 패키지 매니저로 각각 설치 |
 | **개발 도구** | 50개 이상 도구, 바로 사용 | 한 시간 동안 `apt-get install` / `npm i -g` / `pip install` |
 | **프로세스 관리** | s6-overlay (자동 재시작, 정상 종료) | supervisord 설정 직접 작성 또는 Docker restart 믿기 |
-| **영속성** | 바인드 마운트, 자격 증명 영구 보존 | Docker 볼륨 파악, "왜 파일이 아닌 디렉터리인가" 디버깅 |
+| **영속성** | 바인드 마운트된 도구 구성과 workspace는 재빌드 후에도 유지됨 | Docker 볼륨 파악, "왜 파일이 아닌 디렉터리인가" 디버깅 |
 | **업데이트** | `docker pull && docker compose up -d` | 50개 도구 수동 업데이트, 아무것도 깨지지 않길 기도 |
 | **멀티 아키텍처** | AMD64 + ARM64 | Dockerfile이 ARM에서 빌드되길 기도 |
 
@@ -210,7 +210,7 @@ HolyClaude는 Anthropic의 **공식 Claude Code CLI**를 실행합니다. 기존
 | OpenCode | `opencode` TUI로 설정 (OpenRouter 및 여러 제공자 지원) |
 | Pi Coding Agent | `pi`로 설정 (여러 제공자 지원) |
 
-> **HolyClaude는 무료 오픈 소스입니다.** AI 제공자에게만 사용량에 따라 지불하면 되며, 이미 그렇게 하고 있는 것과 동일합니다. 자격 증명을 프록시하거나 가로채거나 건드리지 않습니다. 로컬 바인드 마운트에 저장됩니다.
+> **HolyClaude는 무료 오픈 소스입니다.** AI 제공자에게 사용량에 대해서만 지불합니다. HolyClaude는 자격 증명을 중계하지 않습니다. 포함된 도구는 컨테이너 파일, 바인드 마운트 또는 환경 변수에서 자격 증명을 읽고 설정된 제공자에 직접 연결합니다.
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>
@@ -299,7 +299,7 @@ docker compose up -d
 
 **설정은 이게 전부입니다. 완료되었습니다.**
 
-> **왜 이런 브라우저 권한인가요?** 이번 릴리스는 HolyClaude의 현재 브라우저 프로필을 유지합니다. `SYS_ADMIN`과 `seccomp=unconfined`는 프로세스 권한을 넓히고 격리를 약화시키며, `SYS_PTRACE`는 디버깅용입니다. v1.5.1에서는 이 프로필을 그대로 유지하고, 하드닝은 별도 변경으로 다루세요.
+> **왜 이런 브라우저 권한인가요?** 이번 릴리스는 HolyClaude의 현재 브라우저 프로필을 유지합니다. `SYS_ADMIN`과 `seccomp=unconfined`는 프로세스 권한을 넓히고 격리를 약화시키며, `SYS_PTRACE`는 디버깅용입니다. v1.5.2에서는 이 프로필을 그대로 유지하고, 하드닝은 별도 변경으로 다루세요.
 
 > **왜 `shm_size: 2g`인가요?** Docker는 기본으로 공유 메모리 64MB만 줍니다. HolyClaude는 이번 릴리스의 유지된 기본값으로 2GB를 둡니다. Chromium이 탭 렌더링에 `/dev/shm`을 많이 쓰기 때문입니다. 64MB에서는 탭이 깨집니다. 브라우저 사용이 많으면 4GB로 올리세요.
 
@@ -457,7 +457,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `TZ` | `UTC` | 컨테이너 시간대 |
 | `PUID` | `1000` | Docker 방식 컨테이너 사용자 ID; rootless Podman은 `docker-compose.podman-rootless.yaml` 사용 |
 | `PGID` | `1000` | Docker 방식 컨테이너 그룹 ID; rootless Podman은 `docker-compose.podman-rootless.yaml` 사용 |
-| `NODE_OPTIONS` | `--max-old-space-size=4096` | Node.js 힙 메모리 한도 (MB) |
+| `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js 힙 메모리 한도 (MB) |
 | `GIT_USER_NAME` | `HolyClaude User` | Git 커밋 작성자 (첫 부팅 시 한 번 설정) |
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git 커밋 이메일 (첫 부팅 시 한 번 설정) |
 | `CHOKIDAR_USEPOLLING` | *(미설정)* | SMB/CIFS용 `1`로 설정 — 폴링 파일 감시자 활성화 |
@@ -554,17 +554,16 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | **OpenAI Codex** | `codex` | OpenAI의 코딩 에이전트 |
 | **Cursor** | `cursor` | Cursor의 AI 에이전트 |
 | **TaskMaster AI** | `task-master` | 작업 계획 및 오케스트레이션 |
-| **Junie** | `junie` | JetBrains의 AI 코딩 에이전트 |
-| **OpenCode** | `opencode` | 오픈 소스 AI 에이전트 (OpenRouter 및 여러 제공자) |
-| **Pi Coding Agent** | `pi` | 미니멀 에이전트 하네스 (여러 제공자) |
 
-8개의 AI CLI. 하나의 컨테이너. `Tab` 하나면 바로 전환. 다른 Docker 이미지는 이것을 제공하지 않습니다.
 
 </details>
 
 ### 전체 이미지 전용 (추가 패키지)
 
 전체 이미지는 위의 모든 것에 추가로 다음을 포함합니다:
+
+**이 variant에서만 제공:** Junie (`junie`), OpenCode (`opencode`), Pi (`pi`).
+
 
 <details>
 <summary><strong>추가 npm 패키지 — 배포, ORM, 성능</strong></summary>
@@ -628,9 +627,9 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | **OpenAI Codex** | `codex` | `OPENAI_API_KEY` 또는 `codex login --device-auth` | **예** — ChatGPT Plus/Pro/Team/Enterprise 또는 API 키 |
 | **Cursor** | `cursor` | `CURSOR_API_KEY` 환경 변수 | API 키 |
 | **TaskMaster AI** | `task-master` | 기존 AI 제공자 키 사용 | 설정된 키로 작동 |
-| **Junie** | `junie` | JetBrains AI 구독 | JetBrains 계정 필요 |
+| **Junie** | `junie` | JetBrains AI 구독 | JetBrains 계정 필요; **전체 이미지 전용** |
 | **OpenCode** | `opencode` | TUI로 설정 | OpenRouter 및 여러 제공자 지원; full image 전용 |
-| **Pi Coding Agent** | `pi` | Pi로 설정 | 여러 제공자 지원 |
+| **Pi Coding Agent** | `pi` | Pi로 설정 | 여러 제공자 지원; **전체 이미지 전용** |
 
 > Claude Code가 기본 CLI입니다. 나머지는 두 번째 의견이 필요할 때, 특정 모델의 강점을 활용할 때, 또는 출력을 비교할 때 사용합니다. `Tab` 하나면 모두 사용 가능하다는 것이 핵심입니다.
 
@@ -665,7 +664,7 @@ desloppify next
 
 HolyClaude는 Anthropic 구독의 대안으로 [Ollama](https://ollama.com)와 함께 작동합니다. 두 개의 환경 변수를 설정하고 로컬 또는 클라우드 모델을 사용하세요.
 
-전체 설정 가이드: **[docs/ollama.md](docs/ollama.md)**
+전체 설정 가이드: **[docs/ollama.md](../ollama.md)**
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>
@@ -712,7 +711,7 @@ graph TB
 
 5. **Xvfb가 호환 디스플레이를 제공합니다** — 화면 표시를 사용하는 도구를 위해 Xvfb를 `:99`에 유지합니다. 최신 헤드리스 Chromium, Playwright, Lighthouse가 항상 Xvfb를 필요로 하는 것은 아닙니다.
 
-s6를 supervisord 대신 선택한 이유, 플러그인이 이미지에 내장된 이유, `su` 대신 `runuser`를 사용하는 이유 등 전체 기술 심층 분석은 [docs/architecture.md](docs/architecture.md)를 참조하세요.
+s6를 supervisord 대신 선택한 이유, 플러그인이 이미지에 내장된 이유, `su` 대신 `runuser`를 사용하는 이유 등 전체 기술 심층 분석은 [docs/architecture.md](../architecture.md)를 참조하세요.
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>
@@ -747,7 +746,7 @@ holyclaude/
 │   ├── entrypoint.sh        # Container entrypoint
 │   └── notify.py            # Notification helper (Apprise)
 ├── s6-overlay/              # Process supervision (s6-rc services)
-├── Dockerfile               # Single-stage build
+├── Dockerfile               # 멀티 스테이지 빌드
 ├── docker-compose.yaml      # Quick start (minimal config)
 ├── docker-compose.full.yaml # Full config (all options)
 ├── LICENSE
@@ -764,7 +763,7 @@ holyclaude/
 
 | 항목 | 위치 (컨테이너) | 위치 (호스트) | 재빌드 후 유지? |
 |------|-------------------|-------------|-------------------|
-| 설정, 자격 증명, API 키 | `/home/claude/.claude` | `./data/claude` | **예** |
+| Claude 설정 및 영구 저장된 도구 구성 | `/home/claude/.claude` | `./data/claude` | **예** |
 | Claude Code 세션 (OAuth, 온보딩) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **예** |
 | 코드 및 프로젝트 | `/workspace` | `./workspace` | **예** |
 | CloudCLI 계정 | `/home/claude/.cloudcli` | *(기본적으로 컨테이너 전용 — 아래 참조)* | 아니요 (opt-in 가능) |
@@ -772,11 +771,11 @@ holyclaude/
 HolyClaude는 시작 중 새 기본 파일을 만들기 전에 저장된 Claude Code 세션을 복원합니다. 그래서 rebuild와 recreate가 실제 OAuth/API 세션을 온보딩 상태로 바꾸지 않습니다.
 
 ### `docker compose down && docker compose up` 후에도 유지되는 것:
-- Anthropic 인증 및 API 키
+- 파일 기반 Anthropic 인증 및 Claude Code API 키 설정
 - Claude Code 설정, 메모리 (`CLAUDE.md`) 및 OAuth 세션 (재로그인 불필요)
 - `./workspace`의 모든 코드
 - Git 설정
-- Codex, Gemini, Cursor CLI 인증 (v1.1.7부터)
+- `/home/claude/.claude`에 저장된 Codex, Gemini, Cursor의 파일 기반 구성 및 인증. 환경 변수로 제공한 키는 Compose 또는 호스트 환경에 남습니다.
 
 ### 다시 해야 할 것 (10초):
 - CloudCLI 웹 계정 — 빠른 가입, 그게 전부 (아래 영속성을 활성화하지 않는 한)
@@ -788,7 +787,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`를 절대 완전히 삭제하지 마세요.** 자격 증명이 거기에 있습니다. 새로운 bootstrap을 원하면 sentinel 파일을 삭제하세요. 설정을 초기화하고 싶으면 특정 설정 파일을 삭제하세요. 하지만 폴더 전체를 삭제하면 안 됩니다.
+> **`./data/claude/`:** 이 폴더 전체를 삭제하지 마세요. 저장된 Claude Code 세션 및 구성 데이터가 들어 있습니다. bootstrap을 다시 실행하려면 sentinel 파일만, 설정을 초기화하려면 해당 구성 파일만 삭제하세요.
 
 ### CloudCLI 계정 영속화 (선택 사항, 로컬 스토리지만)
 
@@ -876,12 +875,6 @@ HolyClaude는 CloudCLI를 포트 `3001`에 바인딩합니다. 기본적으로 �
 | **[Tailscale](https://tailscale.com)** | 개인 사용, 소규모 팀 | WireGuard 메시 VPN. 서버와 노트북/폰에 Tailscale을 설치하면 LAN에 있는 것처럼 어디서든 `http://holyclaude:3001`에 접근할 수 있습니다. 포트 개방 불필요, DNS 불필요, 인증서 불필요. 개인 사용은 무료. |
 | **[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)** | 다른 사람과 공유, 공개 호스트명 | Cloudflare가 연결을 프록시하므로 포트 `3001`은 닫힌 상태를 유지합니다. HTTPS가 있는 실제 도메인을 얻고, Cloudflare Access(Google/GitHub SSO)를 앞에 둘 수 있습니다. 무료 티어로 대부분의 개인 사용을 커버합니다. |
 
-둘 다 제공하는 것:
-- 라우터의 개방 포트 제로
-- 엔드투엔드 암호화 전송
-- 실제 신원 기반 인증 (공유 비밀번호 아님)
-- 감사 로그
-
 ### 직접 노출하겠다면 (제발 하지 마세요)
 
 터널을 절대적으로 건너뛰어야 한다면 (셀프호스팅 튜토리얼, 격리된 랩 네트워크 등), 최소한:
@@ -913,7 +906,7 @@ HolyClaude는 CloudCLI를 포트 `3001`에 바인딩합니다. 기본적으로 �
    ```
 2. 컨테이너 내부에서: `touch ~/.claude/notify-on`
 
-지원되는 모든 변수 및 URL 형식은 [설정 문서](docs/configuration.md#notifications-apprise)를 참조하세요.
+지원되는 모든 변수 및 URL 형식은 [설정 문서](../configuration.md#notifications-apprise)를 참조하세요.
 
 **비활성화:** `rm ~/.claude/notify-on`
 
@@ -948,7 +941,7 @@ docker compose up -d
 `latest` 대신 특정 버전을 고정하려면:
 
 ```yaml
-image: coderluii/holyclaude:1.4.1   # instead of :latest
+image: coderluii/holyclaude:1.5.2   # instead of :latest
 ```
 
 <p align="right">
@@ -1024,7 +1017,7 @@ compose 파일에서 설정하세요:
 **해결책:** 이미 처리되었습니다 — `entrypoint.sh`가 저장된 세션 파일을 먼저 복원하거나, 저장된 세션이 없을 때만 안전한 기본 파일을 만듭니다.
 </details>
 
-모든 SMB/CIFS 주의사항 및 경험하고 수정한 모든 버그의 전체 기록을 포함한 완전한 가이드는 [docs/troubleshooting.md](docs/troubleshooting.md)를 참조하세요.
+모든 SMB/CIFS 주의사항 및 경험하고 수정한 모든 버그의 전체 기록을 포함한 완전한 가이드는 [docs/troubleshooting.md](../troubleshooting.md)를 참조하세요.
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>
@@ -1190,7 +1183,7 @@ HolyClaude Docker 이미지에는 각각 자체 라이선스를 가진 서드파
 | s6-overlay | ISC | [just-containers/s6-overlay](https://github.com/just-containers/s6-overlay) |
 | Node.js | MIT | [nodejs/node](https://github.com/nodejs/node) |
 
-수정 고지를 포함한 전체 세부 사항은 [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES)를 참조하세요. HolyClaude 자체 소스 코드는 MIT 라이선스입니다.
+수정 고지를 포함한 전체 세부 사항은 [THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES)를 참조하세요. HolyClaude 자체 소스 코드는 MIT 라이선스입니다.
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>
@@ -1200,7 +1193,7 @@ HolyClaude Docker 이미지에는 각각 자체 라이선스를 가진 서드파
 
 ## :page_facing_up: License
 
-MIT — [LICENSE](LICENSE) 참조. 원하는 대로 사용하세요.
+MIT — [LICENSE](../../LICENSE) 참조. 원하는 대로 사용하세요.
 
 <p align="right">
   <a href="#top">↑ 맨 위로</a>

@@ -8,6 +8,8 @@ Technical deep-dive into how HolyClaude works.
 
 HolyClaude is a single Docker container running multiple supervised services. The architecture is designed for reliability, persistence, and zero-configuration startup.
 
+The image itself is built with multiple Dockerfile stages: a Go builder compiles the pinned esbuild binaries, then the Node Bookworm stage assembles the runtime image. Release-sensitive values are recorded in [`contracts/product-facts.json`](../contracts/product-facts.json) and checked against the Dockerfile and Compose files by `scripts/verify-product-facts.mjs`.
+
 ```
 ┌─────────────────────────────────────────────────┐
 │                Docker Container                  │
@@ -89,7 +91,7 @@ Runs once on first container start. Creates the sentinel file so it doesn't re-r
 
 #### Important: Service environment
 
-The CloudCLI service uses `#!/command/with-contenv sh`, so Docker Compose environment variables are available to the run script. The script still sets the service-critical values itself before dropping to the `claude` user, so CloudCLI always starts with the expected `HOME`, `WORKSPACES_ROOT`, and `NODE_OPTIONS` values.
+The CloudCLI service uses `#!/command/with-contenv sh`, so Docker Compose environment variables are available to the run script. The script sets `HOME` and `WORKSPACES_ROOT`, preserves any caller-supplied `NODE_OPTIONS`, and appends `--no-deprecation` before dropping to the `claude` user.
 
 ### CloudCLI Service
 
@@ -107,7 +109,7 @@ exec cloudcli --port 3001
 
 - Runs as user `claude` in Docker, or as the already-mapped keep-id user in rootless Podman
 - Sets `WORKSPACES_ROOT` directly so the web UI opens at `/workspace`
-- `NODE_OPTIONS=--no-deprecation` suppresses noisy deprecation warnings
+- `NODE_OPTIONS` preserves the Compose or caller value and adds `--no-deprecation` to suppress noisy warnings
 - Managed as a `longrun` service — auto-restarts on crash
 
 ### Claude Session Persistence Service
@@ -138,7 +140,7 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 
 ### Browser Runtime
 
-v1.5.1 keeps the browser stack baked at build time:
+v1.5.2 keeps the browser stack baked at build time:
 
 - Playwright 1.61.0 is installed for both Node and Python
 - Debian Chromium 150.0.7871.124 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
@@ -147,7 +149,7 @@ v1.5.1 keeps the browser stack baked at build time:
 - There is no runtime browser download
 - Lighthouse ships in the full image only
 
-Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to its installer hash and embedded build output, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.1 and expires the review instead of letting it silently age.
+Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to architecture-specific build archives and verified launcher and Node output hashes, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.2 and expires the review instead of letting it silently age.
 
 CloudCLI 1.36.3 is built twice in independent containers from the exact Node 26.5.0 image with npm 11.18.0. Both builds must agree on the artifact, source tree, file list, shrinkwrap, and production dependency tree hashes before the vendored artifact is accepted. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5. EAS CLI 20.5.1 and Vercel CLI 54.21.1 remain on their compatible major lines; their two bundled `tar` 7.5.7 directories are replaced with checksum-bound `tar` 7.5.20 after the build verifies the exact parent packages and dependency specs.
 

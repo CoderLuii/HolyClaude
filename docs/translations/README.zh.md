@@ -51,7 +51,7 @@
 - **Anthropic API 密钥** — 通过 Web UI 设置，计费方式与以往相同
 - **无额外费用** — HolyClaude 是免费开源的。你只需为 Anthropic 的使用量付费，和以前一样。
 
-> HolyClaude 不会接触你的凭证。它们以本地绑定挂载的方式存储在 `./data/claude/` 中，与在裸机上完全相同。
+> HolyClaude 不提供凭据中继。内置工具会从容器文件、绑定挂载或环境变量读取凭据，并直接连接已配置的服务提供商。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>
@@ -167,7 +167,7 @@ http://localhost:3001
 | **AI CLI** | 8 个提供商，一个容器 | 跨 3 个包管理器逐一安装 |
 | **开发工具** | 50+ 工具，即用 | 接下来一个小时 `apt-get install` / `npm i -g` / `pip install` |
 | **进程管理** | s6-overlay（自动重启、优雅关闭） | 自己写 supervisord 配置，或祈祷 Docker restart 能用 |
-| **持久化** | 绑定挂载，凭证永久保留 | 搞清楚 Docker volumes，调试"为什么这是个目录而不是文件" |
+| **持久化** | 绑定挂载的工具配置和 workspace 在重新构建后仍会保留 | 搞清楚 Docker volumes，调试"为什么这是个目录而不是文件" |
 | **更新** | `docker pull && docker compose up -d` | 手动更新 50 个工具，祈祷不出问题 |
 | **多架构** | AMD64 + ARM64 | 祈祷你的 Dockerfile 能在 ARM 上构建 |
 
@@ -210,7 +210,7 @@ HolyClaude 运行的是 Anthropic 官方的 **Claude Code CLI**。你现有的�
 | OpenCode | 通过 `opencode` TUI 配置（支持 OpenRouter 和多个提供商） |
 | Pi Coding Agent | 通过 `pi` 配置（支持多个提供商） |
 
-> **HolyClaude 是免费开源的。** 你只需为 AI 提供商的使用量付费，和以前一样。我们不代理、不拦截、不接触你的凭证。它们存储在你的本地绑定挂载中。
+> **HolyClaude 免费且开源。** 你只需为 AI 服务提供商的实际用量付费。HolyClaude 不提供凭据中继。内置工具会从容器文件、绑定挂载或环境变量读取凭据，并直接连接已配置的服务提供商。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>
@@ -299,7 +299,7 @@ docker compose up -d
 
 **配置到此结束，你已经准备好了。**
 
-> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.1 请保持这个配置不变，把加固当成单独的改动。
+> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.2 请保持这个配置不变，把加固当成单独的改动。
 
 > **为什么是 `shm_size: 2g`？** Docker 默认只给容器 64MB 共享内存。HolyClaude 把 2GB 保留为本版本的默认值，因为 Chromium 在标签页渲染时会大量使用 `/dev/shm`。64MB 会让标签页崩掉；浏览器用得多就升到 4GB。
 
@@ -457,7 +457,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `TZ` | `UTC` | 容器时区 |
 | `PUID` | `1000` | Docker 式容器用户 ID；rootless Podman 使用 `docker-compose.podman-rootless.yaml` |
 | `PGID` | `1000` | Docker 式容器用户组 ID；rootless Podman 使用 `docker-compose.podman-rootless.yaml` |
-| `NODE_OPTIONS` | `--max-old-space-size=4096` | Node.js 堆内存上限（MB） |
+| `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js 堆内存上限（MB） |
 | `GIT_USER_NAME` | `HolyClaude User` | Git 提交作者（首次启动时设置一次） |
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git 提交邮箱（首次启动时设置一次） |
 | `CHOKIDAR_USEPOLLING` | *(未设置)* | 设置为 `1` 以启用 SMB/CIFS 轮询文件监视器 |
@@ -554,17 +554,16 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | **OpenAI Codex** | `codex` | OpenAI 的编码代理 |
 | **Cursor** | `cursor` | Cursor 的 AI 代理 |
 | **TaskMaster AI** | `task-master` | 任务规划与编排 |
-| **Junie** | `junie` | JetBrains 的 AI 编码代理 |
-| **OpenCode** | `opencode` | 开源 AI 代理（支持 OpenRouter 和多个提供商） |
-| **Pi Coding Agent** | `pi` | 最小化代理框架（支持多个提供商） |
 
-八个 AI CLI，一个容器，瞬间切换。没有其他 Docker 镜像能做到这一点。
 
 </details>
 
 ### 仅完整版包含（额外包）
 
 完整版包含以上所有内容，外加：
+
+**仅此变体包含：** Junie (`junie`)、OpenCode (`opencode`) 和 Pi (`pi`)。
+
 
 <details>
 <summary><strong>额外 npm 包，部署、ORM、性能工具</strong></summary>
@@ -628,9 +627,9 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | **OpenAI Codex** | `codex` | `OPENAI_API_KEY` 或 `codex login --device-auth` | **是** — ChatGPT Plus/Pro/Team/Enterprise 或 API 密钥 |
 | **Cursor** | `cursor` | `CURSOR_API_KEY` 环境变量 | API 密钥 |
 | **TaskMaster AI** | `task-master` | 使用已有的 AI 提供商密钥 | 使用已配置的密钥 |
-| **Junie** | `junie` | JetBrains AI 订阅 | 需要 JetBrains 账户 |
+| **Junie** | `junie` | JetBrains AI 订阅 | 需要 JetBrains 账户; **仅完整镜像** |
 | **OpenCode** | `opencode` | 通过 TUI 配置 | 支持 OpenRouter 和多个提供商；仅 full image |
-| **Pi Coding Agent** | `pi` | 通过 Pi 配置 | 支持多个提供商 |
+| **Pi Coding Agent** | `pi` | 通过 Pi 配置 | 支持多个提供商; **仅完整镜像** |
 
 > Claude Code 是主要 CLI。其他 CLI 的存在是因为有时你需要第二意见，或某个特定模型的优势，或者想比较不同的输出。让它们都在一个 `Tab` 的距离内，这就是重点所在。
 
@@ -665,7 +664,7 @@ desloppify next
 
 HolyClaude 支持使用 [Ollama](https://ollama.com) 作为 Anthropic 订阅的替代方案。设置两个环境变量即可使用本地或云端模型。
 
-查看完整配置指南：**[docs/ollama.md](docs/ollama.md)**
+查看完整配置指南：**[docs/ollama.md](../ollama.md)**
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>
@@ -712,7 +711,7 @@ graph TB
 
 5. **Xvfb 提供兼容显示器** — Xvfb 继续在 `:99` 为使用可见显示器的工具提供兼容环境。现代无头 Chromium、Playwright 和 Lighthouse 并不总是需要 Xvfb。
 
-查看 [docs/architecture.md](docs/architecture.md) 获取完整技术深入说明，包括我们为何选择 s6 而非 supervisord、为何将插件内置到镜像中，以及为何使用 `runuser` 而非 `su`。
+查看 [docs/architecture.md](../architecture.md) 获取完整技术深入说明，包括我们为何选择 s6 而非 supervisord、为何将插件内置到镜像中，以及为何使用 `runuser` 而非 `su`。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>
@@ -747,7 +746,7 @@ holyclaude/
 │   ├── entrypoint.sh        # Container entrypoint
 │   └── notify.py            # Notification helper (Apprise)
 ├── s6-overlay/              # Process supervision (s6-rc services)
-├── Dockerfile               # Single-stage build
+├── Dockerfile               # 多阶段构建
 ├── docker-compose.yaml      # Quick start (minimal config)
 ├── docker-compose.full.yaml # Full config (all options)
 ├── LICENSE
@@ -764,7 +763,7 @@ holyclaude/
 
 | 内容 | 容器内路径 | 宿主机路径 | 重建后是否保留？ |
 |------|-------------------|-------------|-------------------|
-| 配置、凭证、API 密钥 | `/home/claude/.claude` | `./data/claude` | **是** |
+| Claude 设置和持久化的工具配置 | `/home/claude/.claude` | `./data/claude` | **是** |
 | Claude Code 会话（OAuth、引导） | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **是** |
 | 你的代码和项目 | `/workspace` | `./workspace` | **是** |
 | CloudCLI 账户 | `/home/claude/.cloudcli` | *(默认仅容器内 — 见下文)* | 否（可选持久化） |
@@ -772,11 +771,11 @@ holyclaude/
 HolyClaude 会在启动创建新的默认文件之前恢复已保存的 Claude Code 会话。这样 rebuild 和 recreate 不会用 onboarding 状态替换真实的 OAuth/API 会话。
 
 ### 执行 `docker compose down && docker compose up` 后保留的内容：
-- 你的 Anthropic 认证和 API 密钥
+- 基于文件的 Anthropic 身份验证和 Claude Code API 密钥设置
 - Claude Code 配置、memory（`CLAUDE.md`）和 OAuth 会话（无需重新登录）
 - `./workspace` 中的所有代码
 - Git 配置
-- Codex、Gemini 和 Cursor CLI 认证（自 v1.1.7 起）
+- 存储在 `/home/claude/.claude` 下的 Codex、Gemini 和 Cursor 文件配置及身份验证。通过环境变量提供的密钥仍保留在 Compose 或主机环境中。
 
 ### 需要重新完成的操作（10 秒）：
 - CloudCLI Web 账户，快速注册即可（除非你启用下方的持久化）
@@ -788,7 +787,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **永远不要删除 `./data/claude/` 整个目录。** 你的凭证就存储在那里。如果想重新引导，删除哨兵文件。如果想重置配置，删除特定的配置文件。但绝对不要删除整个目录。
+> **`./data/claude/`:** 不要删除整个目录。该目录包含已保存的 Claude Code 会话和配置数据。需要重新 bootstrap 时只删除 sentinel 文件；需要重置设置时只删除对应的配置文件。
 
 ### 持久化 CloudCLI 账户（可选，仅本地存储）
 
@@ -876,12 +875,6 @@ HolyClaude 将 CloudCLI 绑定到端口 `3001`。默认情况下这只是本地�
 | **[Tailscale](https://tailscale.com)** | 个人使用、小团队 | WireGuard mesh VPN。在服务器和笔记本/手机上安装 Tailscale，就能从任何地方访问 `http://holyclaude:3001`，就像在局域网一样。无需开放端口、DNS 或证书。个人使用免费。 |
 | **[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)** | 与他人共享、公共域名 | Cloudflare 代理连接，端口 `3001` 保持关闭。你获得带 HTTPS 的真实域名，还可以在前面加上 Cloudflare Access（Google/GitHub SSO）。免费套餐覆盖大多数个人使用场景。 |
 
-两者都能提供：
-- 路由器上零开放端口
-- 端到端加密传输
-- 真正基于身份的认证（不是共享密码）
-- 审计日志
-
 ### 如果你坚持直接暴露（请不要这样做）
 
 如果你绝对必须跳过隧道（自托管教程、隔离实验室网络等），至少做到：
@@ -913,7 +906,7 @@ HolyClaude 将 CloudCLI 绑定到端口 `3001`。默认情况下这只是本地�
    ```
 2. 在容器内执行：`touch ~/.claude/notify-on`
 
-查看[配置文档](docs/configuration.md#notifications-apprise)获取所有支持的变量和 URL 格式。
+查看[配置文档](../configuration.md#notifications-apprise)获取所有支持的变量和 URL 格式。
 
 **禁用方式：** `rm ~/.claude/notify-on`
 
@@ -948,7 +941,7 @@ docker compose up -d
 如果想固定到特定版本而非 `latest`：
 
 ```yaml
-image: coderluii/holyclaude:1.4.1   # instead of :latest
+image: coderluii/holyclaude:1.5.2   # instead of :latest
 ```
 
 <p align="right">
@@ -1024,7 +1017,7 @@ id -g  # → this is your PGID
 **解决方案：** 已处理，`entrypoint.sh` 会先恢复已保存的会话文件；如果没有保存的会话，才创建安全的默认文件。
 </details>
 
-查看 [docs/troubleshooting.md](docs/troubleshooting.md) 获取完整指南，包括所有 SMB/CIFS 注意事项以及我们遇到并修复的 bug 完整历史。
+查看 [docs/troubleshooting.md](../troubleshooting.md) 获取完整指南，包括所有 SMB/CIFS 注意事项以及我们遇到并修复的 bug 完整历史。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>
@@ -1190,7 +1183,7 @@ HolyClaude Docker 镜像包含第三方软件，每个组件均有其各自的�
 | s6-overlay | ISC | [just-containers/s6-overlay](https://github.com/just-containers/s6-overlay) |
 | Node.js | MIT | [nodejs/node](https://github.com/nodejs/node) |
 
-查看 [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES) 获取完整详情，包括修改声明。HolyClaude 自身的源代码采用 MIT 许可证。
+查看 [THIRD-PARTY-NOTICES](../../THIRD-PARTY-NOTICES) 获取完整详情，包括修改声明。HolyClaude 自身的源代码采用 MIT 许可证。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>
@@ -1200,7 +1193,7 @@ HolyClaude Docker 镜像包含第三方软件，每个组件均有其各自的�
 
 ## :page_facing_up: License
 
-MIT — 查看 [LICENSE](LICENSE)。随意使用。
+MIT — 查看 [LICENSE](../../LICENSE)。随意使用。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>

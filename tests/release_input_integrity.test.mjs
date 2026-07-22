@@ -55,7 +55,11 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.doesNotMatch(dockerfile, /junie\.jetbrains\.com\/install\.sh/);
 
   assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.07\.17-3e2a980/);
-  assert.match(dockerfile, /CURSOR_INSTALLER_SHA256=[0-9a-f]{64}/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c/);
+  assert.match(dockerfile, /downloads\.cursor\.com\/lab\/\$\{CURSOR_BUILD_ID\}\/linux\/\$\{CURSOR_ASSET_ARCH\}\/agent-cli-package\.tar\.gz/);
+  assert.match(dockerfile, /tar --strip-components=1 -xzf \/tmp\/cursor-agent\.tar\.gz -C "\$CURSOR_DIR"/);
+  assert.doesNotMatch(dockerfile, /cursor\.com\/install/);
   assert.match(dockerfile, /CURSOR_LAUNCHER_SHA256=[0-9a-f]{64}/);
   assert.match(dockerfile, /CURSOR_NODE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
   assert.match(dockerfile, /! grep -aFq -- '--permission'/);
@@ -71,7 +75,7 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.5\.1$/m);
+  assert.match(immutableInputs, /^release: v1\.5\.2$/m);
   assert.match(immutableInputs, /^expires-at: 2026-08-20$/m);
   for (const value of [
     'sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651',
@@ -79,6 +83,8 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '4895cd3fd33362471e739b786493aba048487bcc',
     '8aa41f614c216d961e7c0d9c3e67982c6b2d9da3',
     '2382f1b186959c031d834805f7676f8dd8d203d2ead5f6c1365ee346e5b48c0f',
+    '1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3',
+    '827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c',
     cloudcliManifest.artifact.sha256,
   ]) {
     assert.ok(immutableInputs.includes(value), `immutable input inventory should contain ${value}`);
@@ -132,7 +138,7 @@ test('compatible package updates and plugin locks are exact', () => {
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /default: "1\.5\.1"/);
+  assert.match(workflow, /default: "1\.5\.2"/);
   assert.match(workflow, /SYFT_VERSION: 1\.49\.0/);
   assert.match(workflow, /GRYPE_VERSION: 0\.116\.0/);
   assert.match(workflow, /SBOM_UTILITY_VERSION: 0\.19\.2/);

@@ -339,7 +339,7 @@ function validateVex(vex, reviews, variant, arch) {
   if (vex['@context'] !== 'https://openvex.dev/ns/v0.2.0') throw new Error('OpenVEX context must be v0.2.0');
   const statements = vex.statements;
   const ids = new Set();
-  const expectedProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.1?variant=${variant}`;
+  const expectedProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.2?variant=${variant}`;
   for (const statement of statements) {
     if (!statement['@id'] || ids.has(statement['@id'])) throw new Error('OpenVEX statement ids must be unique');
     ids.add(statement['@id']);
