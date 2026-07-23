@@ -45,7 +45,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.2, the compatible CLI and runtime set remains unchanged while the documentation and product-facts contract are synchronized with the published image. CloudCLI stays at 1.36.3, s6-overlay stays at 3.2.3.2, and fzf stays at 0.74.1. Playwright remains aligned at 1.61.0 for Node and Python, with both bindings launching the pinned Debian Chromium 150.0.7871.124 Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
+In v1.5.3, CloudCLI stays at 1.36.3, s6-overlay stays at 3.2.3.2, and fzf stays at 0.74.1. Playwright remains aligned at 1.61.0 for Node and Python, with both bindings launching the pinned Debian Chromium 150.0.7871.181 Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -898,6 +898,10 @@ volumes:
   cloudcli-data:                                # and this block
 ```
 
+HolyClaude prepares this directory before CloudCLI starts. Fresh Docker volumes inherit the image's `claude:claude` ownership. Existing volumes are repaired to the configured `PUID`/`PGID` during normal root-starting Docker startup. If the mount is read-only or cannot be repaired, startup stops with the exact path and UID/GID instead of letting CloudCLI repeat `unable to open database file`.
+
+For rootless Podman, use `docker-compose.podman-rootless.yaml`. Its `keep-id` mapping and `:Z` labels let the existing host user write the mounted state without a privileged ownership repair. `:Z` handles SELinux labeling; `:U` rewrites host ownership and is not the default.
+
 > **Do NOT bind-mount `./data/cloudcli` on a network share (NAS, SMB/CIFS, NFS).** CloudCLI stores its account in SQLite, and SQLite's file locking breaks on network mounts. You'll hit `database is locked` errors constantly. Named volumes live on the Docker engine's local filesystem, which is why this works — bind mounts pointing at a NAS will not.
 
 A bind mount to a local SSD path is fine too, just keep it off any network share.
@@ -1127,7 +1131,7 @@ docker compose pull && docker compose up -d
 To pin a specific version instead of `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.2   # instead of :latest
+image: coderluii/holyclaude:1.5.3   # instead of :latest
 ```
 
 <p align="right">
@@ -1233,7 +1237,7 @@ Set them in your compose file:
 **Rootless Podman on SELinux:** `PUID`/`PGID` changes the container user, but rootless Podman still maps container IDs through your subordinate UID/GID range unless you use `keep-id`. Use the Podman profile instead:
 
 ```bash
-mkdir -p data/claude workspace
+mkdir -p data/claude data/cloudcli workspace
 podman compose -f docker-compose.podman-rootless.yaml up -d
 ```
 
@@ -1264,7 +1268,7 @@ These are not HolyClaude bugs — they're upstream issues or intentional trade-o
 |-------|-----|------------|
 | "Continue in Shell" button broken | CloudCLI upstream bug (race condition in terminal init) | Use the **Web Terminal** plugin instead (pre-installed) |
 | Cursor CLI "Command timeout" | No API key configured — cosmetic only, doesn't affect anything | Set `CURSOR_API_KEY` or ignore |
-| CloudCLI account lost on rebuild | SQLite can't persist on network mounts — intentional trade-off | Re-create account (~10 seconds) |
+| CloudCLI account lost on rebuild | `.cloudcli` is container-local by default | Add the documented local named volume, or re-create the account (~10 seconds) |
 | Web push notifications "not supported" | Browser limitation in CloudCLI, standard behavior | Use Apprise notifications instead (see [Notifications](#bell-notifications)) |
 
 <p align="right">

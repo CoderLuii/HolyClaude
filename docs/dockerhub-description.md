@@ -44,7 +44,7 @@ That's it. Open your browser, sign in, start building.
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 150.0.7871.124 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 150.0.7871.181 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 
@@ -117,7 +117,12 @@ Leave it unset for root-hostname serving.
 | Path | Purpose |
 |------|---------|
 | `/home/claude/.claude` | Claude settings, file-based credentials stored there, Claude memory, and the saved Claude Code session — **persist this** |
+| `/home/claude/.cloudcli` | Optional CloudCLI account database — use a local named volume |
 | `/workspace` | Your code and projects |
+
+HolyClaude prepares `.cloudcli` before the service starts. Fresh Docker volumes inherit the correct owner, and root-starting Docker repairs existing local-volume ownership to `PUID`/`PGID`. An unusable or read-only mount now stops startup with a direct remedy instead of repeating `unable to open database file`.
+
+Keep this SQLite volume on local storage. Rootless Podman users should use the provided keep-id Compose file with `:Z`; `:U` rewrites host ownership and is not the default.
 
 ## Architecture
 

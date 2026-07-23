@@ -297,6 +297,43 @@
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as Minor and postponed."
+    },
+    {
+      "id": "chromium-150-7871-181-fixed",
+      "vulnerabilities": ["CVE-2026-15901", "CVE-2026-15902"],
+      "component": {"names": ["chromium", "chromium-common", "chromium-sandbox"], "versions": ["150.0.7871.181-1~deb12u1"], "types": ["deb"], "locationPatterns": ["^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {"name": "Chrome Releases", "url": "https://chromereleases.googleblog.com/2026/07/stable-channel-update-for-desktop_049796704.html"},
+      "reviewedAt": "2026-07-23",
+      "expiresAt": "2026-08-22",
+      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 150.0.7871.181."
+    },
+    {
+      "id": "chromium-platform-specific-findings",
+      "vulnerabilities": ["CVE-2026-15899", "CVE-2026-15900", "CVE-2026-16424"],
+      "component": {"names": ["chromium", "chromium-common", "chromium-sandbox"], "versions": ["150.0.7871.181-1~deb12u1"], "types": ["deb"], "locationPatterns": ["^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "disposition": "not_affected",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-15899"},
+      "reviewedAt": "2026-07-23",
+      "expiresAt": "2026-08-22",
+      "rationale": "The vendor records limit CVE-2026-15899 to macOS and CVE-2026-15900 and CVE-2026-16424 to Android. HolyClaude ships Linux images only.",
+      "vexStatement": "urn:holyclaude:vex:chromium-platform-specific-2026"
+    },
+    {
+      "id": "nss-vendor-moderate",
+      "vulnerabilities": ["CVE-2026-16389"],
+      "component": {"names": ["libnss3"], "versions": ["2:3.87.1-1+deb12u3"], "types": ["deb"], "locationPatterns": ["^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Moderate",
+      "owner": "Chromium runtime",
+      "authority": {"name": "Mozilla Foundation Security Advisory 2026-68", "url": "https://www.mozilla.org/en-US/security/advisories/mfsa2026-68/#CVE-2026-16389"},
+      "reviewedAt": "2026-07-23",
+      "expiresAt": "2026-08-06",
+      "rationale": "Mozilla rates CVE-2026-16389 Moderate. Bookworm has not published NSS 3.126, so this exact package remains tracked for a Debian security update."
     }
   ]
 }

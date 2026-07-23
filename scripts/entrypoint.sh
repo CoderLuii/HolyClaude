@@ -253,6 +253,59 @@ fi
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME"
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude" 2>/dev/null || true
 
+# ---------- Prepare CloudCLI state ----------
+CLOUDCLI_DIR="$CLAUDE_HOME/.cloudcli"
+if [ "$RUNNING_AS_ROOT" = "1" ]; then
+    CLOUDCLI_RUNTIME_UID="$PUID"
+    CLOUDCLI_RUNTIME_GID="$PGID"
+else
+    CLOUDCLI_RUNTIME_UID="$(id -u)"
+    CLOUDCLI_RUNTIME_GID="$(id -g)"
+fi
+
+if [ -L "$CLOUDCLI_DIR" ]; then
+    echo "[entrypoint] ERROR: CloudCLI state path must not be a symbolic link: $CLOUDCLI_DIR"
+    exit 1
+fi
+
+if ! mkdir -p "$CLOUDCLI_DIR" 2>/dev/null; then
+    echo "[entrypoint] ERROR: could not create CloudCLI state at $CLOUDCLI_DIR"
+    echo "[entrypoint] Fix the mount ownership or read-only setting for runtime UID:GID $CLOUDCLI_RUNTIME_UID:$CLOUDCLI_RUNTIME_GID."
+    exit 1
+fi
+
+if [ "$RUNNING_AS_ROOT" = "1" ] && \
+   find "$CLOUDCLI_DIR" -xdev \( ! -user "$PUID" -o ! -group "$PGID" \) -print -quit | grep -q .; then
+    echo "[entrypoint] Repairing CloudCLI state ownership at $CLOUDCLI_DIR"
+    if ! find "$CLOUDCLI_DIR" -xdev -exec chown -h "$PUID:$PGID" {} +; then
+        echo "[entrypoint] ERROR: could not repair CloudCLI state ownership at $CLOUDCLI_DIR"
+        echo "[entrypoint] Fix the mount ownership or read-only setting for runtime UID:GID $PUID:$PGID."
+        exit 1
+    fi
+fi
+
+if ! run_as_claude_env sh -c '
+    set -eu
+    state_dir="$1"
+    probe="$state_dir/.holyclaude-write-test.$$"
+    trap '\''rm -f "$probe"'\'' EXIT HUP INT TERM
+    : > "$probe"
+    rm -f "$probe"
+    trap - EXIT HUP INT TERM
+    for database_file in auth.db auth.db-wal auth.db-shm auth.db-journal; do
+        path="$state_dir/$database_file"
+        if [ -e "$path" ] && [ ! -w "$path" ]; then
+            echo "$path is not writable" >&2
+            exit 1
+        fi
+    done
+' sh "$CLOUDCLI_DIR"; then
+    echo "[entrypoint] ERROR: CloudCLI state is not writable at $CLOUDCLI_DIR"
+    echo "[entrypoint] CloudCLI runtime UID:GID is $CLOUDCLI_RUNTIME_UID:$CLOUDCLI_RUNTIME_GID; configured PUID:PGID is $PUID:$PGID."
+    echo "[entrypoint] Fix the volume ownership or remove its read-only setting, then restart the container."
+    exit 1
+fi
+
 # ---------- Ensure /workspace is writable ----------
 # Docker creates missing bind-mount directories as root on the host.
 # Fix the top-level workspace ownership here so the mapped claude user can write.

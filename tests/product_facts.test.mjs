@@ -157,6 +157,8 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
+  assert.match(validationJob, /baseline="58c62362656f7cfa3821b381dc61b40198e5fd2b"/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.2\^\{commit\}'/);
   assert.match(validationJob, /^\s*node scripts\/verify-product-facts\.mjs\s*$/m);
   assert.match(candidateJob, /^\s*needs:\s*validate-release-ref\s*$/m);
 });
@@ -182,7 +184,7 @@ test('public documentation matches the product facts contract', () => {
   assert.match(dockerHubDescription, /bundled tools contact configured providers directly/i);
   assert.match(dockerHubDescription, /file-based credentials stored there/i);
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 150\.0\.7871\.124/);
+  assert.match(memories, /Debian Chromium 150\.0\.7871\.181/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;

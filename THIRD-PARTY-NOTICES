@@ -86,7 +86,7 @@ HolyClaude keeps the JavaScript package versions required by the bundled full-im
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 150.0.7871.124-1~deb12u1, installed from Bookworm security packages
+- Version: 150.0.7871.181-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 

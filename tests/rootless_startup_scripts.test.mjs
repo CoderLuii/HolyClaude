@@ -5,6 +5,8 @@ import { test } from 'node:test';
 const entrypoint = readFileSync('scripts/entrypoint.sh', 'utf8');
 const bootstrap = readFileSync('scripts/bootstrap.sh', 'utf8');
 const cloudcliRun = readFileSync('s6-overlay/s6-rc.d/cloudcli/run', 'utf8');
+const dockerfile = readFileSync('Dockerfile', 'utf8');
+const podmanCompose = readFileSync('docker-compose.podman-rootless.yaml', 'utf8');
 
 test('entrypoint gates root-only operations for non-root startup', () => {
   assert.match(entrypoint, /RUNNING_AS_ROOT=0/);
@@ -26,4 +28,34 @@ test('cloudcli service skips s6 privilege drop when already non-root', () => {
   assert.match(cloudcliRun, /if \[ "\$\(id -u\)" = "0" \]/);
   assert.match(cloudcliRun, /exec s6-setuidgid claude cloudcli --port 3001/);
   assert.match(cloudcliRun, /exec cloudcli --port 3001/);
+});
+
+test('image prepares the CloudCLI state directory for fresh volume copy-up', () => {
+  assert.match(dockerfile, /mkdir -p \/home\/claude\/\.cloudcli/);
+  assert.match(dockerfile, /chown claude:claude \/home\/claude\/\.cloudcli/);
+});
+
+test('rootless Podman profile persists CloudCLI state with SELinux labeling', () => {
+  assert.match(podmanCompose, /\.\/data\/cloudcli:\/home\/claude\/\.cloudcli:Z/);
+  assert.match(podmanCompose, /mkdir -p data\/claude data\/cloudcli workspace/);
+});
+
+test('entrypoint repairs CloudCLI state without following links or crossing filesystems', () => {
+  assert.match(entrypoint, /CLOUDCLI_DIR="\$CLAUDE_HOME\/\.cloudcli"/);
+  assert.match(entrypoint, /find "\$CLOUDCLI_DIR" -xdev/);
+  assert.match(entrypoint, /chown -h "\$PUID:\$PGID"/);
+  assert.match(entrypoint, /CloudCLI state path must not be a symbolic link/);
+  assert.doesNotMatch(entrypoint, /chmod 777/);
+});
+
+test('entrypoint verifies CloudCLI state as the runtime user before s6 starts', () => {
+  const cloudcliPreparation = entrypoint.indexOf('# ---------- Prepare CloudCLI state ----------');
+  const s6Handoff = entrypoint.indexOf('# ---------- Hand off to s6-overlay ----------');
+
+  assert.notEqual(cloudcliPreparation, -1);
+  assert.ok(cloudcliPreparation < s6Handoff);
+  assert.match(entrypoint, /run_as_claude_env sh -c/);
+  assert.match(entrypoint, /\.holyclaude-write-test/);
+  assert.match(entrypoint, /auth\.db-wal/);
+  assert.match(entrypoint, /CloudCLI state is not writable/);
 });

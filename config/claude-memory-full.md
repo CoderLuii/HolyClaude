@@ -116,7 +116,7 @@ The `--break-system-packages` flag is required (no venv in container context).
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
 - **Playwright 1.61.0** installed for Node and Python — baked at build time, no runtime browser download
-- **Debian Chromium 150.0.7871.124** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Debian Chromium 150.0.7871.181** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 - Lighthouse and `@lhci/cli` are full-image tools
@@ -184,7 +184,7 @@ Codex has separate configurable near-parity controls:
 - **Subsequent boots:** Bootstrap skipped (sentinel file exists)
 - **Re-trigger bootstrap:** Delete `~/.claude/.holyclaude-bootstrapped`
 - **Credentials survive rebuilds:** `~/.claude/` is bind-mounted
-- **CloudCLI account:** NOT persistent (SQLite can't live on network mounts) — re-create after rebuild (~10 seconds)
+- **CloudCLI account:** container-local by default; persist it with a local named volume at `/home/claude/.cloudcli` when needed. Do not place SQLite state on network mounts.
 
 ## Tips
 

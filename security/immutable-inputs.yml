@@ -1,7 +1,7 @@
 schema-version: 1
-release: v1.5.2
-reviewed-at: 2026-07-21
-expires-at: 2026-08-20
+release: v1.5.3
+reviewed-at: 2026-07-23
+expires-at: 2026-08-22
 
 base-images:
   - name: Actionlint workflow validator
@@ -34,7 +34,7 @@ release-assets:
     verification-mode: committed-hash
     status: updated
   - name: Debian Chromium package trio
-    version: 150.0.7871.124-1~deb12u1
+    version: 150.0.7871.181-1~deb12u1
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
     status: updated
@@ -69,7 +69,7 @@ release-assets:
 installers:
   - name: Claude Code
     version: 2.1.216
-    installer-sha256: b3f79015b54c751440a6488f07b1b64f9088742b9052bc1bd356d13108320d2a
+    installer-sha256: cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
     amd64-output-sha256: 74deca45220b8080ec75ab099bd5a5980e41a2b5879846a008fb115d436de085
     arm64-output-sha256: 9e3a6aecc5164f607e1183aea2092c7d7705d146e504a6207df291776996a8ea
     status: pinned

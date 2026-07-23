@@ -299,7 +299,7 @@ docker compose up -d
 
 **Das ist das gesamte Setup. Du bist fertig.**
 
-> **Warum diese Browser-Rechte?** Diese Version behält HolyClaudes aktuelles Browser-Profil bei. `SYS_ADMIN` und `seccomp=unconfined` erweitern Prozessrechte und verringern die Isolation; `SYS_PTRACE` dient dem Debugging. Lass dieses Profil für v1.5.2 unverändert und behandle Hardening als separaten Schritt.
+> **Warum diese Browser-Rechte?** Diese Version behält HolyClaudes aktuelles Browser-Profil bei. `SYS_ADMIN` und `seccomp=unconfined` erweitern Prozessrechte und verringern die Isolation; `SYS_PTRACE` dient dem Debugging. Lass dieses Profil für v1.5.3 unverändert und behandle Hardening als separaten Schritt.
 
 > **Warum `shm_size: 2g`?** Docker gibt Containern standardmäßig 64 MB Shared Memory. HolyClaude behält 2 GB als beibehaltenen Standard für diese Version bei, weil Chromium `/dev/shm` stark für das Tab-Rendering nutzt. Bei 64 MB brechen Tabs; bei intensivem Browser-Einsatz auf 4 GB erhöhen.
 
@@ -807,6 +807,8 @@ volumes:
   cloudcli-data:                                # and this block
 ```
 
+HolyClaude bereitet dieses Verzeichnis vor dem Start von CloudCLI vor. Neue Docker-Volumes übernehmen den Besitzer `claude:claude`; bestehende lokale Volumes werden beim normalen Root-Start auf `PUID`/`PGID` korrigiert. Ist das Mount schreibgeschützt oder nicht reparierbar, stoppt der Start mit Pfad und UID/GID statt wiederholt `unable to open database file` auszugeben. Verwende für rootless Podman die mitgelieferte keep-id-Compose-Datei mit `:Z`; `:U` schreibt Host-Besitzrechte um und ist nicht die Standardeinstellung.
+
 > **Mache KEIN Bind-Mount von `./data/cloudcli` auf einem Netzwerk-Share (NAS, SMB/CIFS, NFS).** CloudCLI speichert sein Konto in SQLite, und SQLites File-Locking funktioniert auf Netzwerk-Mounts nicht. Du wirst ständig `database is locked`-Fehler bekommen. Named Volumes leben auf dem lokalen Dateisystem des Docker-Engines, deshalb funktioniert das — Bind-Mounts auf ein NAS werden nicht funktionieren.
 
 Ein Bind-Mount zu einem lokalen SSD-Pfad ist auch in Ordnung, halte ihn nur von jedem Netzwerk-Share fern.
@@ -941,7 +943,7 @@ Führe `cloudcli update` oder `npm install -g @cloudcli-ai/cloudcli@latest` nich
 Um eine bestimmte Version statt `latest` zu fixieren:
 
 ```yaml
-image: coderluii/holyclaude:1.5.2   # instead of :latest
+image: coderluii/holyclaude:1.5.3   # instead of :latest
 ```
 
 <p align="right">

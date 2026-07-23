@@ -1,6 +1,6 @@
 # ==============================================================================
 # HolyClaude - Rootless Podman on SELinux hosts
-# First run: mkdir -p data/claude workspace
+# First run: mkdir -p data/claude data/cloudcli workspace
 # Usage: podman compose -f docker-compose.podman-rootless.yaml up -d
 # Then open: http://localhost:3001
 #
@@ -27,6 +27,7 @@ services:
       - "127.0.0.1:3001:3001"
     volumes:
       - ./data/claude:/home/claude/.claude:Z
+      - ./data/cloudcli:/home/claude/.cloudcli:Z
       - ./workspace:/workspace:Z
     environment:
       - TZ=UTC

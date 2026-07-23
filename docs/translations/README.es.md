@@ -299,7 +299,7 @@ Abre `http://localhost:3001`. Crea una cuenta de CloudCLI. Inicia sesion con tu 
 
 **Eso es toda la configuracion. Ya terminaste.**
 
-> **¿Por que estas capacidades del navegador?** Este lanzamiento conserva el perfil actual de navegador de HolyClaude. `SYS_ADMIN` y `seccomp=unconfined` amplian privilegios de proceso y reducen el aislamiento; `SYS_PTRACE` es para depuracion. Mantén este perfil tal como está para v1.5.2 y trata el endurecimiento como un cambio aparte.
+> **¿Por que estas capacidades del navegador?** Este lanzamiento conserva el perfil actual de navegador de HolyClaude. `SYS_ADMIN` y `seccomp=unconfined` amplian privilegios de proceso y reducen el aislamiento; `SYS_PTRACE` es para depuracion. Mantén este perfil tal como está para v1.5.3 y trata el endurecimiento como un cambio aparte.
 
 > **¿Por que `shm_size: 2g`?** Docker otorga a los contenedores 64MB de memoria compartida por defecto. HolyClaude conserva 2GB como el valor predeterminado retenido para este lanzamiento porque Chromium usa `/dev/shm` intensamente para el renderizado de pestanas. Con 64MB, las pestanas se cuelgan; si el navegador se usa mucho, subelo a 4GB.
 
@@ -807,6 +807,8 @@ volumes:
   cloudcli-data:                                # and this block
 ```
 
+HolyClaude prepara este directorio antes de iniciar CloudCLI. Los volúmenes Docker nuevos heredan el propietario `claude:claude`; los volúmenes locales existentes se corrigen a `PUID`/`PGID` durante el inicio normal como root. Si el montaje es de solo lectura o no se puede corregir, el inicio se detiene indicando la ruta y el UID/GID en vez de repetir `unable to open database file`. Para Podman rootless, usa el archivo Compose keep-id incluido con `:Z`; `:U` cambia la propiedad en el host y no es el valor predeterminado.
+
 > **NO hagas bind-mount de `./data/cloudcli` en un recurso compartido de red (NAS, SMB/CIFS, NFS).** CloudCLI almacena su cuenta en SQLite, y el bloqueo de archivos de SQLite falla en montajes de red. Tendras errores de `database is locked` constantemente. Los named volumes viven en el sistema de archivos local del motor Docker, por eso esto funciona — los bind mounts apuntando a un NAS no funcionaran.
 
 Un bind mount a una ruta SSD local tambien esta bien, solo mantelo fuera de cualquier recurso compartido de red.
@@ -940,7 +942,7 @@ No ejecutes `cloudcli update` ni `npm install -g @cloudcli-ai/cloudcli@latest` d
 Para fijar una version especifica en lugar de `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.2   # instead of :latest
+image: coderluii/holyclaude:1.5.3   # instead of :latest
 ```
 
 <p align="right">

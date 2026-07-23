@@ -56,7 +56,7 @@ Runs every time the container starts. Responsibilities:
 
 1. **UID/GID remapping** — When the container starts as root, adjusts the `claude` user's UID/GID to match `PUID`/`PGID` environment variables. When rootless Podman starts the container as the target user with `userns=keep-id`, this root-only remap is skipped.
 
-2. **Workspace ownership fix** — Repairs the top-level `/workspace` bind mount if Docker auto-created it as `root:root` on first start.
+2. **Writable state preparation** — Repairs the top-level `/workspace` bind mount and the bounded `/home/claude/.cloudcli` tree during root-starting Docker startup. CloudCLI state is checked with a real write probe as the runtime user before s6 starts. Rootless startup skips privileged repair and fails with a direct mount remedy when state is not already writable.
 
 3. **Claude session restore** — Restores `~/.claude/.claude.json.persist` to `~/.claude.json` before bootstrap and CloudCLI startup can create a fresh default file. Empty, invalid, symlinked, oversized, or onboarding-only files are not allowed to replace a valid saved session.
 
@@ -140,16 +140,16 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 
 ### Browser Runtime
 
-v1.5.2 keeps the browser stack baked at build time:
+v1.5.3 keeps the browser stack baked at build time:
 
 - Playwright 1.61.0 is installed for both Node and Python
-- Debian Chromium 150.0.7871.124 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
+- Debian Chromium 150.0.7871.181 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
 - `/usr/bin/chromium` remains the supported wrapper, and `CHROME_PATH` / `PUPPETEER_EXECUTABLE_PATH` still point there
 - Node Playwright, Python Playwright, and CloudCLI Browser Use launch that same wrapper instead of downloading a separate browser
 - There is no runtime browser download
 - Lighthouse ships in the full image only
 
-Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to architecture-specific build archives and verified launcher and Node output hashes, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.2 and expires the review instead of letting it silently age.
+Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to architecture-specific build archives and verified launcher and Node output hashes, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.3 and expires the review instead of letting it silently age.
 
 CloudCLI 1.36.3 is built twice in independent containers from the exact Node 26.5.0 image with npm 11.18.0. Both builds must agree on the artifact, source tree, file list, shrinkwrap, and production dependency tree hashes before the vendored artifact is accepted. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5. EAS CLI 20.5.1 and Vercel CLI 54.21.1 remain on their compatible major lines; their two bundled `tar` 7.5.7 directories are replaced with checksum-bound `tar` 7.5.20 after the build verifies the exact parent packages and dependency specs.
 
@@ -214,6 +214,8 @@ Every configuration option has a sensible default. Most users authenticate throu
 ### Why bind mounts instead of named volumes?
 
 Bind mounts let users see and manage their data on disk. Named volumes hide data in Docker's internal storage, making backup and inspection harder. For a development workstation where users want to access their code and config files directly, bind mounts are the right choice.
+
+CloudCLI's account database is the exception offered as an opt-in named volume. SQLite needs local filesystem locking, and users normally do not edit this database directly. The image pre-creates `/home/claude/.cloudcli` for Docker copy-up, while the entrypoint handles existing local volumes and custom `PUID`/`PGID` values.
 
 ---
 

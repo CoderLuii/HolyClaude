@@ -86,9 +86,9 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="4c1bd9a109e22a88d577bbcd13ca4ec7f0d38156"
+          baseline="58c62362656f7cfa3821b381dc61b40198e5fd2b"
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.1^{commit}')" = "4c1bd9a109e22a88d577bbcd13ca4ec7f0d38156"
+          test "$(git rev-parse 'v1.5.2^{commit}')" = "58c62362656f7cfa3821b381dc61b40198e5fd2b"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -329,6 +329,14 @@ jobs:
         run: |
           set -euo pipefail
           bash tests/docker_rootless_smoke.sh \
+            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
+            "${{ matrix.variant }}-${{ matrix.arch }}"
+
+      - name: Smoke CloudCLI volume persistence
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bash tests/docker_cloudcli_volume_smoke.sh \
             "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
             "${{ matrix.variant }}-${{ matrix.arch }}"
 
@@ -1273,6 +1281,14 @@ jobs:
             --image "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
             --variant "${{ matrix.variant }}" \
             --expected-arch "${{ matrix.arch }}"
+
+      - name: Smoke final CloudCLI volume persistence
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bash tests/docker_cloudcli_volume_smoke.sh \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            "${{ matrix.registry }}-${{ matrix.variant }}-${{ matrix.arch }}"
 
   rollback-mutable-aliases:
     if: >-

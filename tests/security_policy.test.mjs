@@ -262,7 +262,7 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
       data.ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
       data.vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
     },
-    { variant: 'slim', arch: 'amd64', asOf: '2026-07-21' },
+    { variant: 'slim', arch: 'amd64', asOf: '2026-07-23' },
   );
   assert.equal(result.status, 0, result.stderr);
 });

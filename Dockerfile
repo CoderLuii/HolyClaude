@@ -20,7 +20,7 @@ RUN set -eux; \
 
 FROM node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
 
-ARG HOLYCLAUDE_VERSION=1.5.2
+ARG HOLYCLAUDE_VERSION=1.5.3
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -32,9 +32,9 @@ ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd7121
 ARG FZF_VERSION=0.74.1
 ARG FZF_ARCHIVE_SHA256_AMD64=df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b
 ARG FZF_ARCHIVE_SHA256_ARM64=f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183
-ARG CHROMIUM_DEBIAN_VERSION=150.0.7871.124-1~deb12u1
+ARG CHROMIUM_DEBIAN_VERSION=150.0.7871.181-1~deb12u1
 ARG CLAUDE_CODE_VERSION=2.1.216
-ARG CLAUDE_INSTALLER_SHA256=b3f79015b54c751440a6488f07b1b64f9088742b9052bc1bd356d13108320d2a
+ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
 ARG CLAUDE_BINARY_SHA256_AMD64=74deca45220b8080ec75ab099bd5a5980e41a2b5879846a008fb115d436de085
 ARG CLAUDE_BINARY_SHA256_ARM64=9e3a6aecc5164f607e1183aea2092c7d7705d146e504a6207df291776996a8ea
 ARG JUNIE_VERSION=2285.5
@@ -164,6 +164,8 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 # The official Node slim image already has UID 1000 as 'node' — rename it to 'claude'
 RUN usermod -l claude -d /home/claude -m node && \
     groupmod -n claude node && \
+    mkdir -p /home/claude/.cloudcli && \
+    chown claude:claude /home/claude/.cloudcli && \
     echo "claude ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/claude && \
     chmod 0440 /etc/sudoers.d/claude
 

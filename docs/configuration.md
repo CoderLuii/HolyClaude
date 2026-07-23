@@ -213,6 +213,11 @@ Manual upstream-supported setup targets are available through Desloppify itself:
 | `./workspace` | `/workspace` | Your code and projects |
 | `./data/ssh/authorized_keys` | `/run/holyclaude-ssh/authorized_keys` | Optional read-only SSH public keys file |
 | `holyclaude-ssh` | `/var/lib/holyclaude-ssh` | Optional named volume for stable SSH host keys |
+| `cloudcli-data` | `/home/claude/.cloudcli` | Optional local named volume for the CloudCLI account database |
+
+Fresh `cloudcli-data` volumes inherit ownership from the image. During root-starting Docker startup, HolyClaude repairs existing local volumes to `PUID`/`PGID` and verifies write access as the runtime user. Rootless Podman does not perform privileged repair; use `docker-compose.podman-rootless.yaml` with `keep-id` and `:Z`.
+
+Keep CloudCLI's SQLite state on local storage. `:Z` supplies SELinux labeling. Podman's `:U` changes host ownership recursively, so it is not part of the supported default.
 
 ### What's inside `./data/claude`:
 
@@ -256,7 +261,7 @@ security_opt:
   - seccomp=unconfined  # Current browser profile; hardening is a separate pass
 ```
 
-This is HolyClaude's retained browser profile for v1.5.2. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
+This is HolyClaude's retained browser profile for v1.5.3. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
 
 ---
 

@@ -4,6 +4,20 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.3] - 07/23/2026
+
+### Changed
+- Added CloudCLI named-volume persistence checks to every full and slim release candidate and every promoted Docker Hub and GHCR image.
+- Updated the exact Debian Chromium package pin to 150.0.7871.181 after the previous Bookworm security build left the repository.
+- Refreshed the verified Claude Code installer hash while retaining the exact 2.1.216 amd64 and arm64 binaries.
+- Updated the README, translations, configuration, architecture, troubleshooting, and Docker Hub guidance for local CloudCLI account storage.
+- Added `/home/claude/.cloudcli` to the rootless Podman profile so the documented profile persists CloudCLI account state.
+
+### Fixed
+- Pre-created `/home/claude/.cloudcli` with the runtime user ownership so fresh Docker volumes inherit usable permissions.
+- Added bounded startup ownership repair for existing CloudCLI volumes and a fail-fast runtime-user write check before CloudCLI starts.
+- Kept rootless startup unprivileged while reporting a direct ownership or read-only mount remedy when CloudCLI state is not writable.
+
 ## [1.5.2] - 07/22/2026
 
 ### Added

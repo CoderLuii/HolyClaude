@@ -299,7 +299,7 @@ docker compose up -d
 
 **बस यही पूरा सेटअप है। आप कर चुके हैं।**
 
-> **ये browser capabilities क्यों?** यह रिलीज HolyClaude का current browser profile बनाए रखती है। `SYS_ADMIN` और `seccomp=unconfined` process privileges बढ़ाते हैं और isolation कम करते हैं; `SYS_PTRACE` debugging के लिए है। v1.5.2 के लिए इस profile को जस का तस रखें और hardening को अलग बदलाव मानें।
+> **ये browser capabilities क्यों?** यह रिलीज HolyClaude का current browser profile बनाए रखती है। `SYS_ADMIN` और `seccomp=unconfined` process privileges बढ़ाते हैं और isolation कम करते हैं; `SYS_PTRACE` debugging के लिए है। v1.5.3 के लिए इस profile को जस का तस रखें और hardening को अलग बदलाव मानें।
 
 > **`shm_size: 2g` क्यों?** Docker डिफ़ॉल्ट रूप से containers को 64MB shared memory देता है। HolyClaude इस रिलीज़ के लिए 2GB को retained default रखता है क्योंकि Chromium tab rendering के लिए `/dev/shm` का भारी उपयोग करता है। 64MB पर tabs crash होते हैं; heavy browser use के लिए 4GB करें।
 
@@ -807,6 +807,8 @@ volumes:
   cloudcli-data:                                # and this block
 ```
 
+CloudCLI शुरू होने से पहले HolyClaude इस directory को तैयार करता है। नए Docker volumes को `claude:claude` ownership मिलती है; सामान्य root startup में मौजूदा local volumes की ownership `PUID`/`PGID` के अनुसार ठीक की जाती है। Mount read-only हो या ठीक न किया जा सके, तो startup बार-बार `unable to open database file` दिखाने के बजाय path और UID/GID के साथ रुक जाता है। Rootless Podman के लिए दिए गए keep-id Compose file को `:Z` के साथ इस्तेमाल करें; `:U` host ownership बदलता है और default नहीं है।
+
 > **`./data/cloudcli` को network share (NAS, SMB/CIFS, NFS) पर bind-mount न करें।** CloudCLI अपना account SQLite में store करता है, और SQLite का file locking network mounts पर काम नहीं करता। आपको लगातार `database is locked` errors आएंगी। Named volumes Docker engine के local filesystem पर रहते हैं, इसीलिए यह काम करता है — NAS पर pointing bind mounts काम नहीं करेंगे।
 
 Local SSD path पर bind mount भी ठीक है, बस किसी भी network share से दूर रखें।
@@ -941,7 +943,7 @@ Container के अंदर `cloudcli update` या `npm install -g @cloudcli
 `latest` के बजाय specific version pin करने के लिए:
 
 ```yaml
-image: coderluii/holyclaude:1.5.2   # instead of :latest
+image: coderluii/holyclaude:1.5.3   # instead of :latest
 ```
 
 <p align="right">

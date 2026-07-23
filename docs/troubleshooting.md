@@ -161,6 +161,26 @@ Then close and reopen the Web Terminal tab. This keeps the Docker image the same
 
 ---
 
+### CloudCLI reports "unable to open database file"
+
+**Symptom:** CloudCLI repeatedly reports `unable to open database file` after `/home/claude/.cloudcli` is mounted.
+
+**Cause:** The mounted directory or an existing SQLite file is not writable by the container's runtime UID/GID. This is an ownership or read-only mount problem, not SQLite network locking.
+
+**Fix:** Upgrade to v1.5.3 or later. HolyClaude now prepares the directory, repairs existing local-volume ownership during root-starting Docker startup, and stops before CloudCLI starts if the runtime user still cannot write it.
+
+For an older image, repair a local named volume once:
+
+```bash
+docker compose run --rm --user root --entrypoint sh holyclaude \
+  -c 'mkdir -p /home/claude/.cloudcli && chown -R "${PUID:-1000}:${PGID:-1000}" /home/claude/.cloudcli'
+docker compose up -d
+```
+
+Do not use this command against NAS, SMB/CIFS, or NFS storage. For rootless Podman, use the provided keep-id Compose file with `:Z`; do not add `:U` unless you intentionally want Podman to rewrite host ownership.
+
+---
+
 ### Chromium crashes or blank pages
 
 **Symptom:** Playwright tests fail, screenshots are blank, Lighthouse hangs.
@@ -169,7 +189,7 @@ Then close and reopen the Web Terminal tab. This keeps the Docker image the same
 
 **Fix:** Ensure `shm_size: 2g` or higher in your docker-compose file. If running many concurrent tabs, increase to `4g`. If you still get an immediate SIGTRAP, re-check the browser build path before only raising shm.
 
-In `v1.5.2`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
+In `v1.5.3`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
 
 ---
 
