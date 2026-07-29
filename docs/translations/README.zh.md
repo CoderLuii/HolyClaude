@@ -168,7 +168,7 @@ http://localhost:3001
 | **开发工具** | 50+ 工具，即用 | 接下来一个小时 `apt-get install` / `npm i -g` / `pip install` |
 | **进程管理** | s6-overlay（自动重启、优雅关闭） | 自己写 supervisord 配置，或祈祷 Docker restart 能用 |
 | **持久化** | 绑定挂载的工具配置和 workspace 在重新构建后仍会保留 | 搞清楚 Docker volumes，调试"为什么这是个目录而不是文件" |
-| **更新** | `docker pull && docker compose up -d` | 手动更新 50 个工具，祈祷不出问题 |
+| **更新** | `docker compose pull && docker compose up -d` | 手动更新 50 个工具，祈祷不出问题 |
 | **多架构** | AMD64 + ARM64 | 祈祷你的 Dockerfile 能在 ARM 上构建 |
 
 **每次手动配置的最后一行都是"在我机器上能跑"。** HolyClaude 在每台机器上都能跑。
@@ -299,7 +299,7 @@ docker compose up -d
 
 **配置到此结束，你已经准备好了。**
 
-> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.3 请保持这个配置不变，把加固当成单独的改动。
+> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.4 请保持这个配置不变，把加固当成单独的改动。
 
 > **为什么是 `shm_size: 2g`？** Docker 默认只给容器 64MB 共享内存。HolyClaude 把 2GB 保留为本版本的默认值，因为 Chromium 在标签页渲染时会大量使用 `/dev/shm`。64MB 会让标签页崩掉；浏览器用得多就升到 4GB。
 
@@ -809,6 +809,11 @@ volumes:
 
 HolyClaude 会在 CloudCLI 启动前准备此目录。新的 Docker volume 会继承 `claude:claude` 所有权；现有本地 volume 会在正常的 root 启动过程中按 `PUID`/`PGID` 修复。如果挂载为只读或无法修复，启动会显示路径和 UID/GID 后停止，而不是反复输出 `unable to open database file`。Rootless Podman 请使用随附的 keep-id Compose 文件和 `:Z`；`:U` 会改写主机所有权，因此不是默认设置。
 
+```bash
+mkdir -p data/claude data/cloudcli workspace
+podman compose -f docker-compose.podman-rootless.yaml up -d
+```
+
 > **不要将 `./data/cloudcli` bind-mount 到网络共享（NAS、SMB/CIFS、NFS）上。** CloudCLI 将账户存储在 SQLite 中，而 SQLite 的文件锁在网络挂载上会失效。你会不断遇到 `database is locked` 错误。Named volume 存储在 Docker 引擎的本地文件系统上，这就是为什么它能正常工作 — 指向 NAS 的 bind mount 不会生效。
 
 bind mount 到本地 SSD 路径也可以，只要不挂载到任何网络共享上就行。
@@ -943,7 +948,7 @@ docker compose up -d
 如果想固定到特定版本而非 `latest`：
 
 ```yaml
-image: coderluii/holyclaude:1.5.3   # instead of :latest
+image: coderluii/holyclaude:1.5.4   # instead of :latest
 ```
 
 <p align="right">

@@ -189,7 +189,7 @@ Do not use this command against NAS, SMB/CIFS, or NFS storage. For rootless Podm
 
 **Fix:** Ensure `shm_size: 2g` or higher in your docker-compose file. If running many concurrent tabs, increase to `4g`. If you still get an immediate SIGTRAP, re-check the browser build path before only raising shm.
 
-In `v1.5.3`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
+In `v1.5.4`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
 
 ---
 
@@ -260,7 +260,7 @@ HolyClaude also auto-fixes the top-level `/workspace` ownership on boot if Docke
 
 **Fix for rootless Podman on SELinux:** Use the Podman compose profile:
 ```bash
-mkdir -p data/claude workspace
+mkdir -p data/claude data/cloudcli workspace
 podman compose -f docker-compose.podman-rootless.yaml up -d
 ```
 

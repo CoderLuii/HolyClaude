@@ -79,7 +79,7 @@
     {
       "id": "cursor-node-permission-model-disabled",
       "vulnerabilities": ["CVE-2025-55130"],
-      "component": {"names": ["node"], "versions": ["24.5.0"], "types": ["binary"], "locationPatterns": ["^/home/claude/\\.local/share/cursor-agent/versions/2026\\.07\\.17-3e2a980/node$"]},
+      "component": {"names": ["node"], "versions": ["24.5.0"], "types": ["binary"], "locationPatterns": ["^/home/claude/\\.local/share/cursor-agent/versions/2026\\.07\\.23-e383d2b/node$"]},
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Cursor CLI",
@@ -331,9 +331,9 @@
       "effectiveSeverity": "Moderate",
       "owner": "Chromium runtime",
       "authority": {"name": "Mozilla Foundation Security Advisory 2026-68", "url": "https://www.mozilla.org/en-US/security/advisories/mfsa2026-68/#CVE-2026-16389"},
-      "reviewedAt": "2026-07-23",
-      "expiresAt": "2026-08-06",
-      "rationale": "Mozilla rates CVE-2026-16389 Moderate. Bookworm has not published NSS 3.126, so this exact package remains tracked for a Debian security update."
+      "reviewedAt": "2026-07-29",
+      "expiresAt": "2026-08-12",
+      "rationale": "Mozilla rates CVE-2026-16389 Moderate. The Debian Security Tracker still marks Bookworm vulnerable, and Bookworm security still publishes libnss3 2:3.87.1-1+deb12u3, so this exact package remains tracked for a Debian security update."
     }
   ]
 }

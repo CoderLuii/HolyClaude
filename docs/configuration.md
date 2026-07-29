@@ -119,7 +119,7 @@ Keep these ports bound to localhost, a VPN interface, Tailscale, or a firewall-r
 For Fedora or another SELinux host running rootless Podman, use:
 
 ```bash
-mkdir -p data/claude workspace
+mkdir -p data/claude data/cloudcli workspace
 podman compose -f docker-compose.podman-rootless.yaml up -d
 ```
 
@@ -261,7 +261,7 @@ security_opt:
   - seccomp=unconfined  # Current browser profile; hardening is a separate pass
 ```
 
-This is HolyClaude's retained browser profile for v1.5.3. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
+This is HolyClaude's retained browser profile for v1.5.4. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
 
 ---
 

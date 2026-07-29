@@ -18,7 +18,7 @@ function runFixture(mutate = (value) => value) {
     );
     return spawnSync(
       process.execPath,
-      [validator, '--file', input, '--as-of', '2026-07-23', '--release', 'v1.5.3'],
+      [validator, '--file', input, '--as-of', '2026-07-29', '--release', 'v1.5.4'],
       { encoding: 'utf8' },
     );
   } finally {
@@ -34,29 +34,29 @@ test('accepts current immutable input evidence for the requested release', () =>
 test('rejects immutable input evidence expired before the deterministic as-of date', () => {
   const result = runFixture((value) =>
     value
-      .replace('reviewed-at: 2026-07-23', 'reviewed-at: 2026-06-20')
-      .replace('expires-at: 2026-08-22', 'expires-at: 2026-07-20'),
+      .replace('reviewed-at: 2026-07-29', 'reviewed-at: 2026-06-20')
+      .replace('expires-at: 2026-08-28', 'expires-at: 2026-07-20'),
   );
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /expired on 2026-07-20/);
 });
 
 test('rejects immutable input evidence for another release', () => {
-  const result = runFixture((value) => value.replace('release: v1.5.3', 'release: v1.5.1'));
+  const result = runFixture((value) => value.replace('release: v1.5.4', 'release: v1.5.1'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected release v1\.5\.3/);
+  assert.match(result.stderr, /expected release v1\.5\.4/);
 });
 
 test('rejects an invalid review date', () => {
-  const result = runFixture((value) => value.replace('reviewed-at: 2026-07-23', 'reviewed-at: 2026-02-30'));
+  const result = runFixture((value) => value.replace('reviewed-at: 2026-07-29', 'reviewed-at: 2026-02-30'));
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /reviewed-at is invalid/);
 });
 
 test('rejects immutable input evidence reviewed after the deterministic as-of date', () => {
-  const result = runFixture((value) => value.replace('reviewed-at: 2026-07-23', 'reviewed-at: 2026-07-24'));
+  const result = runFixture((value) => value.replace('reviewed-at: 2026-07-29', 'reviewed-at: 2026-07-30'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /reviewed-at 2026-07-24 is after as-of 2026-07-23/);
+  assert.match(result.stderr, /reviewed-at 2026-07-30 is after as-of 2026-07-29/);
 });
 
 for (const category of [
@@ -170,7 +170,7 @@ test('verifies a referenced manifest hash when one is supplied', () => {
 });
 
 test('rejects duplicate top-level keys instead of silently overriding them', () => {
-  const result = runFixture((value) => `release: v1.5.3\n${value}`);
+  const result = runFixture((value) => `release: v1.5.4\n${value}`);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /duplicate top-level key release/);
 });

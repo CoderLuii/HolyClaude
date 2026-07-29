@@ -45,7 +45,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.3, CloudCLI stays at 1.36.3, s6-overlay stays at 3.2.3.2, and fzf stays at 0.74.1. Playwright remains aligned at 1.61.0 for Node and Python, with both bindings launching the pinned Debian Chromium 150.0.7871.181 Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
+In v1.5.4, CloudCLI stays at 1.36.3 with refreshed WebSocket and upload dependencies, while s6-overlay stays at 3.2.3.2 and fzf stays at 0.74.1. Playwright remains aligned at 1.61.0 for Node and Python, with both bindings launching the pinned Debian Chromium Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -183,7 +183,7 @@ So I made a container that does all of it. And then I hit every possible bug so 
 | **Dev tools** | 50+ tools, ready | `apt-get install` / `npm i -g` / `pip install` for the next hour |
 | **Process management** | s6-overlay (auto-restart, graceful shutdown) | Write your own supervisord config or hope Docker restart works |
 | **Persistence** | Bind-mounted tool config and workspace survive rebuilds | Figure out Docker volumes, debug "why is this a directory not a file" |
-| **Updates** | `docker pull && docker compose up -d` | Update 50 tools manually, pray nothing breaks |
+| **Updates** | `docker compose pull && docker compose up -d` | Update 50 tools manually, pray nothing breaks |
 | **Multi-arch** | AMD64 + ARM64 | Pray your Dockerfile builds on ARM |
 
 **The last row of every manual setup is "works on my machine."** HolyClaude works on every machine.
@@ -1131,7 +1131,7 @@ docker compose pull && docker compose up -d
 To pin a specific version instead of `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.3   # instead of :latest
+image: coderluii/holyclaude:1.5.4   # instead of :latest
 ```
 
 <p align="right">

@@ -15,6 +15,14 @@ const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-
 const expectedBuildImage = 'node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb';
 const expectedNode = 'v26.5.0';
 const expectedNpm = '11.18.0';
+const expectedRuntimeDependencies = {
+  'node_modules/better-sqlite3': '12.11.1',
+  'node_modules/dompurify': '3.4.12',
+  'node_modules/express': '4.22.2',
+  'node_modules/multer': '2.2.0',
+  'node_modules/path-to-regexp': '0.1.13',
+  'node_modules/ws': '8.21.1',
+};
 const expectedBuildPackages = {
   'build-essential': '12.9',
   'ca-certificates': '20230311+deb12u1',
@@ -107,6 +115,14 @@ function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
 }
 
+function verifyResolvedDependencies(lock, label) {
+  for (const [packagePath, version] of Object.entries(expectedRuntimeDependencies)) {
+    if (lock.packages?.[packagePath]?.version !== version) {
+      throw new Error(`${label} must resolve ${packagePath} ${version}`);
+    }
+  }
+}
+
 function verifyVersionInputs(workdir) {
   const packageJson = readJson(path.join(workdir, 'package.json'));
   const packageLock = readJson(path.join(workdir, 'package-lock.json'));
@@ -115,22 +131,41 @@ function verifyVersionInputs(workdir) {
     || packageLock.packages?.['']?.version !== packageVersion) {
     throw new Error(`CloudCLI package.json and package-lock.json must both be ${packageVersion}`);
   }
-  if (packageLock.packages?.['node_modules/better-sqlite3']?.version !== '12.11.1') {
-    throw new Error('CloudCLI package-lock.json must resolve better-sqlite3 12.11.1');
+  const expectedRanges = {
+    dompurify: '^3.4.12',
+    express: '^4.22.2',
+    multer: '^2.2.0',
+    ws: '^8.21.1',
+  };
+  for (const [name, version] of Object.entries(expectedRanges)) {
+    if (packageJson.dependencies?.[name] !== version) {
+      throw new Error(`CloudCLI package.json must declare ${name} ${version}`);
+    }
   }
+  verifyResolvedDependencies(packageLock, 'CloudCLI package-lock.json');
+}
+
+function normalizeShrinkwrapRegistry(workdir) {
+  const shrinkwrapPath = path.join(workdir, 'npm-shrinkwrap.json');
+  const normalized = readFileSync(shrinkwrapPath, 'utf8')
+    .replaceAll('https://registry.npmmirror.com/', 'https://registry.npmjs.org/');
+  writeFileSync(shrinkwrapPath, normalized);
 }
 
 function verifyShrinkwrap(workdir) {
+  const shrinkwrapPath = path.join(workdir, 'npm-shrinkwrap.json');
   const packageJson = readJson(path.join(workdir, 'package.json'));
-  const shrinkwrap = readJson(path.join(workdir, 'npm-shrinkwrap.json'));
+  const shrinkwrapSource = readFileSync(shrinkwrapPath, 'utf8');
+  const shrinkwrap = JSON.parse(shrinkwrapSource);
   if (packageJson.version !== packageVersion
     || shrinkwrap.version !== packageVersion
     || shrinkwrap.packages?.['']?.version !== packageVersion) {
     throw new Error(`CloudCLI package.json and npm-shrinkwrap.json must both be ${packageVersion}`);
   }
-  if (shrinkwrap.packages?.['node_modules/better-sqlite3']?.version !== '12.11.1') {
-    throw new Error('CloudCLI npm-shrinkwrap.json must resolve better-sqlite3 12.11.1');
+  if (shrinkwrapSource.includes('registry.npmmirror.com')) {
+    throw new Error('CloudCLI npm-shrinkwrap.json must use registry.npmjs.org URLs');
   }
+  verifyResolvedDependencies(shrinkwrap, 'CloudCLI npm-shrinkwrap.json');
 }
 
 async function prepareSource(workdir) {
@@ -171,13 +206,13 @@ try {
   if (actualCommit !== upstreamCommit) {
     throw new Error(`Expected CloudCLI source commit ${upstreamCommit}, got ${actualCommit}`);
   }
-  verifyVersionInputs(workdir);
-
   const patches = readdirSync(patchDir)
     .filter((name) => name.endsWith('.patch'))
     .sort();
-  if (patches.length !== 1 || patches[0] !== '0001-local-account-management.patch') {
-    throw new Error(`Expected only 0001-local-account-management.patch, got ${patches.join(', ')}`);
+  if (patches.length !== 2
+    || patches[0] !== '0001-local-account-management.patch'
+    || patches[1] !== '0002-security-dependency-refresh.patch') {
+    throw new Error(`Expected account and security patches, got ${patches.join(', ')}`);
   }
 
   for (const patch of patches) {
@@ -185,6 +220,7 @@ try {
     run('git', ['apply', '--check', '--index', patchPath], { cwd: workdir });
     run('git', ['apply', '--index', patchPath], { cwd: workdir });
   }
+  verifyVersionInputs(workdir);
 
   const trackedFiles = runCapture('git', ['ls-files', '-z'], { cwd: workdir })
     .split('\0')
@@ -201,6 +237,7 @@ try {
   run('npm', ['run', 'build'], { cwd: workdir });
   run('npm', ['run', 'lint'], { cwd: workdir });
   run('npm', ['shrinkwrap', '--omit=dev'], { cwd: workdir });
+  normalizeShrinkwrapRegistry(workdir);
   verifyShrinkwrap(workdir);
 
   const packDir = path.join(workdir, 'pack');
@@ -280,14 +317,17 @@ try {
     verification: {
       detector: 'scripts/verify-cloudcli-account-management-support.mjs',
       expectedState: 'holyclaude-bridge-complete',
+      requiredRuntimeDependencies: expectedRuntimeDependencies,
       existingHolyClaudeRuntimePatchesRunAfterInstall: true,
     },
     upstreamRefs: [
       'https://github.com/siteboon/claudecodeui/issues/797',
+      'https://github.com/siteboon/claudecodeui/pull/978',
+      'https://github.com/siteboon/claudecodeui/pull/1070',
       'https://github.com/siteboon/claudecodeui/pull/928',
       'https://github.com/siteboon/claudecodeui/pull/526',
     ],
-    removal: 'Remove when a fixed upstream npm package verifies as upstream-complete without HolyClaude bridge markers.',
+    removal: 'Remove only when an upstream npm package verifies as upstream-complete without HolyClaude bridge markers and its production dependency tree satisfies verification.requiredRuntimeDependencies.',
   };
   const hashes = {
     artifactSha256: artifactHash,

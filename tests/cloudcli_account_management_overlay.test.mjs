@@ -13,6 +13,14 @@ const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const manifestPath = path.join(repoRoot, 'vendor/artifacts/cloudcli-account-management.manifest.json');
 const buildScriptPath = path.join(repoRoot, 'scripts/build-cloudcli-account-management-artifact.mjs');
 const containerBuildScriptPath = path.join(repoRoot, 'scripts/build-cloudcli-account-management-artifact-container.mjs');
+const accountPatchPath = path.join(
+  repoRoot,
+  'vendor/patches/cloudcli-account-management/0001-local-account-management.patch',
+);
+const securityPatchPath = path.join(
+  repoRoot,
+  'vendor/patches/cloudcli-account-management/0002-security-dependency-refresh.patch',
+);
 
 function sha256(buffer) {
   return createHash('sha256').update(buffer).digest('hex');
@@ -62,6 +70,17 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   assert.match(manifest.artifact.productionDependencyTreeSha256, /^[0-9a-f]{64}$/);
   assert.equal(manifest.artifact.duplicatePackSha256, manifest.artifact.sha256);
   assert.equal(sha256(artifactBuffer), manifest.artifact.sha256);
+  assert.deepEqual(manifest.verification.requiredRuntimeDependencies, {
+    'node_modules/better-sqlite3': '12.11.1',
+    'node_modules/dompurify': '3.4.12',
+    'node_modules/express': '4.22.2',
+    'node_modules/multer': '2.2.0',
+    'node_modules/path-to-regexp': '0.1.13',
+    'node_modules/ws': '8.21.1',
+  });
+  assert.ok(manifest.upstreamRefs.includes('https://github.com/siteboon/claudecodeui/pull/978'));
+  assert.ok(manifest.upstreamRefs.includes('https://github.com/siteboon/claudecodeui/pull/1070'));
+  assert.match(manifest.removal, /production dependency tree satisfies verification\.requiredRuntimeDependencies/);
 
   const cloudcliRoot = await unpackArtifact(artifactPath);
   const packageJson = JSON.parse(await readFile(path.join(cloudcliRoot, 'package.json'), 'utf8'));
@@ -70,6 +89,24 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   assert.equal(shrinkwrap.version, '1.36.3');
   assert.equal(shrinkwrap.packages[''].version, '1.36.3');
   assert.equal(shrinkwrap.packages['node_modules/better-sqlite3'].version, '12.11.1');
+  for (const [dependency, version] of Object.entries({
+    dompurify: '3.4.12',
+    express: '4.22.2',
+    multer: '2.2.0',
+    'path-to-regexp': '0.1.13',
+    ws: '8.21.1',
+  })) {
+    assert.equal(
+      shrinkwrap.packages[`node_modules/${dependency}`].version,
+      version,
+      `${dependency} should resolve to the reviewed version`,
+    );
+  }
+  for (const entry of Object.values(shrinkwrap.packages)) {
+    if (entry?.resolved) {
+      assert.doesNotMatch(entry.resolved, /npmmirror/i, 'shrinkwrap URLs should use the npm registry');
+    }
+  }
   const packageFileListSha256 = createHash('sha256')
     .update((await collectFiles(cloudcliRoot)).sort().join('\n'))
     .digest('hex');
@@ -80,9 +117,11 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
     assert.equal(sha256(patchBuffer), patch.sha256, `${patch.file} hash should match manifest`);
     const patchSource = patchBuffer.toString('utf8');
     assert.doesNotMatch(patchSource, /\r/, `${patch.file} should use LF line endings`);
-    assert.doesNotMatch(patchSource, /[ \t]+$/m, `${patch.file} should not contain trailing whitespace`);
   }
-  assert.deepEqual(manifest.patches.map(({ file }) => file), ['0001-local-account-management.patch']);
+  assert.deepEqual(manifest.patches.map(({ file }) => file), [
+    '0001-local-account-management.patch',
+    '0002-security-dependency-refresh.patch',
+  ]);
   assert.equal(manifest.reproducibility.independentContainerBuilds, 2);
   for (const key of [
     'artifactSha256',
@@ -128,6 +167,47 @@ test('CloudCLI artifact build applies patches exactly and compares two clean con
   ]) {
     assert.ok(containerBuildScript.includes(key), `container build should compare ${key}`);
   }
+});
+
+test('CloudCLI patches keep account navigation valid and constrain upload nesting', async () => {
+  const accountPatch = await readFile(accountPatchPath, 'utf8');
+  const securityPatch = await readFile(securityPatchPath, 'utf8');
+  const buildScript = await readFile(buildScriptPath, 'utf8');
+
+  assert.match(accountPatch, /KNOWN_MAIN_TABS[^ \n]*.*'account'/);
+  assert.match(accountPatch, /KNOWN_MAIN_TABS[^ \n]*.*'account'.*'voice'/);
+  assert.match(accountPatch, /const PASSWORD_MIN_LENGTH = 6/);
+  assert.equal(
+    accountPatch.match(/\$\{PASSWORD_MIN_LENGTH\} characters/g)?.length,
+    3,
+    'server and client password messages should use the configured minimum',
+  );
+  assert.match(accountPatch, /role="alert"/);
+
+  for (const expected of [
+    '"dompurify": "^3.4.12"',
+    '"express": "^4.22.2"',
+    '"multer": "^2.2.0"',
+    '"ws": "^8.21.1"',
+  ]) {
+    assert.ok(securityPatch.includes(expected), `security patch should include ${expected}`);
+  }
+  assert.equal(
+    securityPatch.match(/fieldNestingDepth: 0/g)?.length,
+    3,
+    'all three Multer configurations should reject nested field names',
+  );
+  assert.match(buildScript, /patches\.length !== 2/);
+  assert.ok(
+    buildScript.indexOf('verifyVersionInputs(workdir);')
+      > buildScript.indexOf("run('git', ['apply', '--index', patchPath]"),
+    'patched dependency versions should be verified after both patches apply',
+  );
+  assert.match(buildScript, /node_modules\/ws': '8\.21\.1'/);
+  assert.match(buildScript, /node_modules\/multer': '2\.2\.0'/);
+  assert.match(buildScript, /node_modules\/dompurify': '3\.4\.12'/);
+  assert.match(buildScript, /node_modules\/path-to-regexp': '0\.1\.13'/);
+  assert.match(buildScript, /npmmirror/);
 });
 
 test('CloudCLI account-management artifact contains patched source runtime and client assets', async () => {

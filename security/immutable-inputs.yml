@@ -1,21 +1,21 @@
 schema-version: 1
-release: v1.5.3
-reviewed-at: 2026-07-23
-expires-at: 2026-08-22
+release: v1.5.4
+reviewed-at: 2026-07-29
+expires-at: 2026-08-28
 
 base-images:
   - name: Actionlint workflow validator
-    reference: rhysd/actionlint:1.7.7
-    digest: sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9
+    reference: rhysd/actionlint:1.7.12
+    digest: sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
     status: pinned
   - name: Go esbuild builder
     reference: golang:1.26.5-bookworm
     digest: sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651
-    status: added
+    status: retained
   - name: HolyClaude runtime
     reference: node:26.5.0-bookworm-slim
     digest: sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
-    status: refreshed
+    status: retained
 
 release-assets:
   - name: s6-overlay
@@ -25,30 +25,30 @@ release-assets:
     arm64-archive-sha256: b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd712115693a2f8b4c
     verification: official per-asset sha256 files
     verification-mode: committed-hash
-    status: updated
+    status: retained
   - name: fzf
     version: 0.74.1
     amd64-archive-sha256: df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b
     arm64-archive-sha256: f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183
     verification: official release checksum list
     verification-mode: committed-hash
-    status: updated
+    status: retained
   - name: Debian Chromium package trio
     version: 150.0.7871.181-1~deb12u1
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
-    status: updated
+    status: retained
   - name: Syft
-    version: 1.49.0
-    amd64-archive-sha256: 7aa2f03ee92739cf643279ba3990548b9925d4e22cae13f46831ee62821147fe
-    arm64-archive-sha256: c7c32de183c32368de197edba75e8dba7632915f7761bacd55149a9ca7fe0fa4
+    version: 1.50.0
+    amd64-archive-sha256: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788
+    arm64-archive-sha256: 887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86
     verification: official release checksum list
     verification-mode: committed-hash
     status: updated
   - name: Grype
-    version: 0.116.0
-    amd64-archive-sha256: 40aff724297312f91ea390d003bed8d8651c74cc7f5b26732db80b3a408d2fc5
-    arm64-archive-sha256: 7af3eed24f469b0cf3ab5ec4508d9c12f4bb9c2c6be714f32973c7b5d63cb6a5
+    version: 0.116.1
+    amd64-archive-sha256: 0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458
+    arm64-archive-sha256: a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d
     verification: official release checksum list
     verification-mode: committed-hash
     status: updated
@@ -60,34 +60,34 @@ release-assets:
     verification-mode: committed-hash
     status: pinned
   - name: node-tar npm package
-    version: 7.5.20
-    archive-sha256: 2382f1b186959c031d834805f7676f8dd8d203d2ead5f6c1365ee346e5b48c0f
+    version: 7.5.22
+    archive-sha256: b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
 
 installers:
   - name: Claude Code
-    version: 2.1.216
+    version: 2.1.220
     installer-sha256: cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
-    amd64-output-sha256: 74deca45220b8080ec75ab099bd5a5980e41a2b5879846a008fb115d436de085
-    arm64-output-sha256: 9e3a6aecc5164f607e1183aea2092c7d7705d146e504a6207df291776996a8ea
+    amd64-output-sha256: 674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863
+    arm64-output-sha256: 159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185
     status: pinned
   - name: Junie
-    version: "2285.5"
-    amd64-archive-sha256: 5d867c00bbfbc36604972592623e4a1b2677150e7f2309203a0d809cd3400521
-    arm64-archive-sha256: 6f7b2fd1419f7615dbf3de28616397d1b8c90d055d691102da48292fcc510dae
+    version: "2470.4"
+    amd64-archive-sha256: 661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c
+    arm64-archive-sha256: 976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630
     install: direct from verified release archive
     status: pinned
   - name: Cursor CLI
-    build-id: 2026.07.17-3e2a980
-    amd64-archive-sha256: 1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3
-    arm64-archive-sha256: 827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c
+    build-id: 2026.07.23-e383d2b
+    amd64-archive-sha256: 702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4
+    arm64-archive-sha256: f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb
     launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
     install: direct from verified build archive
-    status: retained
+    status: updated
   - name: Azure CLI apt bootstrap
     version: 2.88.0-1~bookworm
     installer-sha256: 01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
@@ -103,8 +103,8 @@ vendored-artifacts:
     upstream-commit: 27eaf0146a46aa8a55178f3d394360ff7465420f
     artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    manifest-sha256: b694845501117acd7181a07217768be2eae0e71816605d2efe9c0b2234aed040
-    sha256: e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7
+    manifest-sha256: f3e10abcecd1d50202386d0883f67ba3ad425a27408bdfcbc28af8a7e904ce64
+    sha256: f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea
     verification: two independent clean builds in the pinned Node image
     status: updated
 
@@ -135,8 +135,8 @@ github-actions:
     version: v4.2.0
     commit: bb05f3f5519dd87d3ba754cc423b652a5edd6d2c
   - name: docker/login-action
-    version: v4.4.0
-    commit: af1e73f918a031802d376d3c8bbc3fe56130a9b0
+    version: v4.6.0
+    commit: dbcb813823bdd20940b903addbd779551569679f
   - name: docker/build-push-action
     version: v7.3.0
     commit: 53b7df96c91f9c12dcc8a07bcb9ccacbed38856a

@@ -20,7 +20,7 @@ RUN set -eux; \
 
 FROM node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
 
-ARG HOLYCLAUDE_VERSION=1.5.3
+ARG HOLYCLAUDE_VERSION=1.5.4
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -33,16 +33,16 @@ ARG FZF_VERSION=0.74.1
 ARG FZF_ARCHIVE_SHA256_AMD64=df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b
 ARG FZF_ARCHIVE_SHA256_ARM64=f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183
 ARG CHROMIUM_DEBIAN_VERSION=150.0.7871.181-1~deb12u1
-ARG CLAUDE_CODE_VERSION=2.1.216
+ARG CLAUDE_CODE_VERSION=2.1.220
 ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
-ARG CLAUDE_BINARY_SHA256_AMD64=74deca45220b8080ec75ab099bd5a5980e41a2b5879846a008fb115d436de085
-ARG CLAUDE_BINARY_SHA256_ARM64=9e3a6aecc5164f607e1183aea2092c7d7705d146e504a6207df291776996a8ea
-ARG JUNIE_VERSION=2285.5
-ARG JUNIE_ARCHIVE_SHA256_AMD64=5d867c00bbfbc36604972592623e4a1b2677150e7f2309203a0d809cd3400521
-ARG JUNIE_ARCHIVE_SHA256_ARM64=6f7b2fd1419f7615dbf3de28616397d1b8c90d055d691102da48292fcc510dae
-ARG CURSOR_BUILD_ID=2026.07.17-3e2a980
-ARG CURSOR_ARCHIVE_SHA256_AMD64=1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3
-ARG CURSOR_ARCHIVE_SHA256_ARM64=827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c
+ARG CLAUDE_BINARY_SHA256_AMD64=674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863
+ARG CLAUDE_BINARY_SHA256_ARM64=159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185
+ARG JUNIE_VERSION=2470.4
+ARG JUNIE_ARCHIVE_SHA256_AMD64=661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c
+ARG JUNIE_ARCHIVE_SHA256_ARM64=976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630
+ARG CURSOR_BUILD_ID=2026.07.23-e383d2b
+ARG CURSOR_ARCHIVE_SHA256_AMD64=702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4
+ARG CURSOR_ARCHIVE_SHA256_ARM64=f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb
 ARG CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -50,8 +50,8 @@ ARG AZURE_CLI_VERSION=2.88.0-1~bookworm
 ARG AZURE_CLI_INSTALLER_SHA256=01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
 ARG GITHUB_CLI_VERSION=2.96.0
 ARG GITHUB_CLI_KEYRING_SHA256=6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b
-ARG NODE_TAR_VERSION=7.5.20
-ARG NODE_TAR_SHA256=2382f1b186959c031d834805f7676f8dd8d203d2ead5f6c1365ee346e5b48c0f
+ARG NODE_TAR_VERSION=7.5.22
+ARG NODE_TAR_SHA256=b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6
 ARG TARGETARCH
 ARG VARIANT=full
 
@@ -191,18 +191,18 @@ RUN npm install -g npm@11.18.0 && \
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.61.0 \
     typescript@6.0.3 tsx@4.23.1 \
-    pnpm@11.15.1 \
+    pnpm@11.18.0 \
     vite@8.1.5 esbuild@0.28.1 \
-    eslint@10.7.0 prettier@3.9.6 \
-    serve@14.2.6 nodemon@3.1.14 concurrently@10.0.3 \
+    eslint@10.8.0 prettier@3.9.6 \
+    serve@14.2.6 nodemon@3.1.14 concurrently@10.0.4 \
     dotenv-cli@11.0.0
 
 # ---------- npm global packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
     npm i -g \
-      wrangler@4.112.0 vercel@54.21.1 netlify-cli@26.2.0 \
+      wrangler@4.115.0 vercel@54.21.1 netlify-cli@26.2.0 \
       pm2@7.0.3 \
-      prisma@7.9.0 drizzle-kit@0.31.10 \
+      prisma@7.9.1 drizzle-kit@0.31.10 \
       eas-cli@20.5.1 \
       lighthouse@13.4.1 @lhci/cli@0.15.1 \
       sharp-cli@5.2.0 json-server@1.0.0-beta.15 http-server@14.1.1 \
@@ -269,10 +269,10 @@ RUN if [ "$VARIANT" = "full" ]; then \
 RUN pip install --no-cache-dir --break-system-packages \
     requests==2.34.2 httpx==0.28.1 beautifulsoup4==4.15.0 lxml==6.1.1 \
     Pillow==12.3.0 \
-    pandas==3.0.3 numpy==2.4.6 \
+    pandas==3.0.5 numpy==2.4.6 \
     openpyxl==3.1.5 python-docx==1.2.0 \
     jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.2 markdown==3.10.2 \
-    rich==15.0.0 click==8.4.2 tqdm==4.69.0 \
+    rich==15.0.0 click==8.4.2 tqdm==4.70.0 \
     'desloppify[full]==1.0' bandit==1.9.4 defusedxml==0.7.1 \
     tree-sitter==0.26.0 tree-sitter-language-pack==1.6.2 stevedore==5.9.0 \
     playwright==1.61.0 \
@@ -299,11 +299,11 @@ RUN if [ "$VARIANT" = "full" ]; then \
       xlsxwriter==3.2.9 xlrd==2.0.2 \
       matplotlib==3.11.1 seaborn==0.13.2 \
       python-pptx==1.0.2 \
-      fastapi==0.139.2 uvicorn==0.51.0; \
+      fastapi==0.141.1 uvicorn==0.52.0; \
     fi
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.51.0 @openai/codex@0.144.6 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.53.0 @openai/codex@0.146.0 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in arm64) echo "arm64";; *) echo "x64";; esac) && \
     CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; esac) && \
@@ -342,7 +342,7 @@ RUN if [ "$VARIANT" = "full" ]; then \
     rm -rf "$JUNIE_STAGING" "$JUNIE_TARGET" && \
     mkdir -p "$JUNIE_STAGING" /home/claude/.local/bin && \
     JUNIE_TOP_LEVEL=$(unzip -Z1 "/tmp/${JUNIE_ARCHIVE}" | cut -d/ -f1 | sort -u | tr '\n' ' ') && \
-    test "$JUNIE_TOP_LEVEL" = "junie junie-app shim " && \
+    test "$JUNIE_TOP_LEVEL" = "channel junie junie-app shim " && \
     unzip -q "/tmp/${JUNIE_ARCHIVE}" 'junie-app/*' -d "$JUNIE_STAGING" && \
     test -x "$JUNIE_STAGING/junie-app/bin/junie" && \
     mv "$JUNIE_STAGING/junie-app" "$JUNIE_TARGET" && \
@@ -357,17 +357,17 @@ USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g opencode-ai@1.18.4; \
+    npm i -g opencode-ai@1.18.9; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.81.0; \
+    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.82.1; \
     fi
 
 ARG CLOUDCLI_VERSION=1.36.3
 ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea
 COPY vendor/artifacts/${CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT} /tmp/vendor/cloudcli-ai-cloudcli.tgz
 COPY vendor/artifacts/cloudcli-account-management.manifest.json /tmp/vendor/cloudcli-account-management.manifest.json
 COPY --chown=claude:claude vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json /tmp/vendor/web-terminal-package-lock.json

@@ -168,7 +168,7 @@ http://localhost:3001
 | **개발 도구** | 50개 이상 도구, 바로 사용 | 한 시간 동안 `apt-get install` / `npm i -g` / `pip install` |
 | **프로세스 관리** | s6-overlay (자동 재시작, 정상 종료) | supervisord 설정 직접 작성 또는 Docker restart 믿기 |
 | **영속성** | 바인드 마운트된 도구 구성과 workspace는 재빌드 후에도 유지됨 | Docker 볼륨 파악, "왜 파일이 아닌 디렉터리인가" 디버깅 |
-| **업데이트** | `docker pull && docker compose up -d` | 50개 도구 수동 업데이트, 아무것도 깨지지 않길 기도 |
+| **업데이트** | `docker compose pull && docker compose up -d` | 50개 도구 수동 업데이트, 아무것도 깨지지 않길 기도 |
 | **멀티 아키텍처** | AMD64 + ARM64 | Dockerfile이 ARM에서 빌드되길 기도 |
 
 **모든 수동 설정의 마지막 줄은 "내 컴퓨터에서는 됩니다."** HolyClaude는 모든 컴퓨터에서 됩니다.
@@ -299,7 +299,7 @@ docker compose up -d
 
 **설정은 이게 전부입니다. 완료되었습니다.**
 
-> **왜 이런 브라우저 권한인가요?** 이번 릴리스는 HolyClaude의 현재 브라우저 프로필을 유지합니다. `SYS_ADMIN`과 `seccomp=unconfined`는 프로세스 권한을 넓히고 격리를 약화시키며, `SYS_PTRACE`는 디버깅용입니다. v1.5.3에서는 이 프로필을 그대로 유지하고, 하드닝은 별도 변경으로 다루세요.
+> **왜 이런 브라우저 권한인가요?** 이번 릴리스는 HolyClaude의 현재 브라우저 프로필을 유지합니다. `SYS_ADMIN`과 `seccomp=unconfined`는 프로세스 권한을 넓히고 격리를 약화시키며, `SYS_PTRACE`는 디버깅용입니다. v1.5.4에서는 이 프로필을 그대로 유지하고, 하드닝은 별도 변경으로 다루세요.
 
 > **왜 `shm_size: 2g`인가요?** Docker는 기본으로 공유 메모리 64MB만 줍니다. HolyClaude는 이번 릴리스의 유지된 기본값으로 2GB를 둡니다. Chromium이 탭 렌더링에 `/dev/shm`을 많이 쓰기 때문입니다. 64MB에서는 탭이 깨집니다. 브라우저 사용이 많으면 4GB로 올리세요.
 
@@ -809,6 +809,11 @@ volumes:
 
 HolyClaude는 CloudCLI가 시작되기 전에 이 디렉터리를 준비합니다. 새 Docker volume은 `claude:claude` 소유권을 상속하고, 기존 로컬 volume은 일반 root 시작 시 `PUID`/`PGID`에 맞게 수정됩니다. Mount가 읽기 전용이거나 수정할 수 없으면 `unable to open database file`을 반복하는 대신 경로와 UID/GID를 표시하고 시작을 중단합니다. Rootless Podman에서는 제공된 keep-id Compose 파일과 `:Z`를 사용하세요. `:U`는 호스트 소유권을 다시 쓰므로 기본값이 아닙니다.
 
+```bash
+mkdir -p data/claude data/cloudcli workspace
+podman compose -f docker-compose.podman-rootless.yaml up -d
+```
+
 > **`./data/cloudcli`를 네트워크 공유(NAS, SMB/CIFS, NFS)에 bind-mount하지 마세요.** CloudCLI는 계정을 SQLite에 저장하는데, SQLite의 파일 잠금은 네트워크 마운트에서 작동하지 않습니다. `database is locked` 오류가 계속 발생합니다. Named volume은 Docker 엔진의 로컬 파일시스템에 존재하기 때문에 작동합니다 — NAS를 가리키는 bind mount는 작동하지 않습니다.
 
 로컬 SSD 경로로의 bind mount도 괜찮습니다. 네트워크 공유만 피하면 됩니다.
@@ -943,7 +948,7 @@ docker compose up -d
 `latest` 대신 특정 버전을 고정하려면:
 
 ```yaml
-image: coderluii/holyclaude:1.5.3   # instead of :latest
+image: coderluii/holyclaude:1.5.4   # instead of :latest
 ```
 
 <p align="right">

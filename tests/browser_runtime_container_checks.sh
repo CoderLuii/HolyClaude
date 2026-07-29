@@ -166,16 +166,16 @@ const inventory = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const variant = process.argv[3];
 const common = {
   '@cloudcli-ai/cloudcli': '1.36.3',
-  '@google/gemini-cli': '0.51.0',
-  '@openai/codex': '0.144.6',
-  concurrently: '10.0.3',
+  '@google/gemini-cli': '0.53.0',
+  '@openai/codex': '0.146.0',
+  concurrently: '10.0.4',
   'dotenv-cli': '11.0.0',
   esbuild: '0.28.1',
-  eslint: '10.7.0',
+  eslint: '10.8.0',
   nodemon: '3.1.14',
   npm: '11.18.0',
   playwright: '1.61.0',
-  pnpm: '11.15.1',
+  pnpm: '11.18.0',
   prettier: '3.9.6',
   serve: '14.2.6',
   'task-master-ai': '0.43.1',
@@ -185,7 +185,7 @@ const common = {
 };
 const full = {
   '@cloudflare/next-on-pages': '1.13.16',
-  '@earendil-works/pi-coding-agent': '0.81.0',
+  '@earendil-works/pi-coding-agent': '0.82.1',
   '@lhci/cli': '0.15.1',
   '@marp-team/marp-cli': '4.5.0',
   'drizzle-kit': '0.31.10',
@@ -194,12 +194,12 @@ const full = {
   'json-server': '1.0.0-beta.15',
   lighthouse: '13.4.1',
   'netlify-cli': '26.2.0',
-  'opencode-ai': '1.18.4',
+  'opencode-ai': '1.18.9',
   pm2: '7.0.3',
-  prisma: '7.9.0',
+  prisma: '7.9.1',
   'sharp-cli': '5.2.0',
   vercel: '54.21.1',
-  wrangler: '4.112.0',
+  wrangler: '4.115.0',
 };
 const expected = variant === 'full' ? { ...common, ...full } : common;
 const actual = Object.fromEntries(
@@ -228,7 +228,7 @@ common = {
     'markdown': '3.10.2',
     'numpy': '2.4.6',
     'openpyxl': '3.1.5',
-    'pandas': '3.0.3',
+    'pandas': '3.0.5',
     'pillow': '12.3.0',
     'playwright': '1.61.0',
     'python-docx': '1.2.0',
@@ -237,13 +237,13 @@ common = {
     'requests': '2.34.2',
     'rich': '15.0.0',
     'stevedore': '5.9.0',
-    'tqdm': '4.69.0',
+    'tqdm': '4.70.0',
     'tree-sitter': '0.26.0',
     'tree-sitter-language-pack': '1.6.2',
 }
 full = {
     'cairosvg': '2.9.0',
-    'fastapi': '0.139.2',
+    'fastapi': '0.141.1',
     'fpdf2': '2.8.7',
     'img2pdf': '0.6.3',
     'matplotlib': '3.11.1',
@@ -252,7 +252,7 @@ full = {
     'python-pptx': '1.0.2',
     'reportlab': '5.0.0',
     'seaborn': '0.13.2',
-    'uvicorn': '0.51.0',
+    'uvicorn': '0.52.0',
     'weasyprint': '69.0',
     'xlrd': '2.0.2',
     'xlsxwriter': '3.2.9',
@@ -286,38 +286,38 @@ assert_runtime_identity() {
   require_eq "CloudCLI package version" "$cloudcli_package_version" "1.36.3"
   require_eq "Node version" "$(node --version)" "v26.5.0"
   require_eq "npm version" "$(npm --version)" "11.18.0"
-  require_eq "pnpm version" "$(pnpm --version)" "11.15.1"
+  require_eq "pnpm version" "$(pnpm --version)" "11.18.0"
   require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.1.5"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.6"
-  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.144.6"
-  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.51.0"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.146.0"
+  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.53.0"
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.6.2"
-  require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.69.0"
+  require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.1"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.216"
-  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.17-3e2a980"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.220"
+  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.23-e383d2b"
   if [ "$VARIANT" = "full" ]; then
-    require_eq "EAS tar package version" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/tar/package.json').version")" "7.5.20"
-    require_eq "EAS tar dependency" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/package.json').dependencies.tar")" "7.5.20"
-    require_eq "Vercel tar package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/tar/package.json').version")" "7.5.20"
-    require_eq "Vercel tar dependency" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/package.json').dependencies.tar")" "7.5.20"
+    require_eq "EAS tar package version" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/tar/package.json').version")" "7.5.22"
+    require_eq "EAS tar dependency" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/package.json').dependencies.tar")" "7.5.22"
+    require_eq "Vercel tar package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/tar/package.json').version")" "7.5.22"
+    require_eq "Vercel tar dependency" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/package.json').dependencies.tar")" "7.5.22"
     node -e "for (const path of ['/usr/local/lib/node_modules/eas-cli/node_modules/tar', '/usr/local/lib/node_modules/vercel/node_modules/tar']) { if (typeof require(path).list !== 'function') throw new Error('invalid tar module at ' + path); }"
     eas --version >/dev/null
     vercel --version >/dev/null
-    evidence "Node tar security overlay=7.5.20 eas=ok vercel=ok"
+    evidence "Node tar security overlay=7.5.22 eas=ok vercel=ok"
     require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "26.2.0"
     netlify --version >/dev/null
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-x64/bin/local-functions-proxy"
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-arm64/bin/local-functions-proxy"
-    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.112.0"
-    require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.9.0"
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.115.0"
+    require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.9.1"
     require_eq "Lighthouse package version" "$(node -p "require('/usr/local/lib/node_modules/lighthouse/package.json').version")" "13.4.1"
     require_eq "Marp CLI package version" "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/package.json').version")" "4.5.0"
-    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.4"
-    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.81.0"
+    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.9"
+    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.82.1"
     require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.1"
-    require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.139.2"
-    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "2285.5"
+    require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.141.1"
+    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "2470.4"
   else
     test ! -e /usr/local/lib/node_modules/wrangler
     test ! -e /usr/local/lib/node_modules/prisma
@@ -333,6 +333,163 @@ assert_runtime_identity() {
   evidence "chromium_path=/usr/bin/chromium chrome_path=$CHROME_PATH puppeteer_path=$PUPPETEER_EXECUTABLE_PATH"
   evidence "chromium_version=$(/usr/bin/chromium --version)"
   evidence "cloudcli_version=$cloudcli_version package=$cloudcli_package_version"
+}
+
+assert_cloudcli_security_dependencies() {
+  node --input-type=module <<'NODE'
+import assert from 'node:assert/strict';
+import { once } from 'node:events';
+import { readFileSync } from 'node:fs';
+import http from 'node:http';
+import net from 'node:net';
+import { createRequire } from 'node:module';
+
+const cloudcliRoot = '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli';
+const require = createRequire(`${cloudcliRoot}/package.json`);
+const multer = require('multer');
+const WebSocket = require('ws');
+const { WebSocketServer } = WebSocket;
+
+function packageVersion(name) {
+  return JSON.parse(readFileSync(`${cloudcliRoot}/node_modules/${name}/package.json`, 'utf8')).version;
+}
+
+function listen(server) {
+  return new Promise((resolve, reject) => {
+    const onError = (error) => reject(error);
+    server.once('error', onError);
+    server.listen(0, '127.0.0.1', () => {
+      server.off('error', onError);
+      resolve(server.address().port);
+    });
+  });
+}
+
+function close(server) {
+  return new Promise((resolve, reject) => {
+    server.close((error) => error ? reject(error) : resolve());
+  });
+}
+
+assert.equal(packageVersion('multer'), '2.2.0');
+assert.equal(packageVersion('ws'), '8.21.1');
+assert.equal(packageVersion('dompurify'), '3.4.12');
+assert.equal(packageVersion('path-to-regexp'), '0.1.13');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 1024,
+    fieldNestingDepth: 0,
+  },
+});
+let abortedUploadObserved = false;
+const uploadServer = http.createServer((request, response) => {
+  if (request.url === '/nested') {
+    upload.none()(request, response, (error) => {
+      const code = error?.code ?? 'NO_ERROR';
+      response.statusCode = code === 'LIMIT_FIELD_NESTING' ? 422 : 500;
+      response.end(code);
+    });
+    return;
+  }
+
+  request.once('aborted', () => {
+    abortedUploadObserved = true;
+  });
+  upload.single('file')(request, response, (error) => {
+    if (!response.destroyed && !response.writableEnded) {
+      response.statusCode = error ? 400 : 204;
+      response.end(error?.code ?? '');
+    }
+  });
+});
+const uploadPort = await listen(uploadServer);
+try {
+  const nestedForm = new FormData();
+  nestedForm.set('nested[value]', 'blocked');
+  const nestedResponse = await fetch(`http://127.0.0.1:${uploadPort}/nested`, {
+    method: 'POST',
+    body: nestedForm,
+  });
+  assert.equal(nestedResponse.status, 422);
+  assert.equal(await nestedResponse.text(), 'LIMIT_FIELD_NESTING');
+
+  await new Promise((resolve, reject) => {
+    const socket = net.createConnection({ host: '127.0.0.1', port: uploadPort }, () => {
+      const boundary = 'holyclaude-aborted-upload';
+      const partialBody = [
+        `--${boundary}`,
+        'Content-Disposition: form-data; name="file"; filename="partial.txt"',
+        'Content-Type: text/plain',
+        '',
+        'partial',
+      ].join('\r\n');
+      socket.write([
+        'POST /aborted HTTP/1.1',
+        `Host: 127.0.0.1:${uploadPort}`,
+        `Content-Type: multipart/form-data; boundary=${boundary}`,
+        `Content-Length: ${Buffer.byteLength(partialBody) + 4096}`,
+        'Connection: close',
+        '',
+        partialBody,
+      ].join('\r\n'));
+      setTimeout(() => socket.destroy(), 20);
+    });
+    socket.once('error', (error) => {
+      if (error.code !== 'ECONNRESET') reject(error);
+    });
+    socket.once('close', resolve);
+  });
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  assert.equal(abortedUploadObserved, true);
+  assert.equal(uploadServer.listening, true);
+} finally {
+  await close(uploadServer);
+}
+
+const webSocketServer = new WebSocketServer({
+  host: '127.0.0.1',
+  port: 0,
+  maxBufferedChunks: 8,
+  maxFragments: 2,
+});
+webSocketServer.on('connection', (socket) => {
+  socket.on('error', () => {});
+  socket.on('message', (message) => socket.send(message));
+});
+await once(webSocketServer, 'listening');
+const webSocketPort = webSocketServer.address().port;
+try {
+  const client = new WebSocket(`ws://127.0.0.1:${webSocketPort}`);
+  await once(client, 'open');
+  const message = once(client, 'message');
+  client.send('hel', { fin: false });
+  client.send('lo', { fin: true });
+  assert.equal((await message)[0].toString(), 'hello');
+  const clientClosed = once(client, 'close');
+  client.close();
+  await clientClosed;
+
+  const limitedClient = new WebSocket(`ws://127.0.0.1:${webSocketPort}`);
+  limitedClient.on('error', () => {});
+  await once(limitedClient, 'open');
+  const limitedClientClosed = new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('fragment limit did not close the connection')), 5000);
+    limitedClient.once('close', (code) => {
+      clearTimeout(timeout);
+      resolve(code);
+    });
+  });
+  limitedClient.send('x', { fin: false });
+  limitedClient.send('', { fin: false });
+  limitedClient.send('y', { fin: true });
+  assert.equal(await limitedClientClosed, 1008);
+} finally {
+  await close(webSocketServer);
+}
+NODE
+  evidence "cloudcli_security_dependencies=ok"
 }
 
 assert_direct_chromium() {
@@ -627,6 +784,7 @@ NODE
 }
 
 assert_runtime_identity
+assert_cloudcli_security_dependencies
 start_sentinel
 snapshot_browser_tree "$SENTINEL_ROOT/browser-tree-before.txt"
 assert_direct_package_inventories

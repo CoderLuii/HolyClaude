@@ -1,7 +1,7 @@
 Dockerfile text eol=lf
 *.sh text eol=lf
 *.py text eol=lf
-*.patch text eol=lf
+*.patch text eol=lf whitespace=-blank-at-eol
 contracts/*.json text eol=lf
 vendor/artifacts/*.json text eol=lf
 scripts/holyclaude-mosh-server text eol=lf

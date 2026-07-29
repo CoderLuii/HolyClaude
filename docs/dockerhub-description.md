@@ -95,7 +95,14 @@ The default Compose files store Claude Code session data in the bind-mounted `./
 | `HOLYCLAUDE_SSH_ENABLE` | Optional key-only SSH service | `false` |
 | `HOLYCLAUDE_MOSH_ENABLE` | Optional Mosh UDP session support | `false` |
 
-For rootless Podman on SELinux hosts, create `data/claude` and `workspace` first, then use `docker-compose.podman-rootless.yaml`. It uses `userns_mode: "keep-id:uid=1000,gid=1000"` and `:Z` labels so host and container edits to `/workspace` stay under the same user. Do not add `:U` to `/workspace` unless you want Podman to rewrite host ownership for the container namespace.
+For rootless Podman on SELinux hosts, prepare every bind-mounted directory and use the rootless Compose file:
+
+```bash
+mkdir -p data/claude data/cloudcli workspace
+podman compose -f docker-compose.podman-rootless.yaml up -d
+```
+
+The profile uses `userns_mode: "keep-id:uid=1000,gid=1000"` and `:Z` labels so host and container edits to `/workspace` stay under the same user. Do not add `:U` to `/workspace` unless you want Podman to rewrite host ownership for the container namespace.
 
 ## Reverse Proxy Subpaths
 

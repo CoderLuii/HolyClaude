@@ -1,15 +1,3 @@
-diff --git a/package.json b/package.json
-index 39bba9ecfed8c96b2d0810cfe7dc2dcc08ebdf60..a601c33f4d4c044ae49b57c1ba958b45deb15a81 100644
---- a/package.json
-+++ b/package.json
-@@ -16,6 +16,7 @@
-     "dist/",
-     "dist-server/",
-     "scripts/",
-+    "npm-shrinkwrap.json",
-     "README.md"
-   ],
-   "homepage": "https://cloudcli.ai",
 diff --git a/server/middleware/auth.js b/server/middleware/auth.js
 index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a584bb1943f 100644
 --- a/server/middleware/auth.js
@@ -17,12 +5,12 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
 @@ -2,9 +2,21 @@ import jwt from 'jsonwebtoken';
  import { userDb, appConfigDb } from '../modules/database/index.js';
  import { IS_PLATFORM } from '../constants/config.js';
-
+ 
 +const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
 +
  // Use env var if set, otherwise auto-generate a unique secret per installation
  const JWT_SECRET = process.env.JWT_SECRET || appConfigDb.getOrCreateJwtSecret();
-
+ 
 +const getCurrentAuthTokenGeneration = () => appConfigDb.getStrict(AUTH_TOKEN_GENERATION_KEY);
 +
 +const isTokenGenerationValid = (decoded) => {
@@ -39,7 +27,7 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
 @@ -52,6 +64,10 @@ const authenticateToken = async (req, res, next) => {
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
-
+ 
 +    if (!isTokenGenerationValid(decoded)) {
 +      return res.status(401).json({ error: 'Invalid token. Please sign in again.' });
 +    }
@@ -48,7 +36,7 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
 @@ -78,14 +94,16 @@ const authenticateToken = async (req, res, next) => {
-
+ 
  // Generate JWT token
  const generateToken = (user) => {
 -  return jwt.sign(
@@ -70,10 +58,10 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
 +
 +  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
  };
-
+ 
  // WebSocket authentication function
 @@ -111,6 +129,10 @@ const authenticateWebSocket = (token) => {
-
+ 
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
 +    if (!isTokenGenerationValid(decoded)) {
@@ -90,7 +78,7 @@ index 691a1b4eb2721c1c983d41b4d5b272df1e170f62..e929b35629d6a3566a1abff00b43b5d9
 @@ -29,6 +29,15 @@ export const appConfigDb = {
      }
    },
-
+ 
 +  /** Returns a stored value and lets database errors fail the caller. */
 +  getStrict(key: string): string | null {
 +    const db = getConnection();
@@ -110,7 +98,7 @@ index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6
 @@ -66,6 +66,22 @@ export const userDb = {
        .get(username) as UserRow | undefined;
    },
-
+ 
 +  /** Returns the full active user row by ID for authenticated credential checks. */
 +  getUserAuthById(userId: number): UserRow | undefined {
 +    const db = getConnection();
@@ -131,7 +119,7 @@ index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6
    updateLastLogin(userId: number): void {
      try {
 diff --git a/server/routes/auth.js b/server/routes/auth.js
-index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..0dcafdf2990d071ffa228797d0221d4d2eb54a8a 100644
+index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..26c9bb943a8e3d1e31cab8af9af6be325d9486ca 100644
 --- a/server/routes/auth.js
 +++ b/server/routes/auth.js
 @@ -1,11 +1,15 @@
@@ -143,22 +131,31 @@ index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..0dcafdf2990d071ffa228797d0221d4d
  import { getConnection } from '../modules/database/connection.js';
 +import { IS_PLATFORM } from '../constants/config.js';
  import { generateToken, authenticateToken } from '../middleware/auth.js';
-
+ 
  const router = express.Router();
  const db = getConnection();
 +const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
 +const PASSWORD_MIN_LENGTH = 6;
-
+ 
  // Check auth status and setup requirements
  router.get('/status', async (req, res) => {
-@@ -35,2 +39,2 @@ router.post('/register', async (req, res) => {
+@@ -31,8 +35,10 @@ router.post('/register', async (req, res) => {
+       return res.status(400).json({ error: 'Username and password are required' });
+     }
+     
 -    if (username.length < 3 || password.length < 6) {
+-      return res.status(400).json({ error: 'Username must be at least 3 characters, password at least 6 characters' });
 +    if (username.length < 3 || password.length < PASSWORD_MIN_LENGTH) {
-       return res.status(400).json({ error: 'Username must be at least 3 characters, password at least 6 characters' });
-@@ -127,6 +131,54 @@ router.get('/user', authenticateToken, (req, res) => {
++      return res.status(400).json({
++        error: `Username must be at least 3 characters, password at least ${PASSWORD_MIN_LENGTH} characters`,
++      });
+     }
+     
+     // Use a transaction to prevent race conditions
+@@ -127,6 +133,56 @@ router.get('/user', authenticateToken, (req, res) => {
    });
  });
-
+ 
 +// HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE: local account password rotation.
 +// Change the local account password and invalidate older session tokens.
 +router.post('/change-password', authenticateToken, async (req, res) => {
@@ -174,7 +171,9 @@ index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..0dcafdf2990d071ffa228797d0221d4d
 +    }
 +
 +    if (newPassword.length < PASSWORD_MIN_LENGTH) {
-+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
++      return res.status(400).json({
++        error: `New password must be at least ${PASSWORD_MIN_LENGTH} characters`,
++      });
 +    }
 +
 +    const user = userDb.getUserAuthById(req.user.id);
@@ -225,7 +224,7 @@ index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f3
 @@ -191,6 +192,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
      }
    }, [clearSession, token]);
-
+ 
 +  const changePassword = useCallback<AuthContextValue['changePassword']>(
 +    async (currentPassword, newPassword) => {
 +      try {
@@ -277,7 +276,7 @@ index e745a3727fee890991bd2aa70b0ead71533499fb..a9b151563655db4bbf489c9156f52d36
 +  changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
    refreshOnboardingStatus: () => Promise<void>;
  };
-
+ 
 diff --git a/src/components/settings/constants/constants.ts b/src/components/settings/constants/constants.ts
 index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057eecf8e1b 100644
 --- a/src/components/settings/constants/constants.ts
@@ -292,12 +291,60 @@ index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057
    KeyRound,
 @@ -28,6 +29,7 @@ export type SettingsMainTabMeta = {
  };
-
+ 
  export const SETTINGS_MAIN_TABS: SettingsMainTabMeta[] = [
 +  { id: 'account', label: 'Account', keywords: 'account password logout sign out local user', icon: CircleUserRound },
    { id: 'agents', label: 'Agents', keywords: 'agents subagents claude code', icon: Bot },
    { id: 'appearance', label: 'Appearance', keywords: 'appearance theme dark light language', icon: Palette },
    { id: 'git', label: 'Git', keywords: 'git github commits', icon: GitBranch },
+diff --git a/src/components/settings/hooks/normalizeMainTab.ts b/src/components/settings/hooks/normalizeMainTab.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..44ef3d105e0a2ec9d99d3d562e4ae06d6ae1cdc9
+--- /dev/null
++++ b/src/components/settings/hooks/normalizeMainTab.ts
+@@ -0,0 +1,12 @@
++import type { SettingsMainTab } from '../types/types';
++
++const KNOWN_MAIN_TABS: SettingsMainTab[] = ['agents', 'appearance', 'git', 'api', 'tasks', 'browser', 'notifications', 'plugins', 'account', 'voice', 'about'];
++
++export const normalizeMainTab = (tab: string): SettingsMainTab => {
++  // Keep backwards compatibility with older callers that still pass "tools".
++  if (tab === 'tools') {
++    return 'agents';
++  }
++
++  return KNOWN_MAIN_TABS.includes(tab as SettingsMainTab) ? (tab as SettingsMainTab) : 'agents';
++};
+diff --git a/src/components/settings/hooks/useSettingsController.ts b/src/components/settings/hooks/useSettingsController.ts
+index cc57d377321fe9fdca0d1754e6780eca23790e04..ac312b918e3ff59b74bcc7029fa797c17f222465 100644
+--- a/src/components/settings/hooks/useSettingsController.ts
++++ b/src/components/settings/hooks/useSettingsController.ts
+@@ -8,6 +8,7 @@ import {
+   DEFAULT_CODE_EDITOR_SETTINGS,
+   DEFAULT_CURSOR_PERMISSIONS,
+ } from '../constants/constants';
++import { normalizeMainTab } from './normalizeMainTab';
+ import type {
+   AgentProvider,
+   ClaudePermissionsState,
+@@ -53,17 +54,6 @@ type NotificationPreferencesResponse = {
+ 
+ type ActiveLoginProvider = AgentProvider | '';
+ 
+-const KNOWN_MAIN_TABS: SettingsMainTab[] = ['agents', 'appearance', 'git', 'api', 'tasks', 'browser', 'notifications', 'plugins', 'about'];
+-
+-const normalizeMainTab = (tab: string): SettingsMainTab => {
+-  // Keep backwards compatibility with older callers that still pass "tools".
+-  if (tab === 'tools') {
+-    return 'agents';
+-  }
+-
+-  return KNOWN_MAIN_TABS.includes(tab as SettingsMainTab) ? (tab as SettingsMainTab) : 'agents';
+-};
+-
+ const parseJson = <T>(value: string | null, fallback: T): T => {
+   if (!value) {
+     return fallback;
 diff --git a/src/components/settings/types/types.ts b/src/components/settings/types/types.ts
 index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5ce8243158 100644
 --- a/src/components/settings/types/types.ts
@@ -305,7 +352,7 @@ index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5c
 @@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
  import type { LLMProvider } from '../../../types/app';
  import type { ProviderAuthStatus } from '../../provider-auth/types';
-
+ 
 -export type SettingsMainTab = 'agents' | 'appearance' | 'git' | 'api' | 'voice' | 'tasks' | 'browser' | 'notifications' | 'plugins' | 'about';
 +export type SettingsMainTab = 'account' | 'agents' | 'appearance' | 'git' | 'api' | 'voice' | 'tasks' | 'browser' | 'notifications' | 'plugins' | 'about';
  export type AgentProvider = LLMProvider;
@@ -341,10 +388,10 @@ index 5c15f6de91b2d12acebbe163e18c35df4ae3dad0..269a5d8d89eebd42a0cdbc4137256b6a
 +import { CircleUserRound, GitBranch, Info, Key, Puzzle } from 'lucide-react';
  import { useTranslation } from 'react-i18next';
  import type { SettingsMainTab } from '../types/types';
-
+ 
 @@ -15,6 +15,7 @@ type MainTabConfig = {
  };
-
+ 
  const TAB_CONFIG: MainTabConfig[] = [
 +  { id: 'account', label: 'Account', icon: CircleUserRound },
    { id: 'agents', labelKey: 'mainTabs.agents' },
@@ -358,10 +405,10 @@ index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65
 -import { Bell, Bot, GitBranch, Info, Key, ListChecks, Mic, MonitorPlay, Palette, Puzzle } from 'lucide-react';
 +import { Bell, Bot, CircleUserRound, GitBranch, Info, Key, ListChecks, Mic, MonitorPlay, Palette, Puzzle } from 'lucide-react';
  import { useTranslation } from 'react-i18next';
-
+ 
  import { cn } from '../../../lib/utils';
 @@ -12,11 +12,13 @@ type SettingsSidebarProps = {
-
+ 
  type NavItem = {
    id: SettingsMainTab;
 -  labelKey: string;
@@ -369,7 +416,7 @@ index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65
 +  label?: string;
    icon: typeof Bot;
  };
-
+ 
  const NAV_ITEMS: NavItem[] = [
 +  { id: 'account', label: 'Account', icon: CircleUserRound },
    { id: 'agents', labelKey: 'mainTabs.agents', icon: Bot },
@@ -395,10 +442,10 @@ index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65
            })}
 diff --git a/src/components/settings/view/tabs/AccountSettingsTab.tsx b/src/components/settings/view/tabs/AccountSettingsTab.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..59818afa7f66b10cddd76ed455d833a0912d59c3
+index 0000000000000000000000000000000000000000..f75c8284222e172f91834f434f847ddc732a2e0b
 --- /dev/null
 +++ b/src/components/settings/view/tabs/AccountSettingsTab.tsx
-@@ -0,0 +1,171 @@
+@@ -0,0 +1,155 @@
 +import { useCallback, useState } from 'react';
 +import type { FormEvent } from 'react';
 +import { Loader2, LogOut } from 'lucide-react';
@@ -408,34 +455,14 @@ index 0000000000000000000000000000000000000000..59818afa7f66b10cddd76ed455d833a0
 +import { Button, Input } from '../../../../shared/view/ui';
 +import SettingsCard from '../SettingsCard';
 +import SettingsSection from '../SettingsSection';
-+
-+type PasswordFormState = {
-+  currentPassword: string;
-+  newPassword: string;
-+  confirmPassword: string;
-+};
++import { validatePasswordForm } from './accountSettings';
++import type { PasswordFormState } from './accountSettings';
 +
 +const initialPasswordFormState: PasswordFormState = {
 +  currentPassword: '',
 +  newPassword: '',
 +  confirmPassword: '',
 +};
-+
-+function validatePasswordForm(formState: PasswordFormState): string | null {
-+  if (!formState.currentPassword || !formState.newPassword || !formState.confirmPassword) {
-+    return 'Fill in all password fields.';
-+  }
-+
-+  if (formState.newPassword.length < 6) {
-+    return 'New password must be at least 6 characters.';
-+  }
-+
-+  if (formState.newPassword !== formState.confirmPassword) {
-+    return 'New passwords do not match.';
-+  }
-+
-+  return null;
-+}
 +
 +export default function AccountSettingsTab() {
 +  const { user, logout, changePassword } = useAuth();
@@ -459,15 +486,19 @@ index 0000000000000000000000000000000000000000..59818afa7f66b10cddd76ed455d833a0
 +      }
 +
 +      setIsSaving(true);
-+      const result = await changePassword(passwordForm.currentPassword, passwordForm.newPassword);
-+      if (!result.success) {
-+        setError(result.error);
-+        setIsSaving(false);
-+        return;
-+      }
++      try {
++        const result = await changePassword(passwordForm.currentPassword, passwordForm.newPassword);
++        if (!result.success) {
++          setError(result.error);
++          return;
++        }
 +
-+      setPasswordForm(initialPasswordFormState);
-+      setIsSaving(false);
++        setPasswordForm(initialPasswordFormState);
++      } catch {
++        setError('Unable to change password. Please try again.');
++      } finally {
++        setIsSaving(false);
++      }
 +    },
 +    [changePassword, passwordForm],
 +  );
@@ -552,7 +583,7 @@ index 0000000000000000000000000000000000000000..59818afa7f66b10cddd76ed455d833a0
 +                  </div>
 +
 +                  {error && (
-+                    <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">
++                    <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">
 +                      {error}
 +                    </div>
 +                  )}
@@ -570,6 +601,35 @@ index 0000000000000000000000000000000000000000..59818afa7f66b10cddd76ed455d833a0
 +    </div>
 +  );
 +}
+diff --git a/src/components/settings/view/tabs/accountSettings.ts b/src/components/settings/view/tabs/accountSettings.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..6344e9631e7daf284b505d8574e3c6ab1fe1780a
+--- /dev/null
++++ b/src/components/settings/view/tabs/accountSettings.ts
+@@ -0,0 +1,23 @@
++export type PasswordFormState = {
++  currentPassword: string;
++  newPassword: string;
++  confirmPassword: string;
++};
++
++const PASSWORD_MIN_LENGTH = 6;
++
++export function validatePasswordForm(formState: PasswordFormState): string | null {
++  if (!formState.currentPassword || !formState.newPassword || !formState.confirmPassword) {
++    return 'Fill in all password fields.';
++  }
++
++  if (formState.newPassword.length < PASSWORD_MIN_LENGTH) {
++    return `New password must be at least ${PASSWORD_MIN_LENGTH} characters.`;
++  }
++
++  if (formState.newPassword !== formState.confirmPassword) {
++    return 'New passwords do not match.';
++  }
++
++  return null;
++}
 diff --git a/src/utils/api.js b/src/utils/api.js
 index e5eb3fbcd4bd8545af1aca11bcc15375a6153422..7532dce7f302870081a8e7d964a36934d3949e5a 100644
 --- a/src/utils/api.js
@@ -583,5 +643,5 @@ index e5eb3fbcd4bd8545af1aca11bcc15375a6153422..7532dce7f302870081a8e7d964a36934
 +      body: JSON.stringify({ currentPassword, newPassword }),
 +    }),
    },
-
+ 
    // Protected endpoints

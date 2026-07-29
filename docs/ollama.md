@@ -35,7 +35,7 @@ services:
 Start the container:
 
 ```bash
-docker compose up -d
+docker compose -f docker-compose.full.yaml up -d
 ```
 
 ## Selecting a Model
@@ -90,7 +90,12 @@ Local model usage is always unlimited on all plans.
 If you previously used HolyClaude with an Anthropic subscription and want to switch to Ollama:
 
 1. Add the `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_BASE_URL` environment variables to your compose file
-2. Restart: `docker compose down && docker compose up -d`
+2. Restart with the same Compose file:
+
+   ```bash
+   docker compose -f docker-compose.full.yaml down
+   docker compose -f docker-compose.full.yaml up -d
+   ```
 
 No data deletion is needed. The environment variables override previous authentication.
 

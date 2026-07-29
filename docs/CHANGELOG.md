@@ -4,6 +4,21 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.4] - 07/30/2026
+
+### Changed
+- Updated Claude Code to 2.1.220, Junie to 2470.4, Cursor Agent to build `2026.07.23-e383d2b`, Gemini CLI to 0.53.0, Codex to 0.146.0, OpenCode to 1.18.9, and Pi Coding Agent to 0.82.1.
+- Updated pnpm to 11.18.0, ESLint to 10.8.0, concurrently to 10.0.4, Wrangler to 4.115.0, Prisma to 7.9.1, pandas to 3.0.5, tqdm to 4.70.0, FastAPI to 0.141.1, and Uvicorn to 0.52.0.
+- Updated the npm `tar` security overlay to 7.5.22, Syft to 1.50.0, Grype to 0.116.1, actionlint to 1.7.12, and `docker/login-action` to 4.6.0 at an immutable commit.
+- Updated the rootless Podman, Ollama, contribution, troubleshooting, configuration, architecture, translated README, Docker Hub, and security guidance to match the release inputs and compose files.
+
+### Fixed
+- Rebuilt CloudCLI 1.36.3 with reviewed `ws`, `multer`, DOMPurify, Express, and `path-to-regexp` resolutions, flat multipart-field limits, normalized registry URLs, and reproducible artifact checks.
+- Refreshed the CloudCLI 1.36.3 account-management bridge while preserving password rotation, token revocation, account navigation, and accessible error handling.
+- Bound release security evidence to both Docker Hub and GHCR products and retained complete digest-bound evidence from the tag workflow.
+- Added exact image-level checks for CloudCLI upload limits, aborted uploads, WebSocket fragmentation, security dependency versions, and full/slim package separation.
+- Bound release refs to dated changelog entries and product facts, rejected merge-based release commits, and kept rollback reporting accurate when promotion stops before mutable aliases move.
+
 ## [1.5.3] - 07/23/2026
 
 ### Changed

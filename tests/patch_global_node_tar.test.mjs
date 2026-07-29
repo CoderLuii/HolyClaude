@@ -46,7 +46,7 @@ function installReplacement(root) {
     join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'),
     join(lib, 'vercel', 'node_modules', 'tar', 'package.json'),
   ]) {
-    writeJson(path, { name: 'tar', version: '7.5.20' });
+    writeJson(path, { name: 'tar', version: '7.5.22' });
   }
 }
 
@@ -72,8 +72,8 @@ test('patches only the verified EAS and Vercel tar dependency specs', () => {
   const vercelFun = JSON.parse(
     readFileSync(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json')),
   );
-  assert.equal(eas.dependencies.tar, '7.5.20');
-  assert.equal(vercelFun.dependencies.tar, '7.5.20');
+  assert.equal(eas.dependencies.tar, '7.5.22');
+  assert.equal(vercelFun.dependencies.tar, '7.5.22');
 });
 
 test('accepts an already patched verified tree', () => {
@@ -145,5 +145,5 @@ test('fails closed unless both replacement packages are exact', () => {
 
   const result = run(root);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected tar 7\.5\.20/);
+  assert.match(result.stderr, /expected tar 7\.5\.22/);
 });

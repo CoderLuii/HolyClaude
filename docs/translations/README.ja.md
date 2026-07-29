@@ -168,7 +168,7 @@ http://localhost:3001
 | **開発ツール** | 50 以上のツール、すぐ使える | 次の 1 時間は `apt-get install` / `npm i -g` / `pip install` |
 | **プロセス管理** | s6-overlay（自動再起動、グレースフルシャットダウン） | 独自の supervisord 設定を書くか、Docker の再起動を祈る |
 | **永続化** | バインドマウントされたツール設定と workspace は再ビルド後も保持される | Docker ボリュームを理解し、「なぜファイルじゃなくディレクトリになってるんだ」をデバッグ |
-| **更新** | `docker pull && docker compose up -d` | 50 のツールを手動で更新し、何も壊れないことを祈る |
+| **更新** | `docker compose pull && docker compose up -d` | 50 のツールを手動で更新し、何も壊れないことを祈る |
 | **マルチアーキテクチャ** | AMD64 + ARM64 | Dockerfile が ARM でビルドできることを祈る |
 
 **手動セットアップの最後の行はいつも「自分のマシンでは動く」。** HolyClaude はどのマシンでも動く。
@@ -299,7 +299,7 @@ docker compose up -d
 
 **セットアップはこれだけ。完了。**
 
-> **なぜこのブラウザ権限なのか？** このリリースでは HolyClaude の現在のブラウザ設定をそのまま維持します。`SYS_ADMIN` と `seccomp=unconfined` はプロセス権限を広げて分離を弱め、`SYS_PTRACE` はデバッグ用です。v1.5.3 ではこの設定を維持し、ハードニングは別の変更として扱ってください。
+> **なぜこのブラウザ権限なのか？** このリリースでは HolyClaude の現在のブラウザ設定をそのまま維持します。`SYS_ADMIN` と `seccomp=unconfined` はプロセス権限を広げて分離を弱め、`SYS_PTRACE` はデバッグ用です。v1.5.4 ではこの設定を維持し、ハードニングは別の変更として扱ってください。
 
 > **なぜ `shm_size: 2g` なのか？** Docker の共有メモリは既定で 64MB しかありません。HolyClaude はこのリリースの既定値として 2GB を維持しています。Chromium はタブ描画で `/dev/shm` をかなり使うためです。64MB だとタブが落ちます。ブラウザを多用するなら 4GB に増やしてください。
 
@@ -809,6 +809,11 @@ volumes:
 
 HolyClaude は CloudCLI の起動前にこのディレクトリを準備します。新しい Docker volume は `claude:claude` の所有権を引き継ぎ、既存のローカル volume は通常の root 起動時に `PUID`/`PGID` に修正されます。Mount が読み取り専用または修正不能な場合、`unable to open database file` を繰り返す代わりにパスと UID/GID を表示して起動を停止します。Rootless Podman では付属の keep-id Compose ファイルを `:Z` とともに使用してください。`:U` はホストの所有権を書き換えるため、デフォルトではありません。
 
+```bash
+mkdir -p data/claude data/cloudcli workspace
+podman compose -f docker-compose.podman-rootless.yaml up -d
+```
+
 > **`./data/cloudcli` をネットワーク共有（NAS、SMB/CIFS、NFS）に bind-mount しないこと。** CloudCLI はアカウントを SQLite に保存しており、SQLite のファイルロックはネットワークマウントで壊れる。`database is locked` エラーが頻発する。Named volume は Docker エンジンのローカルファイルシステムに存在するため動作する — NAS を指す bind mount は動かない。
 
 ローカル SSD パスへの bind mount も問題ない。ネットワーク共有さえ避ければ大丈夫だ。
@@ -943,7 +948,7 @@ docker compose up -d
 `latest` の代わりに特定バージョンに固定するには:
 
 ```yaml
-image: coderluii/holyclaude:1.5.3   # instead of :latest
+image: coderluii/holyclaude:1.5.4   # instead of :latest
 ```
 
 <p align="right">

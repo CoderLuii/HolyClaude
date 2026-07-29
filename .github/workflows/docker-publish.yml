@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || github.workflow }}
+run-name: v1.5.4
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.2"
+        default: "1.5.4"
         type: string
   push:
     branches:
@@ -26,12 +26,12 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
-  SYFT_VERSION: 1.49.0
-  GRYPE_VERSION: 0.116.0
-  SYFT_SHA256_AMD64: 7aa2f03ee92739cf643279ba3990548b9925d4e22cae13f46831ee62821147fe
-  SYFT_SHA256_ARM64: c7c32de183c32368de197edba75e8dba7632915f7761bacd55149a9ca7fe0fa4
-  GRYPE_SHA256_AMD64: 40aff724297312f91ea390d003bed8d8651c74cc7f5b26732db80b3a408d2fc5
-  GRYPE_SHA256_ARM64: 7af3eed24f469b0cf3ab5ec4508d9c12f4bb9c2c6be714f32973c7b5d63cb6a5
+  SYFT_VERSION: 1.50.0
+  GRYPE_VERSION: 0.116.1
+  SYFT_SHA256_AMD64: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788
+  SYFT_SHA256_ARM64: 887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86
+  GRYPE_SHA256_AMD64: 0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458
+  GRYPE_SHA256_ARM64: a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d
   SBOM_UTILITY_VERSION: 0.19.2
   SBOM_UTILITY_SHA256_AMD64: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
   SBOM_UTILITY_SHA256_ARM64: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
@@ -82,13 +82,14 @@ jobs:
           fi
           test "$(git log -1 --format=%s)" = "${release}"
           test "$(head -n 1 docs/CHANGELOG.md)" = "# Changelog"
-          grep -Fq "## [${release#v}]" docs/CHANGELOG.md
+          grep -Eq "^## \[${release#v}\] - [0-9]{2}/[0-9]{2}/[0-9]{4}$" docs/CHANGELOG.md
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="58c62362656f7cfa3821b381dc61b40198e5fd2b"
+          baseline="6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"
+          test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.2^{commit}')" = "58c62362656f7cfa3821b381dc61b40198e5fd2b"
+          test "$(git rev-parse 'v1.5.3^{commit}')" = "6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -107,14 +108,14 @@ jobs:
           bash -n scripts/*.sh tests/*.sh
           sh -n scripts/holyclaude-chromium scripts/holyclaude-mosh-server
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
-          node scripts/verify-product-facts.mjs
+          node scripts/verify-product-facts.mjs --release "${{ steps.source.outputs.release }}"
           node --test tests/*.test.mjs
           python3 -m unittest tests/test_notify.py
           git diff --check HEAD^ HEAD
           docker run --rm \
             -v "${GITHUB_WORKSPACE}:/repo" \
             -w /repo \
-            rhysd/actionlint@sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9
+            rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
 
   build-candidate:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v')
@@ -173,13 +174,13 @@ jobs:
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Login to Docker Hub
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -754,13 +755,13 @@ jobs:
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Login to Docker Hub
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -1170,6 +1171,7 @@ jobs:
             promotion/manifests/*.json
             promotion/version-manifests/*.json
             security-revalidation/**/*.json
+            security-evidence/**/*
           if-no-files-found: error
           overwrite: true
           retention-days: 90
@@ -1233,14 +1235,14 @@ jobs:
 
       - name: Login to Docker Hub
         if: matrix.registry == 'dockerhub'
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
         if: matrix.registry == 'ghcr'
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -1308,6 +1310,8 @@ jobs:
 
     steps:
       - name: Download rollback evidence
+        id: rollback-evidence
+        continue-on-error: true
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: rollback-evidence
@@ -1319,6 +1323,9 @@ jobs:
         run: |
           if [[ -f promotion/rollback-required ]]; then
             echo "value=true" >> "${GITHUB_OUTPUT}"
+          elif [[ "${{ needs.promote.result }}" == "success" ]]; then
+            echo "Promotion succeeded but rollback evidence is missing" >&2
+            exit 1
           else
             echo "value=false" >> "${GITHUB_OUTPUT}"
           fi
@@ -1329,14 +1336,14 @@ jobs:
 
       - name: Login to Docker Hub
         if: steps.moved.outputs.value == 'true'
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
         if: steps.moved.outputs.value == 'true'
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

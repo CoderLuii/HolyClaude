@@ -248,6 +248,12 @@ export function validateProductFacts(facts, schema) {
   }
 }
 
+export function validateExpectedRelease(facts, expectedRelease) {
+  if (expectedRelease && facts.release.tag !== expectedRelease) {
+    throw new Error(`product facts: release ${facts.release.tag} does not match expected ${expectedRelease}`);
+  }
+}
+
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -428,7 +434,7 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
     const value = argv[index + 1];
-    if (!['--root', '--contract', '--schema'].includes(name) || !value) {
+    if (!['--root', '--contract', '--schema', '--release'].includes(name) || !value) {
       throw new Error(`unknown or incomplete argument: ${name}`);
     }
     options[name.slice(2)] = value;
@@ -445,6 +451,7 @@ function main() {
   const facts = loadJson(options.contract);
   const schema = loadJson(options.schema);
   validateProductFacts(facts, schema);
+  validateExpectedRelease(facts, options.release);
   verifyProductSources(facts, options.root);
   process.stdout.write(`Verified ${facts.release.tag} product facts.\n`);
 }

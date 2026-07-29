@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const BASELINE_TAR_VERSION = '7.5.7';
-const TARGET_TAR_VERSION = '7.5.20';
+const TARGET_TAR_VERSION = '7.5.22';
 
 function parseArguments(argv) {
   const index = argv.indexOf('--root');

@@ -17,9 +17,10 @@ independent process managed by s6-overlay.
 
 ### Modification Notice
 
-HolyClaude applies the following CloudCLI patches during the Docker build.
-The exact commands are in the Dockerfile, and missing patch anchors fail the
-build.
+HolyClaude applies the account and dependency source overlays while building
+the vendored tarball, then applies the remaining runtime patches during the
+Docker build. The exact commands are in the artifact builder and Dockerfile,
+and missing patch anchors fail closed.
 
 - Self-update guard: blocks CloudCLI's npm update path in both CLI and web API
   surfaces so HolyClaude's patched runtime is not replaced inside a running
@@ -32,10 +33,17 @@ build.
   HolyClaude's existing `/usr/local/bin/notify.py` hook.
 - Codex completion guard: keeps provider-normalized Codex `turn_complete`
   events aligned with the successful final completion payload.
+- Browser runtime bridge: keeps CloudCLI Browser Use on HolyClaude's
+  checksum-pinned Debian Chromium without a runtime browser download.
+- Base-path bridge: keeps API, asset, router, and WebSocket paths aligned when
+  CloudCLI is served under a configured reverse-proxy prefix.
 - Account-management bridge: adds local Logout and Change Password controls,
   rotates the local password hash in place, and invalidates older REST, SSE,
   and WebSocket tokens after a password change until upstream CloudCLI ships
   equivalent support.
+- Dependency hardening: resolves CloudCLI's `ws`, `multer`, `dompurify`,
+  `express`, and `path-to-regexp` dependencies to reviewed versions, and limits
+  Multer field nesting to the flat upload fields used by CloudCLI.
 - Build-time upstream checks: verify CloudCLI's WebSocket binary-frame handling
   provider model command flow, Codex final exit codes, Apprise call sites, and
   Codex provider completion fields are present in the compiled runtime.
@@ -117,7 +125,7 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 - License: ISC
 - Source: https://github.com/isaacs/node-tar
 - npm: https://www.npmjs.com/package/tar
-- Version: 7.5.20, installed in the full image only
+- Version: 7.5.22, installed in the full image only
 
 HolyClaude uses the checksum-verified npm archive to replace the `tar` 7.5.7
 copies bundled by EAS CLI 20.5.1 and Vercel CLI 54.21.1. The replacement
@@ -151,7 +159,7 @@ create `.desloppify/`, or modify project files unless a user runs Desloppify.
 - License: MIT
 - Source: https://github.com/earendil-works/pi
 - npm: https://www.npmjs.com/package/@earendil-works/pi-coding-agent
-- Version: 0.81.0, installed in the full image only
+- Version: 0.82.1, installed in the full image only
 
 For a complete list of installed packages and their licenses, inspect the
 Docker image directly or refer to the Dockerfile.

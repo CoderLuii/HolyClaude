@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.5.3",
-    "dockerVersion": "1.5.3"
+    "tag": "v1.5.4",
+    "dockerVersion": "1.5.4"
   },
   "registries": {
     "dockerHub": {
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.216",
+      "version": "2.1.220",
       "variants": [
         "full",
         "slim"
@@ -47,7 +47,7 @@
       "id": "gemini-cli",
       "name": "Gemini CLI",
       "command": "gemini",
-      "version": "0.51.0",
+      "version": "0.53.0",
       "variants": [
         "full",
         "slim"
@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.144.6",
+      "version": "0.146.0",
       "variants": [
         "full",
         "slim"
@@ -67,7 +67,7 @@
       "id": "cursor-agent",
       "name": "Cursor Agent",
       "command": "cursor",
-      "version": "2026.07.17-3e2a980",
+      "version": "2026.07.23-e383d2b",
       "variants": [
         "full",
         "slim"
@@ -87,7 +87,7 @@
       "id": "junie",
       "name": "Junie",
       "command": "junie",
-      "version": "2285.5",
+      "version": "2470.4",
       "variants": [
         "full"
       ]
@@ -96,7 +96,7 @@
       "id": "opencode",
       "name": "OpenCode",
       "command": "opencode",
-      "version": "1.18.4",
+      "version": "1.18.9",
       "variants": [
         "full"
       ]
@@ -105,7 +105,7 @@
       "id": "pi-coding-agent",
       "name": "Pi Coding Agent",
       "command": "pi",
-      "version": "0.81.0",
+      "version": "0.82.1",
       "variants": [
         "full"
       ]

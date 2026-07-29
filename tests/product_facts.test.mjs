@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import {
   activeYaml,
   loadJson,
+  validateExpectedRelease,
   validateProductFacts,
   verifyProductSources,
 } from '../scripts/verify-product-facts.mjs';
@@ -23,7 +24,15 @@ function expectInvalid(value, pattern) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.4'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
+});
+
+test('rejects product facts for another release ref', () => {
+  assert.throws(
+    () => validateExpectedRelease(facts, 'v1.5.5'),
+    /release v1\.5\.4 does not match expected v1\.5\.5/,
+  );
 });
 
 test('rejects a missing required field', () => {
@@ -157,9 +166,11 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="58c62362656f7cfa3821b381dc61b40198e5fd2b"/);
-  assert.match(validationJob, /git rev-parse 'v1\.5\.2\^\{commit\}'/);
-  assert.match(validationJob, /^\s*node scripts\/verify-product-facts\.mjs\s*$/m);
+  assert.match(validationJob, /baseline="6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"/);
+  assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
+  assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.3\^\{commit\}'/);
+  assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assert.match(candidateJob, /^\s*needs:\s*validate-release-ref\s*$/m);
 });
 
@@ -203,6 +214,12 @@ test('public documentation matches the product facts contract', () => {
     const fullOnlyInventory = content.match(/^\*\*.*\*\* Junie \(`junie`\).*OpenCode \(`opencode`\).*Pi \(`pi`\).?$/m);
     assert.ok(fullOnlyInventory, `${file} is missing its full-only CLI inventory`);
     assert.ok(content.indexOf(fullOnlyInventory[0]) < providerHeading, `${file} puts its full-only inventory after the provider matrix`);
+    assert.match(content, /mkdir -p data\/claude data\/cloudcli workspace/, `${file} is missing rootless Podman directory setup`);
+    assert.match(
+      content,
+      /podman compose -f docker-compose\.podman-rootless\.yaml up -d/,
+      `${file} is missing the rootless Podman startup command`,
+    );
     for (const name of ['Junie', 'OpenCode', 'Pi Coding Agent']) {
       const rows = content.match(new RegExp(`^\\| \\*\\*${name}\\*\\* \\|.*$`, 'gm')) ?? [];
       assert.equal(rows.length, 1, `${file} should list ${name} only in the full-image inventory`);

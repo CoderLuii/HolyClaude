@@ -168,7 +168,7 @@ Alors j'ai créé un conteneur qui fait tout ça. Et ensuite j'ai rencontré tou
 | **Outils de dev** | 50+ outils, prêts | `apt-get install` / `npm i -g` / `pip install` pendant une heure |
 | **Gestion des processus** | s6-overlay (redémarrage auto, arrêt propre) | Écrire votre propre config supervisord ou espérer que le restart Docker fonctionne |
 | **Persistance** | Les bind mounts conservent la configuration des outils basée sur des fichiers et le workspace après une reconstruction | Comprendre les volumes Docker, déboguer "pourquoi c'est un répertoire et pas un fichier" |
-| **Mises à jour** | `docker pull && docker compose up -d` | Mettre à jour 50 outils manuellement, prier pour que rien ne casse |
+| **Mises à jour** | `docker compose pull && docker compose up -d` | Mettre à jour 50 outils manuellement, prier pour que rien ne casse |
 | **Multi-arch** | AMD64 + ARM64 | Prier que votre Dockerfile se compile sur ARM |
 
 **La dernière ligne de chaque installation manuelle, c'est "ça marche sur ma machine."** HolyClaude marche sur toutes les machines.
@@ -299,7 +299,7 @@ Ouvrez `http://localhost:3001`. Créez un compte CloudCLI. Connectez-vous avec v
 
 **C'est toute la configuration. Vous avez terminé.**
 
-> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.3 et traitez le durcissement comme un changement séparé.
+> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.4 et traitez le durcissement comme un changement séparé.
 
 > **Pourquoi `shm_size: 2g` ?** Docker alloue 64 Mo de mémoire partagée aux conteneurs par défaut. HolyClaude conserve 2 Go comme valeur par défaut retenue pour cette version parce que Chromium utilise beaucoup `/dev/shm` pour le rendu des onglets. À 64 Mo, les onglets plantent ; si l'usage navigateur est intensif, montez à 4 Go.
 
@@ -809,6 +809,11 @@ volumes:
 
 HolyClaude prépare ce répertoire avant le démarrage de CloudCLI. Les nouveaux volumes Docker héritent du propriétaire `claude:claude` ; les volumes locaux existants sont corrigés selon `PUID`/`PGID` lors d'un démarrage Docker normal en root. Si le montage est en lecture seule ou ne peut pas être corrigé, le démarrage s'arrête avec le chemin et l'UID/GID au lieu de répéter `unable to open database file`. Pour Podman rootless, utilisez le fichier Compose keep-id fourni avec `:Z` ; `:U` réécrit les propriétaires sur l'hôte et n'est pas la valeur par défaut.
 
+```bash
+mkdir -p data/claude data/cloudcli workspace
+podman compose -f docker-compose.podman-rootless.yaml up -d
+```
+
 > **Ne faites PAS de bind-mount de `./data/cloudcli` sur un partage réseau (NAS, SMB/CIFS, NFS).** CloudCLI stocke son compte dans SQLite, et le verrouillage de fichiers de SQLite ne fonctionne pas sur les montages réseau. Vous aurez des erreurs `database is locked` en permanence. Les named volumes vivent sur le système de fichiers local du moteur Docker, c'est pourquoi ça fonctionne — les bind mounts pointant vers un NAS ne fonctionneront pas.
 
 Un bind mount vers un chemin SSD local convient aussi, gardez-le juste hors de tout partage réseau.
@@ -943,7 +948,7 @@ N'exécutez pas `cloudcli update` ni `npm install -g @cloudcli-ai/cloudcli@lates
 Pour épingler une version spécifique plutôt que `latest` :
 
 ```yaml
-image: coderluii/holyclaude:1.5.3   # instead of :latest
+image: coderluii/holyclaude:1.5.4   # instead of :latest
 ```
 
 <p align="right">

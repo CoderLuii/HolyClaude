@@ -40,28 +40,31 @@ test('release base and archive inputs are versioned and checksum-verified', () =
 });
 
 test('native installers and their outputs are pinned without unsupported flags', () => {
-  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.216/);
-  assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=[0-9a-f]{64}/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
+  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.220/);
+  assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185/);
   assert.match(dockerfile, /bash \/tmp\/claude-install\.sh "\$CLAUDE_CODE_VERSION"/);
   assert.match(dockerfile, /\/home\/claude\/\.local\/bin\/claude --version/);
 
-  assert.match(dockerfile, /ARG JUNIE_VERSION=2285\.5/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
+  assert.match(dockerfile, /ARG JUNIE_VERSION=2470\.4/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630/);
   assert.match(dockerfile, /unzip -Z1 "\/tmp\/\$\{JUNIE_ARCHIVE\}"/);
-  assert.match(dockerfile, /test "\$JUNIE_TOP_LEVEL" = "junie junie-app shim "/);
+  assert.match(dockerfile, /test "\$JUNIE_TOP_LEVEL" = "channel junie junie-app shim "/);
   assert.match(dockerfile, /unzip -q "\/tmp\/\$\{JUNIE_ARCHIVE\}" 'junie-app\/\*' -d "\$JUNIE_STAGING"/);
   assert.match(dockerfile, /test -x "\$JUNIE_STAGING\/junie-app\/bin\/junie"/);
   assert.doesNotMatch(dockerfile, /junie\.jetbrains\.com\/install\.sh/);
 
-  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.07\.17-3e2a980/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c/);
+  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.07\.23-e383d2b/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb/);
   assert.match(dockerfile, /downloads\.cursor\.com\/lab\/\$\{CURSOR_BUILD_ID\}\/linux\/\$\{CURSOR_ASSET_ARCH\}\/agent-cli-package\.tar\.gz/);
   assert.match(dockerfile, /tar --strip-components=1 -xzf \/tmp\/cursor-agent\.tar\.gz -C "\$CURSOR_DIR"/);
   assert.doesNotMatch(dockerfile, /cursor\.com\/install/);
-  assert.match(dockerfile, /CURSOR_LAUNCHER_SHA256=[0-9a-f]{64}/);
-  assert.match(dockerfile, /CURSOR_NODE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
+  assert.match(dockerfile, /CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831/);
+  assert.match(dockerfile, /CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4/);
+  assert.match(dockerfile, /CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1/);
   assert.match(dockerfile, /! grep -aFq -- '--permission'/);
   assert.match(dockerfile, /! grep -aFq -- '--allow-fs-read'/);
   assert.match(dockerfile, /! grep -aFq -- '--allow-fs-write'/);
@@ -75,16 +78,26 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.5\.3$/m);
-  assert.match(immutableInputs, /^expires-at: 2026-08-22$/m);
+  assert.match(immutableInputs, /^release: v1\.5\.4$/m);
+  assert.match(immutableInputs, /^expires-at: 2026-08-28$/m);
   for (const value of [
     'sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651',
     'sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb',
+    'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667',
+    'bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788',
+    '887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86',
+    '0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458',
+    'a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d',
+    'dbcb813823bdd20940b903addbd779551569679f',
     '4895cd3fd33362471e739b786493aba048487bcc',
     '8aa41f614c216d961e7c0d9c3e67982c6b2d9da3',
-    '2382f1b186959c031d834805f7676f8dd8d203d2ead5f6c1365ee346e5b48c0f',
-    '1bd8b23cf557bca96358f864ce744cd07195dc4bebda534e1bfaa2eec48ff7c3',
-    '827997785f0d8ce93a5af7c3b2d4e8b064ba8543facfceef981c6ead4d278d8c',
+    'b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6',
+    '674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863',
+    '159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185',
+    '661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c',
+    '976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630',
+    '702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4',
+    'f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb',
     cloudcliManifest.artifact.sha256,
   ]) {
     assert.ok(immutableInputs.includes(value), `immutable input inventory should contain ${value}`);
@@ -94,21 +107,25 @@ test('immutable input inventory binds the release-critical inputs', () => {
 test('compatible package updates and plugin locks are exact', () => {
   for (const expected of [
     'npm@11.18.0',
-    'pnpm@11.15.1',
+    'pnpm@11.18.0',
     'vite@8.1.5',
     'prettier@3.9.6',
-    'wrangler@4.112.0',
+    'eslint@10.8.0',
+    'concurrently@10.0.4',
+    'wrangler@4.115.0',
     'vercel@54.21.1',
-    'prisma@7.9.0',
+    'prisma@7.9.1',
     'lighthouse@13.4.1',
     '@marp-team/marp-cli@4.5.0',
-    '@google/gemini-cli@0.51.0',
-    '@openai/codex@0.144.6',
-    'opencode-ai@1.18.4',
-    '@earendil-works/pi-coding-agent@0.81.0',
-    'tqdm==4.69.0',
+    '@google/gemini-cli@0.53.0',
+    '@openai/codex@0.146.0',
+    'opencode-ai@1.18.9',
+    '@earendil-works/pi-coding-agent@0.82.1',
+    'pandas==3.0.5',
+    'tqdm==4.70.0',
     'matplotlib==3.11.1',
-    'fastapi==0.139.2',
+    'fastapi==0.141.1',
+    'uvicorn==0.52.0',
     'tree-sitter-language-pack==1.6.2',
     'CLOUDCLI_VERSION=1.36.3',
   ]) {
@@ -128,8 +145,8 @@ test('compatible package updates and plugin locks are exact', () => {
   assert.match(dockerfile, /test -x "\$NETLIFY_PROXY_ROOT\/bin\/local-functions-proxy"/);
   assert.match(dockerfile, /rm -f "\$NETLIFY_PROXY_ROOT\/bin\/local-functions-proxy"/);
   assert.match(dockerfile, /test ! -e "\$NETLIFY_PROXY_ROOT\/bin\/local-functions-proxy"/);
-  assert.match(dockerfile, /ARG NODE_TAR_VERSION=7\.5\.20/);
-  assert.match(dockerfile, /ARG NODE_TAR_SHA256=[0-9a-f]{64}/);
+  assert.match(dockerfile, /ARG NODE_TAR_VERSION=7\.5\.22/);
+  assert.match(dockerfile, /ARG NODE_TAR_SHA256=b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6/);
   assert.match(dockerfile, /registry\.npmjs\.org\/tar\/-\/tar-\$\{NODE_TAR_VERSION\}\.tgz/);
   assert.match(dockerfile, /echo "\$NODE_TAR_SHA256  \/tmp\/node-tar\.tgz" \| sha256sum -c -/);
   assert.match(dockerfile, /patch-global-node-tar\.mjs --root \/ --check-baseline/);
@@ -138,12 +155,22 @@ test('compatible package updates and plugin locks are exact', () => {
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /default: "1\.5\.2"/);
-  assert.match(workflow, /SYFT_VERSION: 1\.49\.0/);
-  assert.match(workflow, /GRYPE_VERSION: 0\.116\.0/);
+  assert.match(workflow, /^run-name: v1\.5\.4$/m);
+  assert.match(workflow, /default: "1\.5\.4"/);
+  assert.match(workflow, /baseline="6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"/);
+  assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
+  assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
+  assert.match(workflow, /git rev-parse 'v1\.5\.3\^\{commit\}'\)" = "6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"/);
+  assert.match(workflow, /SYFT_VERSION: 1\.50\.0/);
+  assert.match(workflow, /GRYPE_VERSION: 0\.116\.1/);
+  assert.match(workflow, /SYFT_SHA256_AMD64: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788/);
+  assert.match(workflow, /SYFT_SHA256_ARM64: 887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86/);
+  assert.match(workflow, /GRYPE_SHA256_AMD64: 0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458/);
+  assert.match(workflow, /GRYPE_SHA256_ARM64: a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d/);
   assert.match(workflow, /SBOM_UTILITY_VERSION: 0\.19\.2/);
   assert.match(workflow, /git diff --check HEAD\^ HEAD/);
-  assert.match(workflow, /rhysd\/actionlint@sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9/);
+  assert.match(workflow, /rhysd\/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667/);
+  assert.equal((workflow.match(/docker\/login-action@dbcb813823bdd20940b903addbd779551569679f # v4\.6\.0/g) ?? []).length, 8);
   assert.match(workflow, /test "\$\(git rev-parse HEAD\^\)" = "\$\{baseline\}"/);
   assert.match(workflow, /test "\$\(git rev-parse origin\/master\)" = "\$\{GITHUB_SHA\}"/);
   assert.match(workflow, /sbom: false/);
@@ -196,8 +223,14 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
   assert.match(workflow, /tag_state=.*inspect_tag_state/);
   assert.match(workflow, /if \[\[ .*tag_state.* == exists \]\]; then/);
   assert.equal((workflow.match(/name: Download promotion evidence[\s\S]*?path: \./g) ?? []).length, 1);
+  assert.match(
+    workflow,
+    /name: Upload promotion evidence[\s\S]*?security-evidence\/\*\*\/\*/,
+  );
   assert.match(workflow, /name: Upload rollback evidence[\s\S]*?name: rollback-evidence[\s\S]*?promotion\/rollback\.tsv[\s\S]*?promotion\/rollback-required/);
   assert.match(workflow, /name: Download rollback evidence[\s\S]*?name: rollback-evidence[\s\S]*?path: \./);
+  assert.match(workflow, /name: Download rollback evidence[\s\S]*?continue-on-error: true/);
+  assert.match(workflow, /Promotion succeeded but rollback evidence is missing/);
   assert.ok(
     workflow.indexOf('name: Upload rollback evidence') < workflow.indexOf('name: Move mutable aliases'),
     'rollback evidence must be durable before mutable aliases move',
@@ -214,6 +247,10 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
 
 test('runtime smoke rotates CloudCLI credentials and rejects the old token', () => {
   const runtimeChecks = readFileSync('tests/browser_runtime_container_checks.sh', 'utf8');
+  assert.match(runtimeChecks, /assert_cloudcli_security_dependencies\(\)/);
+  assert.match(runtimeChecks, /LIMIT_FIELD_NESTING/);
+  assert.match(runtimeChecks, /maxFragments: 2/);
+  assert.match(runtimeChecks, /cloudcli_security_dependencies=ok/);
   assert.match(runtimeChecks, /rotate_cloudcli_account\(\)/);
   assert.match(runtimeChecks, /api\/auth\/change-password/);
   assert.match(runtimeChecks, /api\/auth\/user\?token=/);

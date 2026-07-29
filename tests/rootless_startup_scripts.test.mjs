@@ -7,6 +7,12 @@ const bootstrap = readFileSync('scripts/bootstrap.sh', 'utf8');
 const cloudcliRun = readFileSync('s6-overlay/s6-rc.d/cloudcli/run', 'utf8');
 const dockerfile = readFileSync('Dockerfile', 'utf8');
 const podmanCompose = readFileSync('docker-compose.podman-rootless.yaml', 'utf8');
+const rootlessDocs = [
+  readFileSync('README.md', 'utf8'),
+  readFileSync('docs/configuration.md', 'utf8'),
+  readFileSync('docs/dockerhub-description.md', 'utf8'),
+  readFileSync('docs/troubleshooting.md', 'utf8'),
+];
 
 test('entrypoint gates root-only operations for non-root startup', () => {
   assert.match(entrypoint, /RUNNING_AS_ROOT=0/);
@@ -38,6 +44,13 @@ test('image prepares the CloudCLI state directory for fresh volume copy-up', () 
 test('rootless Podman profile persists CloudCLI state with SELinux labeling', () => {
   assert.match(podmanCompose, /\.\/data\/cloudcli:\/home\/claude\/\.cloudcli:Z/);
   assert.match(podmanCompose, /mkdir -p data\/claude data\/cloudcli workspace/);
+});
+
+test('rootless Podman instructions prepare every bind-mounted directory', () => {
+  for (const documentation of rootlessDocs) {
+    assert.match(documentation, /mkdir -p data\/claude data\/cloudcli workspace/);
+    assert.match(documentation, /podman compose -f docker-compose\.podman-rootless\.yaml up -d/);
+  }
 });
 
 test('entrypoint repairs CloudCLI state without following links or crossing filesystems', () => {

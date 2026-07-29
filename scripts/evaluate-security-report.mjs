@@ -16,7 +16,7 @@ const ALLOWED_AUTHORITY_HOSTS = new Set([
 const ALLOWED_DISPOSITIONS = new Set(['fixed', 'high_exception', 'not_affected', 'vendor_severity']);
 const ALLOWED_VARIANTS = new Set(['full', 'slim']);
 const ALLOWED_ARCHITECTURES = new Set(['amd64', 'arm64']);
-const EXPECTED_GRYPE_VERSION = '0.116.0';
+const EXPECTED_GRYPE_VERSION = '0.116.1';
 const GRYPE_SEVERITIES = new Set(['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical']);
 const SEVERITY_ORDER = new Map([
   ['None', 0],
@@ -342,13 +342,17 @@ function validateVex(vex, reviews, variant, arch) {
   if (vex['@context'] !== 'https://openvex.dev/ns/v0.2.0') throw new Error('OpenVEX context must be v0.2.0');
   const statements = vex.statements;
   const ids = new Set();
-  const expectedProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.3?variant=${variant}`;
+  const expectedGhcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=${variant}`;
+  const expectedDockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=${variant}`;
   for (const statement of statements) {
     if (!statement['@id'] || ids.has(statement['@id'])) throw new Error('OpenVEX statement ids must be unique');
     ids.add(statement['@id']);
     if (statement.status !== 'not_affected') throw new Error(`${statement['@id']}: OpenVEX is limited to not_affected`);
-    if (!(statement.products ?? []).some((product) => product['@id'] === expectedProduct)) {
+    if (!(statement.products ?? []).some((product) => product['@id'] === expectedGhcrProduct)) {
       throw new Error(`${statement['@id']}: missing exact ${variant} product`);
+    }
+    if (!(statement.products ?? []).some((product) => product['@id'] === expectedDockerHubProduct)) {
+      throw new Error(`${statement['@id']}: missing exact ${variant} Docker Hub product`);
     }
     if (!statement.justification || !statement.impact_statement) {
       throw new Error(`${statement['@id']}: missing justification or impact statement`);

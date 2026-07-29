@@ -140,7 +140,7 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 
 ### Browser Runtime
 
-v1.5.3 keeps the browser stack baked at build time:
+v1.5.4 keeps the browser stack baked at build time:
 
 - Playwright 1.61.0 is installed for both Node and Python
 - Debian Chromium 150.0.7871.181 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
@@ -149,9 +149,9 @@ v1.5.3 keeps the browser stack baked at build time:
 - There is no runtime browser download
 - Lighthouse ships in the full image only
 
-Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to architecture-specific build archives and verified launcher and Node output hashes, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.3 and expires the review instead of letting it silently age.
+Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions, Cursor is bound to architecture-specific build archives and verified launcher and Node output hashes, and s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. The release inventory in `security/immutable-inputs.yml` binds those values to v1.5.4 and expires the review instead of letting it silently age.
 
-CloudCLI 1.36.3 is built twice in independent containers from the exact Node 26.5.0 image with npm 11.18.0. Both builds must agree on the artifact, source tree, file list, shrinkwrap, and production dependency tree hashes before the vendored artifact is accepted. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5. EAS CLI 20.5.1 and Vercel CLI 54.21.1 remain on their compatible major lines; their two bundled `tar` 7.5.7 directories are replaced with checksum-bound `tar` 7.5.20 after the build verifies the exact parent packages and dependency specs.
+CloudCLI 1.36.3 is built twice in independent containers from the exact release Node image with npm 11.18.0. Both builds must agree on the artifact, source tree, file list, shrinkwrap, and production dependency tree hashes before the vendored artifact is accepted. The packed artifact includes that shrinkwrap. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.26.5. EAS CLI 20.5.1 and Vercel CLI 54.21.1 remain on their compatible major lines; their two bundled `tar` 7.5.7 directories are replaced with checksum-bound `tar` 7.5.22 after the build verifies the exact parent packages and dependency specs.
 
 Netlify CLI 26.2.0 remains available for deployments. Its optional `local-functions-proxy` executable is removed at build time because the current upstream package still contains a binary built with Go 1.16.7. This affects local Go/Rust function emulation only; it does not remove the Netlify deployment CLI.
 

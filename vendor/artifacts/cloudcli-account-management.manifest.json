@@ -34,54 +34,68 @@
     ],
     "generatedAt": "2026-07-21T00:00:00Z",
     "sourceDateNote": "Timestamp is fixed in this manifest so reproducibility checks compare stable fields.",
-    "sourceTreeSha256": "88e7da24d10961d892749c99901eea9d69ed3f0c25edb01a6a192088194d6ae2"
+    "sourceTreeSha256": "0a804db5315289bc5c3673ea9ea8e0f511d42d674d7f9673453b09cbb8046d2e"
   },
   "artifact": {
     "file": "cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz",
-    "sha256": "e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7",
-    "size": 4491080,
-    "packageFileListSha256": "3a1e7f05725aaf52a00441c69e05927d4fa0e337b8c145f95a069dc29e39ce5c",
-    "shrinkwrapSha256": "5b98d26858a0eff4e54b66a87563bf5634525caab4efe5ffd774ffb7e074ad48",
-    "productionDependencyTreeSha256": "067bd815f1d79dd51aa5d2d332ae112c1fb47110f2cc74283584e00aa48880dd",
-    "duplicatePackSha256": "e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7"
+    "sha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea",
+    "size": 4493248,
+    "packageFileListSha256": "924a1b1d473401dddab5bb3b5eed9b3b2688a2f1aca917f2d847c7e81351dbfa",
+    "shrinkwrapSha256": "9792e25bde8aa8b983c0cab3e18a05392af5c7ed63451ca0f7fefb5b3e1cbba0",
+    "productionDependencyTreeSha256": "c5ef1d21fab4b166b70a92d078d32dc5ff9b3ff5088f93fe5a4617e46d8e66dc",
+    "duplicatePackSha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea"
   },
   "patches": [
     {
       "file": "0001-local-account-management.patch",
-      "sha256": "241be2254e257820acbcd1bb7197f8a9035fde40a90e2979f2229c87e5a78b7f"
+      "sha256": "177c6ccbefa70779a7096c352e51e5342084f7d0f7d925a54d15c9a9b2ad2cc2"
+    },
+    {
+      "file": "0002-security-dependency-refresh.patch",
+      "sha256": "8ea1a2e08b0265b9aecba61f6b36d0521c511b5278505580738d7d8d99a8f1f8"
     }
   ],
   "verification": {
     "detector": "scripts/verify-cloudcli-account-management-support.mjs",
     "expectedState": "holyclaude-bridge-complete",
+    "requiredRuntimeDependencies": {
+      "node_modules/better-sqlite3": "12.11.1",
+      "node_modules/dompurify": "3.4.12",
+      "node_modules/express": "4.22.2",
+      "node_modules/multer": "2.2.0",
+      "node_modules/path-to-regexp": "0.1.13",
+      "node_modules/ws": "8.21.1"
+    },
     "existingHolyClaudeRuntimePatchesRunAfterInstall": true
   },
   "upstreamRefs": [
     "https://github.com/siteboon/claudecodeui/issues/797",
+    "https://github.com/siteboon/claudecodeui/pull/978",
+    "https://github.com/siteboon/claudecodeui/pull/1070",
     "https://github.com/siteboon/claudecodeui/pull/928",
     "https://github.com/siteboon/claudecodeui/pull/526"
   ],
-  "removal": "Remove when a fixed upstream npm package verifies as upstream-complete without HolyClaude bridge markers.",
+  "removal": "Remove only when an upstream npm package verifies as upstream-complete without HolyClaude bridge markers and its production dependency tree satisfies verification.requiredRuntimeDependencies.",
   "reproducibility": {
     "independentContainerBuilds": 2,
     "builds": [
       {
         "name": "build-a",
-        "artifactSha256": "e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7",
+        "artifactSha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea",
         "buildEnvironmentSha256": "0202371862bf387867e33f578f2b5e66bc9dcb79cb878db6ea84f49617fd739a",
-        "sourceTreeSha256": "88e7da24d10961d892749c99901eea9d69ed3f0c25edb01a6a192088194d6ae2",
-        "packageFileListSha256": "3a1e7f05725aaf52a00441c69e05927d4fa0e337b8c145f95a069dc29e39ce5c",
-        "shrinkwrapSha256": "5b98d26858a0eff4e54b66a87563bf5634525caab4efe5ffd774ffb7e074ad48",
-        "productionDependencyTreeSha256": "067bd815f1d79dd51aa5d2d332ae112c1fb47110f2cc74283584e00aa48880dd"
+        "sourceTreeSha256": "0a804db5315289bc5c3673ea9ea8e0f511d42d674d7f9673453b09cbb8046d2e",
+        "packageFileListSha256": "924a1b1d473401dddab5bb3b5eed9b3b2688a2f1aca917f2d847c7e81351dbfa",
+        "shrinkwrapSha256": "9792e25bde8aa8b983c0cab3e18a05392af5c7ed63451ca0f7fefb5b3e1cbba0",
+        "productionDependencyTreeSha256": "c5ef1d21fab4b166b70a92d078d32dc5ff9b3ff5088f93fe5a4617e46d8e66dc"
       },
       {
         "name": "build-b",
-        "artifactSha256": "e8fd1c19cc766888fc105884a06d2eabaa2ec4bf081f182733193d7439a0ceb7",
+        "artifactSha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea",
         "buildEnvironmentSha256": "0202371862bf387867e33f578f2b5e66bc9dcb79cb878db6ea84f49617fd739a",
-        "sourceTreeSha256": "88e7da24d10961d892749c99901eea9d69ed3f0c25edb01a6a192088194d6ae2",
-        "packageFileListSha256": "3a1e7f05725aaf52a00441c69e05927d4fa0e337b8c145f95a069dc29e39ce5c",
-        "shrinkwrapSha256": "5b98d26858a0eff4e54b66a87563bf5634525caab4efe5ffd774ffb7e074ad48",
-        "productionDependencyTreeSha256": "067bd815f1d79dd51aa5d2d332ae112c1fb47110f2cc74283584e00aa48880dd"
+        "sourceTreeSha256": "0a804db5315289bc5c3673ea9ea8e0f511d42d674d7f9673453b09cbb8046d2e",
+        "packageFileListSha256": "924a1b1d473401dddab5bb3b5eed9b3b2688a2f1aca917f2d847c7e81351dbfa",
+        "shrinkwrapSha256": "9792e25bde8aa8b983c0cab3e18a05392af5c7ed63451ca0f7fefb5b3e1cbba0",
+        "productionDependencyTreeSha256": "c5ef1d21fab4b166b70a92d078d32dc5ff9b3ff5088f93fe5a4617e46d8e66dc"
       }
     ]
   }

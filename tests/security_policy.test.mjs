@@ -77,7 +77,7 @@ function fixture() {
     report: {
       source: { type: 'sbom', target: 'fixture.cdx.json' },
       distro: { name: 'debian', version: '12', idLike: ['debian'] },
-      descriptor: { name: 'grype', version: '0.116.0', configuration: {} },
+      descriptor: { name: 'grype', version: '0.116.1', configuration: {} },
       ignoredMatches: [],
       matches: [
         {
@@ -262,7 +262,7 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
       data.ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
       data.vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
     },
-    { variant: 'slim', arch: 'amd64', asOf: '2026-07-23' },
+    { variant: 'slim', arch: 'amd64', asOf: '2026-07-29' },
   );
   assert.equal(result.status, 0, result.stderr);
 });
@@ -320,7 +320,7 @@ for (const [name, mutate, expected] of [
   ['Grype report without matches', ({ report }) => delete report.matches, 'Grype report matches must be an array'],
   ['Grype report without source', ({ report }) => delete report.source, 'Grype report source is incomplete'],
   ['Grype report without descriptor', ({ report }) => delete report.descriptor, 'Grype report descriptor is incomplete'],
-  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.115.0'), 'expected Grype 0.116.0'],
+  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.115.0'), 'expected Grype 0.116.1'],
   ['Grype report without ignored matches', ({ report }) => delete report.ignoredMatches, 'ignoredMatches must be an array'],
   ['Grype report with arbitrary ignored findings', ({ report }) => report.ignoredMatches.push(structuredClone(report.matches[0])), 'Grype ignored matches require'],
   ['noncanonical Grype severity', ({ report }) => (report.matches[0].vulnerability.severity = 'critical'), 'invalid severity'],
@@ -369,6 +369,24 @@ test('rejects a not-affected review without exact OpenVEX product scope', () => 
   });
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /missing exact full product/);
+});
+
+test('rejects a not-affected review without the Docker Hub product scope', () => {
+  const result = runFixture(({ ledger, vex }) => {
+    ledger.reviews[0].disposition = 'not_affected';
+    ledger.reviews[0].effectiveSeverity = 'None';
+    ledger.reviews[0].vexStatement = 'urn:test:vex:example';
+    vex.statements.push({
+      '@id': 'urn:test:vex:example',
+      vulnerability: { name: 'CVE-2099-0001' },
+      products: [{ '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full' }],
+      status: 'not_affected',
+      justification: 'vulnerable_code_not_present',
+      impact_statement: 'Fixture impact.',
+    });
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /missing exact full Docker Hub product/);
 });
 
 test('maps one approved High exception to one exact High finding', () => {

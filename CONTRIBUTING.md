@@ -71,7 +71,7 @@ If you're adding a new tool or package, decide which variant it belongs to. Full
 | `config/settings.json` | Default Claude Code settings baked into the image |
 | `config/claude-memory-full.md` | Runtime CLAUDE.md for full variant |
 | `config/claude-memory-slim.md` | Runtime CLAUDE.md for slim variant |
-| `s6-overlay/s6-rc.d/` | Service definitions for CloudCLI and Xvfb |
+| `s6-overlay/s6-rc.d/` | Service definitions for CloudCLI, Xvfb, and optional SSH; Mosh runs on demand through its wrapper |
 
 ## What to contribute
 
