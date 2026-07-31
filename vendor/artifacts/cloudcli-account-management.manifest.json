@@ -9,9 +9,9 @@
     "license": "AGPL-3.0-or-later"
   },
   "build": {
-    "image": "node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb",
-    "node": "v26.5.0",
-    "npm": "11.18.0",
+    "image": "node:26.5.1-bookworm-slim@sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73",
+    "node": "v26.5.1",
+    "npm": "11.19.0",
     "packages": {
       "build-essential": "12.9",
       "ca-certificates": "20230311+deb12u1",
@@ -19,7 +19,7 @@
       "pkg-config": "1.8.1-1",
       "python3": "3.11.2-1+b1"
     },
-    "environmentSha256": "0202371862bf387867e33f578f2b5e66bc9dcb79cb878db6ea84f49617fd739a",
+    "environmentSha256": "05a4102ccde9653d506887ce3b0ffd841cdbc9a221eb44d0d8e0e076475d8297",
     "commands": [
       "git apply --check --index",
       "git apply --index",
@@ -29,21 +29,24 @@
       "npm run build",
       "npm run lint",
       "npm shrinkwrap --omit=dev",
+      "npm audit --omit=dev --json",
       "npm pack",
-      "npm install -g"
+      "npm ci --omit=dev",
+      "installed runtime dependency verification",
+      "installed native better-sqlite3 smoke"
     ],
     "generatedAt": "2026-07-21T00:00:00Z",
     "sourceDateNote": "Timestamp is fixed in this manifest so reproducibility checks compare stable fields.",
-    "sourceTreeSha256": "0a804db5315289bc5c3673ea9ea8e0f511d42d674d7f9673453b09cbb8046d2e"
+    "sourceTreeSha256": "602bd1b037f8b1d2466eae37f2cf077eb996d49442da06629959661dfc78044d"
   },
   "artifact": {
     "file": "cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz",
-    "sha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea",
-    "size": 4493248,
-    "packageFileListSha256": "924a1b1d473401dddab5bb3b5eed9b3b2688a2f1aca917f2d847c7e81351dbfa",
-    "shrinkwrapSha256": "9792e25bde8aa8b983c0cab3e18a05392af5c7ed63451ca0f7fefb5b3e1cbba0",
-    "productionDependencyTreeSha256": "c5ef1d21fab4b166b70a92d078d32dc5ff9b3ff5088f93fe5a4617e46d8e66dc",
-    "duplicatePackSha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea"
+    "sha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7",
+    "size": 4490158,
+    "packageFileListSha256": "6e7446ba29f55b53620e762e7520e52307c864776ee337c07761a517e0c98e3a",
+    "shrinkwrapSha256": "2abc7f037745f710cfa168a1b2823fbe0268b98a9a9fbb0d1dd3099cd9645dd2",
+    "productionDependencyTreeSha256": "769d21f2188581a527f5eb2f3456233c163a72e0d1ae53a96542a651d6724819",
+    "duplicatePackSha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7"
   },
   "patches": [
     {
@@ -52,19 +55,53 @@
     },
     {
       "file": "0002-security-dependency-refresh.patch",
-      "sha256": "8ea1a2e08b0265b9aecba61f6b36d0521c511b5278505580738d7d8d99a8f1f8"
+      "sha256": "d6d9fe20049190f925e01114b3665ea0e32f023dee7b728803ce846609d275c8"
     }
   ],
   "verification": {
     "detector": "scripts/verify-cloudcli-account-management-support.mjs",
     "expectedState": "holyclaude-bridge-complete",
+    "reviewedLockDependencies": {
+      "node_modules/better-sqlite3": "12.11.1",
+      "node_modules/dompurify": "3.4.12",
+      "node_modules/express": "4.22.2",
+      "node_modules/fast-uri": "3.1.4",
+      "node_modules/hono": "4.12.32",
+      "node_modules/jws": "3.2.3",
+      "node_modules/minimatch": "9.0.9",
+      "node_modules/multer": "2.2.0",
+      "node_modules/path-to-regexp": "0.1.13",
+      "node_modules/picomatch": "2.3.2",
+      "node_modules/postcss": "8.5.25",
+      "node_modules/tar-fs": "2.1.5",
+      "node_modules/ws": "8.21.1",
+      "node_modules/yaml": "2.9.0"
+    },
     "requiredRuntimeDependencies": {
       "node_modules/better-sqlite3": "12.11.1",
       "node_modules/dompurify": "3.4.12",
       "node_modules/express": "4.22.2",
+      "node_modules/fast-uri": "3.1.4",
+      "node_modules/hono": "4.12.32",
+      "node_modules/jws": "3.2.3",
       "node_modules/multer": "2.2.0",
       "node_modules/path-to-regexp": "0.1.13",
-      "node_modules/ws": "8.21.1"
+      "node_modules/picomatch": "2.3.2",
+      "node_modules/postcss": "8.5.25",
+      "node_modules/tar-fs": "2.1.5",
+      "node_modules/ws": "8.21.1",
+      "node_modules/yaml": "2.9.0"
+    },
+    "forbiddenRuntimeDependencies": [
+      "node_modules/screenshot-desktop"
+    ],
+    "productionAudit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 12,
+      "high": 0,
+      "critical": 0,
+      "total": 12
     },
     "existingHolyClaudeRuntimePatchesRunAfterInstall": true
   },
@@ -81,21 +118,21 @@
     "builds": [
       {
         "name": "build-a",
-        "artifactSha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea",
-        "buildEnvironmentSha256": "0202371862bf387867e33f578f2b5e66bc9dcb79cb878db6ea84f49617fd739a",
-        "sourceTreeSha256": "0a804db5315289bc5c3673ea9ea8e0f511d42d674d7f9673453b09cbb8046d2e",
-        "packageFileListSha256": "924a1b1d473401dddab5bb3b5eed9b3b2688a2f1aca917f2d847c7e81351dbfa",
-        "shrinkwrapSha256": "9792e25bde8aa8b983c0cab3e18a05392af5c7ed63451ca0f7fefb5b3e1cbba0",
-        "productionDependencyTreeSha256": "c5ef1d21fab4b166b70a92d078d32dc5ff9b3ff5088f93fe5a4617e46d8e66dc"
+        "artifactSha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7",
+        "buildEnvironmentSha256": "05a4102ccde9653d506887ce3b0ffd841cdbc9a221eb44d0d8e0e076475d8297",
+        "sourceTreeSha256": "602bd1b037f8b1d2466eae37f2cf077eb996d49442da06629959661dfc78044d",
+        "packageFileListSha256": "6e7446ba29f55b53620e762e7520e52307c864776ee337c07761a517e0c98e3a",
+        "shrinkwrapSha256": "2abc7f037745f710cfa168a1b2823fbe0268b98a9a9fbb0d1dd3099cd9645dd2",
+        "productionDependencyTreeSha256": "769d21f2188581a527f5eb2f3456233c163a72e0d1ae53a96542a651d6724819"
       },
       {
         "name": "build-b",
-        "artifactSha256": "f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea",
-        "buildEnvironmentSha256": "0202371862bf387867e33f578f2b5e66bc9dcb79cb878db6ea84f49617fd739a",
-        "sourceTreeSha256": "0a804db5315289bc5c3673ea9ea8e0f511d42d674d7f9673453b09cbb8046d2e",
-        "packageFileListSha256": "924a1b1d473401dddab5bb3b5eed9b3b2688a2f1aca917f2d847c7e81351dbfa",
-        "shrinkwrapSha256": "9792e25bde8aa8b983c0cab3e18a05392af5c7ed63451ca0f7fefb5b3e1cbba0",
-        "productionDependencyTreeSha256": "c5ef1d21fab4b166b70a92d078d32dc5ff9b3ff5088f93fe5a4617e46d8e66dc"
+        "artifactSha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7",
+        "buildEnvironmentSha256": "05a4102ccde9653d506887ce3b0ffd841cdbc9a221eb44d0d8e0e076475d8297",
+        "sourceTreeSha256": "602bd1b037f8b1d2466eae37f2cf077eb996d49442da06629959661dfc78044d",
+        "packageFileListSha256": "6e7446ba29f55b53620e762e7520e52307c864776ee337c07761a517e0c98e3a",
+        "shrinkwrapSha256": "2abc7f037745f710cfa168a1b2823fbe0268b98a9a9fbb0d1dd3099cd9645dd2",
+        "productionDependencyTreeSha256": "769d21f2188581a527f5eb2f3456233c163a72e0d1ae53a96542a651d6724819"
       }
     ]
   }

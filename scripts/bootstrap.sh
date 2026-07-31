@@ -52,14 +52,6 @@ fi
 cp "$SOURCE_DIR/claude-memory-${VARIANT}.md" "$CLAUDE_HOME/.claude/CLAUDE.md"
 echo "[bootstrap] Copied CLAUDE.md (${VARIANT} variant)"
 
-# ---------- Git configuration ----------
-GIT_USER_NAME="${GIT_USER_NAME:-HolyClaude User}"
-GIT_USER_EMAIL="${GIT_USER_EMAIL:-noreply@holyclaude.local}"
-run_as_claude git config --global safe.directory /workspace
-run_as_claude git config --global user.name "$GIT_USER_NAME"
-run_as_claude git config --global user.email "$GIT_USER_EMAIL"
-echo "[bootstrap] Configured git as '$GIT_USER_NAME <$GIT_USER_EMAIL>'"
-
 # ---------- Codex CLI default configuration ----------
 if [ ! -f "$CLAUDE_HOME/.codex/config.toml" ]; then
     CODEX_CLI_APPROVAL_POLICY="on-request"

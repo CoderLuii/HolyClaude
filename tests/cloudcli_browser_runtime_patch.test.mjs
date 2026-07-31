@@ -72,7 +72,7 @@ test('Dockerfile applies and verifies the CloudCLI browser runtime patch', async
   const dockerfile = await readFile(path.join(repoRoot, 'Dockerfile'), 'utf8');
   const copyAnchor = 'COPY scripts/patch-cloudcli-browser-runtime.mjs /tmp/patch-cloudcli-browser-runtime.mjs';
   const runAnchor = 'RUN node /tmp/patch-cloudcli-browser-runtime.mjs && rm -f /tmp/patch-cloudcli-browser-runtime.mjs';
-  const installAnchor = 'RUN npm i -g /tmp/vendor/cloudcli-ai-cloudcli.tgz && rm -f /tmp/vendor/cloudcli-ai-cloudcli.tgz';
+  const installAnchor = 'tar -xzf /tmp/vendor/cloudcli-ai-cloudcli.tgz -C /tmp/cloudcli-unpack';
 
   assert.ok(dockerfile.includes(copyAnchor));
   assert.ok(dockerfile.includes(runAnchor));

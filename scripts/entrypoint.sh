@@ -3,7 +3,7 @@ set -e
 
 # ==============================================================================
 # HolyClaude - Container Entrypoint
-# Handles: UID/GID remapping, first-boot bootstrap, s6-overlay handoff
+# Handles: UID/GID remapping, persistent CLI config, first-boot bootstrap, s6-overlay handoff
 # ==============================================================================
 
 CLAUDE_USER="claude"
@@ -374,6 +374,9 @@ fi
 # Claude Code rewrites ~/.claude.json directly, so keep the durable copy inside
 # the bind-mounted ~/.claude directory and restore it before bootstrap starts.
 node /usr/local/bin/persist-claude-json.mjs
+
+# ---------- Persist Git and GitHub CLI state (every boot) ----------
+/usr/local/bin/prepare-cli-persistence.sh
 
 # ---------- Ensure DISPLAY is set ----------
 export DISPLAY=:99

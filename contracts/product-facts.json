@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.5.4",
-    "dockerVersion": "1.5.4"
+    "tag": "v1.5.5",
+    "dockerVersion": "1.5.5"
   },
   "registries": {
     "dockerHub": {
@@ -96,7 +96,7 @@
       "id": "opencode",
       "name": "OpenCode",
       "command": "opencode",
-      "version": "1.18.9",
+      "version": "1.18.10",
       "variants": [
         "full"
       ]
@@ -156,7 +156,7 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "150.0.7871.181",
+      "version": "151.0.7922.71",
       "executable": "/usr/bin/chromium"
     },
     "playwright": {

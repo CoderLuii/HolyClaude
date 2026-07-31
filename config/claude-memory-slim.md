@@ -79,7 +79,6 @@ pip install --break-system-packages reportlab     # Generate PDFs
 pip install --break-system-packages weasyprint     # HTML to PDF
 pip install --break-system-packages fpdf2          # Simple PDF creation
 pip install --break-system-packages PyMuPDF        # Read/manipulate PDFs
-pip install --break-system-packages pdfkit         # wkhtmltopdf wrapper
 pip install --break-system-packages img2pdf        # Images to PDF
 
 # Data visualization
@@ -147,7 +146,7 @@ These take longer to install (~1-2 minutes) because they require system dependen
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
 - **Playwright 1.61.0** installed for Node and Python — baked at build time, no runtime browser download
-- **Debian Chromium 150.0.7871.181** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Debian Chromium 151.0.7922.71** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 
@@ -182,7 +181,8 @@ Telegram uses `NOTIFY_TELEGRAM=tgram://bot_token/chat_id`. Check setup without s
 
 - All projects go in `/workspace` (bind-mounted from host)
 - Git is pre-configured with `safe.directory /workspace`
-- Git identity is set via `GIT_USER_NAME` and `GIT_USER_EMAIL` env vars
+- Git identity is seeded from `GIT_USER_NAME` and `GIT_USER_EMAIL` only when missing
+- Global Git configuration and GitHub CLI authentication persist below `~/.claude`; protect the mounted data because it can contain credentials
 - Create repos, clone projects, build — everything persists on the host
 
 ## Permissions
@@ -206,7 +206,8 @@ Codex has separate configurable near-parity controls:
 
 ## Container Lifecycle
 
-- **First boot:** Bootstrap runs once — copies settings, memory, configures git
+- **Every boot:** Git and GitHub CLI configuration links are prepared before bootstrap
+- **First boot:** Bootstrap runs once — copies settings and memory
 - **Subsequent boots:** Bootstrap skipped (sentinel file exists)
 - **Re-trigger bootstrap:** Delete `~/.claude/.holyclaude-bootstrapped`
 - **Credentials survive rebuilds:** `~/.claude/` is bind-mounted

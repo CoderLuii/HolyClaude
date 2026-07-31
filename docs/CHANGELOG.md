@@ -4,6 +4,29 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.5] - 08/02/2026
+
+### Added
+- Persisted global Git configuration, XDG Git configuration, and GitHub CLI authentication through the existing `./data/claude` mount.
+- Added recreation, migration, conflict, override, restrictive-mode, rootless, and token-redaction coverage for the Git and GitHub CLI persistence path.
+
+### Changed
+- Updated Node to 26.5.1, GitHub CLI to 2.97.0, npm to 11.19.0, Vite to 8.2.0, Wrangler to 4.116.0, OpenCode to 1.18.10, and Python Markdown to 3.10.3.
+- Updated Debian Chromium to 151.0.7922.71 for both image architectures after the Bookworm security builds became available.
+- Rebuilt CloudCLI 1.36.3 under the release Node/npm environment with a refreshed compatible production dependency tree. CloudCLI 1.37.0 remains deferred because its modular refactor does not accept HolyClaude's current account and runtime patches.
+- Replaced Cursor Agent's bundled Node runtime with HolyClaude's patched Node 26.5.1 runtime and applied checksum-bound compatible updates for vulnerable transitive packages without changing the owning CLI major versions.
+- Removed the unused `pdfkit` Python package.
+- Updated the release workflow inputs, strict architecture selection, immutable inputs, notices, documentation, and release evidence for v1.5.5.
+
+### Fixed
+- Kept `git config --global` values and `gh auth` state after container removal and recreation.
+- Seeded Git identity and `/workspace` safe-directory values only when missing, preserving manual configuration without duplicate entries.
+- Added fail-closed migration handling so conflicting live and durable CLI configuration is never merged, replaced, or deleted automatically.
+
+### Security
+- Required every raw Critical and High scanner finding to match one exact, current component review. Failed scans now retain their checksum-bound evidence instead of stopping before metadata is written.
+- Recorded Debian vendor severity and short-lived, component-bound High exceptions without claiming that the images contain zero vulnerabilities.
+
 ## [1.5.4] - 07/30/2026
 
 ### Changed

@@ -63,21 +63,49 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   assert.equal(manifest.state, 'holyclaude-bridge-complete');
   assert.equal(manifest.upstream.commit, '27eaf0146a46aa8a55178f3d394360ff7465420f');
   assert.equal(manifest.upstream.version, '1.36.3');
-  assert.equal(manifest.build.node, 'v26.5.0');
-  assert.equal(manifest.build.npm, '11.18.0');
-  assert.match(manifest.build.image, /^node:26\.5\.0-bookworm-slim@sha256:[0-9a-f]{64}$/);
+  assert.equal(manifest.build.node, 'v26.5.1');
+  assert.equal(manifest.build.npm, '11.19.0');
+  assert.match(manifest.build.image, /^node:26\.5\.1-bookworm-slim@sha256:[0-9a-f]{64}$/);
   assert.match(manifest.artifact.shrinkwrapSha256, /^[0-9a-f]{64}$/);
   assert.match(manifest.artifact.productionDependencyTreeSha256, /^[0-9a-f]{64}$/);
   assert.equal(manifest.artifact.duplicatePackSha256, manifest.artifact.sha256);
   assert.equal(sha256(artifactBuffer), manifest.artifact.sha256);
+  assert.deepEqual(manifest.verification.reviewedLockDependencies, {
+    'node_modules/better-sqlite3': '12.11.1',
+    'node_modules/dompurify': '3.4.12',
+    'node_modules/express': '4.22.2',
+    'node_modules/fast-uri': '3.1.4',
+    'node_modules/hono': '4.12.32',
+    'node_modules/jws': '3.2.3',
+    'node_modules/minimatch': '9.0.9',
+    'node_modules/multer': '2.2.0',
+    'node_modules/path-to-regexp': '0.1.13',
+    'node_modules/picomatch': '2.3.2',
+    'node_modules/postcss': '8.5.25',
+    'node_modules/tar-fs': '2.1.5',
+    'node_modules/ws': '8.21.1',
+    'node_modules/yaml': '2.9.0',
+  });
   assert.deepEqual(manifest.verification.requiredRuntimeDependencies, {
     'node_modules/better-sqlite3': '12.11.1',
     'node_modules/dompurify': '3.4.12',
     'node_modules/express': '4.22.2',
+    'node_modules/fast-uri': '3.1.4',
+    'node_modules/hono': '4.12.32',
+    'node_modules/jws': '3.2.3',
     'node_modules/multer': '2.2.0',
     'node_modules/path-to-regexp': '0.1.13',
+    'node_modules/picomatch': '2.3.2',
+    'node_modules/postcss': '8.5.25',
+    'node_modules/tar-fs': '2.1.5',
     'node_modules/ws': '8.21.1',
+    'node_modules/yaml': '2.9.0',
   });
+  assert.deepEqual(manifest.verification.forbiddenRuntimeDependencies, [
+    'node_modules/screenshot-desktop',
+  ]);
+  assert.equal(manifest.verification.productionAudit.critical, 0);
+  assert.equal(manifest.verification.productionAudit.high, 0);
   assert.ok(manifest.upstreamRefs.includes('https://github.com/siteboon/claudecodeui/pull/978'));
   assert.ok(manifest.upstreamRefs.includes('https://github.com/siteboon/claudecodeui/pull/1070'));
   assert.match(manifest.removal, /production dependency tree satisfies verification\.requiredRuntimeDependencies/);
@@ -86,15 +114,26 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   const packageJson = JSON.parse(await readFile(path.join(cloudcliRoot, 'package.json'), 'utf8'));
   const shrinkwrap = JSON.parse(await readFile(path.join(cloudcliRoot, 'npm-shrinkwrap.json'), 'utf8'));
   assert.equal(packageJson.version, '1.36.3');
+  assert.equal(packageJson.scripts?.prepare, undefined);
+  assert.equal(packageJson.optionalDependencies?.['screenshot-desktop'], undefined);
   assert.equal(shrinkwrap.version, '1.36.3');
   assert.equal(shrinkwrap.packages[''].version, '1.36.3');
   assert.equal(shrinkwrap.packages['node_modules/better-sqlite3'].version, '12.11.1');
+  assert.equal(shrinkwrap.packages['node_modules/screenshot-desktop'], undefined);
   for (const [dependency, version] of Object.entries({
     dompurify: '3.4.12',
     express: '4.22.2',
+    'fast-uri': '3.1.4',
+    hono: '4.12.32',
+    jws: '3.2.3',
+    minimatch: '9.0.9',
     multer: '2.2.0',
     'path-to-regexp': '0.1.13',
+    picomatch: '2.3.2',
+    postcss: '8.5.25',
+    'tar-fs': '2.1.5',
     ws: '8.21.1',
+    yaml: '2.9.0',
   })) {
     assert.equal(
       shrinkwrap.packages[`node_modules/${dependency}`].version,
@@ -157,6 +196,8 @@ test('CloudCLI artifact build applies patches exactly and compares two clean con
   assert.match(buildScript, /run\('git', \['apply', '--index', patchPath\]/);
   assert.doesNotMatch(buildScript, /-C0/);
   assert.match(buildScript, /runCapture\('git', \['ls-files', '-z'\]/);
+  assert.match(buildScript, /run\('npm', \['ci', '--omit=dev'\]/);
+  assert.doesNotMatch(buildScript, /\['install', '--global'/);
   assert.match(containerBuildScript, /\['build-a', 'build-b'\]/);
   for (const key of [
     'artifactSha256',
@@ -189,6 +230,7 @@ test('CloudCLI patches keep account navigation valid and constrain upload nestin
     '"express": "^4.22.2"',
     '"multer": "^2.2.0"',
     '"ws": "^8.21.1"',
+    '-    "prepare": "husky",',
   ]) {
     assert.ok(securityPatch.includes(expected), `security patch should include ${expected}`);
   }
@@ -203,11 +245,33 @@ test('CloudCLI patches keep account navigation valid and constrain upload nestin
       > buildScript.indexOf("run('git', ['apply', '--index', patchPath]"),
     'patched dependency versions should be verified after both patches apply',
   );
-  assert.match(buildScript, /node_modules\/ws': '8\.21\.1'/);
-  assert.match(buildScript, /node_modules\/multer': '2\.2\.0'/);
-  assert.match(buildScript, /node_modules\/dompurify': '3\.4\.12'/);
-  assert.match(buildScript, /node_modules\/path-to-regexp': '0\.1\.13'/);
+  for (const [dependency, version] of Object.entries({
+    'better-sqlite3': '12.11.1',
+    dompurify: '3.4.12',
+    express: '4.22.2',
+    'fast-uri': '3.1.4',
+    hono: '4.12.32',
+    jws: '3.2.3',
+    minimatch: '9.0.9',
+    multer: '2.2.0',
+    'path-to-regexp': '0.1.13',
+    picomatch: '2.3.2',
+    postcss: '8.5.25',
+    'tar-fs': '2.1.5',
+    ws: '8.21.1',
+    yaml: '2.9.0',
+  })) {
+    const escapedDependency = dependency.replaceAll('-', String.raw`\-`);
+    const escapedVersion = version.replaceAll('.', String.raw`\.`);
+    assert.match(
+      buildScript,
+      new RegExp(`node_modules/${escapedDependency}': '${escapedVersion}'`),
+      `build script should require ${dependency} ${version}`,
+    );
+  }
   assert.match(buildScript, /npmmirror/);
+  assert.match(buildScript, /npm', \['audit', '--omit=dev', '--json'\]/);
+  assert.match(buildScript, /node_modules\/screenshot-desktop/);
 });
 
 test('CloudCLI account-management artifact contains patched source runtime and client assets', async () => {

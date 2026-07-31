@@ -173,7 +173,7 @@ const common = {
   esbuild: '0.28.1',
   eslint: '10.8.0',
   nodemon: '3.1.14',
-  npm: '11.18.0',
+  npm: '11.19.0',
   playwright: '1.61.0',
   pnpm: '11.18.0',
   prettier: '3.9.6',
@@ -181,7 +181,7 @@ const common = {
   'task-master-ai': '0.43.1',
   tsx: '4.23.1',
   typescript: '6.0.3',
-  vite: '8.1.5',
+  vite: '8.2.0',
 };
 const full = {
   '@cloudflare/next-on-pages': '1.13.16',
@@ -194,12 +194,12 @@ const full = {
   'json-server': '1.0.0-beta.15',
   lighthouse: '13.4.1',
   'netlify-cli': '26.2.0',
-  'opencode-ai': '1.18.9',
+  'opencode-ai': '1.18.10',
   pm2: '7.0.3',
   prisma: '7.9.1',
   'sharp-cli': '5.2.0',
   vercel: '54.21.1',
-  wrangler: '4.115.0',
+  wrangler: '4.116.0',
 };
 const expected = variant === 'full' ? { ...common, ...full } : common;
 const actual = Object.fromEntries(
@@ -225,7 +225,7 @@ common = {
     'httpx': '0.28.1',
     'jinja2': '3.1.6',
     'lxml': '6.1.1',
-    'markdown': '3.10.2',
+    'markdown': '3.10.3',
     'numpy': '2.4.6',
     'openpyxl': '3.1.5',
     'pandas': '3.0.5',
@@ -236,6 +236,7 @@ common = {
     'pyyaml': '6.0.3',
     'requests': '2.34.2',
     'rich': '15.0.0',
+    'setuptools': '83.0.0',
     'stevedore': '5.9.0',
     'tqdm': '4.70.0',
     'tree-sitter': '0.26.0',
@@ -247,7 +248,6 @@ full = {
     'fpdf2': '2.8.7',
     'img2pdf': '0.6.3',
     'matplotlib': '3.11.1',
-    'pdfkit': '1.0.0',
     'pymupdf': '1.28.0',
     'python-pptx': '1.0.2',
     'reportlab': '5.0.0',
@@ -278,16 +278,16 @@ assert_runtime_identity() {
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
   test -x /usr/lib/chromium/chromium
-  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "150.0.7871.181-1~deb12u1"
+  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.71-1~deb12u1"
   local cloudcli_version
   local cloudcli_package_version
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   cloudcli_package_version="$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   require_eq "CloudCLI package version" "$cloudcli_package_version" "1.36.3"
-  require_eq "Node version" "$(node --version)" "v26.5.0"
-  require_eq "npm version" "$(npm --version)" "11.18.0"
+  require_eq "Node version" "$(node --version)" "v26.5.1"
+  require_eq "npm version" "$(npm --version)" "11.19.0"
   require_eq "pnpm version" "$(pnpm --version)" "11.18.0"
-  require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.1.5"
+  require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.2.0"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.6"
   require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.146.0"
   require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.53.0"
@@ -297,6 +297,13 @@ assert_runtime_identity() {
   require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.220"
   require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.23-e383d2b"
   if [ "$VARIANT" = "full" ]; then
+    local libssh_gcrypt_path
+    require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u2"
+    libssh_gcrypt_path="$(dpkg -L libssh-gcrypt-4 | grep '/libssh-gcrypt\.so\.4$')"
+    test -n "$libssh_gcrypt_path"
+    ldd "$libssh_gcrypt_path" | grep -q 'libgcrypt\.so'
+    ! ldd "$libssh_gcrypt_path" | grep -Eq 'libcrypto\.so|libssl\.so'
+    evidence "libssh_backend=gcrypt openssl=absent"
     require_eq "EAS tar package version" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/tar/package.json').version")" "7.5.22"
     require_eq "EAS tar dependency" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/package.json').dependencies.tar")" "7.5.22"
     require_eq "Vercel tar package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/tar/package.json').version")" "7.5.22"
@@ -309,16 +316,17 @@ assert_runtime_identity() {
     netlify --version >/dev/null
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-x64/bin/local-functions-proxy"
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-arm64/bin/local-functions-proxy"
-    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.115.0"
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.116.0"
     require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.9.1"
     require_eq "Lighthouse package version" "$(node -p "require('/usr/local/lib/node_modules/lighthouse/package.json').version")" "13.4.1"
     require_eq "Marp CLI package version" "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/package.json').version")" "4.5.0"
-    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.9"
+    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.10"
     require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.82.1"
     require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.1"
     require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.141.1"
     require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "2470.4"
   else
+    ! dpkg-query -W libssh-gcrypt-4 >/dev/null 2>&1
     test ! -e /usr/local/lib/node_modules/wrangler
     test ! -e /usr/local/lib/node_modules/prisma
     test ! -e /usr/local/lib/node_modules/lighthouse
@@ -371,10 +379,23 @@ function close(server) {
   });
 }
 
-assert.equal(packageVersion('multer'), '2.2.0');
-assert.equal(packageVersion('ws'), '8.21.1');
-assert.equal(packageVersion('dompurify'), '3.4.12');
-assert.equal(packageVersion('path-to-regexp'), '0.1.13');
+for (const [dependency, version] of Object.entries({
+  'better-sqlite3': '12.11.1',
+  dompurify: '3.4.12',
+  express: '4.22.2',
+  'fast-uri': '3.1.4',
+  hono: '4.12.32',
+  jws: '3.2.3',
+  multer: '2.2.0',
+  'path-to-regexp': '0.1.13',
+  picomatch: '2.3.2',
+  postcss: '8.5.25',
+  'tar-fs': '2.1.5',
+  ws: '8.21.1',
+  yaml: '2.9.0',
+})) {
+  assert.equal(packageVersion(dependency), version, `${dependency} should use the reviewed version`);
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),

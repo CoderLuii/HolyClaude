@@ -299,7 +299,7 @@ docker compose up -d
 
 **Это вся настройка. Вы готовы.**
 
-> **Зачем эти права браузера?** В этой версии сохраняется текущий браузерный профиль HolyClaude. `SYS_ADMIN` и `seccomp=unconfined` расширяют права процессов и снижают изоляцию; `SYS_PTRACE` нужен для отладки. Оставьте этот профиль без изменений для v1.5.4 и рассматривайте hardening как отдельное изменение.
+> **Зачем эти права браузера?** В этой версии сохраняется текущий браузерный профиль HolyClaude. `SYS_ADMIN` и `seccomp=unconfined` расширяют права процессов и снижают изоляцию; `SYS_PTRACE` нужен для отладки. Оставьте этот профиль без изменений для v1.5.5 и рассматривайте hardening как отдельное изменение.
 
 > **Зачем `shm_size: 2g`?** По умолчанию Docker выделяет контейнерам 64 МБ общей памяти. HolyClaude сохраняет 2 ГБ как закреплённый default для этой версии, потому что Chromium активно использует `/dev/shm` для рендеринга вкладок. При 64 МБ вкладки падают; при активном использовании браузера поднимите до 4 ГБ.
 
@@ -458,8 +458,8 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `PUID` | `1000` | ID пользователя контейнера для Docker-remap; rootless Podman использует `docker-compose.podman-rootless.yaml` |
 | `PGID` | `1000` | ID группы контейнера для Docker-remap; rootless Podman использует `docker-compose.podman-rootless.yaml` |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Лимит памяти кучи Node.js в МБ |
-| `GIT_USER_NAME` | `HolyClaude User` | Автор git-коммитов (устанавливается один раз при первом запуске) |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email git-коммитов (устанавливается один раз при первом запуске) |
+| `GIT_USER_NAME` | `HolyClaude User` | Автор git-коммитов (задаётся только при отсутствии значения) |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email git-коммитов (задаётся только при отсутствии значения) |
 | `CHOKIDAR_USEPOLLING` | *(не задано)* | Установите `1` для SMB/CIFS — включает опросные файловые наблюдатели |
 | `WATCHFILES_FORCE_POLLING` | *(не задано)* | Установите `true` для SMB/CIFS — включает Python-опрос |
 | `NOTIFY_DISCORD` | *(не задано)* | URL Discord-вебхука для уведомлений |
@@ -589,7 +589,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 
 | Пакет | Для чего |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | Каждая крупная PDF-библиотека. Генерировать, читать, конвертировать, объединять. |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | Библиотеки для создания, чтения, преобразования и объединения PDF. |
 | `xlsxwriter`, `xlrd` | Форматы Excel, выходящие за рамки возможностей openpyxl |
 | `matplotlib`, `seaborn` | Визуализация данных и графики |
 | `python-pptx` | Генерация PowerPoint |
@@ -703,7 +703,7 @@ graph TB
 
 1. **Контейнер запускается** — `entrypoint.sh` выполняется от root. Переназначает UID/GID под пользователя хоста, восстанавливает сохранённую сессию Claude Code до запуска bootstrap и проверяет, является ли это первым запуском.
 
-2. **Только при первом запуске** — `bootstrap.sh` выполняется один раз. Копирует настройки по умолчанию, шаблон памяти, настраивает git-идентичность. Создаёт файл-маркер (`.holyclaude-bootstrapped`), чтобы никогда не запускаться снова. С этого момента ваши настройки в безопасности.
+2. **Только при первом запуске** — `bootstrap.sh` выполняется один раз. Копирует настройки по умолчанию и шаблон памяти. Создаёт файл-маркер (`.holyclaude-bootstrapped`), чтобы никогда не запускаться снова. С этого момента ваши настройки в безопасности.
 
 3. **s6-overlay берёт управление как PID 1** — Это не supervisord. Это [s6-overlay](https://github.com/just-containers/s6-overlay), созданный специально для Docker. Следит за CloudCLI, Xvfb и синхронизацией сессии Claude. Автоматически перезапускает при падении. Пересылает сигналы. Убирает зомби-процессы. Корректно завершает работу.
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Настройки Claude и сохраняемая конфигурация инструментов | `/home/claude/.claude` | `./data/claude` | **Да** |
 | Сессия Claude Code (OAuth, онбординг) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Да** |
+| Глобальная конфигурация Git и настройки XDG | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **Да** |
+| Конфигурация и аутентификация GitHub CLI | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **Да** |
 | Ваш код и проекты | `/workspace` | `./workspace` | **Да** |
 | Аккаунт CloudCLI | `/home/claude/.cloudcli` | *(только в контейнере по умолчанию — см. ниже)* | Нет (opt-in доступен) |
 
@@ -774,7 +776,8 @@ HolyClaude восстанавливает сохранённую сессию Cl
 - Файловая аутентификация Anthropic и настройки API-ключа Claude Code
 - Настройки Claude Code, память (`CLAUDE.md`) и OAuth-сессия (без повторного входа)
 - Весь ваш код в `./workspace`
-- Конфигурация git
+- Глобальная конфигурация Git, алиасы и настройки XDG
+- Конфигурация и аутентификация GitHub CLI
 - Файловая конфигурация и аутентификация Codex, Gemini и Cursor в `/home/claude/.claude`. Ключи из переменных окружения остаются в Compose или окружении хоста.
 
 ### Что придётся повторить (10 секунд):
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** Не удаляйте каталог целиком. В нем хранятся сохраненные данные сессии и конфигурации Claude Code. Для нового bootstrap удаляйте только sentinel-файл, а для сброса настройки — только соответствующий файл конфигурации.
+> **`./data/claude/`:** Не удаляйте каталог целиком. В нем хранятся данные Claude Code, а с v1.5.5 могут храниться учетные данные GitHub CLI. Не добавляйте каталог в git, не распространяйте его и не храните в незашифрованных резервных копиях.
 
 ### Сохранение аккаунта CloudCLI (опционально, только локальное хранилище)
 
@@ -933,6 +936,8 @@ HolyClaude привязывает CloudCLI к порту `3001`. По умолч
 
 ## :arrows_counterclockwise: Обновление
 
+> Обновляетесь с версии ниже v1.5.5? Перенесите глобальную конфигурацию Git или состояние `gh auth` из текущего контейнера до его пересоздания. Следуйте инструкции по [восстановлению Git и GitHub CLI](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate). Если сначала удалить старый контейнер, эти данные могут быть потеряны.
+
 ```bash
 # Загрузите последний образ
 docker compose pull
@@ -948,7 +953,7 @@ docker compose up -d
 Чтобы закрепить конкретную версию вместо `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

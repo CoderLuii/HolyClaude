@@ -299,7 +299,7 @@ docker compose up -d
 
 **설정은 이게 전부입니다. 완료되었습니다.**
 
-> **왜 이런 브라우저 권한인가요?** 이번 릴리스는 HolyClaude의 현재 브라우저 프로필을 유지합니다. `SYS_ADMIN`과 `seccomp=unconfined`는 프로세스 권한을 넓히고 격리를 약화시키며, `SYS_PTRACE`는 디버깅용입니다. v1.5.4에서는 이 프로필을 그대로 유지하고, 하드닝은 별도 변경으로 다루세요.
+> **왜 이런 브라우저 권한인가요?** 이번 릴리스는 HolyClaude의 현재 브라우저 프로필을 유지합니다. `SYS_ADMIN`과 `seccomp=unconfined`는 프로세스 권한을 넓히고 격리를 약화시키며, `SYS_PTRACE`는 디버깅용입니다. v1.5.5에서는 이 프로필을 그대로 유지하고, 하드닝은 별도 변경으로 다루세요.
 
 > **왜 `shm_size: 2g`인가요?** Docker는 기본으로 공유 메모리 64MB만 줍니다. HolyClaude는 이번 릴리스의 유지된 기본값으로 2GB를 둡니다. Chromium이 탭 렌더링에 `/dev/shm`을 많이 쓰기 때문입니다. 64MB에서는 탭이 깨집니다. 브라우저 사용이 많으면 4GB로 올리세요.
 
@@ -458,8 +458,8 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `PUID` | `1000` | Docker 방식 컨테이너 사용자 ID; rootless Podman은 `docker-compose.podman-rootless.yaml` 사용 |
 | `PGID` | `1000` | Docker 방식 컨테이너 그룹 ID; rootless Podman은 `docker-compose.podman-rootless.yaml` 사용 |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js 힙 메모리 한도 (MB) |
-| `GIT_USER_NAME` | `HolyClaude User` | Git 커밋 작성자 (첫 부팅 시 한 번 설정) |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git 커밋 이메일 (첫 부팅 시 한 번 설정) |
+| `GIT_USER_NAME` | `HolyClaude User` | Git 커밋 작성자 (값이 없을 때만 설정) |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git 커밋 이메일 (값이 없을 때만 설정) |
 | `CHOKIDAR_USEPOLLING` | *(미설정)* | SMB/CIFS용 `1`로 설정 — 폴링 파일 감시자 활성화 |
 | `WATCHFILES_FORCE_POLLING` | *(미설정)* | SMB/CIFS용 `true`로 설정 — Python 폴링 활성화 |
 | `NOTIFY_DISCORD` | *(미설정)* | 알림용 Discord 웹훅 URL |
@@ -589,7 +589,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 
 | 패키지 | 용도 |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | 모든 주요 PDF 라이브러리. 생성, 읽기, 변환, 병합. |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | PDF 생성, 읽기, 변환, 병합 라이브러리. |
 | `xlsxwriter`, `xlrd` | openpyxl이 지원하지 않는 Excel 형식 |
 | `matplotlib`, `seaborn` | 데이터 시각화 및 차트 |
 | `python-pptx` | PowerPoint 생성 |
@@ -703,7 +703,7 @@ graph TB
 
 1. **컨테이너 시작** — `entrypoint.sh`가 root로 실행됩니다. UID/GID를 호스트 사용자에 맞게 재매핑하고, bootstrap이 건드리기 전에 저장된 Claude Code 세션을 복원하며, 첫 부팅 여부를 확인합니다.
 
-2. **첫 부팅 시에만** — `bootstrap.sh`가 한 번 실행됩니다. 기본 설정, 메모리 템플릿 복사, git 정보 설정. 이후 다시 실행되지 않도록 sentinel 파일(`.holyclaude-bootstrapped`)을 생성합니다. 이 시점부터 커스터마이징은 안전합니다.
+2. **첫 부팅 시에만** — `bootstrap.sh`가 한 번 실행됩니다. 기본 설정과 메모리 템플릿을 복사합니다. 이후 다시 실행되지 않도록 sentinel 파일(`.holyclaude-bootstrapped`)을 생성합니다. 이 시점부터 커스터마이징은 안전합니다.
 
 3. **s6-overlay가 PID 1을 인계받습니다** — supervisord가 아닙니다. Docker용으로 특별 제작된 [s6-overlay](https://github.com/just-containers/s6-overlay)입니다. CloudCLI, Xvfb, Claude 세션 동기화를 감독합니다. 충돌 시 자동 재시작. 신호 전달. 좀비 프로세스 수거. 정상 종료.
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Claude 설정 및 영구 저장된 도구 구성 | `/home/claude/.claude` | `./data/claude` | **예** |
 | Claude Code 세션 (OAuth, 온보딩) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **예** |
+| Git 전역 및 XDG 구성 | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **예** |
+| GitHub CLI 구성 및 인증 | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **예** |
 | 코드 및 프로젝트 | `/workspace` | `./workspace` | **예** |
 | CloudCLI 계정 | `/home/claude/.cloudcli` | *(기본적으로 컨테이너 전용 — 아래 참조)* | 아니요 (opt-in 가능) |
 
@@ -774,7 +776,8 @@ HolyClaude는 시작 중 새 기본 파일을 만들기 전에 저장된 Claude 
 - 파일 기반 Anthropic 인증 및 Claude Code API 키 설정
 - Claude Code 설정, 메모리 (`CLAUDE.md`) 및 OAuth 세션 (재로그인 불필요)
 - `./workspace`의 모든 코드
-- Git 설정
+- Git 전역 구성, 별칭 및 XDG Git 설정
+- GitHub CLI 구성 및 인증
 - `/home/claude/.claude`에 저장된 Codex, Gemini, Cursor의 파일 기반 구성 및 인증. 환경 변수로 제공한 키는 Compose 또는 호스트 환경에 남습니다.
 
 ### 다시 해야 할 것 (10초):
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** 이 폴더 전체를 삭제하지 마세요. 저장된 Claude Code 세션 및 구성 데이터가 들어 있습니다. bootstrap을 다시 실행하려면 sentinel 파일만, 설정을 초기화하려면 해당 구성 파일만 삭제하세요.
+> **`./data/claude/`:** 이 폴더 전체를 삭제하지 마세요. Claude Code 데이터가 들어 있으며 v1.5.5부터 GitHub CLI 자격 증명도 포함될 수 있습니다. git에 커밋하거나 널리 공유하거나 암호화되지 않은 백업에 저장하지 마세요.
 
 ### CloudCLI 계정 영속화 (선택 사항, 로컬 스토리지만)
 
@@ -933,6 +936,8 @@ HolyClaude는 CloudCLI를 포트 `3001`에 바인딩합니다. 기본적으로 �
 
 ## :arrows_counterclockwise: Upgrading
 
+> v1.5.5 이전 버전에서 업그레이드하나요? 컨테이너를 다시 만들기 전에 현재 컨테이너의 전역 Git 설정 또는 `gh auth` 상태를 마이그레이션하세요. [Git 및 GitHub CLI 복구](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate) 절차를 따르세요. 기존 컨테이너를 먼저 삭제하면 이 데이터가 손실될 수 있습니다.
+
 ```bash
 # 최신 이미지 Pull
 docker compose pull
@@ -948,7 +953,7 @@ docker compose up -d
 `latest` 대신 특정 버전을 고정하려면:
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

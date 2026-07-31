@@ -299,7 +299,7 @@ Ouvrez `http://localhost:3001`. Créez un compte CloudCLI. Connectez-vous avec v
 
 **C'est toute la configuration. Vous avez terminé.**
 
-> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.4 et traitez le durcissement comme un changement séparé.
+> **Pourquoi ces capacités de navigateur ?** Cette version conserve le profil navigateur actuel de HolyClaude. `SYS_ADMIN` et `seccomp=unconfined` augmentent les privilèges de processus et réduisent l'isolation ; `SYS_PTRACE` sert au débogage. Gardez ce profil tel quel pour v1.5.5 et traitez le durcissement comme un changement séparé.
 
 > **Pourquoi `shm_size: 2g` ?** Docker alloue 64 Mo de mémoire partagée aux conteneurs par défaut. HolyClaude conserve 2 Go comme valeur par défaut retenue pour cette version parce que Chromium utilise beaucoup `/dev/shm` pour le rendu des onglets. À 64 Mo, les onglets plantent ; si l'usage navigateur est intensif, montez à 4 Go.
 
@@ -458,8 +458,8 @@ La référence complète. Chaque variable, sa valeur par défaut, ce qu'elle fai
 | `PUID` | `1000` | ID utilisateur du conteneur pour le remappage Docker; Podman rootless utilise `docker-compose.podman-rootless.yaml` |
 | `PGID` | `1000` | ID de groupe du conteneur pour le remappage Docker; Podman rootless utilise `docker-compose.podman-rootless.yaml` |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Limite mémoire heap Node.js en Mo |
-| `GIT_USER_NAME` | `HolyClaude User` | Auteur des commits Git (défini une fois au premier démarrage) |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email des commits Git (défini une fois au premier démarrage) |
+| `GIT_USER_NAME` | `HolyClaude User` | Auteur des commits Git (défini uniquement si la valeur manque) |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email des commits Git (défini uniquement si la valeur manque) |
 | `CHOKIDAR_USEPOLLING` | *(non défini)* | Définissez à `1` pour SMB/CIFS — active les observateurs de fichiers par polling |
 | `WATCHFILES_FORCE_POLLING` | *(non défini)* | Définissez à `true` pour SMB/CIFS — active le polling Python |
 | `NOTIFY_DISCORD` | *(non défini)* | URL du webhook Discord pour les notifications |
@@ -589,7 +589,7 @@ L'image complète inclut tout ce qui précède, plus :
 
 | Paquet | À quoi ça sert |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | Toutes les grandes bibliothèques PDF. Générez-les, lisez-les, convertissez-les, fusionnez-les. |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | Bibliothèques pour générer, lire, convertir et fusionner des PDF. |
 | `xlsxwriter`, `xlrd` | Formats Excel au-delà de ce que couvre openpyxl |
 | `matplotlib`, `seaborn` | Visualisation de données et graphiques |
 | `python-pptx` | Génération de présentations PowerPoint |
@@ -703,7 +703,7 @@ graph TB
 
 1. **Le conteneur démarre** — `entrypoint.sh` s'exécute en tant que root. Remapping de l'UID/GID pour correspondre à votre utilisateur hôte, restauration de la session Claude Code enregistrée avant que bootstrap puisse la toucher, vérification s'il s'agit d'un premier démarrage.
 
-2. **Premier démarrage uniquement** — `bootstrap.sh` s'exécute une seule fois. Copie les paramètres par défaut, le modèle de mémoire, configure l'identité git. Crée un fichier sentinelle (`.holyclaude-bootstrapped`) pour qu'il ne s'exécute plus jamais. Vos personnalisations sont protégées à partir de ce moment.
+2. **Premier démarrage uniquement** — `bootstrap.sh` s'exécute une seule fois. Copie les paramètres par défaut et le modèle de mémoire. Crée un fichier sentinelle (`.holyclaude-bootstrapped`) pour qu'il ne s'exécute plus jamais. Vos personnalisations sont protégées à partir de ce moment.
 
 3. **s6-overlay prend le contrôle en tant que PID 1** — Ce n'est pas supervisord. C'est [s6-overlay](https://github.com/just-containers/s6-overlay), conçu spécifiquement pour Docker. Supervise CloudCLI, Xvfb et la synchronisation de session Claude. Redémarre automatiquement en cas de crash. Transmet les signaux. Récolte les zombies. S'arrête proprement.
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Paramètres Claude et configuration persistante des outils | `/home/claude/.claude` | `./data/claude` | **Oui** |
 | Session Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Oui** |
+| Configuration globale Git et XDG | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **Oui** |
+| Configuration et authentification GitHub CLI | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **Oui** |
 | Votre code et projets | `/workspace` | `./workspace` | **Oui** |
 | Compte CloudCLI | `/home/claude/.cloudcli` | *(conteneur uniquement par défaut — voir ci-dessous)* | Non (opt-in disponible) |
 
@@ -774,7 +776,8 @@ HolyClaude restaure la session Claude Code enregistrée avant que le démarrage 
 - Authentification Anthropic basée sur des fichiers et paramètres de clé API de Claude Code
 - Paramètres Claude Code, mémoire (`CLAUDE.md`) et session OAuth (sans reconnexion)
 - Tout votre code dans `./workspace`
-- Configuration Git
+- Configuration globale, alias et réglages XDG de Git
+- Configuration et authentification GitHub CLI
 - Configuration et authentification de Codex, Gemini et Cursor basées sur des fichiers sous `/home/claude/.claude`. Les clés fournies par des variables d'environnement restent dans Compose ou l'environnement hôte.
 
 ### Ce que vous referez (10 secondes) :
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** Ne supprimez pas entièrement ce dossier. Il contient les données de session et de configuration Claude Code enregistrées. Pour relancer le bootstrap, supprimez uniquement le fichier sentinelle ; pour réinitialiser un réglage, supprimez uniquement le fichier de configuration concerné.
+> **`./data/claude/`:** Ne supprimez pas entièrement ce dossier. Il contient des données Claude Code et peut contenir des identifiants GitHub CLI depuis v1.5.5. Ne le commitez pas, ne le partagez pas largement et ne le stockez pas dans une sauvegarde non chiffrée.
 
 ### Persister le compte CloudCLI (optionnel, stockage local uniquement)
 
@@ -933,6 +936,8 @@ Consultez la [documentation de configuration](../configuration.md#notifications-
 
 ## :arrows_counterclockwise: Mises à jour
 
+> Vous mettez à jour une version antérieure à v1.5.5 ? Migrez la configuration Git globale ou l'état `gh auth` du conteneur actuel avant de le recréer. Suivez la procédure de [récupération Git et GitHub CLI](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate). Supprimer d'abord l'ancien conteneur peut faire perdre ces données.
+
 ```bash
 # Télécharger la dernière image
 docker compose pull
@@ -948,7 +953,7 @@ N'exécutez pas `cloudcli update` ni `npm install -g @cloudcli-ai/cloudcli@lates
 Pour épingler une version spécifique plutôt que `latest` :
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

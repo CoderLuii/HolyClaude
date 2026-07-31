@@ -189,7 +189,7 @@ Do not use this command against NAS, SMB/CIFS, or NFS storage. For rootless Podm
 
 **Fix:** Ensure `shm_size: 2g` or higher in your docker-compose file. If running many concurrent tabs, increase to `4g`. If you still get an immediate SIGTRAP, re-check the browser build path before only raising shm.
 
-In `v1.5.4`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
+In `v1.5.5`, direct Chromium, Node Playwright, Python Playwright, and CloudCLI Browser Use all use the pinned Debian Chromium security build baked into the image. `/usr/bin/chromium` is the supported command; a runtime `playwright install` is not part of the repair path.
 
 ---
 
@@ -310,6 +310,113 @@ docker compose up -d
 HolyClaude now restores `./data/claude/.claude.json.persist` before startup can create a fresh default file. It also refuses to replace a valid saved session with empty, invalid, or onboarding-only state.
 
 If you still lose the session, check that `./data/claude/` is writable by the container user. On Synology, QNAP, SMB/CIFS, or other NAS-backed mounts, Unix permission changes from inside the container are best effort. Fix the host share ownership or set `PUID`/`PGID` to match the account that owns the mounted folder.
+
+---
+
+### Git identity or `gh auth` disappears after recreate
+
+**Symptom:** `git config --global` values or `gh auth status` work in one container but disappear after the container is removed and recreated.
+
+**Fix:** If you are upgrading from an older image and the current container still has Git or `gh` state, migrate it before Compose replaces the container. First inspect which paths exist in the old container:
+
+```bash
+docker compose exec holyclaude sh -lc '
+  for path in /home/claude/.gitconfig /home/claude/.config/git /home/claude/.config/gh; do
+    if [ -e "$path" ] || [ -L "$path" ]; then ls -ld "$path"; fi
+  done
+'
+```
+
+Make an encrypted backup of `./data/claude` with a backup tool you trust before continuing. The command below does not create that backup. It copies any existing live state into a temporary directory inside the already credential-bearing `./data/claude` mount, follows live symlinks, checks all three durable targets before moving anything, and removes the temporary directory when it exits:
+
+```bash
+(
+set -euo pipefail
+umask 077
+
+ensure_directory() {
+  path="$1"
+  if [ -L "$path" ]; then
+    echo "Refusing symlinked durable directory: $path" >&2
+    return 1
+  fi
+  if [ -e "$path" ] && [ ! -d "$path" ]; then
+    echo "Refusing non-directory durable path: $path" >&2
+    return 1
+  fi
+  mkdir -p "$path"
+  if [ -L "$path" ] || [ ! -d "$path" ]; then
+    echo "Durable directory changed while preparing migration: $path" >&2
+    return 1
+  fi
+}
+
+ensure_directory ./data
+ensure_directory ./data/claude
+ensure_directory ./data/claude/.config
+
+stage="$(mktemp -d ./data/claude/.holyclaude-v1.5.5-stage.XXXXXX)"
+trap 'rm -rf "$stage"' EXIT HUP INT TERM
+
+copy_if_present() {
+  source="$1"
+  name="$2"
+  if docker compose exec -T holyclaude sh -c '
+    if [ -e "$1" ] || [ -L "$1" ]; then exit 0; fi
+    exit 3
+  ' sh "$source"; then
+    docker compose cp -L "holyclaude:$source" "$stage/$name"
+  else
+    status="$?"
+    if [ "$status" -eq 3 ]; then return 0; fi
+    echo "Could not inspect live state: $source" >&2
+    return "$status"
+  fi
+}
+
+check_target() {
+  source="$1"
+  target="$2"
+  [ -e "$source" ] || return 0
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    echo "Refusing to replace existing durable state: $target" >&2
+    return 1
+  fi
+}
+
+move_if_staged() {
+  source="$1"
+  target="$2"
+  [ -e "$source" ] || return 0
+  mv -T -n "$source" "$target"
+  if [ -e "$source" ] || [ -L "$source" ]; then
+    echo "Durable target changed before move: $target" >&2
+    return 1
+  fi
+}
+
+copy_if_present /home/claude/.gitconfig .gitconfig
+copy_if_present /home/claude/.config/git git
+copy_if_present /home/claude/.config/gh gh
+
+check_target "$stage/.gitconfig" ./data/claude/.gitconfig
+check_target "$stage/git" ./data/claude/.config/git
+check_target "$stage/gh" ./data/claude/.config/gh
+
+move_if_staged "$stage/.gitconfig" ./data/claude/.gitconfig
+move_if_staged "$stage/git" ./data/claude/.config/git
+move_if_staged "$stage/gh" ./data/claude/.config/gh
+
+docker compose pull
+docker compose up -d
+)
+```
+
+HolyClaude v1.5.5 stores global Git config, XDG Git config, and GitHub CLI config below the existing `./data/claude` mount. Once the old state is moved there, replacement containers link to it on every boot.
+
+If startup reports both a live and durable path, preserve both and decide which one to keep. HolyClaude refuses to merge or overwrite conflicting configuration automatically.
+
+`./data/claude/.config/gh/hosts.yml` can contain a plaintext GitHub token when no system credential store is available. HolyClaude sets and verifies mode `0600` at startup. A filesystem that ignores that mode change causes startup to stop, so fix the host mount permissions before retrying. Do not commit `data/claude`, share it broadly, or store it in an unencrypted backup.
 
 ---
 

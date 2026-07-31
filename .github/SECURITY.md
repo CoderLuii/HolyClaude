@@ -60,13 +60,13 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.5.4 vendors CloudCLI `1.36.3` with patched `ws`, `multer`, DOMPurify, Express, and `path-to-regexp` resolutions. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+HolyClaude v1.5.5 vendors CloudCLI `1.36.3` with a refreshed compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
 
 CloudCLI is a single-user service. Its account controls one shared workspace and credential context. Putting CloudCLI behind a tunnel or sharing its URL does not create separate users, tenants, workspaces, or credential boundaries.
 
 ## Release Evidence
 
-The release gate keeps the original Grype report and then evaluates every raw Critical match against [`security/advisory-reviews.json`](../security/advisory-reviews.json). Reviews must identify the exact vulnerability, package, version, type, and installed path. They also need a supported authority and an unexpired review date. Missing, duplicate, broad, or expired matches stop the release.
+The release gate keeps the original Grype report and then evaluates every raw Critical and High match against [`security/advisory-reviews.json`](../security/advisory-reviews.json). Reviews must identify the exact vulnerability, package, version, type, and installed path. They also need a supported authority and an unexpired review date. Missing, duplicate, broad, or expired matches stop the release.
 
 Grype suppresses indirect kernel findings for Debian's `linux-libc-dev` headers by default. HolyClaude audits that built-in behavior instead of accepting ignored findings generally: the package, upstream `linux` relationship, indirect-match metadata, rule name, and disabled descriptor must all match exactly. Any changed or additional ignored match stops the release, and the accepted records are preserved as `ignored-findings.json` in the evidence bundle.
 
@@ -74,9 +74,11 @@ The full image keeps EAS CLI 20.5.1 and Vercel CLI 54.21.1 on their tested compa
 
 [`security/openvex.json`](../security/openvex.json) is limited to findings where the affected code is absent or outside HolyClaude's shipped service paths. Vendor severity corrections stay in the review ledger instead of being presented as VEX. Effective Critical findings cannot be accepted. A temporary effective High exception requires `CoderLuii` approval, names the exact component, and expires within 30 days.
 
-The workflow publishes the raw Syft SBOMs and scanner report beside the reviewed Critical report, mapped High report, OpenVEX document, policy result, and image digest metadata. CycloneDX's embedded SPDX enum currently predates `Artistic-dist`, so the workflow also preserves a hashed normalization record and validates a copy that represents that identifier through CycloneDX's `license.name` field. Other schema errors still stop the release. This keeps the evidence inspectable without changing the two-platform Docker manifest.
+The workflow publishes the raw Syft SBOMs and scanner report beside the reviewed Critical report, mapped High report, OpenVEX document, policy result, and image digest metadata. The policy records the exact candidate image digest and normalized CycloneDX SHA-256. Target OpenVEX statements are narrowed to the matching component PURL, architecture, variant, and image hash. CycloneDX's embedded SPDX enum currently predates `Artistic-dist`, so the workflow also preserves a hashed normalization record and validates a copy that represents that identifier through CycloneDX's `license.name` field. Other schema errors still stop the release. This keeps the evidence inspectable without changing the two-platform Docker manifest.
 
 ## Credential Storage
+
+The default `./data/claude` mount persists Claude Code sessions and, from v1.5.5, Git global configuration and GitHub CLI authentication. Treat it as credential-bearing storage. Do not commit it, share it broadly, or store it in an unencrypted backup.
 
 - Claude Code session data is stored in `./data/claude/` on the host by the default Compose files. Other bundled tools may read credentials from their own container files, bind mounts, or environment variables.
 - HolyClaude operates no credential relay and does not proxy or intercept provider credentials

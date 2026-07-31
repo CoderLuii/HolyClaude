@@ -12,17 +12,32 @@ const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
 const upstreamCommit = '27eaf0146a46aa8a55178f3d394360ff7465420f';
 const packageVersion = '1.36.3';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
-const expectedBuildImage = 'node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb';
-const expectedNode = 'v26.5.0';
-const expectedNpm = '11.18.0';
-const expectedRuntimeDependencies = {
+const expectedBuildImage = 'node:26.5.1-bookworm-slim@sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73';
+const expectedNode = 'v26.5.1';
+const expectedNpm = '11.19.0';
+const reviewedLockDependencies = {
   'node_modules/better-sqlite3': '12.11.1',
   'node_modules/dompurify': '3.4.12',
   'node_modules/express': '4.22.2',
+  'node_modules/fast-uri': '3.1.4',
+  'node_modules/hono': '4.12.32',
+  'node_modules/jws': '3.2.3',
+  'node_modules/minimatch': '9.0.9',
   'node_modules/multer': '2.2.0',
   'node_modules/path-to-regexp': '0.1.13',
+  'node_modules/picomatch': '2.3.2',
+  'node_modules/postcss': '8.5.25',
+  'node_modules/tar-fs': '2.1.5',
   'node_modules/ws': '8.21.1',
+  'node_modules/yaml': '2.9.0',
 };
+const expectedRuntimeDependencies = Object.fromEntries(
+  Object.entries(reviewedLockDependencies)
+    .filter(([packagePath]) => packagePath !== 'node_modules/minimatch'),
+);
+const forbiddenRuntimeDependencies = [
+  'node_modules/screenshot-desktop',
+];
 const expectedBuildPackages = {
   'build-essential': '12.9',
   'ca-certificates': '20230311+deb12u1',
@@ -56,6 +71,16 @@ function runCapture(command, argsList, options = {}) {
     encoding: 'utf8',
     ...options,
   }).trim();
+}
+
+function runCaptureAllowFailure(command, argsList, options = {}) {
+  try {
+    return runCapture(command, argsList, options);
+  } catch (error) {
+    const stdout = error?.stdout?.toString().trim();
+    if (!stdout) throw error;
+    return stdout;
+  }
 }
 
 function sha256(filePath) {
@@ -99,26 +124,68 @@ function hashFiles(root, files) {
   return hash.digest('hex');
 }
 
-function normalizeDependencyTree(node) {
-  const dependencies = {};
-  for (const name of Object.keys(node.dependencies ?? {}).sort()) {
-    const dependency = node.dependencies[name];
-    dependencies[name] = {
-      version: dependency.version,
-      dependencies: normalizeDependencyTree(dependency).dependencies,
-    };
-  }
-  return { dependencies };
-}
-
 function readJson(filePath) {
   return JSON.parse(readFileSync(filePath, 'utf8'));
 }
 
+function collectInstalledDependencyVersions(nodeModulesRoot, prefix = 'node_modules') {
+  const versions = [];
+  const rootEntry = lstatSync(nodeModulesRoot, { throwIfNoEntry: false });
+  if (!rootEntry) return versions;
+
+  const collectPackage = (packageRoot, packagePath) => {
+    const packageJson = readJson(path.join(packageRoot, 'package.json'));
+    versions.push([packagePath, packageJson.name, packageJson.version]);
+    versions.push(...collectInstalledDependencyVersions(
+      path.join(packageRoot, 'node_modules'),
+      `${packagePath}/node_modules`,
+    ));
+  };
+
+  for (const entry of readdirSync(nodeModulesRoot, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
+    const entryRoot = path.join(nodeModulesRoot, entry.name);
+    if (entry.name.startsWith('@')) {
+      for (const scopedEntry of readdirSync(entryRoot, { withFileTypes: true })) {
+        if (!scopedEntry.isDirectory() && !scopedEntry.isSymbolicLink()) continue;
+        collectPackage(
+          path.join(entryRoot, scopedEntry.name),
+          `${prefix}/${entry.name}/${scopedEntry.name}`,
+        );
+      }
+      continue;
+    }
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
+    collectPackage(entryRoot, `${prefix}/${entry.name}`);
+  }
+
+  return versions.sort(([left], [right]) => left.localeCompare(right));
+}
+
 function verifyResolvedDependencies(lock, label) {
-  for (const [packagePath, version] of Object.entries(expectedRuntimeDependencies)) {
+  for (const [packagePath, version] of Object.entries(reviewedLockDependencies)) {
     if (lock.packages?.[packagePath]?.version !== version) {
       throw new Error(`${label} must resolve ${packagePath} ${version}`);
+    }
+  }
+  for (const packagePath of forbiddenRuntimeDependencies) {
+    if (lock.packages?.[packagePath]) {
+      throw new Error(`${label} must not include unused runtime dependency ${packagePath}`);
+    }
+  }
+}
+
+function verifyInstalledDependencies(root) {
+  for (const [packagePath, version] of Object.entries(expectedRuntimeDependencies)) {
+    const packageJson = readJson(path.join(root, packagePath, 'package.json'));
+    if (packageJson.version !== version) {
+      throw new Error(`Installed CloudCLI runtime must resolve ${packagePath} ${version}`);
+    }
+  }
+  for (const packagePath of forbiddenRuntimeDependencies) {
+    const entry = lstatSync(path.join(root, packagePath), { throwIfNoEntry: false });
+    if (entry) {
+      throw new Error(`Installed CloudCLI runtime must not include ${packagePath}`);
     }
   }
 }
@@ -141,6 +208,12 @@ function verifyVersionInputs(workdir) {
     if (packageJson.dependencies?.[name] !== version) {
       throw new Error(`CloudCLI package.json must declare ${name} ${version}`);
     }
+  }
+  if (packageJson.optionalDependencies?.['screenshot-desktop']) {
+    throw new Error('CloudCLI package.json must not declare unused optional dependency screenshot-desktop');
+  }
+  if (packageJson.scripts?.prepare) {
+    throw new Error('CloudCLI package.json must not run a development-only prepare script during production install');
   }
   verifyResolvedDependencies(packageLock, 'CloudCLI package-lock.json');
 }
@@ -166,6 +239,18 @@ function verifyShrinkwrap(workdir) {
     throw new Error('CloudCLI npm-shrinkwrap.json must use registry.npmjs.org URLs');
   }
   verifyResolvedDependencies(shrinkwrap, 'CloudCLI npm-shrinkwrap.json');
+}
+
+function verifyProductionAudit(workdir) {
+  const source = runCaptureAllowFailure('npm', ['audit', '--omit=dev', '--json'], { cwd: workdir });
+  const report = JSON.parse(source);
+  const vulnerabilities = report.metadata?.vulnerabilities;
+  if (!vulnerabilities || vulnerabilities.critical !== 0 || vulnerabilities.high !== 0) {
+    throw new Error(
+      `CloudCLI production audit must have 0 Critical and 0 High findings, got ${JSON.stringify(vulnerabilities)}`,
+    );
+  }
+  return vulnerabilities;
 }
 
 async function prepareSource(workdir) {
@@ -239,6 +324,7 @@ try {
   run('npm', ['shrinkwrap', '--omit=dev'], { cwd: workdir });
   normalizeShrinkwrapRegistry(workdir);
   verifyShrinkwrap(workdir);
+  const productionAudit = verifyProductionAudit(workdir);
 
   const packDir = path.join(workdir, 'pack');
   await mkdir(packDir);
@@ -251,25 +337,31 @@ try {
   await cp(packedPath, artifactPath);
   run('node', [path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs'), artifactPath], { cwd: workdir });
 
-  const installPrefix = path.join(workdir, 'install');
   const installCache = path.join(workdir, 'install-cache');
-  await mkdir(installPrefix);
-  run('npm', ['install', '--global', '--prefix', installPrefix, artifactPath], {
-    cwd: workdir,
-    env: { ...process.env, npm_config_cache: installCache },
-  });
-  const dependencyTree = JSON.parse(runCapture('npm', ['ls', '--global', '--all', '--json', '--prefix', installPrefix], {
-    cwd: workdir,
-    env: { ...process.env, npm_config_cache: installCache },
-  }));
-  const productionDependencyTreeHash = sha256Text(JSON.stringify(normalizeDependencyTree(dependencyTree)));
-
   const unpackDir = path.join(workdir, 'pack-check');
   await mkdir(unpackDir);
   run('tar', ['-xzf', artifactPath, '-C', unpackDir]);
+  const unpackedPackage = path.join(unpackDir, 'package');
   const packageFileListHash = createHash('sha256')
-    .update(collectFiles(path.join(unpackDir, 'package')).sort().join('\n'))
+    .update(collectFiles(unpackedPackage).sort().join('\n'))
     .digest('hex');
+  const installRoot = path.join(workdir, 'install', 'lib', 'node_modules', '@cloudcli-ai', 'cloudcli');
+  await mkdir(path.dirname(installRoot), { recursive: true });
+  await cp(unpackedPackage, installRoot, { recursive: true });
+  run('npm', ['ci', '--omit=dev'], {
+    cwd: installRoot,
+    env: { ...process.env, npm_config_cache: installCache },
+  });
+  verifyInstalledDependencies(installRoot);
+  run('node', [
+    '--input-type=module',
+    '-e',
+    "import { createRequire } from 'node:module'; const require = createRequire(`${process.cwd()}/package.json`); const Database = require('better-sqlite3'); const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (id INTEGER)'); db.close();",
+  ], { cwd: installRoot });
+  verifyProductionAudit(installRoot);
+  const installedDependencyVersions = collectInstalledDependencyVersions(path.join(installRoot, 'node_modules'));
+  const productionDependencyTreeHash = sha256Text(JSON.stringify(installedDependencyVersions));
+
   const shrinkwrapHash = sha256(path.join(workdir, 'npm-shrinkwrap.json'));
   const artifactHash = sha256(artifactPath);
 
@@ -298,8 +390,11 @@ try {
         'npm run build',
         'npm run lint',
         'npm shrinkwrap --omit=dev',
+        'npm audit --omit=dev --json',
         'npm pack',
-        'npm install -g',
+        'npm ci --omit=dev',
+        'installed runtime dependency verification',
+        'installed native better-sqlite3 smoke',
       ],
       generatedAt: '2026-07-21T00:00:00Z',
       sourceDateNote: 'Timestamp is fixed in this manifest so reproducibility checks compare stable fields.',
@@ -317,7 +412,10 @@ try {
     verification: {
       detector: 'scripts/verify-cloudcli-account-management-support.mjs',
       expectedState: 'holyclaude-bridge-complete',
+      reviewedLockDependencies,
       requiredRuntimeDependencies: expectedRuntimeDependencies,
+      forbiddenRuntimeDependencies,
+      productionAudit,
       existingHolyClaudeRuntimePatchesRunAfterInstall: true,
     },
     upstreamRefs: [

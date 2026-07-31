@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const artifactDir = path.join(repoRoot, 'vendor/artifacts');
-const buildImage = 'node:26.5.0-bookworm-slim@sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb';
+const buildImage = 'node:26.5.1-bookworm-slim@sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73';
 const artifactFile = 'cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz';
 const buildPackages = {
   'build-essential': '12.9',
@@ -32,7 +32,7 @@ function runBuild(outputDir) {
   const buildCommand = [
     'apt-get update >/dev/null',
     `apt-get install -y --no-install-recommends ${pinnedPackages} >/dev/null`,
-    'npm install -g npm@11.18.0 >/dev/null',
+    'npm install -g npm@11.19.0 >/dev/null',
     'node scripts/build-cloudcli-account-management-artifact.mjs --output-dir /output',
   ].join(' && ');
 

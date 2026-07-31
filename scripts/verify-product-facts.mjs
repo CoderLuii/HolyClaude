@@ -353,7 +353,11 @@ export function verifyProductSources(facts, root) {
     requireMatch(source, /^\s*RUN if \[ "\$VARIANT" = "full" \]; then/m, 'full-only CLI install is not gated by VARIANT=full');
   }
   const cloudcliInstallRegion = section(dockerfile, 'ARG CLOUDCLI_VERSION=', '# ---------- CloudCLI plugins (');
-  requireMatch(cloudcliInstallRegion, /npm i -g \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz/, 'CloudCLI global install is missing');
+  requireMatch(
+    cloudcliInstallRegion,
+    /tar -xzf \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz[\s\S]+npm ci --omit=dev[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js" \/usr\/local\/bin\/cloudcli/,
+    'CloudCLI exact production install is missing',
+  );
   if (cloudcliInstallRegion.includes('$VARIANT')) {
     throw new Error('CloudCLI install must be shared by full and slim variants');
   }

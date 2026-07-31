@@ -24,14 +24,14 @@ function expectInvalid(value, pattern) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.4'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.5'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
-    () => validateExpectedRelease(facts, 'v1.5.5'),
-    /release v1\.5\.4 does not match expected v1\.5\.5/,
+    () => validateExpectedRelease(facts, 'v1.5.4'),
+    /release v1\.5\.5 does not match expected v1\.5\.4/,
   );
 });
 
@@ -166,10 +166,10 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"/);
+  assert.match(validationJob, /baseline="576797f1b7142c59fd91d0f39c373c4980e2a867"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.5\.3\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.4\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assert.match(candidateJob, /^\s*needs:\s*validate-release-ref\s*$/m);
 });
@@ -195,7 +195,7 @@ test('public documentation matches the product facts contract', () => {
   assert.match(dockerHubDescription, /bundled tools contact configured providers directly/i);
   assert.match(dockerHubDescription, /file-based credentials stored there/i);
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 150\.0\.7871\.181/);
+  assert.match(memories, /Debian Chromium 151\.0\.7922\.71/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;

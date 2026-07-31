@@ -44,7 +44,7 @@ That's it. Open your browser, sign in, start building.
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 150.0.7871.181 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 151.0.7922.71 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 
@@ -76,7 +76,9 @@ Works with your existing Anthropic account. HolyClaude operates no credential re
 - **Claude Max/Pro plan** — OAuth sign-in through the web UI
 - **Anthropic API key** — Paste it in the web UI
 
-The default Compose files store Claude Code session data in the bind-mounted `./data/claude` directory. Other bundled tools may read credentials from their own container files, bind mounts, or environment variables and contact configured providers directly. HolyClaude restores the saved Claude Code session before a fresh container file can replace it.
+The default Compose files store Claude Code session data in the bind-mounted `./data/claude` directory. v1.5.5 also keeps global Git configuration and GitHub CLI authentication there, so they survive container replacement. Treat this directory as credential-bearing storage: do not commit it, share it broadly, or place it in an unencrypted backup. Other bundled tools may read credentials from their own container files, bind mounts, or environment variables and contact configured providers directly.
+
+Before upgrading from a version earlier than v1.5.5, preserve any `git config --global` or `gh auth` state that exists only in the old container. Follow the [recovery steps](https://github.com/CoderLuii/HolyClaude/blob/master/docs/troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate) before running `docker compose up -d`; removing the old container first can discard that state.
 
 ## Key Environment Variables
 

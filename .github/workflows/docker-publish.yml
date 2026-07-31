@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.5.4
+run-name: v1.5.5
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.4"
+        default: "1.5.5"
         type: string
   push:
     branches:
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"
+          baseline="576797f1b7142c59fd91d0f39c373c4980e2a867"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.3^{commit}')" = "6ec67d7994fe343f074fc19dbff7bf28b9fb8c8f"
+          test "$(git rev-parse 'v1.5.4^{commit}')" = "576797f1b7142c59fd91d0f39c373c4980e2a867"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -108,6 +108,7 @@ jobs:
           bash -n scripts/*.sh tests/*.sh
           sh -n scripts/holyclaude-chromium scripts/holyclaude-mosh-server
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
+          PYTHONPYCACHEPREFIX="${RUNNER_TEMP}/pycache" python3 -m py_compile scripts/secure-cli-persistence.py
           node scripts/verify-product-facts.mjs --release "${{ steps.source.outputs.release }}"
           node --test tests/*.test.mjs
           python3 -m unittest tests/test_notify.py
@@ -148,6 +149,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Free up disk space
         run: |
@@ -341,6 +344,14 @@ jobs:
             "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
             "${{ matrix.variant }}-${{ matrix.arch }}"
 
+      - name: Smoke Git and GitHub CLI persistence
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bash tests/docker_cli_persistence_smoke.sh \
+            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
+            "${{ matrix.variant }}-${{ matrix.arch }}"
+
       - name: Install pinned security scanners
         shell: bash
         run: |
@@ -429,17 +440,23 @@ jobs:
             --input "${evidence_dir}/sbom.cyclonedx.syft.json" \
             --output "${evidence_dir}/sbom.cyclonedx.json" \
             --evidence "${evidence_dir}/sbom-license-normalization.json"
+          sbom_sha256="$(sha256sum "${evidence_dir}/sbom.cyclonedx.json" | cut -d' ' -f1)"
           sbom-utility validate --input-file "${evidence_dir}/sbom.cyclonedx.json" --quiet
           sbom-utility validate --input-file "${evidence_dir}/sbom.spdx.json" --quiet
           printf '{}\n' > "${RUNNER_TEMP}/grype-empty.yaml"
           grype --config "${RUNNER_TEMP}/grype-empty.yaml" "sbom:${evidence_dir}/sbom.cyclonedx.json" -o json > "${evidence_dir}/grype.json"
+          set +e
           node scripts/evaluate-security-report.mjs \
             --report "${evidence_dir}/grype.json" \
             --ledger security/advisory-reviews.json \
             --vex security/openvex.json \
             --output-dir "${evidence_dir}" \
             --variant "${{ matrix.variant }}" \
-            --arch "${{ matrix.arch }}"
+            --arch "${{ matrix.arch }}" \
+            --image-digest "${{ steps.digests.outputs.dockerhub_digest }}" \
+            --sbom-sha256 "${sbom_sha256}"
+          policy_status=$?
+          set -e
           EVIDENCE_DIR="${evidence_dir}" \
           IMAGE="${image}" \
           DOCKERHUB_DIGEST="${{ steps.digests.outputs.dockerhub_digest }}" \
@@ -513,8 +530,19 @@ jobs:
           if count_license_field(cyclonedx, "name") != normalization_count:
               raise SystemExit("normalized CycloneDX license name count mismatch")
 
-          with (root / "policy.json").open(encoding="utf-8") as handle:
-              policy = json.load(handle)
+          policy_path = root / "policy.json"
+          if policy_path.exists():
+              with policy_path.open(encoding="utf-8") as handle:
+                  policy = json.load(handle)
+          else:
+              policy = {}
+
+          if policy.get("imageDigest") != os.environ["DOCKERHUB_DIGEST"]:
+              raise SystemExit("security policy imageDigest does not match the Docker Hub candidate")
+          if policy.get("imageDigest") != os.environ["GHCR_DIGEST"]:
+              raise SystemExit("security policy imageDigest does not match the GHCR candidate")
+          if policy.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
+              raise SystemExit("security policy sbomSha256 does not match the normalized CycloneDX SBOM")
 
           metadata = {
               "variant": os.environ["VARIANT"],
@@ -522,10 +550,12 @@ jobs:
               "image": os.environ["IMAGE"],
               "dockerhubDigest": os.environ["DOCKERHUB_DIGEST"],
               "ghcrDigest": os.environ["GHCR_DIGEST"],
-              "rawCriticalCount": policy["rawCriticalCount"],
-              "effectiveCriticalCount": policy["effectiveCriticalCount"],
-              "rawHighCount": policy["rawHighCount"],
-              "mappedHighCount": policy["mappedHighCount"],
+              "imageDigest": policy.get("imageDigest"),
+              "sbomSha256": policy.get("sbomSha256"),
+              "rawCriticalCount": policy.get("rawCriticalCount"),
+              "effectiveCriticalCount": policy.get("effectiveCriticalCount"),
+              "rawHighCount": policy.get("rawHighCount"),
+              "mappedHighCount": policy.get("mappedHighCount"),
               "cycloneDxLicenseNormalizationCount": normalization_count,
           }
           with (root / "metadata.json").open("w", encoding="utf-8") as handle:
@@ -533,6 +563,7 @@ jobs:
               handle.write("\n")
           PY
           (cd "${evidence_dir}" && sha256sum ./*.json > SHA256SUMS)
+          exit "${policy_status}"
 
       - name: Smoke GHCR candidate digest
         timeout-minutes: 45
@@ -691,6 +722,7 @@ jobs:
           done
 
           python3 - <<'PY'
+          import hashlib
           import json
           import re
           from pathlib import Path
@@ -700,6 +732,7 @@ jobs:
 
           def load_records(paths, label):
               records = {}
+              directories = {}
               for path in paths:
                   with path.open(encoding="utf-8") as handle:
                       record = json.load(handle)
@@ -709,12 +742,13 @@ jobs:
                   if target in records:
                       raise SystemExit(f"duplicate {label} target: {target}")
                   records[target] = record
+                  directories[target] = path.parent
               if set(records) != expected_targets:
                   raise SystemExit(f"unexpected {label} targets: {sorted(records)}")
-              return records
+              return records, directories
 
-          candidates = load_records(sorted(Path("evidence").glob("*.json")), "candidate")
-          metadata_records = load_records(
+          candidates, _ = load_records(sorted(Path("evidence").glob("*.json")), "candidate")
+          metadata_records, metadata_dirs = load_records(
               sorted(Path("security-evidence").glob("**/metadata.json")),
               "security metadata",
           )
@@ -732,6 +766,16 @@ jobs:
               expected_image = f"{record['dockerhub_ref']}@{record['dockerhub_digest']}"
               if metadata.get("image") != expected_image:
                   raise SystemExit(f"security evidence image mismatch for {target}")
+              if metadata.get("imageDigest") != record["dockerhub_digest"]:
+                  raise SystemExit(f"security policy image digest mismatch for {target}")
+              if metadata.get("imageDigest") != record["ghcr_digest"]:
+                  raise SystemExit(f"security policy registry digest mismatch for {target}")
+              sbom_path = metadata_dirs[target] / "sbom.cyclonedx.json"
+              if not sbom_path.is_file():
+                  raise SystemExit(f"normalized CycloneDX SBOM is missing for {target}: {sbom_path}")
+              sbom_sha256 = hashlib.sha256(sbom_path.read_bytes()).hexdigest()
+              if metadata.get("sbomSha256") != sbom_sha256:
+                  raise SystemExit(f"security policy SBOM hash mismatch for {target}")
           PY
 
           rm -rf security-revalidation
@@ -741,6 +785,8 @@ jobs:
             metadata="${evidence_dir}/metadata.json"
             variant="$(jq -r .variant "${metadata}")"
             arch="$(jq -r .arch "${metadata}")"
+            image_digest="$(jq -r .imageDigest "${metadata}")"
+            sbom_sha256="$(jq -r .sbomSha256 "${metadata}")"
             output="security-revalidation/${variant}-${arch}"
             node scripts/evaluate-security-report.mjs \
               --report "${report}" \
@@ -748,7 +794,9 @@ jobs:
               --vex security/openvex.json \
               --output-dir "${output}" \
               --variant "${variant}" \
-              --arch "${arch}"
+              --arch "${arch}" \
+              --image-digest "${image_digest}" \
+              --sbom-sha256 "${sbom_sha256}"
           done
 
       - name: Set up Docker Buildx
@@ -1226,6 +1274,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Download promotion evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -1289,6 +1339,14 @@ jobs:
         run: |
           set -euo pipefail
           bash tests/docker_cloudcli_volume_smoke.sh \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            "${{ matrix.registry }}-${{ matrix.variant }}-${{ matrix.arch }}"
+
+      - name: Smoke final Git and GitHub CLI persistence
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          bash tests/docker_cli_persistence_smoke.sh \
             "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
             "${{ matrix.registry }}-${{ matrix.variant }}-${{ matrix.arch }}"
 
@@ -1385,35 +1443,54 @@ jobs:
           - variant: full
             arch: amd64
             runner: ubuntu-24.04
-            image: coderluii/holyclaude:${{ inputs.published_version }}
           - variant: full
             arch: arm64
             runner: ubuntu-24.04-arm
-            image: coderluii/holyclaude:${{ inputs.published_version }}
           - variant: slim
             arch: amd64
             runner: ubuntu-24.04
-            image: coderluii/holyclaude:${{ inputs.published_version }}-slim
           - variant: slim
             arch: arm64
             runner: ubuntu-24.04-arm
-            image: coderluii/holyclaude:${{ inputs.published_version }}-slim
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - name: Pull published image
+      - name: Validate version and resolve image
+        id: image
+        shell: bash
+        env:
+          PUBLISHED_VERSION: ${{ inputs.published_version }}
         run: |
           set -euo pipefail
-          docker pull "${{ matrix.image }}"
+          if [[ ! "${PUBLISHED_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Published version must match X.Y.Z" >&2
+            exit 1
+          fi
+          suffix=""
+          if [[ "${{ matrix.variant }}" == "slim" ]]; then
+            suffix="-slim"
+          fi
+          echo "ref=coderluii/holyclaude:${PUBLISHED_VERSION}${suffix}" >> "${GITHUB_OUTPUT}"
+
+      - name: Pull published image
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          set -euo pipefail
+          docker pull "${IMAGE_REF}"
 
       - name: Run published browser smoke
         timeout-minutes: 45
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
         run: |
           set -euo pipefail
           bash tests/browser_runtime_smoke.sh \
-            --image "${{ matrix.image }}" \
+            --image "${IMAGE_REF}" \
             --variant "${{ matrix.variant }}" \
             --expected-arch "${{ matrix.arch }}"
 
@@ -1428,6 +1505,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Update Docker Hub description
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5.0.0

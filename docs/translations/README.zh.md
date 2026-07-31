@@ -299,7 +299,7 @@ docker compose up -d
 
 **配置到此结束，你已经准备好了。**
 
-> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.4 请保持这个配置不变，把加固当成单独的改动。
+> **为什么是这些浏览器权限？** 这个版本保留了 HolyClaude 当前的浏览器配置。`SYS_ADMIN` 和 `seccomp=unconfined` 会扩大进程权限并降低隔离；`SYS_PTRACE` 用于调试。v1.5.5 请保持这个配置不变，把加固当成单独的改动。
 
 > **为什么是 `shm_size: 2g`？** Docker 默认只给容器 64MB 共享内存。HolyClaude 把 2GB 保留为本版本的默认值，因为 Chromium 在标签页渲染时会大量使用 `/dev/shm`。64MB 会让标签页崩掉；浏览器用得多就升到 4GB。
 
@@ -458,8 +458,8 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `PUID` | `1000` | Docker 式容器用户 ID；rootless Podman 使用 `docker-compose.podman-rootless.yaml` |
 | `PGID` | `1000` | Docker 式容器用户组 ID；rootless Podman 使用 `docker-compose.podman-rootless.yaml` |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js 堆内存上限（MB） |
-| `GIT_USER_NAME` | `HolyClaude User` | Git 提交作者（首次启动时设置一次） |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git 提交邮箱（首次启动时设置一次） |
+| `GIT_USER_NAME` | `HolyClaude User` | Git 提交作者（仅在缺少值时设置） |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git 提交邮箱（仅在缺少值时设置） |
 | `CHOKIDAR_USEPOLLING` | *(未设置)* | 设置为 `1` 以启用 SMB/CIFS 轮询文件监视器 |
 | `WATCHFILES_FORCE_POLLING` | *(未设置)* | 设置为 `true` 以启用 Python 轮询 |
 | `NOTIFY_DISCORD` | *(未设置)* | Discord webhook URL 用于通知 |
@@ -589,7 +589,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 
 | 包 | 用途 |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | 每一个主流 PDF 库。生成、读取、转换、合并，全都有。 |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | 用于生成、读取、转换和合并 PDF 的库。 |
 | `xlsxwriter`, `xlrd` | openpyxl 之外的 Excel 格式支持 |
 | `matplotlib`, `seaborn` | 数据可视化与图表 |
 | `python-pptx` | PowerPoint 生成 |
@@ -703,7 +703,7 @@ graph TB
 
 1. **容器启动** — `entrypoint.sh` 以 root 运行。重新映射 UID/GID 以匹配宿主机用户，在 bootstrap 接触它之前恢复已保存的 Claude Code 会话，并检查是否为首次启动。
 
-2. **仅首次启动** — `bootstrap.sh` 运行一次。复制默认配置、memory 模板，配置 git 身份。创建哨兵文件（`.holyclaude-bootstrapped`）确保不再重复运行。从此你的自定义配置是安全的。
+2. **仅首次启动** — `bootstrap.sh` 运行一次。复制默认配置和 memory 模板。创建哨兵文件（`.holyclaude-bootstrapped`）确保不再重复运行。从此你的自定义配置是安全的。
 
 3. **s6-overlay 接管成为 PID 1** — 这不是 supervisord。这是 [s6-overlay](https://github.com/just-containers/s6-overlay)，专为 Docker 构建。监督 CloudCLI、Xvfb 和 Claude 会话同步，崩溃后自动重启，转发信号，回收僵尸进程，优雅关闭。
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Claude 设置和持久化的工具配置 | `/home/claude/.claude` | `./data/claude` | **是** |
 | Claude Code 会话（OAuth、引导） | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **是** |
+| Git 全局配置和 XDG 设置 | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **是** |
+| GitHub CLI 配置和身份验证 | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **是** |
 | 你的代码和项目 | `/workspace` | `./workspace` | **是** |
 | CloudCLI 账户 | `/home/claude/.cloudcli` | *(默认仅容器内 — 见下文)* | 否（可选持久化） |
 
@@ -774,7 +776,8 @@ HolyClaude 会在启动创建新的默认文件之前恢复已保存的 Claude C
 - 基于文件的 Anthropic 身份验证和 Claude Code API 密钥设置
 - Claude Code 配置、memory（`CLAUDE.md`）和 OAuth 会话（无需重新登录）
 - `./workspace` 中的所有代码
-- Git 配置
+- Git 全局配置、别名和 XDG 设置
+- GitHub CLI 配置和身份验证
 - 存储在 `/home/claude/.claude` 下的 Codex、Gemini 和 Cursor 文件配置及身份验证。通过环境变量提供的密钥仍保留在 Compose 或主机环境中。
 
 ### 需要重新完成的操作（10 秒）：
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** 不要删除整个目录。该目录包含已保存的 Claude Code 会话和配置数据。需要重新 bootstrap 时只删除 sentinel 文件；需要重置设置时只删除对应的配置文件。
+> **`./data/claude/`:** 不要删除整个目录。它包含 Claude Code 数据，并且从 v1.5.5 起可能包含 GitHub CLI 凭据。不要将其提交到 git、广泛共享或存入未加密的备份。
 
 ### 持久化 CloudCLI 账户（可选，仅本地存储）
 
@@ -933,6 +936,8 @@ HolyClaude 将 CloudCLI 绑定到端口 `3001`。默认情况下这只是本地�
 
 ## :arrows_counterclockwise: Upgrading
 
+> 从 v1.5.5 之前的版本升级？重新创建容器前，请先迁移当前容器中的 Git 全局配置或 `gh auth` 状态。按照 [Git 和 GitHub CLI 恢复步骤](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate)操作。先删除旧容器可能会丢失这些数据。
+
 ```bash
 # Pull the latest image
 docker compose pull
@@ -948,7 +953,7 @@ docker compose up -d
 如果想固定到特定版本而非 `latest`：
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

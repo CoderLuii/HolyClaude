@@ -4,135 +4,330 @@
   "reviews": [
     {
       "id": "zlib-minizip-not-built",
-      "vulnerabilities": ["CVE-2023-45853"],
-      "component": {"names": ["zlib1g-dev"], "versions": ["1:1.2.13.dfsg-1"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2023-45853"
+      ],
+      "component": {
+        "names": [
+          "zlib1g-dev"
+        ],
+        "versions": [
+          "1:1.2.13.dfsg-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2023-45853"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2023-45853"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian confirms that src:zlib does not produce the affected contrib/minizip binary packages.",
-      "vexStatement": "urn:holyclaude:vex:zlib-cve-2023-45853"
+      "vexStatement": "urn:holyclaude:vex:zlib-cve-2023-45853",
+      "variants": [
+        "full"
+      ]
     },
     {
       "id": "openexr-bookworm-minor",
-      "vulnerabilities": ["CVE-2023-5841"],
-      "component": {"names": ["libopenexr-3-1-30", "libopenexr-dev"], "versions": ["3.1.5-5"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2023-5841"
+      ],
+      "component": {
+        "names": [
+          "libopenexr-3-1-30",
+          "libopenexr-dev"
+        ],
+        "versions": [
+          "3.1.5-5"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/source-package/openexr"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/openexr"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as a Minor issue."
     },
     {
       "id": "aom-bookworm-minor",
-      "vulnerabilities": ["CVE-2023-6879"],
-      "component": {"names": ["libaom3", "libaom-dev"], "versions": ["3.6.0-1+deb12u2"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2023-6879"
+      ],
+      "component": {
+        "names": [
+          "libaom3",
+          "libaom-dev"
+        ],
+        "versions": [
+          "3.6.0-1+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2023-6879"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2023-6879"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as a Minor issue."
     },
     {
       "id": "gh-fixed-upstream-version",
-      "vulnerabilities": ["CVE-2024-52308"],
-      "component": {"names": ["gh"], "versions": ["2.96.0"], "types": ["deb"], "locationPatterns": ["^/var/lib/dpkg/"]},
+      "vulnerabilities": [
+        "CVE-2024-52308"
+      ],
+      "component": {
+        "names": [
+          "gh"
+        ],
+        "versions": [
+          "2.97.0"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "fixed",
       "effectiveSeverity": "None",
       "owner": "GitHub CLI",
-      "authority": {"name": "GitHub CLI advisory", "url": "https://github.com/cli/cli/security/advisories/GHSA-p2h2-3vg9-4p87"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "rationale": "The installed GitHub CLI 2.96.0 is newer than the upstream fixed version 2.62.0."
+      "authority": {
+        "name": "GitHub CLI advisory",
+        "url": "https://github.com/cli/cli/security/advisories/GHSA-p2h2-3vg9-4p87"
+      },
+      "reviewedAt": "2026-07-30",
+      "expiresAt": "2026-08-29",
+      "rationale": "The installed GitHub CLI 2.97.0 is newer than the upstream fixed version 2.62.0."
     },
     {
       "id": "python-bookworm-resolved",
-      "vulnerabilities": ["CVE-2025-4517"],
-      "component": {"names": ["python"], "versions": ["3.11.2"], "types": ["binary"], "locationPatterns": ["^/usr/bin/python3\\.11$"]},
+      "vulnerabilities": [
+        "CVE-2025-4517"
+      ],
+      "component": {
+        "names": [
+          "python"
+        ],
+        "versions": [
+          "3.11.2"
+        ],
+        "types": [
+          "binary"
+        ],
+        "locationPatterns": [
+          "^/usr/bin/python3\\.11$"
+        ]
+      },
       "disposition": "fixed",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2025-4517"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2025-4517"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian marks the Python 3.11 Bookworm source package resolved with fixed version 0 and urgency unimportant."
     },
     {
       "id": "mbedtls-x509-writer-not-in-runtime-path",
-      "vulnerabilities": ["CVE-2025-47917"],
-      "component": {"names": ["libmbedcrypto7", "libmbedtls14", "libmbedx509-1"], "versions": ["2.28.3-1"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2025-47917"
+      ],
+      "component": {
+        "names": [
+          "libmbedcrypto7",
+          "libmbedtls14",
+          "libmbedx509-1"
+        ],
+        "versions": [
+          "2.28.3-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Mbed TLS advisory", "url": "https://github.com/Mbed-TLS/mbedtls-docs/blob/main/security-advisories/mbedtls-security-advisory-2025-06-7.md"},
+      "authority": {
+        "name": "Mbed TLS advisory",
+        "url": "https://github.com/Mbed-TLS/mbedtls-docs/blob/main/security-advisories/mbedtls-security-advisory-2025-06-7.md"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "The affected function is an X.509 writing API; HolyClaude services do not call it directly, and the vendor states internal uses are not affected.",
       "vexStatement": "urn:holyclaude:vex:mbedtls-cve-2025-47917"
     },
     {
-      "id": "cursor-node-permission-model-disabled",
-      "vulnerabilities": ["CVE-2025-55130"],
-      "component": {"names": ["node"], "versions": ["24.5.0"], "types": ["binary"], "locationPatterns": ["^/home/claude/\\.local/share/cursor-agent/versions/2026\\.07\\.23-e383d2b/node$"]},
-      "disposition": "not_affected",
-      "effectiveSeverity": "None",
-      "owner": "Cursor CLI",
-      "authority": {"name": "Node.js security advisory", "url": "https://nodejs.org/uk/blog/vulnerability/december-2025-security-releases"},
-      "reviewedAt": "2026-07-15",
-      "expiresAt": "2026-08-14",
-      "rationale": "The advisory affects Node's experimental Permission Model. The pinned Cursor launcher does not enable --permission or related allow flags.",
-      "vexStatement": "urn:holyclaude:vex:cursor-node-cve-2025-55130"
-    },
-    {
       "id": "sqlite-bookworm-minor",
-      "vulnerabilities": ["CVE-2025-7458"],
-      "component": {"names": ["libsqlite3-0", "sqlite3"], "versions": ["3.40.1-2+deb12u2"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2025-7458"
+      ],
+      "component": {
+        "names": [
+          "libsqlite3-0",
+          "sqlite3"
+        ],
+        "versions": [
+          "3.40.1-2+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2025-7458"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2025-7458"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as a Minor issue."
     },
     {
       "id": "libssh2-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-7598"],
-      "component": {"names": ["libssh2-1"], "versions": ["1.10.0-3+b1"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-7598"
+      ],
+      "component": {
+        "names": [
+          "libssh2-1"
+        ],
+        "versions": [
+          "1.10.0-3+b1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-7598"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-7598"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as a Minor issue and records no DSA for this release."
     },
     {
       "id": "curl-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-10536", "CVE-2026-11856", "CVE-2026-8924", "CVE-2026-8927"],
-      "component": {"names": ["curl", "libcurl3-gnutls", "libcurl4", "libcurl4-openssl-dev"], "versions": ["7.88.1", "7.88.1-10+deb12u15"], "types": ["binary", "deb"], "locationPatterns": ["^/usr/bin/curl$", "^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "vulnerabilities": [
+        "CVE-2026-10536",
+        "CVE-2026-11856",
+        "CVE-2026-8924",
+        "CVE-2026-8927"
+      ],
+      "component": {
+        "names": [
+          "curl",
+          "libcurl3-gnutls",
+          "libcurl4",
+          "libcurl4-openssl-dev"
+        ],
+        "versions": [
+          "7.88.1",
+          "7.88.1-10+deb12u15"
+        ],
+        "types": [
+          "binary",
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/bin/curl$",
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/source-package/curl"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/curl"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies these Bookworm findings as Minor and records the narrow trigger conditions."
     },
     {
       "id": "perl-socket-not-in-service-path",
-      "vulnerabilities": ["CVE-2026-12087"],
-      "component": {"names": ["libperl5.36", "perl", "perl-base", "perl-modules-5.36"], "versions": ["5.36.0-7+deb12u3"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-12087"
+      ],
+      "component": {
+        "names": [
+          "libperl5.36",
+          "perl",
+          "perl-base",
+          "perl-modules-5.36"
+        ],
+        "versions": [
+          "5.36.0-7+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "NVD and CPANSec record", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12087"},
+      "authority": {
+        "name": "NVD and CPANSec record",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-12087"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "No shipped HolyClaude service loads Perl Socket or calls pack_ip_mreq_source; Perl remains an explicit developer tool.",
@@ -140,12 +335,34 @@
     },
     {
       "id": "perl-large-regex-not-in-service-path",
-      "vulnerabilities": ["CVE-2026-13221"],
-      "component": {"names": ["libperl5.36", "perl", "perl-base", "perl-modules-5.36"], "versions": ["5.36.0-7+deb12u3"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-13221"
+      ],
+      "component": {
+        "names": [
+          "libperl5.36",
+          "perl",
+          "perl-base",
+          "perl-modules-5.36"
+        ],
+        "versions": [
+          "5.36.0-7+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "NVD record", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13221"},
+      "authority": {
+        "name": "NVD record",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13221"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "No shipped HolyClaude service evaluates attacker-controlled Perl regular expressions; Perl remains an explicit developer tool.",
@@ -153,110 +370,327 @@
     },
     {
       "id": "openssl-bookworm-fixed",
-      "vulnerabilities": ["CVE-2026-34182"],
-      "component": {"names": ["openssl"], "versions": ["3.0.20"], "types": ["binary"], "locationPatterns": ["^/usr/bin/openssl$"]},
+      "vulnerabilities": [
+        "CVE-2026-34182"
+      ],
+      "component": {
+        "names": [
+          "openssl"
+        ],
+        "versions": [
+          "3.0.20"
+        ],
+        "types": [
+          "binary"
+        ],
+        "locationPatterns": [
+          "^/usr/bin/openssl$"
+        ]
+      },
       "disposition": "fixed",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-34182"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-34182"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "The installed Bookworm package is 3.0.20-1~deb12u2, the Debian fixed version."
     },
     {
       "id": "mbedtls-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-34872", "CVE-2026-34873", "CVE-2026-34875"],
-      "component": {"names": ["libmbedcrypto7", "libmbedtls14", "libmbedx509-1"], "versions": ["2.28.3-1"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-34872",
+        "CVE-2026-34873",
+        "CVE-2026-34875"
+      ],
+      "component": {
+        "names": [
+          "libmbedcrypto7",
+          "libmbedtls14",
+          "libmbedx509-1"
+        ],
+        "versions": [
+          "2.28.3-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/source-package/mbedtls"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/mbedtls"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies these Bookworm findings as Minor issues."
     },
     {
       "id": "ffmpeg-bookworm-fixed",
-      "vulnerabilities": ["CVE-2026-40962"],
-      "component": {"names": ["ffmpeg"], "versions": ["5.1.9"], "types": ["binary"], "locationPatterns": ["^/usr/bin/ffmpeg$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavcodec\\.so\\.59\\.37\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavdevice\\.so\\.59\\.7\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavfilter\\.so\\.8\\.44\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavformat\\.so\\.59\\.27\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libavutil\\.so\\.57\\.28\\.100$", "^/usr/lib/(x86_64-linux-gnu|aarch64-linux-gnu)/libswresample\\.so\\.4\\.7\\.100$"]},
+      "vulnerabilities": [
+        "CVE-2026-40962"
+      ],
+      "component": {
+        "names": [
+          "ffmpeg"
+        ],
+        "versions": [
+          "5.1.9"
+        ],
+        "types": [
+          "binary"
+        ],
+        "locationPatterns": [
+          "^/usr/bin/ffmpeg$",
+          "^/usr/lib/x86_64-linux-gnu/libavcodec\\.so\\.59\\.37\\.100$",
+          "^/usr/lib/aarch64-linux-gnu/libavcodec\\.so\\.59\\.37\\.100$",
+          "^/usr/lib/x86_64-linux-gnu/libavdevice\\.so\\.59\\.7\\.100$",
+          "^/usr/lib/aarch64-linux-gnu/libavdevice\\.so\\.59\\.7\\.100$",
+          "^/usr/lib/x86_64-linux-gnu/libavfilter\\.so\\.8\\.44\\.100$",
+          "^/usr/lib/aarch64-linux-gnu/libavfilter\\.so\\.8\\.44\\.100$",
+          "^/usr/lib/x86_64-linux-gnu/libavformat\\.so\\.59\\.27\\.100$",
+          "^/usr/lib/aarch64-linux-gnu/libavformat\\.so\\.59\\.27\\.100$",
+          "^/usr/lib/x86_64-linux-gnu/libavutil\\.so\\.57\\.28\\.100$",
+          "^/usr/lib/aarch64-linux-gnu/libavutil\\.so\\.57\\.28\\.100$",
+          "^/usr/lib/x86_64-linux-gnu/libswresample\\.so\\.4\\.7\\.100$",
+          "^/usr/lib/aarch64-linux-gnu/libswresample\\.so\\.4\\.7\\.100$"
+        ]
+      },
       "disposition": "fixed",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-40962"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-40962"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "The installed ffmpeg 5.1.9 binary comes from Debian's fixed 7:5.1.9-0+deb12u1 package."
     },
     {
       "id": "openexr-idmanifest-not-in-service-path",
-      "vulnerabilities": ["CVE-2026-42216"],
-      "component": {"names": ["libopenexr-3-1-30", "libopenexr-dev"], "versions": ["3.1.5-5"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-42216"
+      ],
+      "component": {
+        "names": [
+          "libopenexr-3-1-30",
+          "libopenexr-dev"
+        ],
+        "versions": [
+          "3.1.5-5"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "OpenEXR advisory", "url": "https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-65j8-95g9-jgj4"},
+      "authority": {
+        "name": "OpenEXR advisory",
+        "url": "https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-65j8-95g9-jgj4"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "No shipped HolyClaude service parses EXR IDManifest data; EXR libraries are available only to explicit developer workloads.",
-      "vexStatement": "urn:holyclaude:vex:openexr-cve-2026-42216"
+      "vexStatement": "urn:holyclaude:vex:openexr-cve-2026-42216",
+      "variants": [
+        "full"
+      ]
     },
     {
       "id": "openexr-scanline-not-in-service-path",
-      "vulnerabilities": ["CVE-2026-42217"],
-      "component": {"names": ["libopenexr-3-1-30", "libopenexr-dev"], "versions": ["3.1.5-5"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-42217"
+      ],
+      "component": {
+        "names": [
+          "libopenexr-3-1-30",
+          "libopenexr-dev"
+        ],
+        "versions": [
+          "3.1.5-5"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "OpenEXR advisory", "url": "https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3c67-4wwp-w52m"},
+      "authority": {
+        "name": "OpenEXR advisory",
+        "url": "https://github.com/AcademySoftwareFoundation/openexr/security/advisories/GHSA-3c67-4wwp-w52m"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "No shipped HolyClaude service parses attacker-controlled EXR scanline data; EXR libraries are available only to explicit developer workloads.",
-      "vexStatement": "urn:holyclaude:vex:openexr-cve-2026-42217"
+      "vexStatement": "urn:holyclaude:vex:openexr-cve-2026-42217",
+      "variants": [
+        "full"
+      ]
     },
     {
       "id": "perl-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-42496", "CVE-2026-8376"],
-      "component": {"names": ["libperl5.36", "perl", "perl-base", "perl-modules-5.36"], "versions": ["5.36.0-7+deb12u3"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-42496",
+        "CVE-2026-8376"
+      ],
+      "component": {
+        "names": [
+          "libperl5.36",
+          "perl",
+          "perl-base",
+          "perl-modules-5.36"
+        ],
+        "versions": [
+          "5.36.0-7+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/source-package/perl"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/perl"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies these Bookworm findings as Minor issues."
     },
     {
       "id": "glibc-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-5450"],
-      "component": {"names": ["libc-bin", "libc-dev-bin", "libc-l10n", "libc6", "libc6-dev", "locales"], "versions": ["2.36-9+deb12u14"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-5450"
+      ],
+      "component": {
+        "names": [
+          "libc-bin",
+          "libc-dev-bin",
+          "libc-l10n",
+          "libc6",
+          "libc6-dev",
+          "locales"
+        ],
+        "versions": [
+          "2.36-9+deb12u14"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-5450"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-5450"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as a Minor issue."
     },
     {
       "id": "imagemagick-vendor-low",
-      "vulnerabilities": ["CVE-2026-56372"],
-      "component": {"names": ["imagemagick", "imagemagick-6-common", "imagemagick-6.q16", "libmagickcore-6-arch-config", "libmagickcore-6-headers", "libmagickcore-6.q16-6", "libmagickcore-6.q16-6-extra", "libmagickcore-6.q16-dev", "libmagickcore-dev", "libmagickwand-6-headers", "libmagickwand-6.q16-6", "libmagickwand-6.q16-dev", "libmagickwand-dev"], "versions": ["8:6.9.11.60+dfsg-1.6+deb12u12"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-56372"
+      ],
+      "component": {
+        "names": [
+          "imagemagick",
+          "imagemagick-6-common",
+          "imagemagick-6.q16",
+          "libmagickcore-6-arch-config",
+          "libmagickcore-6-headers",
+          "libmagickcore-6.q16-6",
+          "libmagickcore-6.q16-6-extra",
+          "libmagickcore-6.q16-dev",
+          "libmagickcore-dev",
+          "libmagickwand-6-headers",
+          "libmagickwand-6.q16-6",
+          "libmagickwand-6.q16-dev",
+          "libmagickwand-dev"
+        ],
+        "versions": [
+          "8:6.9.11.60+dfsg-1.6+deb12u12"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "ImageMagick advisory", "url": "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-8vfj-q2cp-5m5j"},
+      "authority": {
+        "name": "ImageMagick advisory",
+        "url": "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-8vfj-q2cp-5m5j"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "The upstream advisory rates this local, user-interaction availability issue Low with CVSS 3.3."
     },
     {
       "id": "perl-storable-not-in-service-path",
-      "vulnerabilities": ["CVE-2026-57433"],
-      "component": {"names": ["libperl5.36", "perl", "perl-base", "perl-modules-5.36"], "versions": ["5.36.0-7+deb12u3"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-57433"
+      ],
+      "component": {
+        "names": [
+          "libperl5.36",
+          "perl",
+          "perl-base",
+          "perl-modules-5.36"
+        ],
+        "versions": [
+          "5.36.0-7+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "NVD and CPANSec record", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57433"},
+      "authority": {
+        "name": "NVD and CPANSec record",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-57433"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "No shipped HolyClaude service deserializes attacker-controlled Perl Storable data; Perl remains an explicit developer tool.",
@@ -264,76 +698,3237 @@
     },
     {
       "id": "glib-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-58016"],
-      "component": {"names": ["libglib2.0-0", "libglib2.0-bin", "libglib2.0-data", "libglib2.0-dev", "libglib2.0-dev-bin"], "versions": ["2.74.6-2+deb12u9"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-58016"
+      ],
+      "component": {
+        "names": [
+          "libglib2.0-0",
+          "libglib2.0-bin",
+          "libglib2.0-data",
+          "libglib2.0-dev",
+          "libglib2.0-dev-bin"
+        ],
+        "versions": [
+          "2.74.6-2+deb12u9"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-58016"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-58016"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the GDBus introspection XML denial of service as Minor."
     },
     {
       "id": "openssh-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-60002"],
-      "component": {"names": ["openssh-client", "openssh-server", "openssh-sftp-server"], "versions": ["1:9.2p1-2+deb12u10"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-60002"
+      ],
+      "component": {
+        "names": [
+          "openssh-client",
+          "openssh-server",
+          "openssh-sftp-server"
+        ],
+        "versions": [
+          "1:9.2p1-2+deb12u10"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-60002"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-60002"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm client-side host-key-change issue as Minor and postponed."
     },
     {
       "id": "libxml2-bookworm-minor",
-      "vulnerabilities": ["CVE-2026-6653"],
-      "component": {"names": ["libxml2", "libxml2-dev"], "versions": ["2.9.14+dfsg-1.3~deb12u6"], "types": ["deb"], "locationPatterns": ["^/(usr/share/doc|var/lib/dpkg)/"]},
+      "vulnerabilities": [
+        "CVE-2026-6653"
+      ],
+      "component": {
+        "names": [
+          "libxml2",
+          "libxml2-dev"
+        ],
+        "versions": [
+          "2.9.14+dfsg-1.3~deb12u6"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Low",
       "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-6653"},
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-6653"
+      },
       "reviewedAt": "2026-07-15",
       "expiresAt": "2026-08-14",
       "rationale": "Debian classifies the Bookworm finding as Minor and postponed."
     },
     {
-      "id": "chromium-150-7871-181-fixed",
-      "vulnerabilities": ["CVE-2026-15901", "CVE-2026-15902"],
-      "component": {"names": ["chromium", "chromium-common", "chromium-sandbox"], "versions": ["150.0.7871.181-1~deb12u1"], "types": ["deb"], "locationPatterns": ["^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "id": "chromium-151-7922-71-fixed",
+      "vulnerabilities": [
+        "CVE-2026-15901",
+        "CVE-2026-15902"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "fixed",
       "effectiveSeverity": "None",
       "owner": "Chromium runtime",
-      "authority": {"name": "Chrome Releases", "url": "https://chromereleases.googleblog.com/2026/07/stable-channel-update-for-desktop_049796704.html"},
-      "reviewedAt": "2026-07-23",
-      "expiresAt": "2026-08-22",
-      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 150.0.7871.181."
+      "authority": {
+        "name": "Chrome Releases",
+        "url": "https://chromereleases.googleblog.com/2026/07/stable-channel-update-for-desktop_049796704.html"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-30",
+      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 151.0.7922.71."
     },
     {
-      "id": "chromium-platform-specific-findings",
-      "vulnerabilities": ["CVE-2026-15899", "CVE-2026-15900", "CVE-2026-16424"],
-      "component": {"names": ["chromium", "chromium-common", "chromium-sandbox"], "versions": ["150.0.7871.181-1~deb12u1"], "types": ["deb"], "locationPatterns": ["^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "id": "chromium-150-7871-186-security-fixes",
+      "vulnerabilities": [
+        "CVE-2026-16804",
+        "CVE-2026-16805",
+        "CVE-2026-16806",
+        "CVE-2026-16807"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {
+        "name": "Chrome Releases",
+        "url": "https://chromereleases.googleblog.com/2026/07/stable-channel-update-for-desktop_01320465736.html"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-30",
+      "rationale": "Chrome 150.0.7871.186 for Linux includes the four named security fixes. HolyClaude installs the newer Chromium 151.0.7922.71 release."
+    },
+    {
+      "id": "chromium-151-7922-71-security-fixes",
+      "vulnerabilities": [
+        "CVE-2026-17650",
+        "CVE-2026-17651",
+        "CVE-2026-17653",
+        "CVE-2026-17654",
+        "CVE-2026-17655",
+        "CVE-2026-17656",
+        "CVE-2026-17657",
+        "CVE-2026-17658",
+        "CVE-2026-17660",
+        "CVE-2026-17661",
+        "CVE-2026-17663",
+        "CVE-2026-17665",
+        "CVE-2026-17666",
+        "CVE-2026-17669",
+        "CVE-2026-17670",
+        "CVE-2026-17671",
+        "CVE-2026-17672",
+        "CVE-2026-17673",
+        "CVE-2026-17675",
+        "CVE-2026-17676",
+        "CVE-2026-17677",
+        "CVE-2026-17678",
+        "CVE-2026-17680",
+        "CVE-2026-17681",
+        "CVE-2026-17682",
+        "CVE-2026-17684",
+        "CVE-2026-17685",
+        "CVE-2026-17686",
+        "CVE-2026-17687",
+        "CVE-2026-17688",
+        "CVE-2026-17691",
+        "CVE-2026-17692",
+        "CVE-2026-17694",
+        "CVE-2026-17695",
+        "CVE-2026-17697",
+        "CVE-2026-17698",
+        "CVE-2026-17699",
+        "CVE-2026-17701",
+        "CVE-2026-17704",
+        "CVE-2026-17705",
+        "CVE-2026-17708",
+        "CVE-2026-17709",
+        "CVE-2026-17710",
+        "CVE-2026-17711",
+        "CVE-2026-17712",
+        "CVE-2026-17713",
+        "CVE-2026-17716",
+        "CVE-2026-17717",
+        "CVE-2026-17718",
+        "CVE-2026-17719",
+        "CVE-2026-17721",
+        "CVE-2026-17722",
+        "CVE-2026-17723",
+        "CVE-2026-17725",
+        "CVE-2026-17726",
+        "CVE-2026-17727",
+        "CVE-2026-17741",
+        "CVE-2026-17744",
+        "CVE-2026-17750",
+        "CVE-2026-17751",
+        "CVE-2026-17752",
+        "CVE-2026-17758",
+        "CVE-2026-17774",
+        "CVE-2026-17778",
+        "CVE-2026-17786",
+        "CVE-2026-17807",
+        "CVE-2026-17816",
+        "CVE-2026-17836",
+        "CVE-2026-17861",
+        "CVE-2026-17862",
+        "CVE-2026-17863",
+        "CVE-2026-17864",
+        "CVE-2026-17867",
+        "CVE-2026-17868",
+        "CVE-2026-17875",
+        "CVE-2026-17877",
+        "CVE-2026-17881",
+        "CVE-2026-17884",
+        "CVE-2026-17886",
+        "CVE-2026-17887",
+        "CVE-2026-17888",
+        "CVE-2026-17894",
+        "CVE-2026-17896",
+        "CVE-2026-17898",
+        "CVE-2026-17899",
+        "CVE-2026-17916",
+        "CVE-2026-17918",
+        "CVE-2026-17920",
+        "CVE-2026-17922",
+        "CVE-2026-17924",
+        "CVE-2026-17930",
+        "CVE-2026-17935",
+        "CVE-2026-17940",
+        "CVE-2026-17947",
+        "CVE-2026-17948",
+        "CVE-2026-17950",
+        "CVE-2026-17951",
+        "CVE-2026-17952",
+        "CVE-2026-17956",
+        "CVE-2026-17967",
+        "CVE-2026-17969",
+        "CVE-2026-17971",
+        "CVE-2026-17979",
+        "CVE-2026-17987",
+        "CVE-2026-17989",
+        "CVE-2026-17990",
+        "CVE-2026-17991",
+        "CVE-2026-17993",
+        "CVE-2026-17995",
+        "CVE-2026-18002",
+        "CVE-2026-18012",
+        "CVE-2026-18015",
+        "CVE-2026-18017"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {
+        "name": "Chrome Releases",
+        "url": "https://chromereleases.googleblog.com/2026/07/stable-channel-update-for-desktop_0887107924.html"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-30",
+      "rationale": "Chrome 151.0.7922.71 for Linux includes the named security fixes. HolyClaude installs that exact Chromium release from Debian Bookworm Security."
+    },
+    {
+      "id": "chromium-151-7922-71-debian-fixed-2026-08-02",
+      "vulnerabilities": [
+        "CVE-2026-17652",
+        "CVE-2026-17768",
+        "CVE-2026-17784",
+        "CVE-2026-17801",
+        "CVE-2026-17803",
+        "CVE-2026-17804",
+        "CVE-2026-17811",
+        "CVE-2026-17832",
+        "CVE-2026-17834",
+        "CVE-2026-17837",
+        "CVE-2026-17847",
+        "CVE-2026-17848",
+        "CVE-2026-17855",
+        "CVE-2026-17856",
+        "CVE-2026-17865",
+        "CVE-2026-17869"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/chromium"
+      },
+      "reviewedAt": "2026-08-02",
+      "expiresAt": "2026-09-01",
+      "rationale": "Debian marks every named Bookworm chromium finding resolved at 151.0.7922.71-1~deb12u1, the exact chromium, chromium-common, and chromium-sandbox version installed in both HolyClaude variants."
+    },
+    {
+      "id": "chromium-cve-2026-15899-macos-not-affected",
+      "vulnerabilities": [
+        "CVE-2026-15899"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "not_affected",
       "effectiveSeverity": "None",
       "owner": "Chromium runtime",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-15899"},
-      "reviewedAt": "2026-07-23",
-      "expiresAt": "2026-08-22",
-      "rationale": "The vendor records limit CVE-2026-15899 to macOS and CVE-2026-15900 and CVE-2026-16424 to Android. HolyClaude ships Linux images only.",
-      "vexStatement": "urn:holyclaude:vex:chromium-platform-specific-2026"
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-15899"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-30",
+      "rationale": "The vendor record limits CVE-2026-15899 to macOS. HolyClaude publishes Linux images only.",
+      "vexStatement": "urn:holyclaude:vex:chromium-cve-2026-15899-macos-not-affected"
+    },
+    {
+      "id": "chromium-cve-2026-15900-android-not-affected",
+      "vulnerabilities": [
+        "CVE-2026-15900"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "not_affected",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-15900"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-30",
+      "rationale": "The vendor record limits CVE-2026-15900 to Android. HolyClaude publishes Linux images only.",
+      "vexStatement": "urn:holyclaude:vex:chromium-cve-2026-15900-android-not-affected"
+    },
+    {
+      "id": "chromium-cve-2026-16424-android-not-affected",
+      "vulnerabilities": [
+        "CVE-2026-16424"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "151.0.7922.71-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "not_affected",
+      "effectiveSeverity": "None",
+      "owner": "Chromium runtime",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-16424"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-30",
+      "rationale": "The vendor record limits CVE-2026-16424 to Android. HolyClaude publishes Linux images only.",
+      "vexStatement": "urn:holyclaude:vex:chromium-cve-2026-16424-android-not-affected"
     },
     {
       "id": "nss-vendor-moderate",
-      "vulnerabilities": ["CVE-2026-16389"],
-      "component": {"names": ["libnss3"], "versions": ["2:3.87.1-1+deb12u3"], "types": ["deb"], "locationPatterns": ["^/usr/share/doc/", "^/var/lib/dpkg/"]},
+      "vulnerabilities": [
+        "CVE-2026-16389"
+      ],
+      "component": {
+        "names": [
+          "libnss3"
+        ],
+        "versions": [
+          "2:3.87.1-1+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
       "disposition": "vendor_severity",
       "effectiveSeverity": "Moderate",
       "owner": "Chromium runtime",
-      "authority": {"name": "Mozilla Foundation Security Advisory 2026-68", "url": "https://www.mozilla.org/en-US/security/advisories/mfsa2026-68/#CVE-2026-16389"},
+      "authority": {
+        "name": "Mozilla Foundation Security Advisory 2026-68",
+        "url": "https://www.mozilla.org/en-US/security/advisories/mfsa2026-68/#CVE-2026-16389"
+      },
       "reviewedAt": "2026-07-29",
       "expiresAt": "2026-08-12",
       "rationale": "Mozilla rates CVE-2026-16389 Moderate. The Debian Security Tracker still marks Bookworm vulnerable, and Bookworm security still publishes libnss3 2:3.87.1-1+deb12u3, so this exact package remains tracked for a Debian security update."
+    },
+    {
+      "id": "v155-acl-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-54369",
+        "CVE-2026-54370"
+      ],
+      "component": {
+        "names": [
+          "libacl1"
+        ],
+        "versions": [
+          "2.3.1-3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/acl"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-aom-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-56208",
+        "CVE-2026-56209",
+        "CVE-2026-56210",
+        "CVE-2026-56211"
+      ],
+      "component": {
+        "names": [
+          "libaom-dev",
+          "libaom3"
+        ],
+        "versions": [
+          "3.6.0-1+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/aom"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-aom-debian-minor",
+      "vulnerabilities": [
+        "CVE-2023-39616"
+      ],
+      "component": {
+        "names": [
+          "libaom-dev",
+          "libaom3"
+        ],
+        "versions": [
+          "3.6.0-1+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/aom"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-cjson-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-67215",
+        "CVE-2026-67216"
+      ],
+      "component": {
+        "names": [
+          "libcjson1"
+        ],
+        "versions": [
+          "1.7.15-1+deb12u4"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/cjson"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-cups-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-34980"
+      ],
+      "component": {
+        "names": [
+          "libcups2"
+        ],
+        "versions": [
+          "2.4.2-3+deb12u9"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/cups"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-cups-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-34990"
+      ],
+      "component": {
+        "names": [
+          "libcups2"
+        ],
+        "versions": [
+          "2.4.2-3+deb12u9"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/cups"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-curl-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-12064",
+        "CVE-2026-6276",
+        "CVE-2026-8286",
+        "CVE-2026-8932"
+      ],
+      "component": {
+        "names": [
+          "curl",
+          "libcurl3-gnutls",
+          "libcurl4",
+          "libcurl4-openssl-dev"
+        ],
+        "versions": [
+          "7.88.1-10+deb12u15"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/curl"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-expat-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-45186"
+      ],
+      "component": {
+        "names": [
+          "libexpat1",
+          "libexpat1-dev"
+        ],
+        "versions": [
+          "2.5.0-1+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/expat"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-expat-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-59375",
+        "CVE-2026-25210",
+        "CVE-2026-41080"
+      ],
+      "component": {
+        "names": [
+          "libexpat1",
+          "libexpat1-dev"
+        ],
+        "versions": [
+          "2.5.0-1+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/expat"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-ffmpeg-high-exception",
+      "vulnerabilities": [
+        "CVE-2023-49528",
+        "CVE-2024-31578",
+        "CVE-2026-58049",
+        "CVE-2026-64830",
+        "CVE-2026-64831",
+        "CVE-2026-64832",
+        "CVE-2026-64833",
+        "CVE-2026-64834",
+        "CVE-2026-64835",
+        "CVE-2026-65703",
+        "CVE-2026-65704",
+        "CVE-2026-65705",
+        "CVE-2026-65706",
+        "CVE-2026-66036",
+        "CVE-2026-66037",
+        "CVE-2026-66038",
+        "CVE-2026-66039",
+        "CVE-2026-66040",
+        "CVE-2026-66041",
+        "CVE-2026-8461"
+      ],
+      "component": {
+        "names": [
+          "ffmpeg",
+          "libavcodec59",
+          "libavdevice59",
+          "libavfilter8",
+          "libavformat59",
+          "libavutil57",
+          "libpostproc56",
+          "libswresample4",
+          "libswscale6"
+        ],
+        "versions": [
+          "7:5.1.9-0+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/ffmpeg"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-glib2-0-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-16118",
+        "CVE-2026-58010",
+        "CVE-2026-58011",
+        "CVE-2026-58012",
+        "CVE-2026-58013",
+        "CVE-2026-58014",
+        "CVE-2026-58015"
+      ],
+      "component": {
+        "names": [
+          "libglib2.0-0",
+          "libglib2.0-bin",
+          "libglib2.0-data",
+          "libglib2.0-dev",
+          "libglib2.0-dev-bin"
+        ],
+        "versions": [
+          "2.74.6-2+deb12u9"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/glib2.0"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-glibc-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-5435",
+        "CVE-2026-5928"
+      ],
+      "component": {
+        "names": [
+          "libc-bin",
+          "libc-dev-bin",
+          "libc-l10n",
+          "libc6",
+          "libc6-dev",
+          "locales"
+        ],
+        "versions": [
+          "2.36-9+deb12u14"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/glibc"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-gzip-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-41992"
+      ],
+      "component": {
+        "names": [
+          "gzip"
+        ],
+        "versions": [
+          "1.12-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/gzip"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-harfbuzz-debian-minor",
+      "vulnerabilities": [
+        "CVE-2023-25193"
+      ],
+      "component": {
+        "names": [
+          "gir1.2-harfbuzz-0.0",
+          "libharfbuzz-dev",
+          "libharfbuzz-gobject0",
+          "libharfbuzz-icu0",
+          "libharfbuzz-subset0",
+          "libharfbuzz0b"
+        ],
+        "versions": [
+          "6.0.0+dfsg-3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/harfbuzz"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-hdf5-debian-minor",
+      "vulnerabilities": [
+        "CVE-2018-11205",
+        "CVE-2026-26197"
+      ],
+      "component": {
+        "names": [
+          "hdf5-helpers",
+          "libhdf5-103-1",
+          "libhdf5-cpp-103-1",
+          "libhdf5-dev",
+          "libhdf5-fortran-102",
+          "libhdf5-hl-100",
+          "libhdf5-hl-cpp-100",
+          "libhdf5-hl-fortran-100"
+        ],
+        "versions": [
+          "1.10.8+repack1-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/hdf5"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-intel-mediasdk-high-exception",
+      "vulnerabilities": [
+        "CVE-2023-45221"
+      ],
+      "component": {
+        "names": [
+          "libmfx1"
+        ],
+        "versions": [
+          "22.5.4-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/intel-mediasdk"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "architectures": [
+        "amd64"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-jpeg-xl-high-exception",
+      "vulnerabilities": [
+        "CVE-2025-70103",
+        "CVE-2026-52584"
+      ],
+      "component": {
+        "names": [
+          "libjxl-dev",
+          "libjxl0.7"
+        ],
+        "versions": [
+          "0.7.0-10+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/jpeg-xl"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-libde265-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-33164",
+        "CVE-2026-49295",
+        "CVE-2026-49346"
+      ],
+      "component": {
+        "names": [
+          "libde265-0",
+          "libde265-dev"
+        ],
+        "versions": [
+          "1.0.11-1+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libde265"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-libheif-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-32740",
+        "CVE-2026-32741",
+        "CVE-2026-32882",
+        "CVE-2026-41071",
+        "CVE-2026-47178",
+        "CVE-2026-47247",
+        "CVE-2026-48029"
+      ],
+      "component": {
+        "names": [
+          "libheif-dev",
+          "libheif1"
+        ],
+        "versions": [
+          "1.15.1-1+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libheif"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-libheif-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-68431"
+      ],
+      "component": {
+        "names": [
+          "libheif-dev",
+          "libheif1"
+        ],
+        "versions": [
+          "1.15.1-1+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libheif"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-libsndfile-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-37555"
+      ],
+      "component": {
+        "names": [
+          "libsndfile1"
+        ],
+        "versions": [
+          "1.2.0-1+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libsndfile"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-libssh-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-0966",
+        "CVE-2026-3731"
+      ],
+      "component": {
+        "names": [
+          "libssh-gcrypt-4"
+        ],
+        "versions": [
+          "0.10.6-0+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libssh"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-libssh-gcrypt-backend-not-affected",
+      "vulnerabilities": [
+        "CVE-2026-59847"
+      ],
+      "component": {
+        "names": [
+          "libssh-gcrypt-4"
+        ],
+        "versions": [
+          "0.10.6-0+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "not_affected",
+      "effectiveSeverity": "None",
+      "owner": "FFmpeg SFTP support",
+      "authority": {
+        "name": "libssh security advisory",
+        "url": "https://www.libssh.org/security/advisories/CVE-2026-59847.txt"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "The libssh advisory limits this flaw to the OpenSSL backend. HolyClaude's exact Debian package is the Gcrypt build, links libgcrypt, and does not link libcrypto or libssl.",
+      "vexStatement": "urn:holyclaude:vex:libssh-gcrypt-cve-2026-59847",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-libssh-cve-2026-15370-pre-011-not-affected",
+      "vulnerabilities": [
+        "CVE-2026-15370"
+      ],
+      "component": {
+        "names": [
+          "libssh-gcrypt-4"
+        ],
+        "versions": [
+          "0.10.6-0+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "not_affected",
+      "effectiveSeverity": "None",
+      "owner": "FFmpeg SFTP support",
+      "authority": {
+        "name": "libssh security advisory",
+        "url": "https://www.libssh.org/security/advisories/CVE-2026-15370.txt"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "The libssh advisory limits this flaw to libssh 0.11.0 and newer. HolyClaude ships Debian libssh-gcrypt-4 0.10.6.",
+      "vexStatement": "urn:holyclaude:vex:libssh-cve-2026-15370-pre-011",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-libssh-cve-2026-59849-pre-011-not-affected",
+      "vulnerabilities": [
+        "CVE-2026-59849"
+      ],
+      "component": {
+        "names": [
+          "libssh-gcrypt-4"
+        ],
+        "versions": [
+          "0.10.6-0+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "not_affected",
+      "effectiveSeverity": "None",
+      "owner": "FFmpeg SFTP support",
+      "authority": {
+        "name": "libssh security advisory",
+        "url": "https://www.libssh.org/security/advisories/CVE-2026-59849.txt"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "The libssh advisory limits this flaw to libssh 0.11.0 and newer. HolyClaude ships Debian libssh-gcrypt-4 0.10.6.",
+      "vexStatement": "urn:holyclaude:vex:libssh-cve-2026-59849-pre-011",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-libssh-channel-callback-vendor-medium",
+      "vulnerabilities": [
+        "CVE-2026-59850"
+      ],
+      "component": {
+        "names": [
+          "libssh-gcrypt-4"
+        ],
+        "versions": [
+          "0.10.6-0+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Medium",
+      "owner": "FFmpeg SFTP support",
+      "authority": {
+        "name": "libssh security advisory",
+        "url": "https://www.libssh.org/security/advisories/CVE-2026-59850.txt"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "The libssh advisory scores the closed-channel callback issue CVSS 4.3 Medium. The raw Grype High record remains preserved in the release evidence.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-libssh2-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-55199",
+        "CVE-2026-55200",
+        "CVE-2026-66032",
+        "CVE-2026-66033",
+        "CVE-2026-66034",
+        "CVE-2026-66035"
+      ],
+      "component": {
+        "names": [
+          "libssh2-1"
+        ],
+        "versions": [
+          "1.10.0-3+b1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libssh2"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-libtasn1-6-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-13151"
+      ],
+      "component": {
+        "names": [
+          "libtasn1-6"
+        ],
+        "versions": [
+          "4.19.0-2+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/libtasn1-6"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-mbedtls-high-exception",
+      "vulnerabilities": [
+        "CVE-2025-48965",
+        "CVE-2025-52496"
+      ],
+      "component": {
+        "names": [
+          "libmbedcrypto7",
+          "libmbedtls14",
+          "libmbedx509-1"
+        ],
+        "versions": [
+          "2.28.3-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/mbedtls"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-mbedtls-debian-minor",
+      "vulnerabilities": [
+        "CVE-2024-23775",
+        "CVE-2024-28960",
+        "CVE-2026-25835",
+        "CVE-2026-34874",
+        "CVE-2026-34876"
+      ],
+      "component": {
+        "names": [
+          "libmbedcrypto7",
+          "libmbedtls14",
+          "libmbedx509-1"
+        ],
+        "versions": [
+          "2.28.3-1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/mbedtls"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-ncurses-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-69720"
+      ],
+      "component": {
+        "names": [
+          "libncursesw6",
+          "libtinfo6",
+          "ncurses-base",
+          "ncurses-bin"
+        ],
+        "versions": [
+          "6.4-4"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/ncurses"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-openexr-high-exception",
+      "vulnerabilities": [
+        "CVE-2025-12495",
+        "CVE-2025-12839",
+        "CVE-2025-12840",
+        "CVE-2026-27622",
+        "CVE-2026-34379",
+        "CVE-2026-34543",
+        "CVE-2026-34544",
+        "CVE-2026-34545",
+        "CVE-2026-34588",
+        "CVE-2026-40244",
+        "CVE-2026-40250",
+        "CVE-2026-41142"
+      ],
+      "component": {
+        "names": [
+          "libopenexr-3-1-30",
+          "libopenexr-dev"
+        ],
+        "versions": [
+          "3.1.5-5"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/openexr"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-openexr-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-64181"
+      ],
+      "component": {
+        "names": [
+          "libopenexr-3-1-30",
+          "libopenexr-dev"
+        ],
+        "versions": [
+          "3.1.5-5"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/openexr"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-openldap-debian-minor",
+      "vulnerabilities": [
+        "CVE-2023-2953"
+      ],
+      "component": {
+        "names": [
+          "libldap-2.5-0"
+        ],
+        "versions": [
+          "2.5.13+dfsg-5"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/openldap"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-openssh-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-59999",
+        "CVE-2026-60000"
+      ],
+      "component": {
+        "names": [
+          "openssh-client",
+          "openssh-server",
+          "openssh-sftp-server"
+        ],
+        "versions": [
+          "1:9.2p1-2+deb12u10"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/openssh"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-perl-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-48959",
+        "CVE-2026-48962",
+        "CVE-2026-57432",
+        "CVE-2026-7017"
+      ],
+      "component": {
+        "names": [
+          "libperl5.36",
+          "perl",
+          "perl-base",
+          "perl-modules-5.36"
+        ],
+        "versions": [
+          "5.36.0-7+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/perl"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-perl-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-42497",
+        "CVE-2026-9538"
+      ],
+      "component": {
+        "names": [
+          "libperl5.36",
+          "perl",
+          "perl-base",
+          "perl-modules-5.36"
+        ],
+        "versions": [
+          "5.36.0-7+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/perl"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-python3-11-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-15308"
+      ],
+      "component": {
+        "names": [
+          "libpython3.11-minimal",
+          "libpython3.11-stdlib",
+          "python3.11",
+          "python3.11-minimal",
+          "python3.11-venv"
+        ],
+        "versions": [
+          "3.11.2-6+deb12u8"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/python3.11"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-python3-11-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-69534",
+        "CVE-2026-11972",
+        "CVE-2026-3644",
+        "CVE-2026-7210",
+        "CVE-2026-9669"
+      ],
+      "component": {
+        "names": [
+          "libpython3.11-minimal",
+          "libpython3.11-stdlib",
+          "python3.11",
+          "python3.11-minimal",
+          "python3.11-venv"
+        ],
+        "versions": [
+          "3.11.2-6+deb12u8"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/python3.11"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-redis-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-66373"
+      ],
+      "component": {
+        "names": [
+          "redis-tools"
+        ],
+        "versions": [
+          "5:7.0.15-1~deb12u8"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/redis"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-sqlite3-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-11822",
+        "CVE-2026-11824"
+      ],
+      "component": {
+        "names": [
+          "libsqlite3-0",
+          "sqlite3"
+        ],
+        "versions": [
+          "3.40.1-2+deb12u2"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/sqlite3"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-tiff-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-12912"
+      ],
+      "component": {
+        "names": [
+          "libtiff-dev",
+          "libtiff6",
+          "libtiffxx6"
+        ],
+        "versions": [
+          "4.5.0-6+deb12u4"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/tiff"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-tiff-debian-minor",
+      "vulnerabilities": [
+        "CVE-2023-52355"
+      ],
+      "component": {
+        "names": [
+          "libtiff-dev",
+          "libtiff6",
+          "libtiffxx6"
+        ],
+        "versions": [
+          "4.5.0-6+deb12u4"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/tiff"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-vips-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-33327",
+        "CVE-2026-35591"
+      ],
+      "component": {
+        "names": [
+          "gir1.2-vips-8.0",
+          "libvips-dev",
+          "libvips42"
+        ],
+        "versions": [
+          "8.14.1-3+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/vips"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-vips-debian-minor",
+      "vulnerabilities": [
+        "CVE-2025-59933"
+      ],
+      "component": {
+        "names": [
+          "gir1.2-vips-8.0",
+          "libvips-dev",
+          "libvips42"
+        ],
+        "versions": [
+          "8.14.1-3+deb12u3"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/vips"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v155-wget-debian-minor",
+      "vulnerabilities": [
+        "CVE-2026-58469",
+        "CVE-2026-58471",
+        "CVE-2026-58472"
+      ],
+      "component": {
+        "names": [
+          "wget"
+        ],
+        "versions": [
+          "1.21.3-1+deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/wget"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-xdg-utils-debian-minor",
+      "vulnerabilities": [
+        "CVE-2022-4055"
+      ],
+      "component": {
+        "names": [
+          "xdg-utils"
+        ],
+        "versions": [
+          "1.1.3-4.1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/xdg-utils"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-xorg-server-high-exception",
+      "vulnerabilities": [
+        "CVE-2026-50256",
+        "CVE-2026-50257",
+        "CVE-2026-50258",
+        "CVE-2026-50259",
+        "CVE-2026-50260",
+        "CVE-2026-50261",
+        "CVE-2026-50264",
+        "CVE-2026-55999",
+        "CVE-2026-56000"
+      ],
+      "component": {
+        "names": [
+          "xserver-common",
+          "xvfb"
+        ],
+        "versions": [
+          "2:21.1.7-3+deb12u12"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/xorg-server"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-xorg-server-debian-minor",
+      "vulnerabilities": [
+        "CVE-2022-49737",
+        "CVE-2023-5574"
+      ],
+      "component": {
+        "names": [
+          "xserver-common",
+          "xvfb"
+        ],
+        "versions": [
+          "2:21.1.7-3+deb12u12"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/",
+          "^/var/lib/dpkg/"
+        ]
+      },
+      "disposition": "vendor_severity",
+      "effectiveSeverity": "Low",
+      "owner": "Debian Bookworm base",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/source-package/xorg-server"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
+    },
+    {
+      "id": "v155-fastify-static-high-exception-c3104aaa90",
+      "vulnerabilities": [
+        "GHSA-83w8-p2f5-377r"
+      ],
+      "component": {
+        "names": [
+          "@fastify/static"
+        ],
+        "versions": [
+          "9.3.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/netlify-cli/node_modules/@fastify/static/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Netlify CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-83w8-p2f5-377r"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Netlify CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-opentelemetry-exporter-prometheus-high-exception-9206f02d0f",
+      "vulnerabilities": [
+        "GHSA-q7rr-3cgh-j5r3"
+      ],
+      "component": {
+        "names": [
+          "@opentelemetry/exporter-prometheus"
+        ],
+        "versions": [
+          "0.203.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/task-master-ai/node_modules/@opentelemetry/exporter-prometheus/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "TaskMaster CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-q7rr-3cgh-j5r3"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "TaskMaster CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-opentelemetry-propagator-jaeger-high-exception-0b8a587624",
+      "vulnerabilities": [
+        "GHSA-45rx-2jwx-cxfr"
+      ],
+      "component": {
+        "names": [
+          "@opentelemetry/propagator-jaeger"
+        ],
+        "versions": [
+          "2.0.1"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/task-master-ai/node_modules/@opentelemetry/propagator-jaeger/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "TaskMaster CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-45rx-2jwx-cxfr"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "TaskMaster CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-opentelemetry-sdk-node-high-exception-f2b2813fe4",
+      "vulnerabilities": [
+        "GHSA-q7rr-3cgh-j5r3"
+      ],
+      "component": {
+        "names": [
+          "@opentelemetry/sdk-node"
+        ],
+        "versions": [
+          "0.203.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/task-master-ai/node_modules/@opentelemetry/sdk-node/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "TaskMaster CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-q7rr-3cgh-j5r3"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "TaskMaster CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-xmldom-xmldom-high-exception-36d558b52e",
+      "vulnerabilities": [
+        "GHSA-2v35-w6hq-6mfw",
+        "GHSA-f6ww-3ggp-fr8h",
+        "GHSA-j759-j44w-7fr8",
+        "GHSA-wh4c-j3r5-mjhp",
+        "GHSA-x6wf-f3px-wcqx"
+      ],
+      "component": {
+        "names": [
+          "@xmldom/xmldom"
+        ],
+        "versions": [
+          "0.7.13"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/eas-cli/node_modules/@xmldom/xmldom/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "EAS CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-2v35-w6hq-6mfw"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "EAS CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-cryptography-high-exception-7c76579622",
+      "vulnerabilities": [
+        "GHSA-537c-gmf6-5ccf"
+      ],
+      "component": {
+        "names": [
+          "cryptography"
+        ],
+        "versions": [
+          "46.0.7"
+        ],
+        "types": [
+          "python"
+        ],
+        "locationPatterns": [
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\.dist-info/METADATA$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\.dist-info/RECORD$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Azure CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-537c-gmf6-5ccf"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Azure CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-jackson-core-high-exception-893bf63c3a",
+      "vulnerabilities": [
+        "GHSA-r7wm-3cxj-wff9"
+      ],
+      "component": {
+        "names": [
+          "jackson-core"
+        ],
+        "versions": [
+          "2.19.1"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-r7wm-3cxj-wff9"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-jackson-databind-high-exception-15122c1f6c",
+      "vulnerabilities": [
+        "GHSA-j3rv-43j4-c7qm",
+        "GHSA-rmj7-2vxq-3g9f"
+      ],
+      "component": {
+        "names": [
+          "jackson-databind"
+        ],
+        "versions": [
+          "2.19.1"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-j3rv-43j4-c7qm"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-json-smart-high-exception-626d5c1c9a",
+      "vulnerabilities": [
+        "GHSA-pq2g-wx69-c263"
+      ],
+      "component": {
+        "names": [
+          "json-smart"
+        ],
+        "versions": [
+          "2.5.1"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-pq2g-wx69-c263"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-codec-compression-high-exception-f725d2fd3a",
+      "vulnerabilities": [
+        "GHSA-558v-64gr-wgg4",
+        "GHSA-mj4r-2hfc-f8p6"
+      ],
+      "component": {
+        "names": [
+          "netty-codec-compression"
+        ],
+        "versions": [
+          "4.2.9.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-mj4r-2hfc-f8p6"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-codec-dns-high-exception-9617bc52dc",
+      "vulnerabilities": [
+        "GHSA-cm33-6792-r9fm"
+      ],
+      "component": {
+        "names": [
+          "netty-codec-dns"
+        ],
+        "versions": [
+          "4.1.118.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-cm33-6792-r9fm"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-codec-http-high-exception-da6befc9ae",
+      "vulnerabilities": [
+        "GHSA-57rv-r2g8-2cj3",
+        "GHSA-6jqx-86gh-f27w",
+        "GHSA-f6hv-jmp6-3vwv",
+        "GHSA-jppx-w49h-x2qq",
+        "GHSA-mvh2-crg5-v77c",
+        "GHSA-pwqr-wmgm-9rr8"
+      ],
+      "component": {
+        "names": [
+          "netty-codec-http"
+        ],
+        "versions": [
+          "4.2.9.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-f6hv-jmp6-3vwv"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-codec-http2-high-exception-4e24b188b6",
+      "vulnerabilities": [
+        "GHSA-f6hv-jmp6-3vwv",
+        "GHSA-w9fj-cfpg-grvv"
+      ],
+      "component": {
+        "names": [
+          "netty-codec-http2"
+        ],
+        "versions": [
+          "4.2.9.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-w9fj-cfpg-grvv"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-codec-http2-high-exception-ghsa-93wv",
+      "vulnerabilities": [
+        "GHSA-93wv-jw9v-4972"
+      ],
+      "component": {
+        "names": [
+          "netty-codec-http2"
+        ],
+        "versions": [
+          "4.2.9.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-93wv-jw9v-4972"
+      },
+      "reviewedAt": "2026-08-02",
+      "expiresAt": "2026-09-01",
+      "rationale": "The exact stable Junie 2470.4 JAR embeds Netty 4.2.9.Final. Static inspection found no Junie or Ktor bytecode reference that installs DelegatingDecompressorFrameListener outside Netty's own native-image metadata, but adversarial HTTP/2 runtime reachability has not been proven on both release architectures. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-codec-high-exception-d6b7a4db67",
+      "vulnerabilities": [
+        "GHSA-558v-64gr-wgg4",
+        "GHSA-mj4r-2hfc-f8p6"
+      ],
+      "component": {
+        "names": [
+          "netty-codec"
+        ],
+        "versions": [
+          "4.1.118.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-mj4r-2hfc-f8p6"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-handler-high-exception-33656196a8",
+      "vulnerabilities": [
+        "GHSA-3qp7-7mw8-wx86",
+        "GHSA-c653-97m9-rcg9",
+        "GHSA-x4gw-5cx5-pgmh"
+      ],
+      "component": {
+        "names": [
+          "netty-handler"
+        ],
+        "versions": [
+          "4.2.9.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-3qp7-7mw8-wx86"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-resolver-dns-high-exception-7a88f9e11d",
+      "vulnerabilities": [
+        "GHSA-5pvg-856g-cp85",
+        "GHSA-676x-f7gg-47vc"
+      ],
+      "component": {
+        "names": [
+          "netty-resolver-dns"
+        ],
+        "versions": [
+          "4.1.118.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-5pvg-856g-cp85"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-netty-transport-classes-epoll-high-exception-b07473f4a2",
+      "vulnerabilities": [
+        "GHSA-rwm7-x88c-3g2p"
+      ],
+      "component": {
+        "names": [
+          "netty-transport-classes-epoll"
+        ],
+        "versions": [
+          "4.2.9.Final"
+        ],
+        "types": [
+          "java-archive"
+        ],
+        "locationPatterns": [
+          "^/home/claude/\\.local/share/junie/versions/2470\\.4/lib/app/junie-release-2470\\.4\\.jar$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Junie CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-rwm7-x88c-3g2p"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Junie CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-sharp-high-exception-25ada5cefb",
+      "vulnerabilities": [
+        "GHSA-f88m-g3jw-g9cj"
+      ],
+      "component": {
+        "names": [
+          "sharp"
+        ],
+        "versions": [
+          "0.34.2"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/sharp-cli/node_modules/sharp/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "sharp CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "sharp CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-sharp-high-exception-859b5a32ea",
+      "vulnerabilities": [
+        "GHSA-f88m-g3jw-g9cj"
+      ],
+      "component": {
+        "names": [
+          "sharp"
+        ],
+        "versions": [
+          "0.34.5"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/netlify-cli/node_modules/sharp/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Netlify CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Netlify CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-stdlib-high-exception-f524c925a1",
+      "vulnerabilities": [
+        "GO-2026-4601",
+        "GO-2026-4870",
+        "GO-2026-4918",
+        "GO-2026-4946",
+        "GO-2026-4947",
+        "GO-2026-4970",
+        "GO-2026-4971",
+        "GO-2026-4977",
+        "GO-2026-4981",
+        "GO-2026-4986",
+        "GO-2026-5037",
+        "GO-2026-5038"
+      ],
+      "component": {
+        "names": [
+          "stdlib"
+        ],
+        "versions": [
+          "go1.24.13"
+        ],
+        "types": [
+          "go-module"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/vercel/node_modules/@vercel/go/bin/proxy-linux-amd64$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Vercel CLI",
+      "authority": {
+        "name": "Go vulnerability database",
+        "url": "https://pkg.go.dev/vuln/GO-2026-4601"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Vercel CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-stdlib-high-exception-c75bc129be",
+      "vulnerabilities": [
+        "GO-2026-4601",
+        "GO-2026-4870",
+        "GO-2026-4918",
+        "GO-2026-4946",
+        "GO-2026-4947",
+        "GO-2026-4970",
+        "GO-2026-4971",
+        "GO-2026-4977",
+        "GO-2026-4981",
+        "GO-2026-4986",
+        "GO-2026-5037",
+        "GO-2026-5038"
+      ],
+      "component": {
+        "names": [
+          "stdlib"
+        ],
+        "versions": [
+          "go1.24.13"
+        ],
+        "types": [
+          "go-module"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/vercel/node_modules/@vercel/go/bin/proxy-linux-arm64$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Vercel CLI",
+      "authority": {
+        "name": "Go vulnerability database",
+        "url": "https://pkg.go.dev/vuln/GO-2026-4601"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Vercel CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-tmp-high-exception-d597ed2a3f",
+      "vulnerabilities": [
+        "GHSA-ph9p-34f9-6g65"
+      ],
+      "component": {
+        "names": [
+          "tmp"
+        ],
+        "versions": [
+          "0.0.33"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/@lhci/cli/node_modules/external-editor/node_modules/tmp/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Lighthouse CI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-ph9p-34f9-6g65"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Lighthouse CI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-tmp-high-exception-1e73956db9",
+      "vulnerabilities": [
+        "GHSA-ph9p-34f9-6g65"
+      ],
+      "component": {
+        "names": [
+          "tmp"
+        ],
+        "versions": [
+          "0.1.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/@lhci/cli/node_modules/tmp/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Lighthouse CI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-ph9p-34f9-6g65"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Lighthouse CI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-undici-high-exception-21ed94476b",
+      "vulnerabilities": [
+        "GHSA-v9p9-hfj2-hcw8",
+        "GHSA-vrm6-8vpv-qv8q",
+        "GHSA-vxpw-j846-p89q"
+      ],
+      "component": {
+        "names": [
+          "undici"
+        ],
+        "versions": [
+          "5.28.4"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/vercel/node_modules/@vercel/node/node_modules/undici/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Vercel CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Vercel CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-undici-high-exception-ad2a30106b",
+      "vulnerabilities": [
+        "GHSA-v9p9-hfj2-hcw8",
+        "GHSA-vrm6-8vpv-qv8q",
+        "GHSA-vxpw-j846-p89q"
+      ],
+      "component": {
+        "names": [
+          "undici"
+        ],
+        "versions": [
+          "5.29.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/undici/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "next-on-pages CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "next-on-pages CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-undici-high-exception-528b2836c5",
+      "vulnerabilities": [
+        "GHSA-v9p9-hfj2-hcw8",
+        "GHSA-vrm6-8vpv-qv8q",
+        "GHSA-vxpw-j846-p89q"
+      ],
+      "component": {
+        "names": [
+          "undici"
+        ],
+        "versions": [
+          "5.29.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/task-master-ai/node_modules/@ai-sdk/provider-utils/node_modules/undici/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "TaskMaster CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "TaskMaster CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v155-undici-high-exception-d335275925",
+      "vulnerabilities": [
+        "GHSA-v9p9-hfj2-hcw8",
+        "GHSA-vrm6-8vpv-qv8q",
+        "GHSA-vxpw-j846-p89q"
+      ],
+      "component": {
+        "names": [
+          "undici"
+        ],
+        "versions": [
+          "5.29.0"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/vercel/node_modules/undici/package\\.json$"
+        ]
+      },
+      "disposition": "high_exception",
+      "effectiveSeverity": "High",
+      "owner": "Vercel CLI",
+      "authority": {
+        "name": "GitHub Security Advisory",
+        "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q"
+      },
+      "reviewedAt": "2026-07-31",
+      "expiresAt": "2026-08-29",
+      "rationale": "Vercel CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "variants": [
+        "full"
+      ],
+      "approvedBy": "CoderLuii"
     }
   ]
 }

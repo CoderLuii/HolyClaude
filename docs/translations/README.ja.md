@@ -299,7 +299,7 @@ docker compose up -d
 
 **セットアップはこれだけ。完了。**
 
-> **なぜこのブラウザ権限なのか？** このリリースでは HolyClaude の現在のブラウザ設定をそのまま維持します。`SYS_ADMIN` と `seccomp=unconfined` はプロセス権限を広げて分離を弱め、`SYS_PTRACE` はデバッグ用です。v1.5.4 ではこの設定を維持し、ハードニングは別の変更として扱ってください。
+> **なぜこのブラウザ権限なのか？** このリリースでは HolyClaude の現在のブラウザ設定をそのまま維持します。`SYS_ADMIN` と `seccomp=unconfined` はプロセス権限を広げて分離を弱め、`SYS_PTRACE` はデバッグ用です。v1.5.5 ではこの設定を維持し、ハードニングは別の変更として扱ってください。
 
 > **なぜ `shm_size: 2g` なのか？** Docker の共有メモリは既定で 64MB しかありません。HolyClaude はこのリリースの既定値として 2GB を維持しています。Chromium はタブ描画で `/dev/shm` をかなり使うためです。64MB だとタブが落ちます。ブラウザを多用するなら 4GB に増やしてください。
 
@@ -458,8 +458,8 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `PUID` | `1000` | Docker 方式のコンテナユーザー ID; rootless Podman は `docker-compose.podman-rootless.yaml` を使用 |
 | `PGID` | `1000` | Docker 方式のコンテナグループ ID; rootless Podman は `docker-compose.podman-rootless.yaml` を使用 |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js ヒープメモリ上限（MB） |
-| `GIT_USER_NAME` | `HolyClaude User` | Git コミット作成者（初回起動時に一度設定） |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git コミットメールアドレス（初回起動時に一度設定） |
+| `GIT_USER_NAME` | `HolyClaude User` | Git コミット作成者（値がない場合のみ設定） |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git コミットメールアドレス（値がない場合のみ設定） |
 | `CHOKIDAR_USEPOLLING` | *(未設定)* | SMB/CIFS の場合は `1` に設定 — ポーリング型ファイルウォッチャーを有効化 |
 | `WATCHFILES_FORCE_POLLING` | *(未設定)* | SMB/CIFS の場合は `true` に設定 — Python ポーリングを有効化 |
 | `NOTIFY_DISCORD` | *(未設定)* | 通知用 Discord Webhook URL |
@@ -589,7 +589,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 
 | パッケージ | 用途 |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | 主要 PDF ライブラリ全て。生成、読み込み、変換、マージ。 |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | PDF の生成、読み込み、変換、マージ用ライブラリ。 |
 | `xlsxwriter`, `xlrd` | openpyxl ではカバーできない Excel フォーマット |
 | `matplotlib`, `seaborn` | データ可視化とチャート |
 | `python-pptx` | PowerPoint 生成 |
@@ -703,7 +703,7 @@ graph TB
 
 1. **コンテナ起動** — `entrypoint.sh` が root として実行。UID/GID をホストユーザーに合わせてリマップし、bootstrap が触れる前に保存済みの Claude Code セッションを復元し、初回起動かどうかを確認。
 
-2. **初回起動のみ** — `bootstrap.sh` が一度だけ実行される。デフォルト設定、メモリテンプレートのコピー、git ID の設定。センチネルファイル（`.holyclaude-bootstrapped`）を作成して二度と実行されないようにする。それ以降はカスタマイズが安全に保持される。
+2. **初回起動のみ** — `bootstrap.sh` が一度だけ実行される。デフォルト設定とメモリテンプレートをコピーする。センチネルファイル（`.holyclaude-bootstrapped`）を作成して二度と実行されないようにする。それ以降はカスタマイズが安全に保持される。
 
 3. **s6-overlay が PID 1 を引き継ぐ** — これは supervisord ではない。Docker 向けに作られた [s6-overlay](https://github.com/just-containers/s6-overlay) だ。CloudCLI、Xvfb、Claude セッション同期を監視。クラッシュ時に自動再起動。シグナルを転送。ゾンビプロセスを刈り取る。グレースフルシャットダウン。
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Claude の設定と永続化されたツール設定 | `/home/claude/.claude` | `./data/claude` | **残る** |
 | Claude Code セッション（OAuth、オンボーディング） | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **残る** |
+| Git グローバル設定と XDG 設定 | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **残る** |
+| GitHub CLI の設定と認証 | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **残る** |
 | コードとプロジェクト | `/workspace` | `./workspace` | **残る** |
 | CloudCLI アカウント | `/home/claude/.cloudcli` | *(デフォルトはコンテナのみ — 下記参照)* | 残らない（opt-in 可能） |
 
@@ -774,7 +776,8 @@ HolyClaude は起動時に新しいデフォルトファイルを作る前に、
 - ファイルに保存された Anthropic 認証と Claude Code API キー設定
 - Claude Code 設定、メモリ（`CLAUDE.md`）、OAuth セッション（再ログイン不要）
 - `./workspace` 内のすべてのコード
-- Git 設定
+- Git グローバル設定、エイリアス、XDG Git 設定
+- GitHub CLI の設定と認証
 - `/home/claude/.claude` に保存された Codex、Gemini、Cursor のファイルベース設定と認証。環境変数で渡すキーは Compose またはホスト環境に残ります。
 
 ### やり直しが必要なもの（10 秒）:
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** このフォルダ全体を削除しないでください。保存された Claude Code のセッションと設定データが含まれます。再度 bootstrap する場合は sentinel ファイルだけを、設定をリセットする場合は対象の設定ファイルだけを削除してください。
+> **`./data/claude/`:** このフォルダ全体を削除しないでください。Claude Code のデータに加え、v1.5.5 以降は GitHub CLI の認証情報を含む場合があります。git にコミットしたり、広く共有したり、暗号化されていないバックアップへ保存したりしないでください。
 
 ### CloudCLI アカウントの永続化（オプション、ローカルストレージのみ）
 
@@ -933,6 +936,8 @@ HolyClaude は CloudCLI をポート `3001` にバインドする。デフォル
 
 ## :arrows_counterclockwise: Upgrading
 
+> v1.5.5 より前のバージョンから更新する場合は、コンテナを再作成する前に、現在のコンテナにある Git のグローバル設定または `gh auth` の状態を移行してください。[Git と GitHub CLI の復旧手順](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate)に従ってください。先に古いコンテナを削除すると、そのデータが失われる可能性があります。
+
 ```bash
 # 最新イメージをプル
 docker compose pull
@@ -948,7 +953,7 @@ docker compose up -d
 `latest` の代わりに特定バージョンに固定するには:
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

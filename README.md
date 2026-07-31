@@ -45,7 +45,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.4, CloudCLI stays at 1.36.3 with refreshed WebSocket and upload dependencies, while s6-overlay stays at 3.2.3.2 and fzf stays at 0.74.1. Playwright remains aligned at 1.61.0 for Node and Python, with both bindings launching the pinned Debian Chromium Bookworm security build. There is no runtime browser download. Each release candidate also carries digest-bound SBOM and scanner evidence with an exact, expiring review for every raw Critical match.
+In v1.5.5, Git global configuration and GitHub CLI authentication survive container replacement through the existing `./data/claude` mount. Node moves to 26.5.1, GitHub CLI to 2.97.0, npm to 11.19.0, Vite to 8.2.0, Wrangler to 4.116.0, OpenCode to 1.18.10, and Python Markdown to 3.10.3. CloudCLI stays at the verified 1.36.3 baseline with a refreshed production dependency tree. Playwright remains aligned at 1.61.0 for Node and Python, with no runtime browser download.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -513,8 +513,8 @@ The complete reference. Every variable, what it defaults to, what it does.
 | `PGID` | `1000` | Container group ID for Docker-style UID/GID remapping |
 | `NODE_OPTIONS` | Full Compose: `--max-old-space-size=4096` | Optional Node.js heap limit. The quick Compose file and raw image do not set a heap-size default. |
 | `HOLYCLAUDE_BASE_PATH` | *(unset)* | Optional web UI subpath such as `/holyclaude` for Tailscale Serve `--set-path` or reverse proxies |
-| `GIT_USER_NAME` | `HolyClaude User` | Git commit author (set once on first boot) |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email (set once on first boot) |
+| `GIT_USER_NAME` | `HolyClaude User` | Git commit author, seeded only when the persisted global config has no value |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email, seeded only when the persisted global config has no value |
 | `CHOKIDAR_USEPOLLING` | *(unset)* | Set to `1` for SMB/CIFS — enables polling file watchers |
 | `WATCHFILES_FORCE_POLLING` | *(unset)* | Set to `true` for SMB/CIFS — enables Python polling |
 | `NOTIFY_DISCORD` | *(unset)* | Discord webhook URL for notifications |
@@ -660,7 +660,7 @@ The full image includes everything above, plus:
 
 | Package | What it's for |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | Every major PDF library. Generate them, read them, convert them, merge them. |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | PDF generation, reading, conversion, and merging libraries. |
 | `xlsxwriter`, `xlrd` | Excel formats beyond what openpyxl covers |
 | `matplotlib`, `seaborn` | Data visualization and charts |
 | `python-pptx` | PowerPoint generation |
@@ -764,7 +764,8 @@ See the full setup guide: **[docs/ollama.md](docs/ollama.md)**
 ```mermaid
 graph TB
     subgraph Docker Container
-        EP["entrypoint.sh"] --> BS["bootstrap.sh\n(first boot only)"]
+        EP["entrypoint.sh"] --> CP["Persist Git and gh config\n(every boot)"]
+        CP --> BS["bootstrap.sh\n(first boot only)"]
         EP --> S6["s6-overlay\n(PID 1)"]
         S6 --> CC["CloudCLI\n(:3001)"]
         S6 --> XV["Xvfb\n(:99)"]
@@ -789,15 +790,17 @@ graph TB
 
 ### How the pieces fit together
 
-1. **Container starts** — `entrypoint.sh` runs as root for Docker and remaps UID/GID there. In rootless Podman keep-id mode, it skips root-only repairs because the container is already running as the target user. In both paths it restores the saved Claude Code session before bootstrap can touch it, and checks if this is a first boot.
+1. **Container starts** — `entrypoint.sh` runs as root for Docker and remaps UID/GID there. In rootless Podman keep-id mode, it skips root-only repairs because the container is already running as the target user. In both paths it restores the saved Claude Code session and prepares persistent Git and GitHub CLI configuration before checking if this is a first boot.
 
-2. **First boot only** — `bootstrap.sh` runs once. Copies default settings, memory template, configures git identity. Creates a sentinel file (`.holyclaude-bootstrapped`) so it never runs again. Your customizations are safe from that point on.
+2. **Every boot** — HolyClaude links global Git config, XDG Git config, and GitHub CLI config into the existing `.claude` mount. Missing identity values are seeded without replacing manual changes.
 
-3. **s6-overlay takes over as PID 1** — This isn't supervisord. It's [s6-overlay](https://github.com/just-containers/s6-overlay), purpose-built for Docker. Supervises CloudCLI, Xvfb, Claude session sync, and optional `sshd` when you explicitly enable it. Auto-restarts on crash. Forwards signals. Reaps zombies. Shuts down gracefully.
+3. **First boot only** — `bootstrap.sh` copies default settings and the memory template, then creates `.holyclaude-bootstrapped`. Your customizations are safe from that point on.
 
-4. **CloudCLI serves the web UI** — Port 3001. Browser-based interface to Claude Code with project management, multiple sessions, and plugins (project stats + web terminal included).
+4. **s6-overlay takes over as PID 1** — This isn't supervisord. It's [s6-overlay](https://github.com/just-containers/s6-overlay), purpose-built for Docker. Supervises CloudCLI, Xvfb, Claude session sync, and optional `sshd` when you explicitly enable it. Auto-restarts on crash. Forwards signals. Reaps zombies. Shuts down gracefully.
 
-5. **Xvfb provides a compatibility display** — Xvfb stays available at `:99` for tools that use a headed display. Modern headless Chromium, Playwright, and Lighthouse do not universally require Xvfb.
+5. **CloudCLI serves the web UI** — Port 3001. Browser-based interface to Claude Code with project management, multiple sessions, and plugins (project stats + web terminal included).
+
+6. **Xvfb provides a compatibility display** — Xvfb stays available at `:99` for tools that use a headed display. Modern headless Chromium, Playwright, and Lighthouse do not universally require Xvfb.
 
 See [docs/architecture.md](docs/architecture.md) for the full technical deep-dive — including why we chose s6 over supervisord, why plugins are baked into the image, and why `runuser` instead of `su`.
 
@@ -854,6 +857,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Claude settings and persisted tool config | `/home/claude/.claude` | `./data/claude` | **Yes** |
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Yes** |
+| Git global and XDG configuration | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **Yes** |
+| GitHub CLI configuration and authentication | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **Yes** |
 | Your code and projects | `/workspace` | `./workspace` | **Yes** |
 | CloudCLI account | `/home/claude/.cloudcli` | *(container only by default — see below)* | No (opt-in available) |
 
@@ -863,7 +868,8 @@ HolyClaude restores the saved Claude Code session before startup can create a fr
 - File-based Anthropic authentication and Claude Code API-key settings
 - Claude Code settings, memory (`CLAUDE.md`), and OAuth session (no re-login)
 - All your code in `./workspace`
-- Git configuration
+- Git global configuration, aliases, and XDG Git settings
+- GitHub CLI configuration and authentication
 - Codex, Gemini, and Cursor file-based config and authentication stored below `/home/claude/.claude` (since v1.1.7). Environment-provided keys remain in your Compose or host environment.
 
 ### What you'll redo (10 seconds):
@@ -876,7 +882,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **Never delete `./data/claude/` entirely.** It contains saved Claude Code sessions and tool configuration. Delete the sentinel file if you want a fresh bootstrap, or delete only the specific config file you intend to reset.
+> **Protect `./data/claude/`.** It contains saved Claude Code sessions and may now contain GitHub credentials in `.config/gh/hosts.yml`. Do not commit it, share it broadly, or place it in an unencrypted backup. Delete only the specific state you intend to reset.
 
 ### Persisting the CloudCLI account (optional, local storage only)
 
@@ -1112,6 +1118,8 @@ See [configuration docs](docs/configuration.md#notifications-apprise) for all su
 
 ## :arrows_counterclockwise: Upgrading
 
+> Upgrading from a version before v1.5.5? If the current container holds `git config --global` or `gh auth` state that is not already in `./data/claude`, migrate it before recreating the container. Follow [Git and GitHub CLI recovery](docs/troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate). Removing the old container first can discard that state.
+
 ```bash
 # Pull the latest image
 docker compose pull
@@ -1131,7 +1139,7 @@ docker compose pull && docker compose up -d
 To pin a specific version instead of `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

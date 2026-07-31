@@ -299,7 +299,7 @@ Abra `http://localhost:3001`. Crie uma conta CloudCLI. Entre com sua conta Anthr
 
 **Essa é toda a configuração. Você terminou.**
 
-> **Por que estas capacidades do navegador?** Esta versão mantém o perfil atual de navegador do HolyClaude. `SYS_ADMIN` e `seccomp=unconfined` ampliam privilégios de processo e reduzem o isolamento; `SYS_PTRACE` é para depuração. Mantenha esse perfil como está para a v1.5.4 e trate o hardening como uma mudança separada.
+> **Por que estas capacidades do navegador?** Esta versão mantém o perfil atual de navegador do HolyClaude. `SYS_ADMIN` e `seccomp=unconfined` ampliam privilégios de processo e reduzem o isolamento; `SYS_PTRACE` é para depuração. Mantenha esse perfil como está para a v1.5.5 e trate o hardening como uma mudança separada.
 
 > **Por que `shm_size: 2g`?** O Docker dá aos containers 64MB de memória compartilhada por padrão. O HolyClaude mantém 2GB como o padrão retido para esta versão porque o Chromium usa muito `/dev/shm` para renderização de abas. Com 64MB, as abas travam; se usar muito o navegador, suba para 4GB.
 
@@ -458,8 +458,8 @@ A referência completa. Cada variável, seu padrão e o que faz.
 | `PUID` | `1000` | ID de usuario do container para remapeamento Docker; Podman rootless usa `docker-compose.podman-rootless.yaml` |
 | `PGID` | `1000` | ID de grupo do container para remapeamento Docker; Podman rootless usa `docker-compose.podman-rootless.yaml` |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Limite de memória heap do Node.js em MB |
-| `GIT_USER_NAME` | `HolyClaude User` | Autor do commit Git (definido uma vez na primeira inicialização) |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email do commit Git (definido uma vez na primeira inicialização) |
+| `GIT_USER_NAME` | `HolyClaude User` | Autor do commit Git (definido somente quando o valor estiver ausente) |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Email do commit Git (definido somente quando o valor estiver ausente) |
 | `CHOKIDAR_USEPOLLING` | *(não definido)* | Defina como `1` para SMB/CIFS, habilita file watchers por polling |
 | `WATCHFILES_FORCE_POLLING` | *(não definido)* | Defina como `true` para SMB/CIFS, habilita polling Python |
 | `NOTIFY_DISCORD` | *(não definido)* | URL de webhook Discord para notificações |
@@ -589,7 +589,7 @@ A imagem completa inclui tudo acima, mais:
 
 | Pacote | Para que serve |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | Todas as principais bibliotecas PDF. Gere, leia, converta, mescle. |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | Bibliotecas para gerar, ler, converter e mesclar PDFs. |
 | `xlsxwriter`, `xlrd` | Formatos Excel além do que o openpyxl cobre |
 | `matplotlib`, `seaborn` | Visualização de dados e gráficos |
 | `python-pptx` | Geração de PowerPoint |
@@ -703,7 +703,7 @@ graph TB
 
 1. **Container inicia** — `entrypoint.sh` executa como root. Remapeia UID/GID para corresponder ao usuário do host, restaura a sessão salva do Claude Code antes que o bootstrap possa tocá-la e verifica se é a primeira inicialização.
 
-2. **Somente na primeira inicialização** — `bootstrap.sh` executa uma vez. Copia configurações padrão, template de memória, configura identidade git. Cria um arquivo sentinel (`.holyclaude-bootstrapped`) para nunca executar novamente. Suas customizações estão seguras a partir desse ponto.
+2. **Somente na primeira inicialização** — `bootstrap.sh` executa uma vez. Copia configurações padrão e o template de memória. Cria um arquivo sentinel (`.holyclaude-bootstrapped`) para nunca executar novamente. Suas customizações estão seguras a partir desse ponto.
 
 3. **s6-overlay assume como PID 1** — Não é supervisord. É o [s6-overlay](https://github.com/just-containers/s6-overlay), construído especificamente para Docker. Supervisiona CloudCLI, Xvfb e a sincronização da sessão Claude. Reinicia automaticamente em caso de crash. Encaminha sinais. Recolhe processos zumbis. Desliga graciosamente.
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Configurações do Claude e configuração persistente das ferramentas | `/home/claude/.claude` | `./data/claude` | **Sim** |
 | Sessão Claude Code (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Sim** |
+| Configuração global e XDG do Git | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **Sim** |
+| Configuração e autenticação do GitHub CLI | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **Sim** |
 | Seu código e projetos | `/workspace` | `./workspace` | **Sim** |
 | Conta CloudCLI | `/home/claude/.cloudcli` | *(somente container por padrão — veja abaixo)* | Não (opt-in disponível) |
 
@@ -774,7 +776,8 @@ HolyClaude restaura a sessão salva do Claude Code antes que a inicialização p
 - Autenticação Anthropic baseada em arquivos e configurações de chave API do Claude Code
 - Configurações e memória do Claude Code (`CLAUDE.md`) e sessão OAuth (sem re-login)
 - Todo seu código em `./workspace`
-- Configuração Git
+- Configuração global, aliases e ajustes XDG do Git
+- Configuração e autenticação do GitHub CLI
 - Configuração e autenticação de Codex, Gemini e Cursor baseadas em arquivos em `/home/claude/.claude`. As chaves fornecidas por variáveis de ambiente permanecem no Compose ou no ambiente do host.
 
 ### O que você vai refazer (10 segundos):
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** Não exclua a pasta por completo. Ela contém dados salvos de sessão e configuração do Claude Code. Para um novo bootstrap, exclua apenas o arquivo sentinela; para redefinir uma opção, exclua apenas o arquivo de configuração correspondente.
+> **`./data/claude/`:** Não exclua a pasta por completo. Ela contém dados do Claude Code e, desde a v1.5.5, pode conter credenciais do GitHub CLI. Não faça commit, não compartilhe amplamente e não guarde em backups sem criptografia.
 
 ### Persistindo a conta CloudCLI (opcional, apenas armazenamento local)
 
@@ -933,6 +936,8 @@ Veja a [documentação de configuração](../configuration.md#notifications-appr
 
 ## :arrows_counterclockwise: Upgrading
 
+> Está atualizando de uma versão anterior à v1.5.5? Migre a configuração global do Git ou o estado de `gh auth` do container atual antes de recriá-lo. Siga a [recuperação do Git e GitHub CLI](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate). Remover primeiro o container antigo pode apagar esses dados.
+
 ```bash
 # Baixe a imagem mais recente
 docker compose pull
@@ -948,7 +953,7 @@ Não execute `cloudcli update` nem `npm install -g @cloudcli-ai/cloudcli@latest`
 Para fixar uma versão específica em vez de `latest`:
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

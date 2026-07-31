@@ -62,12 +62,22 @@ The value must start with `/` and must not end with `/`. HolyClaude keeps assets
 
 ### Git Identity
 
-Set during first-boot bootstrap. To change after first boot, run `git config --global` inside the container.
+HolyClaude prepares Git configuration on every boot through the existing `.claude` mount. It seeds identity values only when they are missing, so `git config --global` changes survive container replacement.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `GIT_USER_NAME` | `HolyClaude User` | Git commit author name |
 | `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit author email |
+
+The durable targets are:
+
+```text
+./data/claude/.gitconfig
+./data/claude/.config/git
+./data/claude/.config/gh
+```
+
+Explicit `GIT_CONFIG_GLOBAL`, `GH_CONFIG_DIR`, or non-default `XDG_CONFIG_HOME` values remain user-managed and are not redirected. Treat `./data/claude` as credential-bearing storage because GitHub CLI can write authentication data to `.config/gh/hosts.yml`.
 
 ### SMB/CIFS Network Mounts
 
@@ -261,7 +271,7 @@ security_opt:
   - seccomp=unconfined  # Current browser profile; hardening is a separate pass
 ```
 
-This is HolyClaude's retained browser profile for v1.5.4. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
+This is HolyClaude's retained browser profile for v1.5.5. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
 
 ---
 

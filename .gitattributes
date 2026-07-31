@@ -4,6 +4,7 @@ Dockerfile text eol=lf
 *.patch text eol=lf whitespace=-blank-at-eol
 contracts/*.json text eol=lf
 vendor/artifacts/*.json text eol=lf
+vendor/locks/*.json text eol=lf
 scripts/holyclaude-mosh-server text eol=lf
 scripts/holyclaude-chromium text eol=lf
 s6-overlay/s6-rc.d/** text eol=lf

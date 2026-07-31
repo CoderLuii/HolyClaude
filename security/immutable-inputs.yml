@@ -1,7 +1,7 @@
 schema-version: 1
-release: v1.5.4
-reviewed-at: 2026-07-29
-expires-at: 2026-08-28
+release: v1.5.5
+reviewed-at: 2026-07-31
+expires-at: 2026-08-29
 
 base-images:
   - name: Actionlint workflow validator
@@ -13,9 +13,9 @@ base-images:
     digest: sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651
     status: retained
   - name: HolyClaude runtime
-    reference: node:26.5.0-bookworm-slim
-    digest: sha256:2d49d876e96237d76de412761cf05dbfe5aee325cc4406a4d41d5824c5bb8beb
-    status: retained
+    reference: node:26.5.1-bookworm-slim
+    digest: sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73
+    status: updated
 
 release-assets:
   - name: s6-overlay
@@ -34,10 +34,16 @@ release-assets:
     verification-mode: committed-hash
     status: retained
   - name: Debian Chromium package trio
-    version: 150.0.7871.181-1~deb12u1
+    version: 151.0.7922.71-1~deb12u1
+    amd64-chromium-package-sha256: 455423ff7608b4a2af8ef6e66596ce86d313ae9e055381feee9e39df9f6165ef
+    arm64-chromium-package-sha256: 1abbdfc529cd7b8576ec41b2f2aa4660888f7fd3efd6579b3d79cfc30bc0389d
+    amd64-chromium-common-package-sha256: a99c21a89cac35e18997df511d4173cfb7bc57ea0312e88b0c3b99e564050938
+    arm64-chromium-common-package-sha256: d26cdb3cc2ed1080a499603f5f0483ee9f377c9a753a8469dcf5be2004e74e8d
+    amd64-chromium-sandbox-package-sha256: d3ae37073eb000326047e9d352beb32333beb6d0b1655dfe389ff2ba2a26a9c9
+    arm64-chromium-sandbox-package-sha256: 99c6c715559c7f6fd6f116880d3427bb1289f4c33ebcbfa51127c1ae7230e4eb
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
-    status: retained
+    status: updated
   - name: Syft
     version: 1.50.0
     amd64-archive-sha256: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788
@@ -65,6 +71,102 @@ release-assets:
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
+  - name: setuptools
+    version: 83.0.0
+    wheel-sha256: 29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3
+    verification: PyPI wheel
+    verification-mode: committed-hash
+    status: security-patched
+  - name: piscina
+    version: 4.9.3
+    archive-sha256: 5207b79c42ff172230529f5aa355f17d855b1481836bc841db19c6081fc5ec1e
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: brace-expansion
+    version: 5.0.9
+    archive-sha256: 5d06001fddd25cbee90c96db4dc5b7b57711b984c3141e28d10f143deb52dbaf
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: glob
+    version: 11.1.0
+    archive-sha256: 8816e244d245d86a1b8adf9ed0bf61c9665dbb1ee7b00dd6b3283f3ac0393bfb
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: js-yaml
+    version: 4.3.0
+    archive-sha256: 8594ee34496dd2e41ec934fd202843dc993be9ab2d7d5d47579146962fbdfae6
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: minimatch 5
+    version: 5.1.9
+    archive-sha256: 67e7dacfba9fcabb6ac661620b67e6c22600b4aa56ffa14431cbdfdeebbd4cfe
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: minimatch 10
+    version: 10.2.6
+    archive-sha256: 5a3d2c8074a28229665727e47b8a1090941856a7962905efe05d20d3760355f8
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: node-forge
+    version: 1.4.0
+    archive-sha256: bf9d7ca0d774235354697bd4b5e642af6505e7ce2066762c3b855138cf870820
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: path-to-regexp 6
+    version: 6.3.0
+    archive-sha256: da302284390341278d3dad1014f2043cf844f6a2163aa8dc5686d321d82742e6
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: path-to-regexp 8
+    version: 8.4.2
+    archive-sha256: e8712a9c53b0a2a27cfecc7b80c54df92afb4643c01351e2b2ebb7784bcabd78
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: ws
+    version: 8.21.1
+    archive-sha256: bb0f7e58ba1f64746672734d36175fe185f226491e336abc0743e2a8f4472ec1
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: npm
+    version: 11.19.0
+    archive-sha256: 31e9770f7dc71119a58509353b27917557aaf0ac9b5ef1a0465ee7d8ec67ae75
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: updated
+  - name: Vite
+    version: 8.2.0
+    archive-sha256: 618d8d574ecaec329f9910ffba7b16b5c6c6893462f470abddd565df763b1109
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: updated
+  - name: Wrangler
+    version: 4.116.0
+    archive-sha256: 90afa40f716bb2e02cc4cdb60cae2013b441cb1799a6b7b90aa48c74c209e572
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: updated
+  - name: OpenCode
+    version: 1.18.10
+    archive-sha256: c135d5cb88407888f7d67ddb4a2e30f27109a8b9e8922282674b8abb34226bd8
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: updated
+  - name: Python Markdown
+    version: 3.10.3
+    archive-sha256: fa6c92a00a4a3c98b22728c64a935ae1928250ae65058a6ded814d2cc29a4cea
+    verification: PyPI wheel
+    verification-mode: committed-hash
+    status: updated
 
 installers:
   - name: Claude Code
@@ -86,16 +188,17 @@ installers:
     launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
-    install: direct from verified build archive
-    status: updated
+    install: verified build archive with the bundled Node replaced by the pinned HolyClaude Node runtime
+    status: security-patched
   - name: Azure CLI apt bootstrap
     version: 2.88.0-1~bookworm
     installer-sha256: 01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
     status: pinned
-  - name: GitHub CLI apt repository
-    version: 2.96.0
-    keyring-sha256: 6084d5d7bd8e288441e0e94fc6275570895da18e6751f70f057485dc2d1a811b
-    status: pinned
+  - name: GitHub CLI release package
+    version: 2.97.0
+    amd64-package-sha256: 7c7fa3bb890db0934baf65910d97b8c0fa437b2e590f7f7daf6bdf82c5c486d7
+    arm64-package-sha256: 0ba7a76739c865d82ebde24667d875d9b8caa55db47c7597c24accdd4defd2bb
+    status: updated
 
 vendored-artifacts:
   - name: CloudCLI HolyClaude account-management artifact
@@ -103,8 +206,8 @@ vendored-artifacts:
     upstream-commit: 27eaf0146a46aa8a55178f3d394360ff7465420f
     artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    manifest-sha256: f3e10abcecd1d50202386d0883f67ba3ad425a27408bdfcbc28af8a7e904ce64
-    sha256: f127431f196c3802bf87ac9b96900a8612182982bfc089bce5ed00542c173dea
+    manifest-sha256: 0aa75b9ae5e9f0e543719022bb319c7ba99dfa29e2b08db8da8facad5998f523
+    sha256: a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7
     verification: two independent clean builds in the pinned Node image
     status: updated
 
@@ -118,6 +221,7 @@ plugins:
     repository: https://github.com/cloudcli-ai/cloudcli-plugin-terminal
     commit: 8aa41f614c216d961e7c0d9c3e67982c6b2d9da3
     lock: vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json
+    lock-sha256: 1a8f2c64ca55722aa481d05debc08328aeb94d7c4f67cf6b24001e9c172e1abe
     install: npm ci
     status: retained
 
@@ -147,7 +251,8 @@ github-actions:
 deferred-migrations:
   - npm 12
   - TypeScript 7
-  - Vercel 56
+  - Vercel 58
+  - Netlify 27
   - EAS 21
   - Debian 13
   - OpenNext

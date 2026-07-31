@@ -41,9 +41,11 @@ and missing patch anchors fail closed.
   rotates the local password hash in place, and invalidates older REST, SSE,
   and WebSocket tokens after a password change until upstream CloudCLI ships
   equivalent support.
-- Dependency hardening: resolves CloudCLI's `ws`, `multer`, `dompurify`,
-  `express`, and `path-to-regexp` dependencies to reviewed versions, and limits
-  Multer field nesting to the flat upload fields used by CloudCLI.
+- Dependency hardening: resolves CloudCLI's runtime and transitive dependency
+  tree to reviewed compatible versions, including `ws`, `multer`, DOMPurify,
+  Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`,
+  `picomatch`, `tar-fs`, and YAML. Multer field nesting remains limited to the
+  flat upload fields used by CloudCLI.
 - Build-time upstream checks: verify CloudCLI's WebSocket binary-frame handling
   provider model command flow, Codex final exit codes, Apprise call sites, and
   Codex provider completion fields are present in the compiled runtime.
@@ -89,12 +91,25 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 
 HolyClaude keeps the JavaScript package versions required by the bundled full-image tools, but rebuilds their native esbuild executables from the matching upstream tags with Go 1.26.5. This removes the older Go runtimes without changing the packages' JavaScript APIs.
 
+## Dependency Security Overlays
+
+HolyClaude replaces selected compatible dependency copies with version-pinned
+archives and fail-closed path checks. Overlays that replace a known vendored copy
+also verify its owning tool and original dependency version before changing it.
+v1.5.5 updates selected copies of setuptools, Piscina, brace-expansion, glob,
+js-yaml, minimatch, node-forge, path-to-regexp, and ws. Cursor Agent uses
+HolyClaude's patched Node 26.5.1 runtime instead of its bundled Node binary.
+
+These packages retain their upstream licenses. The exact versions, archive
+hashes, owning paths, and fail-closed patch checks are recorded in the
+Dockerfile, `security/immutable-inputs.yml`, and the release source.
+
 ## Chromium
 
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 150.0.7871.181-1~deb12u1, installed from Bookworm security packages
+- Version: 151.0.7922.71-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 
@@ -118,7 +133,7 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 
 - License: MIT
 - Source: https://github.com/nodejs/node
-- Version: 26.5.0 base image
+- Version: 26.5.1 base image
 
 ## node-tar
 

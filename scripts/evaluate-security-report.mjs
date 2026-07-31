@@ -12,6 +12,7 @@ const ALLOWED_AUTHORITY_HOSTS = new Set([
   'nvd.nist.gov',
   'pkg.go.dev',
   'security-tracker.debian.org',
+  'www.libssh.org',
 ]);
 const ALLOWED_DISPOSITIONS = new Set(['fixed', 'high_exception', 'not_affected', 'vendor_severity']);
 const ALLOWED_VARIANTS = new Set(['full', 'slim']);
@@ -27,6 +28,37 @@ const SEVERITY_ORDER = new Map([
   ['High', 4],
   ['Critical', 5],
 ]);
+const LEDGER_KEYS = new Set(['schemaVersion', 'policy', 'reviews']);
+const REVIEW_KEYS = new Set([
+  'id',
+  'vulnerabilities',
+  'component',
+  'disposition',
+  'effectiveSeverity',
+  'owner',
+  'authority',
+  'reviewedAt',
+  'expiresAt',
+  'rationale',
+  'vexStatement',
+  'approvedBy',
+  'variants',
+  'architectures',
+]);
+const COMPONENT_KEYS = new Set(['names', 'versions', 'types', 'locationPatterns']);
+const AUTHORITY_KEYS = new Set(['name', 'url']);
+const VEX_KEYS = new Set(['@context', '@id', 'author', 'timestamp', 'version', 'statements']);
+const VEX_STATEMENT_KEYS = new Set([
+  '@id',
+  'vulnerability',
+  'products',
+  'status',
+  'justification',
+  'impact_statement',
+]);
+const VEX_PRODUCT_KEYS = new Set(['@id', 'subcomponents']);
+const VEX_SUBCOMPONENT_KEYS = new Set(['identifiers']);
+const VEX_IDENTIFIERS_KEYS = new Set(['purl']);
 
 function parseArgs(argv) {
   const args = {};
@@ -36,8 +68,23 @@ function parseArgs(argv) {
     if (!key?.startsWith('--') || value === undefined) throw new Error(`invalid argument near ${key ?? '<end>'}`);
     args[key.slice(2)] = value;
   }
-  for (const required of ['report', 'ledger', 'vex', 'output-dir', 'variant', 'arch']) {
+  for (const required of [
+    'report',
+    'ledger',
+    'vex',
+    'output-dir',
+    'variant',
+    'arch',
+    'image-digest',
+    'sbom-sha256',
+  ]) {
     if (!args[required]) throw new Error(`missing --${required}`);
+  }
+  if (!/^sha256:[a-f0-9]{64}$/.test(args['image-digest'])) {
+    throw new Error('--image-digest must be a lowercase sha256 digest');
+  }
+  if (!/^[a-f0-9]{64}$/.test(args['sbom-sha256'])) {
+    throw new Error('--sbom-sha256 must be a lowercase SHA-256 hash');
   }
   return args;
 }
@@ -177,13 +224,17 @@ function validateReport(report) {
 
 function validateLedger(ledger) {
   if (!isRecord(ledger)) throw new Error('advisory ledger must be an object');
+  validateKeys(ledger, LEDGER_KEYS, 'advisory ledger');
   if (ledger.schemaVersion !== 1) throw new Error('advisory ledger schemaVersion must be 1');
   if (typeof ledger.policy !== 'string' || !ledger.policy) throw new Error('advisory ledger policy is required');
   if (!Array.isArray(ledger.reviews)) throw new Error('advisory ledger reviews must be an array');
+  const ids = ledger.reviews.map((review) => review?.id).filter(Boolean);
+  if (new Set(ids).size !== ids.length) throw new Error('advisory ledger review ids must be unique');
 }
 
 function validateVexDocument(vex) {
   if (!isRecord(vex)) throw new Error('OpenVEX document must be an object');
+  validateKeys(vex, VEX_KEYS, 'OpenVEX document');
   if (typeof vex['@id'] !== 'string' || !vex['@id']) throw new Error('OpenVEX id is required');
   if (typeof vex.author !== 'string' || !vex.author) throw new Error('OpenVEX author is required');
   if (typeof vex.timestamp !== 'string' || Number.isNaN(Date.parse(vex.timestamp))) {
@@ -191,6 +242,24 @@ function validateVexDocument(vex) {
   }
   if (!Number.isInteger(vex.version) || vex.version < 1) throw new Error('OpenVEX version must be a positive integer');
   if (!Array.isArray(vex.statements)) throw new Error('OpenVEX statements must be an array');
+}
+
+function validateKeys(value, allowed, label) {
+  const unexpected = Object.keys(value).filter((key) => !allowed.has(key));
+  if (unexpected.length > 0) {
+    throw new Error(`${label} contains unexpected fields: ${unexpected.sort().join(', ')}`);
+  }
+}
+
+function validateUniqueStrings(values, label) {
+  if (
+    !Array.isArray(values) ||
+    values.length === 0 ||
+    values.some((value) => typeof value !== 'string' || value.length === 0) ||
+    new Set(values).size !== values.length
+  ) {
+    throw new Error(`${label} must contain unique non-empty strings`);
+  }
 }
 
 function writeJson(path, value) {
@@ -251,6 +320,7 @@ function appliesToTarget(review, variant, arch) {
 
 function validateAuthority(review) {
   if (!review.authority?.name || !review.authority?.url) throw new Error(`${review.id}: authority is incomplete`);
+  validateKeys(review.authority, AUTHORITY_KEYS, `${review.id}.authority`);
   const url = new URL(review.authority.url);
   if (url.protocol !== 'https:' || !ALLOWED_AUTHORITY_HOSTS.has(url.hostname)) {
     throw new Error(`${review.id}: unsupported authority URL ${review.authority.url}`);
@@ -259,14 +329,10 @@ function validateAuthority(review) {
 
 function validateComponent(review) {
   const component = review.component;
+  if (!isRecord(component)) throw new Error(`${review.id}: component must be an object`);
+  validateKeys(component, COMPONENT_KEYS, `${review.id}.component`);
   for (const selector of ['names', 'versions', 'types', 'locationPatterns']) {
-    if (!Array.isArray(component[selector]) || component[selector].length === 0) {
-      const label = selector === 'names' ? 'exact names selector' : `${selector} selector`;
-      throw new Error(`${review.id}: component requires a non-empty ${label}`);
-    }
-    if (component[selector].some((value) => typeof value !== 'string' || value.length === 0)) {
-      throw new Error(`${review.id}: component ${selector} entries must be non-empty strings`);
-    }
+    validateUniqueStrings(component[selector], `${review.id}.component.${selector}`);
   }
   if (component.namePatterns || component.versionPatterns) {
     throw new Error(`${review.id}: component requires exact names and versions instead of pattern selectors`);
@@ -289,21 +355,24 @@ function validateComponent(review) {
         escaped = true;
         continue;
       }
-      if ('.*+?{['.includes(character)) {
+      if ('.*+?{[()|'.includes(character)) {
         broadSyntax = true;
         break;
       }
     }
-    if (!pattern.startsWith('^/') || !suffixAnchored || broadSyntax) {
+    if (!pattern.startsWith('^/') || pattern === '^/' || !suffixAnchored || broadSyntax) {
       throw new Error(`${review.id}: broad component location pattern ${JSON.stringify(pattern)}`);
     }
   }
 }
 
 function validateReview(review, asOf) {
+  if (!isRecord(review)) throw new Error('each review must be an object');
+  validateKeys(review, REVIEW_KEYS, review.id || 'advisory review');
   if (!review.id || !Array.isArray(review.vulnerabilities) || review.vulnerabilities.length === 0) {
     throw new Error('each review needs an id and vulnerability list');
   }
+  validateUniqueStrings(review.vulnerabilities, `${review.id}.vulnerabilities`);
   if (!review.component || !review.effectiveSeverity || !review.disposition || !review.rationale || !review.owner) {
     throw new Error(`${review.id}: incomplete review`);
   }
@@ -316,6 +385,9 @@ function validateReview(review, asOf) {
   }
   if (review.disposition === 'high_exception' && review.effectiveSeverity !== 'High') {
     throw new Error(`${review.id}: high_exception requires effective severity High`);
+  }
+  if (review.effectiveSeverity === 'High' && review.disposition !== 'high_exception') {
+    throw new Error(`${review.id}: effective High findings require high_exception`);
   }
   validateAuthority(review);
   validateTargetSelectors(review);
@@ -335,41 +407,150 @@ function validateReview(review, asOf) {
   if (review.disposition === 'not_affected' && !review.vexStatement) {
     throw new Error(`${review.id}: not_affected review must link an OpenVEX statement`);
   }
+  if (review.disposition === 'not_affected' && review.vulnerabilities.length !== 1) {
+    throw new Error(`${review.id}: not_affected review must cover exactly one vulnerability`);
+  }
   validateComponent(review);
 }
 
-function validateVex(vex, reviews, variant, arch) {
-  if (vex['@context'] !== 'https://openvex.dev/ns/v0.2.0') throw new Error('OpenVEX context must be v0.2.0');
-  const statements = vex.statements;
-  const ids = new Set();
-  const expectedGhcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=${variant}`;
-  const expectedDockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=${variant}`;
-  for (const statement of statements) {
-    if (!statement['@id'] || ids.has(statement['@id'])) throw new Error('OpenVEX statement ids must be unique');
-    ids.add(statement['@id']);
-    if (statement.status !== 'not_affected') throw new Error(`${statement['@id']}: OpenVEX is limited to not_affected`);
-    if (!(statement.products ?? []).some((product) => product['@id'] === expectedGhcrProduct)) {
-      throw new Error(`${statement['@id']}: missing exact ${variant} product`);
-    }
-    if (!(statement.products ?? []).some((product) => product['@id'] === expectedDockerHubProduct)) {
-      throw new Error(`${statement['@id']}: missing exact ${variant} Docker Hub product`);
-    }
-    if (!statement.justification || !statement.impact_statement) {
-      throw new Error(`${statement['@id']}: missing justification or impact statement`);
-    }
-  }
-  for (const review of reviews.filter(
-    (item) => item.disposition === 'not_affected' && appliesToTarget(item, variant, arch),
-  )) {
-    const statement = statements.find((item) => item['@id'] === review.vexStatement);
-    if (!statement) throw new Error(`${review.id}: linked OpenVEX statement is missing`);
-    const vexId = statement.vulnerability?.name ?? statement.vulnerability?.['@id']?.split('/').pop();
-    for (const vulnerability of review.vulnerabilities) {
-      if (vexId !== vulnerability && !(statement.aliases ?? []).includes(vulnerability)) {
-        throw new Error(`${review.id}: OpenVEX statement does not cover ${vulnerability}`);
+function componentPurls(review, arch) {
+  const purls = [];
+  for (const type of review.component.types) {
+    if (type !== 'deb') throw new Error(`${review.id}: unsupported OpenVEX component type ${type}`);
+    for (const name of review.component.names) {
+      for (const version of review.component.versions) {
+        purls.push(`pkg:deb/debian/${encodeURIComponent(name)}@${encodeURIComponent(version)}?arch=${arch}`);
       }
     }
   }
+  return purls.sort();
+}
+
+function validateVexProduct(product, statementId) {
+  if (!isRecord(product)) throw new Error(`${statementId}: products must contain objects`);
+  validateKeys(product, VEX_PRODUCT_KEYS, `${statementId}.product`);
+  if (typeof product['@id'] !== 'string' || !product['@id']) {
+    throw new Error(`${statementId}: product id is required`);
+  }
+  if (!Array.isArray(product.subcomponents) || product.subcomponents.length === 0) {
+    throw new Error(`${statementId}: missing exact component subcomponent`);
+  }
+  const purls = product.subcomponents.map((subcomponent) => {
+    if (!isRecord(subcomponent)) throw new Error(`${statementId}: subcomponents must contain objects`);
+    validateKeys(subcomponent, VEX_SUBCOMPONENT_KEYS, `${statementId}.subcomponent`);
+    if (!isRecord(subcomponent.identifiers)) {
+      throw new Error(`${statementId}: subcomponent identifiers are required`);
+    }
+    validateKeys(subcomponent.identifiers, VEX_IDENTIFIERS_KEYS, `${statementId}.subcomponent.identifiers`);
+    const purl = subcomponent.identifiers.purl;
+    if (typeof purl !== 'string' || !purl.startsWith('pkg:')) {
+      throw new Error(`${statementId}: subcomponent purl is required`);
+    }
+    return purl;
+  });
+  if (new Set(purls).size !== purls.length) {
+    throw new Error(`${statementId}: component subcomponent purls must be unique`);
+  }
+  return purls.sort();
+}
+
+function validateVex(vex, reviews, variant, arch, imageDigest) {
+  if (vex['@context'] !== 'https://openvex.dev/ns/v0.2.0') throw new Error('OpenVEX context must be v0.2.0');
+  const statements = vex.statements;
+  const ids = new Set();
+  const statementReviews = new Map();
+  for (const statement of statements) {
+    if (!isRecord(statement)) throw new Error('OpenVEX statements must be objects');
+    validateKeys(statement, VEX_STATEMENT_KEYS, statement['@id'] || 'OpenVEX statement');
+    if (!statement['@id'] || ids.has(statement['@id'])) throw new Error('OpenVEX statement ids must be unique');
+    ids.add(statement['@id']);
+    if (!isRecord(statement.vulnerability)) throw new Error(`${statement['@id']}: vulnerability must be an object`);
+    validateKeys(statement.vulnerability, new Set(['@id', 'name']), `${statement['@id']}.vulnerability`);
+    if (!Array.isArray(statement.products) || statement.products.length === 0) {
+      throw new Error(`${statement['@id']}: products must be a non-empty array`);
+    }
+    const products = statement.products.map((product) => ({
+      product,
+      purls: validateVexProduct(product, statement['@id']),
+    }));
+    const productIds = products.map(({ product }) => product['@id']);
+    if (new Set(productIds).size !== productIds.length) {
+      throw new Error(`${statement['@id']}: product ids must be unique`);
+    }
+    if (statement.status !== 'not_affected') throw new Error(`${statement['@id']}: OpenVEX is limited to not_affected`);
+    if (!statement.justification || !statement.impact_statement) {
+      throw new Error(`${statement['@id']}: missing justification or impact statement`);
+    }
+
+    const linkedReviews = reviews.filter(
+      (review) => review.disposition === 'not_affected' && review.vexStatement === statement['@id'],
+    );
+    if (linkedReviews.length === 0) {
+      throw new Error(`${statement['@id']}: orphan OpenVEX statement`);
+    }
+    if (linkedReviews.length !== 1) {
+      throw new Error(`${statement['@id']}: must link exactly one not_affected review`);
+    }
+    const review = linkedReviews[0];
+    statementReviews.set(statement['@id'], review);
+    if (statement.vulnerability.name !== review.vulnerabilities[0]) {
+      throw new Error(`${review.id}: OpenVEX statement does not cover ${review.vulnerabilities[0]}`);
+    }
+
+    const reviewVariants = review.variants ?? [...ALLOWED_VARIANTS];
+    const reviewArchitectures = review.architectures ?? [...ALLOWED_ARCHITECTURES];
+    const expectedProductIds = reviewVariants.flatMap((reviewVariant) => [
+      `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`,
+      `pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`,
+    ]).sort();
+    for (const reviewVariant of reviewVariants) {
+      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`;
+      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`;
+      if (!productIds.includes(ghcrProduct)) {
+        throw new Error(`${statement['@id']}: missing exact ${reviewVariant} product`);
+      }
+      if (!productIds.includes(dockerHubProduct)) {
+        throw new Error(`${statement['@id']}: missing exact ${reviewVariant} Docker Hub product`);
+      }
+    }
+    if (JSON.stringify(productIds.sort()) !== JSON.stringify(expectedProductIds)) {
+      throw new Error(`${statement['@id']}: unexpected OpenVEX product scope`);
+    }
+    const expectedPurls = reviewArchitectures.flatMap((reviewArch) => componentPurls(review, reviewArch)).sort();
+    for (const { purls } of products) {
+      if (JSON.stringify(purls) !== JSON.stringify(expectedPurls)) {
+        throw new Error(`${statement['@id']}: missing exact component subcomponent`);
+      }
+    }
+  }
+
+  for (const review of reviews.filter((item) => item.disposition === 'not_affected')) {
+    if (!statementReviews.has(review.vexStatement)) {
+      throw new Error(`${review.id}: linked OpenVEX statement is missing`);
+    }
+  }
+
+  const digest = imageDigest.slice('sha256:'.length);
+  return {
+    ...vex,
+    statements: statements
+      .filter((statement) => appliesToTarget(statementReviews.get(statement['@id']), variant, arch))
+      .map((statement) => {
+        const review = statementReviews.get(statement['@id']);
+        const expectedPurls = new Set(componentPurls(review, arch));
+        return {
+          ...statement,
+          products: statement.products
+            .filter((product) => product['@id'].endsWith(`?variant=${variant}`))
+            .map((product) => ({
+              ...product,
+              hashes: { 'sha-256': digest },
+              subcomponents: product.subcomponents.filter((subcomponent) =>
+                expectedPurls.has(subcomponent.identifiers.purl)),
+            })),
+        };
+      }),
+  };
 }
 
 function ownerFor(match) {
@@ -379,7 +560,7 @@ function ownerFor(match) {
   if (paths.includes('/home/claude/.local/share/junie/')) return 'Junie CLI';
   if (paths.includes('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/')) return 'CloudCLI';
   if (paths.includes('/usr/local/lib/node_modules/netlify-cli/')) return 'Netlify CLI';
-  if (paths.includes('/usr/local/lib/node_modules/')) return 'Full image npm toolset';
+  if (paths.includes('/usr/local/lib/node_modules/')) return 'Common npm toolset';
   if (paths.includes('/usr/local/lib/python')) return 'Python toolset';
   if (paths.includes('/usr/lib/chromium/') || paths.includes('/usr/bin/chromium')) return 'Chromium runtime';
   return 'Debian Bookworm base';
@@ -424,7 +605,7 @@ function main() {
   validateVexDocument(vex);
   const reviews = ledger.reviews;
   for (const review of reviews) validateReview(review, asOf);
-  validateVex(vex, reviews, args.variant, args.arch);
+  const targetVex = validateVex(vex, reviews, args.variant, args.arch, args['image-digest']);
 
   const rawCritical = report.matches.filter((match) => match.vulnerability.severity === 'Critical');
   const rawHigh = report.matches.filter((match) => match.vulnerability.severity === 'High');
@@ -491,15 +672,16 @@ function main() {
     const vulnerability = match.vulnerability?.id;
     const candidates = reviews.filter(
       (review) =>
-        review.disposition === 'high_exception' &&
         appliesToTarget(review, args.variant, args.arch) &&
         review.vulnerabilities.includes(vulnerability) &&
         matchesComponent(match, review.component),
     );
-    if (candidates.length > 1) {
-      errors.push(`${vulnerability} ${match.artifact?.name}@${match.artifact?.version}: matched ${candidates.length} High exceptions`);
+    if (candidates.length !== 1) {
+      errors.push(
+        `${vulnerability} ${match.artifact?.name}@${match.artifact?.version}: matched ${candidates.length} reviews for raw High finding`,
+      );
     }
-    for (const review of candidates) {
+    for (const review of candidates.filter((item) => item.disposition === 'high_exception')) {
       highExceptionMatchCounts.set(review.id, (highExceptionMatchCounts.get(review.id) ?? 0) + 1);
     }
     const record = enrichHigh(match);
@@ -520,17 +702,19 @@ function main() {
     };
   });
   for (const [reviewId, count] of highExceptionMatchCounts) {
-    if (count !== 1) errors.push(`${reviewId}: matched ${count} High findings`);
+    if (count < 1) errors.push(`${reviewId}: matched no High findings`);
   }
   const outputDir = resolve(args['output-dir']);
   mkdirSync(outputDir, { recursive: true });
   writeJson(resolve(outputDir, 'critical-findings.json'), reviewedCritical);
   writeJson(resolve(outputDir, 'high-findings.json'), highFindings);
   writeJson(resolve(outputDir, 'ignored-findings.json'), ignoredFindings);
-  writeJson(resolve(outputDir, 'openvex.json'), vex);
+  writeJson(resolve(outputDir, 'openvex.json'), targetVex);
   writeJson(resolve(outputDir, 'policy.json'), {
     variant: args.variant,
     arch: args.arch,
+    imageDigest: args['image-digest'],
+    sbomSha256: args['sbom-sha256'],
     asOf: asOfText,
     rawCriticalCount: rawCritical.length,
     reviewedCriticalCount: reviewedCritical.length - unresolvedCritical.length,

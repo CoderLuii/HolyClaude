@@ -299,7 +299,7 @@ docker compose up -d
 
 **बस यही पूरा सेटअप है। आप कर चुके हैं।**
 
-> **ये browser capabilities क्यों?** यह रिलीज HolyClaude का current browser profile बनाए रखती है। `SYS_ADMIN` और `seccomp=unconfined` process privileges बढ़ाते हैं और isolation कम करते हैं; `SYS_PTRACE` debugging के लिए है। v1.5.4 के लिए इस profile को जस का तस रखें और hardening को अलग बदलाव मानें।
+> **ये browser capabilities क्यों?** यह रिलीज HolyClaude का current browser profile बनाए रखती है। `SYS_ADMIN` और `seccomp=unconfined` process privileges बढ़ाते हैं और isolation कम करते हैं; `SYS_PTRACE` debugging के लिए है। v1.5.5 के लिए इस profile को जस का तस रखें और hardening को अलग बदलाव मानें।
 
 > **`shm_size: 2g` क्यों?** Docker डिफ़ॉल्ट रूप से containers को 64MB shared memory देता है। HolyClaude इस रिलीज़ के लिए 2GB को retained default रखता है क्योंकि Chromium tab rendering के लिए `/dev/shm` का भारी उपयोग करता है। 64MB पर tabs crash होते हैं; heavy browser use के लिए 4GB करें।
 
@@ -458,8 +458,8 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 | `PUID` | `1000` | Docker-style container user ID; rootless Podman के लिए `docker-compose.podman-rootless.yaml` इस्तेमाल करें |
 | `PGID` | `1000` | Docker-style container group ID; rootless Podman के लिए `docker-compose.podman-rootless.yaml` इस्तेमाल करें |
 | `NODE_OPTIONS` | `docker-compose.full.yaml: --max-old-space-size=4096` | Node.js heap memory limit in MB |
-| `GIT_USER_NAME` | `HolyClaude User` | Git commit author (पहले boot पर एक बार सेट) |
-| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email (पहले boot पर एक बार सेट) |
+| `GIT_USER_NAME` | `HolyClaude User` | Git commit author (value missing होने पर ही set) |
+| `GIT_USER_EMAIL` | `noreply@holyclaude.local` | Git commit email (value missing होने पर ही set) |
 | `CHOKIDAR_USEPOLLING` | *(unset)* | SMB/CIFS के लिए `1` सेट करें — polling file watchers enable करता है |
 | `WATCHFILES_FORCE_POLLING` | *(unset)* | SMB/CIFS के लिए `true` सेट करें — Python polling enable करता है |
 | `NOTIFY_DISCORD` | *(unset)* | सूचनाओं के लिए Discord webhook URL |
@@ -589,7 +589,7 @@ Full image में ऊपर सब कुछ, plus:
 
 | Package | किसके लिए है |
 |---------|---------------|
-| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `pdfkit`, `img2pdf` | हर major PDF library। उन्हें generate करें, पढ़ें, convert करें, merge करें। |
+| `reportlab`, `weasyprint`, `cairosvg`, `fpdf2`, `PyMuPDF`, `img2pdf` | PDF generate, read, convert और merge करने की libraries। |
 | `xlsxwriter`, `xlrd` | Excel formats जो openpyxl cover नहीं करता |
 | `matplotlib`, `seaborn` | Data visualization और charts |
 | `python-pptx` | PowerPoint generation |
@@ -703,7 +703,7 @@ graph TB
 
 1. **Container शुरू होता है** — `entrypoint.sh` root के रूप में चलता है। UID/GID को आपके host user से मिलाने के लिए remap करता है, bootstrap से पहले saved Claude Code session restore करता है, और check करता है कि यह first boot है या नहीं।
 
-2. **केवल पहले boot पर** — `bootstrap.sh` एक बार चलता है। Default settings, memory template copy करता है, git identity configure करता है। एक sentinel file (`.holyclaude-bootstrapped`) बनाता है ताकि यह दोबारा कभी न चले। उस बिंदु से आपके customizations सुरक्षित हैं।
+2. **केवल पहले boot पर** — `bootstrap.sh` एक बार चलता है। Default settings और memory template copy करता है। एक sentinel file (`.holyclaude-bootstrapped`) बनाता है ताकि यह दोबारा कभी न चले। उस बिंदु से आपके customizations सुरक्षित हैं।
 
 3. **s6-overlay PID 1 के रूप में कार्यभार संभालता है** — यह supervisord नहीं है। यह [s6-overlay](https://github.com/just-containers/s6-overlay) है, जो Docker के लिए purpose-built है। CloudCLI, Xvfb, और Claude session sync को supervise करता है। Crash पर auto-restart करता है। Signals forward करता है। Zombies reap करता है। Gracefully shutdown करता है।
 
@@ -765,6 +765,8 @@ holyclaude/
 |------|-------------------|-------------|-------------------|
 | Claude settings और persisted tool config | `/home/claude/.claude` | `./data/claude` | **हां** |
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **हां** |
+| Git global और XDG configuration | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **हां** |
+| GitHub CLI configuration और authentication | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **हां** |
 | आपका code और projects | `/workspace` | `./workspace` | **हां** |
 | CloudCLI अकाउंट | `/home/claude/.cloudcli` | *(default में केवल container में — नीचे देखें)* | नहीं (opt-in उपलब्ध) |
 
@@ -774,7 +776,8 @@ HolyClaude startup में नया default file बनाने से प�
 - File-based Anthropic authentication और Claude Code API-key settings
 - Claude Code settings, memory (`CLAUDE.md`) और OAuth session (दोबारा login नहीं)
 - `./workspace` में आपका सारा code
-- Git configuration
+- Git global configuration, aliases और XDG settings
+- GitHub CLI configuration और authentication
 - `/home/claude/.claude` में stored Codex, Gemini, और Cursor file-based config और authentication। Environment variables से दी गई keys Compose या host environment में रहती हैं।
 
 ### आप क्या दोबारा करेंगे (10 सेकंड):
@@ -787,7 +790,7 @@ rm ./data/claude/.holyclaude-bootstrapped
 docker compose restart holyclaude
 ```
 
-> **`./data/claude/`:** इस folder को पूरी तरह delete न करें। इसमें saved Claude Code session और configuration data होता है। Fresh bootstrap के लिए केवल sentinel file हटाएं; settings reset करने के लिए केवल संबंधित configuration file हटाएं।
+> **`./data/claude/`:** इस folder को पूरी तरह delete न करें। इसमें Claude Code data होता है और v1.5.5 से GitHub CLI credentials भी हो सकते हैं। इसे git में commit, व्यापक रूप से share या unencrypted backup में store न करें।
 
 ### CloudCLI account को persist करना (optional, केवल local storage)
 
@@ -933,6 +936,8 @@ Password एक speed bump है, दरवाज़ा नहीं। HolyCla
 
 ## :arrows_counterclockwise: अपग्रेड करना
 
+> क्या आप v1.5.5 से पुराने संस्करण से अपग्रेड कर रहे हैं? Container को दोबारा बनाने से पहले मौजूदा container की global Git configuration या `gh auth` state को migrate करें। [Git और GitHub CLI recovery](../troubleshooting.md#git-identity-or-gh-auth-disappears-after-recreate) के चरणों का पालन करें। पुराने container को पहले हटाने पर यह state खो सकती है।
+
 ```bash
 # Latest image pull करें
 docker compose pull
@@ -948,7 +953,7 @@ Container के अंदर `cloudcli update` या `npm install -g @cloudcli
 `latest` के बजाय specific version pin करने के लिए:
 
 ```yaml
-image: coderluii/holyclaude:1.5.4   # instead of :latest
+image: coderluii/holyclaude:1.5.5   # instead of :latest
 ```
 
 <p align="right">

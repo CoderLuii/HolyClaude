@@ -1,82 +1,1485 @@
 {
   "@context": "https://openvex.dev/ns/v0.2.0",
-  "@id": "urn:holyclaude:openvex:v1.5.4",
+  "@id": "urn:holyclaude:openvex:v1.5.5",
   "author": "CoderLuii",
-  "timestamp": "2026-07-29T00:00:00Z",
+  "timestamp": "2026-08-02T00:00:00Z",
   "version": 1,
   "statements": [
     {
       "@id": "urn:holyclaude:vex:zlib-cve-2023-45853",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2023-45853", "name": "CVE-2023-45853"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2023-45853",
+        "name": "CVE-2023-45853"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
-      "impact_statement": "Debian does not build the affected contrib/minizip code in the zlib binary packages present in HolyClaude."
+      "impact_statement": "Debian confirms that src:zlib does not produce the affected contrib/minizip binary packages."
     },
     {
       "@id": "urn:holyclaude:vex:mbedtls-cve-2025-47917",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-47917", "name": "CVE-2025-47917"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-47917",
+        "name": "CVE-2025-47917"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedcrypto7@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedtls14@2.28.3-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmbedx509-1@2.28.3-1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "HolyClaude services do not call the affected X.509 writing API, and the vendor states internal uses are not affected."
-    },
-    {
-      "@id": "urn:holyclaude:vex:cursor-node-cve-2025-55130",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-55130", "name": "CVE-2025-55130"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "The pinned Cursor launcher does not enable Node's experimental Permission Model."
+      "impact_statement": "The affected function is an X.509 writing API; HolyClaude services do not call it directly, and the vendor states internal uses are not affected."
     },
     {
       "@id": "urn:holyclaude:vex:perl-cve-2026-12087",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-12087", "name": "CVE-2026-12087"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-12087",
+        "name": "CVE-2026-12087"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "No shipped service calls Perl Socket pack_ip_mreq_source; Perl is available only to explicit developer workloads."
+      "impact_statement": "No shipped HolyClaude service loads Perl Socket or calls pack_ip_mreq_source; Perl remains an explicit developer tool."
     },
     {
       "@id": "urn:holyclaude:vex:perl-cve-2026-13221",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-13221", "name": "CVE-2026-13221"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-13221",
+        "name": "CVE-2026-13221"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "No shipped service evaluates attacker-controlled Perl regular expressions; Perl is available only to explicit developer workloads."
+      "impact_statement": "No shipped HolyClaude service evaluates attacker-controlled Perl regular expressions; Perl remains an explicit developer tool."
     },
     {
       "@id": "urn:holyclaude:vex:openexr-cve-2026-42216",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-42216", "name": "CVE-2026-42216"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-42216",
+        "name": "CVE-2026-42216"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "No shipped HolyClaude service parses EXR IDManifest data."
+      "impact_statement": "No shipped HolyClaude service parses EXR IDManifest data; EXR libraries are available only to explicit developer workloads."
     },
     {
       "@id": "urn:holyclaude:vex:openexr-cve-2026-42217",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-42217", "name": "CVE-2026-42217"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-42217",
+        "name": "CVE-2026-42217"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-3-1-30@3.1.5-5?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libopenexr-dev@3.1.5-5?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "No shipped HolyClaude service parses attacker-controlled EXR scanline data."
+      "impact_statement": "No shipped HolyClaude service parses attacker-controlled EXR scanline data; EXR libraries are available only to explicit developer workloads."
     },
     {
       "@id": "urn:holyclaude:vex:perl-cve-2026-57433",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-57433", "name": "CVE-2026-57433"},
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-57433",
+        "name": "CVE-2026-57433"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libperl5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-base@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl-modules-5.36@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/perl@5.36.0-7%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "No shipped service deserializes attacker-controlled Perl Storable data; Perl is available only to explicit developer workloads."
+      "impact_statement": "No shipped HolyClaude service deserializes attacker-controlled Perl Storable data; Perl remains an explicit developer tool."
     },
     {
-      "@id": "urn:holyclaude:vex:chromium-platform-specific-2026",
-      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-15899", "name": "CVE-2026-15899"},
-      "aliases": ["CVE-2026-15900", "CVE-2026-16424"],
-      "products": [{"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.4?variant=slim"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=full"}, {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.4?variant=slim"}],
+      "@id": "urn:holyclaude:vex:chromium-cve-2026-15899-macos-not-affected",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-15899",
+        "name": "CVE-2026-15899"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
-      "impact_statement": "These findings are limited to macOS or Android Chromium builds. HolyClaude publishes Linux images."
+      "impact_statement": "The vendor record limits CVE-2026-15899 to macOS. HolyClaude publishes Linux images only."
+    },
+    {
+      "@id": "urn:holyclaude:vex:chromium-cve-2026-15900-android-not-affected",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-15900",
+        "name": "CVE-2026-15900"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vendor record limits CVE-2026-15900 to Android. HolyClaude publishes Linux images only."
+    },
+    {
+      "@id": "urn:holyclaude:vex:chromium-cve-2026-16424-android-not-affected",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-16424",
+        "name": "CVE-2026-16424"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/chromium@151.0.7922.71-1~deb12u1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vendor record limits CVE-2026-16424 to Android. HolyClaude publishes Linux images only."
+    },
+    {
+      "@id": "urn:holyclaude:vex:libssh-gcrypt-cve-2026-59847",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-59847",
+        "name": "CVE-2026-59847"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The libssh advisory limits this flaw to the OpenSSL backend. HolyClaude's exact Debian package is the Gcrypt build, links libgcrypt, and does not link libcrypto or libssl."
+    },
+    {
+      "@id": "urn:holyclaude:vex:libssh-cve-2026-15370-pre-011",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-15370",
+        "name": "CVE-2026-15370"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The libssh advisory limits this flaw to libssh 0.11.0 and newer. HolyClaude ships Debian libssh-gcrypt-4 0.10.6."
+    },
+    {
+      "@id": "urn:holyclaude:vex:libssh-cve-2026-59849-pre-011",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-59849",
+        "name": "CVE-2026-59849"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libssh-gcrypt-4@0.10.6-0%2Bdeb12u2?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The libssh advisory limits this flaw to libssh 0.11.0 and newer. HolyClaude ships Debian libssh-gcrypt-4 0.10.6."
     }
   ]
 }

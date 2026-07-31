@@ -54,7 +54,7 @@ npm i <package>           # Project-local install
 - **Scraping:** beautifulsoup4, lxml
 - **Images:** Pillow
 - **Data:** pandas, numpy, matplotlib, seaborn
-- **PDF:** reportlab, weasyprint, cairosvg, fpdf2, PyMuPDF, pdfkit, img2pdf
+- **PDF:** reportlab, weasyprint, cairosvg, fpdf2, PyMuPDF, img2pdf
 - **Excel:** openpyxl, xlsxwriter, xlrd
 - **Documents:** python-docx, python-pptx, markdown, jinja2
 - **Config:** pyyaml, python-dotenv
@@ -116,7 +116,7 @@ The `--break-system-packages` flag is required (no venv in container context).
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
 - **Playwright 1.61.0** installed for Node and Python — baked at build time, no runtime browser download
-- **Debian Chromium 150.0.7871.181** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Debian Chromium 151.0.7922.71** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 - Lighthouse and `@lhci/cli` are full-image tools
@@ -156,7 +156,8 @@ Telegram uses `NOTIFY_TELEGRAM=tgram://bot_token/chat_id`. Check setup without s
 
 - All projects go in `/workspace` (bind-mounted from host)
 - Git is pre-configured with `safe.directory /workspace`
-- Git identity is set via `GIT_USER_NAME` and `GIT_USER_EMAIL` env vars
+- Git identity is seeded from `GIT_USER_NAME` and `GIT_USER_EMAIL` only when missing
+- Global Git configuration and GitHub CLI authentication persist below `~/.claude`; protect the mounted data because it can contain credentials
 - Create repos, clone projects, build — everything persists on the host
 
 ## Permissions
@@ -180,7 +181,8 @@ Codex has separate configurable near-parity controls:
 
 ## Container Lifecycle
 
-- **First boot:** Bootstrap runs once — copies settings, memory, configures git
+- **Every boot:** Git and GitHub CLI configuration links are prepared before bootstrap
+- **First boot:** Bootstrap runs once — copies settings and memory
 - **Subsequent boots:** Bootstrap skipped (sentinel file exists)
 - **Re-trigger bootstrap:** Delete `~/.claude/.holyclaude-bootstrapped`
 - **Credentials survive rebuilds:** `~/.claude/` is bind-mounted

@@ -15,10 +15,15 @@ test('Dockerfile uses pinned Playwright bindings and the canonical browser path'
 });
 
 test('Dockerfile pins the Bookworm security Chromium packages', () => {
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=150\.0\.7871\.181-1~deb12u1/);
-  assert.match(dockerfile, /chromium="\$\{CHROMIUM_DEBIAN_VERSION\}"/);
-  assert.match(dockerfile, /chromium-common="\$\{CHROMIUM_DEBIAN_VERSION\}"/);
-  assert.match(dockerfile, /chromium-sandbox="\$\{CHROMIUM_DEBIAN_VERSION\}"/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.71-1~deb12u1/);
+  for (const packageName of ['CHROMIUM_PACKAGE', 'CHROMIUM_COMMON_PACKAGE', 'CHROMIUM_SANDBOX_PACKAGE']) {
+    assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_AMD64=[0-9a-f]{64}`));
+    assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_ARM64=[0-9a-f]{64}`));
+  }
+  assert.match(dockerfile, /apt-get download[\s\S]+"chromium=\$\{CHROMIUM_DEBIAN_VERSION\}"/);
+  assert.match(dockerfile, /chromium-common_\$\{CHROMIUM_DEBIAN_VERSION\}_\$\{DEB_ARCH\}\.deb/);
+  assert.match(dockerfile, /chromium-sandbox_\$\{CHROMIUM_DEBIAN_VERSION\}_\$\{DEB_ARCH\}\.deb/);
+  assert.match(dockerfile, /\| sha256sum -c -/);
   assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' chromium/);
   assert.match(dockerfile, /test -x \/usr\/lib\/chromium\/chromium/);
 });
