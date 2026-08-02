@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.5.5",
-    "dockerVersion": "1.5.5"
+    "tag": "v1.5.6",
+    "dockerVersion": "1.5.6"
   },
   "registries": {
     "dockerHub": {

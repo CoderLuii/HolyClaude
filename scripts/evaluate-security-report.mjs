@@ -500,12 +500,12 @@ function validateVex(vex, reviews, variant, arch, imageDigest) {
     const reviewVariants = review.variants ?? [...ALLOWED_VARIANTS];
     const reviewArchitectures = review.architectures ?? [...ALLOWED_ARCHITECTURES];
     const expectedProductIds = reviewVariants.flatMap((reviewVariant) => [
-      `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`,
-      `pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`,
+      `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=${reviewVariant}`,
+      `pkg:oci/docker.io/coderluii/holyclaude@1.5.6?variant=${reviewVariant}`,
     ]).sort();
     for (const reviewVariant of reviewVariants) {
-      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`;
-      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.5?variant=${reviewVariant}`;
+      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=${reviewVariant}`;
+      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.6?variant=${reviewVariant}`;
       if (!productIds.includes(ghcrProduct)) {
         throw new Error(`${statement['@id']}: missing exact ${reviewVariant} product`);
       }

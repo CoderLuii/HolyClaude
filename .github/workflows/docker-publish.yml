@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.5.5
+run-name: v1.5.6
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.5"
+        default: "1.5.6"
         type: string
   push:
     branches:
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="576797f1b7142c59fd91d0f39c373c4980e2a867"
+          baseline="60972094fa121136743f39f6997324fe4a85a156"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.4^{commit}')" = "576797f1b7142c59fd91d0f39c373c4980e2a867"
+          test "$(git rev-parse 'v1.5.5^{commit}')" = "60972094fa121136743f39f6997324fe4a85a156"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"

@@ -116,7 +116,7 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.5\.5$/m);
+  assert.match(immutableInputs, /^release: v1\.5\.6$/m);
   assert.match(immutableInputs, /^expires-at: 2026-08-29$/m);
   for (const value of [
     'sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651',
@@ -196,12 +196,12 @@ test('compatible package updates and plugin locks are exact', () => {
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /^run-name: v1\.5\.5$/m);
-  assert.match(workflow, /default: "1\.5\.5"/);
-  assert.match(workflow, /baseline="576797f1b7142c59fd91d0f39c373c4980e2a867"/);
+  assert.match(workflow, /^run-name: v1\.5\.6$/m);
+  assert.match(workflow, /default: "1\.5\.6"/);
+  assert.match(workflow, /baseline="60972094fa121136743f39f6997324fe4a85a156"/);
   assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
   assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(workflow, /git rev-parse 'v1\.5\.4\^\{commit\}'\)" = "576797f1b7142c59fd91d0f39c373c4980e2a867"/);
+  assert.match(workflow, /git rev-parse 'v1\.5\.5\^\{commit\}'\)" = "60972094fa121136743f39f6997324fe4a85a156"/);
   assert.match(workflow, /SYFT_VERSION: 1\.50\.0/);
   assert.match(workflow, /GRYPE_VERSION: 0\.116\.1/);
   assert.match(workflow, /SYFT_SHA256_AMD64: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788/);

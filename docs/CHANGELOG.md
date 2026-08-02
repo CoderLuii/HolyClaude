@@ -4,6 +4,11 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.6] - 08/02/2026
+
+### Changed
+- Corrected the HolyCode Cloud README callout and preserved its `?ref=hclaude-readme` attribution link.
+
 ## [1.5.5] - 08/02/2026
 
 ### Added

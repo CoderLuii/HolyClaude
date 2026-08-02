@@ -24,14 +24,14 @@ function expectInvalid(value, pattern) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.5'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.6'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
     () => validateExpectedRelease(facts, 'v1.5.4'),
-    /release v1\.5\.5 does not match expected v1\.5\.4/,
+    /release v1\.5\.6 does not match expected v1\.5\.4/,
   );
 });
 
@@ -166,10 +166,10 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="576797f1b7142c59fd91d0f39c373c4980e2a867"/);
+  assert.match(validationJob, /baseline="60972094fa121136743f39f6997324fe4a85a156"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.5\.4\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.5\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assert.match(candidateJob, /^\s*needs:\s*validate-release-ref\s*$/m);
 });
