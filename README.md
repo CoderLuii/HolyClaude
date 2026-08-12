@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.5, Git global configuration and GitHub CLI authentication survive container replacement through the existing `./data/claude` mount. Node moves to 26.5.1, GitHub CLI to 2.97.0, npm to 11.19.0, Vite to 8.2.0, Wrangler to 4.116.0, OpenCode to 1.18.10, and Python Markdown to 3.10.3. CloudCLI stays at the verified 1.36.3 baseline with a refreshed production dependency tree. Playwright remains aligned at 1.61.0 for Node and Python, with no runtime browser download.
+In v1.5.7, Node moves to 26.7.0, Playwright to 1.62.0, tsx to 4.23.12, pnpm to 11.21.0, Vite to 8.2.1, esbuild to 0.28.2, and ESLint to 10.8.1. npm stays at 11.19.0 because npm 12 rejects CloudCLI's verified shrinkwrap. TypeScript stays at 6.0.3 because the 7.0.2 native binary carries fixed-version Go findings. CloudCLI stays at the verified 1.36.3 baseline with patched nested security dependencies. Compatible nested packages in Wrangler, Pi, EAS, PM2, and Vercel are refreshed too. The full image carries downstream backports for Netlify image parsing, FFmpeg, and Azure CLI's cryptography runtime. The release workflow also restores rollback evidence to its consumed path and retries only a failed browser snapshot once.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -580,7 +580,7 @@ This is not a minimal container. This is an entire development workstation.
 | `pyyaml`, `python-dotenv` | Config file parsing |
 | `rich`, `click`, `tqdm` | Beautiful CLIs and progress bars |
 | `desloppify`, `bandit`, `tree-sitter` | Code-quality scans, Python security checks, parser-backed code analysis |
-| `playwright` | Browser automation (Playwright 1.61.0, baked at build time) |
+| `playwright` | Browser automation (Playwright 1.62.0, baked at build time) |
 
 </details>
 

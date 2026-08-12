@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.5.6
+run-name: v1.5.7
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.6"
+        default: "1.5.7"
         type: string
   push:
     branches:
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="60972094fa121136743f39f6997324fe4a85a156"
+          baseline="b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.5^{commit}')" = "60972094fa121136743f39f6997324fe4a85a156"
+          test "$(git rev-parse 'v1.5.6^{commit}')" = "b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -363,8 +363,8 @@ jobs:
             local expected_sha256="$3"
             local archive="${tool}_${version}_linux_${scanner_arch}.tar.gz"
             local base="https://github.com/anchore/${tool}/releases/download/v${version}"
-            curl -fsSLO "${base}/${archive}"
-            curl -fsSLO "${base}/${tool}_${version}_checksums.txt"
+            curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -O "${base}/${archive}"
+            curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -O "${base}/${tool}_${version}_checksums.txt"
             grep -F "  ${archive}" "${tool}_${version}_checksums.txt" | sha256sum -c -
             printf '%s  %s\n' "${expected_sha256}" "${archive}" | sha256sum -c -
             tar -xzf "${archive}" -C /usr/local/bin "${tool}"
@@ -391,7 +391,7 @@ jobs:
           if [[ "${scanner_arch}" == "arm64" ]]; then
             sbom_utility_sha256="${SBOM_UTILITY_SHA256_ARM64}"
           fi
-          curl -fsSLO "https://github.com/CycloneDX/sbom-utility/releases/download/v${SBOM_UTILITY_VERSION}/${sbom_utility_archive}"
+          curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -O "https://github.com/CycloneDX/sbom-utility/releases/download/v${SBOM_UTILITY_VERSION}/${sbom_utility_archive}"
           printf '%s  %s\n' "${sbom_utility_sha256}" "${sbom_utility_archive}" | sha256sum -c -
           tar -xzf "${sbom_utility_archive}" -C /usr/local/bin sbom-utility
           rm -f "${sbom_utility_archive}"
@@ -1373,7 +1373,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: rollback-evidence
-          path: .
+          path: promotion
 
       - name: Check whether mutable aliases may have moved
         id: moved

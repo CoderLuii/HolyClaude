@@ -44,7 +44,7 @@ That's it. Open your browser, sign in, start building.
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 151.0.7922.71 + Xvfb + Playwright 1.61.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 151.0.7922.108 + Xvfb + Playwright 1.62.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 

@@ -1,21 +1,72 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, relative } from 'node:path';
 import test from 'node:test';
 
 const dockerfile = readFileSync('Dockerfile', 'utf8');
+const dockerIgnore = readFileSync('.dockerignore', 'utf8');
 const gitAttributes = readFileSync('.gitattributes', 'utf8');
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
 const immutableInputs = readFileSync('security/immutable-inputs.yml', 'utf8');
 const browserRuntimeChecks = readFileSync('tests/browser_runtime_container_checks.sh', 'utf8');
+const browserSnapshotRetry = readFileSync('tests/browser_snapshot_retry.sh', 'utf8');
 const cloudcliManifest = JSON.parse(readFileSync('vendor/artifacts/cloudcli-account-management.manifest.json', 'utf8'));
 const advisoryReviews = readFileSync('security/advisory-reviews.json', 'utf8');
 const webTerminalLock = JSON.parse(
   readFileSync('vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json', 'utf8'),
 );
 
+test('Docker context includes only the cryptography smoke required by the image build', () => {
+  assert.match(dockerIgnore, /^tests\/$/m);
+  assert.match(dockerIgnore, /^!tests\/cryptography_security_backport_smoke\.py$/m);
+  assert.equal((dockerIgnore.match(/^!tests\//gm) ?? []).length, 1);
+});
+
+test('rollback artifact restores to the paths consumed by the rollback job', () => {
+  const uploadBlock = workflow.match(
+    /name: Upload rollback evidence([\s\S]*?)\n\s+- name: Move mutable aliases/,
+  )?.[1];
+  const downloadBlock = workflow.match(
+    /name: Download rollback evidence([\s\S]*?)\n\s+- name: Check whether mutable aliases may have moved/,
+  )?.[1];
+  assert.ok(uploadBlock, 'rollback upload step must exist');
+  assert.ok(downloadBlock, 'rollback download step must exist');
+
+  const uploadPaths = [...uploadBlock.matchAll(/^\s+(promotion\/rollback(?:\.tsv|-required))\s*$/gm)]
+    .map((match) => match[1]);
+  assert.deepEqual(uploadPaths, ['promotion/rollback.tsv', 'promotion/rollback-required']);
+  const downloadPath = downloadBlock.match(/^\s+path:\s*(\S+)\s*$/m)?.[1];
+  assert.equal(downloadPath, 'promotion');
+  const commonUploadRoot = dirname(uploadPaths[0]);
+  assert.ok(uploadPaths.every((path) => dirname(path) === commonUploadRoot));
+
+  const fixtureRoot = mkdtempSync(join(tmpdir(), 'holyclaude-rollback-artifact-'));
+  const sourceRoot = join(fixtureRoot, 'source');
+  const artifactRoot = join(fixtureRoot, 'artifact');
+  const downloadRoot = join(fixtureRoot, 'download');
+  try {
+    for (const path of uploadPaths) {
+      const source = join(sourceRoot, path);
+      mkdirSync(dirname(source), { recursive: true });
+      writeFileSync(source, `${path}\n`);
+      const artifactPath = join(artifactRoot, relative(commonUploadRoot, path));
+      mkdirSync(dirname(artifactPath), { recursive: true });
+      cpSync(source, artifactPath);
+    }
+    mkdirSync(join(downloadRoot, downloadPath), { recursive: true });
+    cpSync(artifactRoot, join(downloadRoot, downloadPath), { recursive: true });
+    assert.ok(existsSync(join(downloadRoot, 'promotion/rollback.tsv')));
+    assert.ok(existsSync(join(downloadRoot, 'promotion/rollback-required')));
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+});
+
 test('release base and archive inputs are versioned and checksum-verified', () => {
   assert.match(dockerfile, /^FROM golang:1\.26\.5-bookworm@sha256:[0-9a-f]{64} AS esbuild-builder$/m);
-  assert.match(dockerfile, /^FROM node:26\.5\.1-bookworm-slim@sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73$/m);
+  assert.match(dockerfile, /^FROM node:26\.7\.0-bookworm-slim@sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341$/m);
   assert.match(dockerfile, /for ESBUILD_VERSION in 0\.15\.18 0\.18\.20 0\.25\.12/);
   assert.match(dockerfile, /github\.com\/evanw\/esbuild\/cmd\/esbuild@v\$\{ESBUILD_VERSION\}/);
   for (const version of ['0.15.18', '0.18.20', '0.25.12']) {
@@ -35,18 +86,18 @@ test('release base and archive inputs are versioned and checksum-verified', () =
   assert.match(dockerfile, /test "\$\(grep -F "  \$\{FZF_ASSET\}" \/tmp\/fzf-checksums\.txt \| cut -d' ' -f1\)" = "\$FZF_ARCHIVE_SHA256"/);
   assert.match(dockerfile, /echo "\$FZF_ARCHIVE_SHA256  \/tmp\/\$\{FZF_ASSET\}" \| sha256sum -c -/);
   assert.doesNotMatch(dockerfile, /tmux fzf bat bubblewrap/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.71-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=455423ff7608b4a2af8ef6e66596ce86d313ae9e055381feee9e39df9f6165ef/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=1abbdfc529cd7b8576ec41b2f2aa4660888f7fd3efd6579b3d79cfc30bc0389d/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=a99c21a89cac35e18997df511d4173cfb7bc57ea0312e88b0c3b99e564050938/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=d26cdb3cc2ed1080a499603f5f0483ee9f377c9a753a8469dcf5be2004e74e8d/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=d3ae37073eb000326047e9d352beb32333beb6d0b1655dfe389ff2ba2a26a9c9/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=99c6c715559c7f6fd6f116880d3427bb1289f4c33ebcbfa51127c1ae7230e4eb/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.108-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=739f6bccad739686bdfef6554e5e47860e0db7c2feba12a872f112fc1be28bfc/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=e53e8dd2bc749924e077a74ac81e6417bdcbbd5c4e09a5deb458104ddb34d37b/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=fdd4bf2650ce78eec74f3926c01cbcb4b8312d24691ebf5fadfd8408e8f5675b/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=b9e304cd2612c33bdc04c7edb33c5574b5cb06a35d2159714d42fe04b3c843c8/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=09a74c710900e19fda7c510486dfa1b7fd52d16c095e40585aeacd3e8a0de0f1/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=f9dd0a0f27b0a6e7da50459c212f011c09f89d5d5bab461d4aa5adb3328bcc0b/);
   assert.match(dockerfile, /apt-get download[\s\S]+chromium-common[\s\S]+chromium-sandbox/);
   assert.match(dockerfile, /\| sha256sum -c -/);
   assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' chromium/);
   assert.doesNotMatch(dockerfile, /playwright install/);
-  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 151\.0\.7922\.71-1~deb12u1/);
+  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 151\.0\.7922\.108-1~deb12u1/);
   for (const field of [
     'amd64-chromium-package-sha256',
     'arm64-chromium-package-sha256',
@@ -102,13 +153,15 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /test "\$\(cursor-agent --version\)" = "\$CURSOR_BUILD_ID"/);
   assert.match(dockerfile, /rm -f "\$CURSOR_DIR\/node"/);
   assert.match(dockerfile, /ln -s \/usr\/local\/bin\/node "\$CURSOR_DIR\/node"/);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.5\.1"/);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.7\.0"/);
   assert.match(dockerfile, /SETUPTOOLS_VERSION=83\.0\.0/);
   assert.match(dockerfile, /SETUPTOOLS_WHEEL_SHA256=29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3/);
   assert.match(dockerfile, /patch-global-node-security-dependencies\.mjs --root \/ --variant "\$VARIANT" --check-baseline/);
 
   assert.match(dockerfile, /ARG AZURE_CLI_VERSION=2\.88\.0-1~bookworm/);
   assert.match(dockerfile, /AZURE_CLI_INSTALLER_SHA256=[0-9a-f]{64}/);
+  assert.match(dockerfile, /sed -i[^\n]+azure-cli=\$AZURE_CLI_VERSION/);
+  assert.match(dockerfile, /grep -Fqx[^\n]+azure-cli=\$AZURE_CLI_VERSION/);
   assert.match(dockerfile, /ARG GITHUB_CLI_VERSION=2\.97\.0/);
   assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_AMD64=[0-9a-f]{64}/);
   assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_ARM64=[0-9a-f]{64}/);
@@ -116,11 +169,11 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.5\.6$/m);
-  assert.match(immutableInputs, /^expires-at: 2026-08-29$/m);
+  assert.match(immutableInputs, /^release: v1\.5\.7$/m);
+  assert.match(immutableInputs, /^expires-at: 2026-09-09$/m);
   for (const value of [
-    'sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651',
-    'sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73',
+    'sha256:53eeac89074db483fdf0ab3be1df32bf6e47562263d2d0d6baa7f26acb4957dd',
+    'sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341',
     'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667',
     'bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788',
     '887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86',
@@ -145,10 +198,10 @@ test('immutable input inventory binds the release-critical inputs', () => {
 test('compatible package updates and plugin locks are exact', () => {
   for (const expected of [
     'npm@11.19.0',
-    'pnpm@11.18.0',
-    'vite@8.2.0',
+    'pnpm@11.21.0',
+    'vite@8.2.1',
     'prettier@3.9.6',
-    'eslint@10.8.0',
+    'eslint@10.8.1',
     'concurrently@10.0.4',
     'wrangler@4.116.0',
     'vercel@54.21.1',
@@ -182,6 +235,30 @@ test('compatible package updates and plugin locks are exact', () => {
     dockerfile,
     /echo "\$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz" \| sha256sum -c -[\s\S]+npm ci --omit=dev[\s\S]+chmod 0755 "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js"[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js" \/usr\/local\/bin\/cloudcli/,
   );
+  assert.doesNotMatch(dockerfile, /npm@12\./, 'npm 12 rejects the committed CloudCLI npm-shrinkwrap runtime install');
+  for (const expected of [
+    'nanoid 3.3.17 fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6',
+    'ip-address 10.3.1 ad1790063beea11a312c801df30d58e147de762f4f77787552376eb7424623e5',
+    'fast-uri 3.1.5 82a71e7e3716dc8c392cac0762bce80614cf539ef22000415e26eaf5c453ce2f',
+    'js-yaml 3.15.1 df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e',
+  ]) {
+    assert.ok(dockerfile.includes(expected), `Dockerfile should bind secure nested package ${expected}`);
+  }
+  for (const expected of [
+    'ARG UNDICI_7_VERSION=7.29.0', 'ARG UNDICI_7_ARCHIVE_SHA256=ec2005d822734765fc08c3ee5d50b1f720bf1c3fc6235ab028e5cc61c85a3a70',
+    'ARG UNDICI_8_VERSION=8.9.0', 'ARG UNDICI_8_ARCHIVE_SHA256=f554abb3e9352e04bc325208066a25c229163d8408bb1d5161db3d793445d69c',
+    'ARG FULL_NANOID_VERSION=3.3.17', 'ARG FULL_NANOID_ARCHIVE_SHA256=fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6',
+    'ARG FULL_JS_YAML_VERSION=4.3.1', 'ARG FULL_JS_YAML_ARCHIVE_SHA256=08d6282b77a3e7242061f6dd5516c019b25c53041ad267bca3b790d79ddd5f34',
+  ]) assert.ok(dockerfile.includes(expected), `Dockerfile should bind ${expected}`);
+  for (const expected of [
+    'npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all',
+    'npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all',
+    'npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all',
+    'npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all',
+    'wrangler --version',
+    'pi --version',
+    'PM2_HOME=/tmp/holyclaude-build-pm2 pm2 --version',
+  ]) assert.ok(dockerfile.includes(expected), `Dockerfile should exercise ${expected}`);
   assert.match(dockerfile, /NETLIFY_PROXY_ROOT=.*local-functions-proxy-linux-\$\{NETLIFY_PROXY_ARCH\}/);
   assert.match(dockerfile, /test -x "\$NETLIFY_PROXY_ROOT\/bin\/local-functions-proxy"/);
   assert.match(dockerfile, /rm -f "\$NETLIFY_PROXY_ROOT\/bin\/local-functions-proxy"/);
@@ -196,12 +273,12 @@ test('compatible package updates and plugin locks are exact', () => {
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /^run-name: v1\.5\.6$/m);
-  assert.match(workflow, /default: "1\.5\.6"/);
-  assert.match(workflow, /baseline="60972094fa121136743f39f6997324fe4a85a156"/);
+  assert.match(workflow, /^run-name: v1\.5\.7$/m);
+  assert.match(workflow, /default: "1\.5\.7"/);
+  assert.match(workflow, /baseline="b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"/);
   assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
   assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(workflow, /git rev-parse 'v1\.5\.5\^\{commit\}'\)" = "60972094fa121136743f39f6997324fe4a85a156"/);
+  assert.match(workflow, /git rev-parse 'v1\.5\.6\^\{commit\}'\)" = "b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"/);
   assert.match(workflow, /SYFT_VERSION: 1\.50\.0/);
   assert.match(workflow, /GRYPE_VERSION: 0\.116\.1/);
   assert.match(workflow, /SYFT_SHA256_AMD64: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788/);
@@ -281,7 +358,16 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
     /name: Upload promotion evidence[\s\S]*?security-evidence\/\*\*\/\*/,
   );
   assert.match(workflow, /name: Upload rollback evidence[\s\S]*?name: rollback-evidence[\s\S]*?promotion\/rollback\.tsv[\s\S]*?promotion\/rollback-required/);
-  assert.match(workflow, /name: Download rollback evidence[\s\S]*?name: rollback-evidence[\s\S]*?path: \./);
+  assert.match(workflow, /name: Download rollback evidence[\s\S]*?name: rollback-evidence[\s\S]*?path: promotion/);
+  assert.doesNotMatch(workflow, /name: Download rollback evidence[\s\S]*?name: rollback-evidence[\s\S]*?path: \.\r?\n/);
+  assert.match(browserRuntimeChecks, /capture_browser_snapshot "\$response" "\$SESSION_ID" "\$SENTINEL_TEXT"/);
+  assert.match(browserSnapshotRetry, /for snapshot_attempt in 1 2; do/);
+  assert.match(browserSnapshotRetry, /browser-snapshot-attempt-1\.json/);
+  assert.match(browserSnapshotRetry, /browser-snapshot-attempt-\$\{snapshot_attempt\}\.stderr/);
+  assert.match(browserSnapshotRetry, /validate_browser_snapshot_response/);
+  assert.match(browserSnapshotRetry, /Browser MCP snapshot failed after 2 attempts/);
+  assert.doesNotMatch(browserSnapshotRetry, /cp "\$SENTINEL_ROOT\/browser-snapshot-attempt-\$\{snapshot_attempt\}\.stderr"/);
+  assert.equal((browserSnapshotRetry.match(/api_mcp browser_snapshot/g) ?? []).length, 1);
   assert.match(workflow, /name: Download rollback evidence[\s\S]*?continue-on-error: true/);
   assert.match(workflow, /Promotion succeeded but rollback evidence is missing/);
   assert.ok(
@@ -325,6 +411,16 @@ test('runtime smoke rotates CloudCLI credentials and rejects the old token', () 
   assert.match(runtimeChecks, /vercel\/node_modules\/tar\/package\.json/);
   assert.match(runtimeChecks, /Node tar security overlay/);
   assert.match(runtimeChecks, /typeof require\(path\)\.list !== 'function'/);
+  for (const expected of [
+    'npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all',
+    'npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all',
+    'npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all',
+    'npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all',
+    'wrangler --version',
+    'pi --version',
+    'PM2_HOME="$SENTINEL_ROOT/pm2" pm2 --version',
+  ]) assert.ok(runtimeChecks.includes(expected), `runtime smoke should exercise ${expected}`);
+  assert.match(runtimeChecks, /wrangler\/package\.json'\)\.devDependencies\.undici"\)" "7\.29\.0"/);
   assert.match(runtimeChecks, /libssh-gcrypt-4 package version/);
   assert.match(runtimeChecks, /! dpkg-query -W libssh-gcrypt-4/);
 });
@@ -388,10 +484,78 @@ test('libssh findings use exact backend, version, and vendor-severity evidence',
   assert.match(browserRuntimeChecks, /libssh_backend=gcrypt openssl=absent/);
 });
 
+test('release OpenVEX identity uses the v1.5.7 publication date', () => {
+  const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
+  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.5.7');
+  assert.equal(vex.timestamp, '2026-08-12T00:00:00Z');
+});
+
 test('removed Netlify proxy findings cannot be carried as risk exceptions', () => {
   const reviews = JSON.parse(advisoryReviews).reviews;
   assert.equal(
     reviews.some((item) => item.component.locationPatterns.some((pattern) => pattern.includes('local-functions-proxy'))),
     false,
   );
+});
+
+test('Netlify image-size receives checksum-bound progress guards', () => {
+  const patcher = readFileSync('scripts/patch-netlify-image-size.mjs', 'utf8');
+  const patchSha256 = createHash('sha256').update(patcher).digest('hex');
+  assert.match(dockerfile, /patch-netlify-image-size\.mjs/);
+  assert.match(patcher, /image-size@2\.0\.2/);
+  assert.match(patcher, /imageHeader\[1\] > 0 \? imageHeader\[1\] : 8/);
+  assert.match(patcher, /baselineCount === 12/);
+  assert.match(patcher, /0f6a6665a166c530ba126a8ab8608a0603cb49dc/);
+  assert.match(immutableInputs, new RegExp(`patch-sha256: ${patchSha256}`));
+  assert.match(patcher, /ispeBox\.size > 0 \? ispeBox\.size : 8/);
+  assert.match(patcher, /jxlpBox\.size > 0 \? jxlpBox\.size : 8/);
+  assert.match(browserRuntimeChecks, /image-size malformed ICNS=bounded/);
+  assert.match(browserRuntimeChecks, /image-size malformed HEIF=bounded/);
+  assert.match(browserRuntimeChecks, /image-size malformed JXL=bounded/);
+  assert.match(gitAttributes, /^scripts\/patch-netlify-image-size\.mjs text eol=lf$/m);
+});
+
+test('FFmpeg security backport is isolated and runtime-probed', () => {
+  assert.match(dockerfile, /AS ffmpeg-security-builder/);
+  assert.match(dockerfile, /AS ffmpeg-security-builder\nENV DEBIAN_FRONTEND=noninteractive/);
+  assert.match(dockerfile, /AS ffmpeg-security-builder[\s\S]*ARG VARIANT[\s\S]*if \[ "\$VARIANT" = "full" \]; then/);
+  assert.match(dockerfile, /mkdir -p \/out\/ffmpeg-security-backport/);
+  assert.match(dockerfile, /build-ffmpeg-security-backport\.sh/);
+  assert.match(dockerfile, /COPY --from=ffmpeg-security-builder \/out\/ffmpeg-security-backport/);
+  assert.match(dockerfile, /FFMPEG_BACKPORT_VERSION=7:5\.1\.9-0\+deb12u1\+holyclaude1/);
+  assert.match(browserRuntimeChecks, /ffmpeg -version/);
+  assert.match(browserRuntimeChecks, /ffprobe -version/);
+  assert.match(browserRuntimeChecks, /\$2 == "cfhd"/);
+  assert.match(browserRuntimeChecks, /\$2 == "dvbsub"/);
+  assert.match(browserRuntimeChecks, /ffmpeg-smoke\.mkv/);
+  assert.doesNotMatch(advisoryReviews, /"7:5\.1\.9-0\+deb12u1"/);
+  assert.match(advisoryReviews, /"id": "v155-ffmpeg-high-exception"[\s\S]{0,1200}"7:5\.1\.9-0\+deb12u1\+holyclaude1"/);
+});
+
+test('Azure cryptography backport is isolated and runtime-probed', () => {
+  const builder = readFileSync('scripts/build-cryptography-security-backport.sh');
+  const builderSha256 = createHash('sha256').update(builder).digest('hex');
+  const buildRequirements = readFileSync('security/cryptography-security-build-requirements.txt');
+  const buildRequirementsSha256 = createHash('sha256').update(buildRequirements).digest('hex');
+
+  assert.match(dockerfile, /FROM rust:1\.88-bookworm@sha256:af306cfa71d987911a781c37b59d7d67d934f49684058f96cf72079c3626bfe0 AS cryptography-rust-toolchain/);
+  assert.match(gitAttributes, /^security\/cryptography-security-build-requirements\.txt text eol=lf$/m);
+  assert.match(dockerfile, /AS cryptography-security-builder/);
+  assert.match(dockerfile, /COPY --from=cryptography-rust-toolchain \/usr\/local\/cargo \/usr\/local\/cargo/);
+  assert.match(dockerfile, /COPY --from=cryptography-rust-toolchain \/usr\/local\/rustup \/usr\/local\/rustup/);
+  assert.match(dockerfile, /AS cryptography-security-builder[\s\S]*ARG VARIANT[\s\S]*if \[ "\$VARIANT" = "full" \]; then/);
+  assert.match(dockerfile, /patchelf=0\.14\.3-1\+b1/);
+  assert.match(dockerfile, /--only-binary=:all: --require-hashes -r \/tmp\/cryptography-security-build-requirements\.txt/);
+  assert.match(dockerfile, /rustc 1\.88\.0 \(6b00bc388 2025-06-23\)/);
+  assert.match(dockerfile, /cargo 1\.88\.0 \(873a06493 2025-05-10\)/);
+  assert.match(dockerfile, /cryptography-46\.0\.7\+holyclaude\.1-\*\.whl/);
+  assert.match(dockerfile, /\/opt\/az\/bin\/python3 -m pip check/);
+  assert.match(dockerfile, /cryptography_security_backport_smoke\.py/);
+  assert.match(browserRuntimeChecks, /Azure cryptography backport/);
+  assert.match(browserRuntimeChecks, /az config get core\.collect_telemetry/);
+  assert.match(immutableInputs, /Rust cryptography toolchain[\s\S]{0,200}sha256:af306cfa71d987911a781c37b59d7d67d934f49684058f96cf72079c3626bfe0/);
+  assert.match(immutableInputs, new RegExp(`Azure cryptography source[\\s\\S]{0,400}builder-sha256: ${builderSha256}`));
+  assert.match(immutableInputs, new RegExp(`Azure cryptography build requirements[\\s\\S]{0,300}requirements-sha256: ${buildRequirementsSha256}`));
+  assert.match(advisoryReviews, /"id": "v157-azure-cryptography-x509-downstream-backport"[\s\S]{0,800}"46\.0\.7\+holyclaude\.1"/);
+  assert.match(advisoryReviews, /"id": "v157-azure-cryptography-pkcs7-downstream-backport"[\s\S]{0,800}"46\.0\.7\+holyclaude\.1"/);
 });

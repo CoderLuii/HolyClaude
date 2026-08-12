@@ -145,8 +145,8 @@ These take longer to install (~1-2 minutes) because they require system dependen
 
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
-- **Playwright 1.61.0** installed for Node and Python — baked at build time, no runtime browser download
-- **Debian Chromium 151.0.7922.71** at `/usr/bin/chromium` is shared by Playwright 1.61.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Playwright 1.62.0** installed for Node and Python — baked at build time, no runtime browser download
+- **Debian Chromium 151.0.7922.108** at `/usr/bin/chromium` is shared by Playwright 1.62.0 for Node, Python, and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 

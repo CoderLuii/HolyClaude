@@ -24,14 +24,14 @@ function expectInvalid(value, pattern) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.6'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.7'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
     () => validateExpectedRelease(facts, 'v1.5.4'),
-    /release v1\.5\.6 does not match expected v1\.5\.4/,
+    /release v1\.5\.7 does not match expected v1\.5\.4/,
   );
 });
 
@@ -166,10 +166,10 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="60972094fa121136743f39f6997324fe4a85a156"/);
+  assert.match(validationJob, /baseline="b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.5\.5\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.6\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assert.match(candidateJob, /^\s*needs:\s*validate-release-ref\s*$/m);
 });
@@ -186,6 +186,8 @@ test('public documentation matches the product facts contract', () => {
   ].join('\n');
 
   assert.match(readme, /contracts\/product-facts\.json/);
+  assert.match(readme, /Playwright 1\.62\.0, baked at build time/);
+  assert.doesNotMatch(readme, /Playwright 1\.61\.0, baked at build time/);
   assert.match(architecture, /contracts\/product-facts\.json/);
   assert.match(readme, /fallback.*request omits `permissionMode`/i);
   assert.match(configuration, /browser client sends an explicit `permissionMode`/i);
@@ -195,7 +197,7 @@ test('public documentation matches the product facts contract', () => {
   assert.match(dockerHubDescription, /bundled tools contact configured providers directly/i);
   assert.match(dockerHubDescription, /file-based credentials stored there/i);
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 151\.0\.7922\.71/);
+  assert.match(memories, /Debian Chromium 151\.0\.7922\.108/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;

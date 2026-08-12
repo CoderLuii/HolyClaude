@@ -809,7 +809,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -828,7 +828,7 @@
       },
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-30",
-      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 151.0.7922.71."
+      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 151.0.7922.108."
     },
     {
       "id": "chromium-150-7871-186-security-fixes",
@@ -845,7 +845,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -864,7 +864,7 @@
       },
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-30",
-      "rationale": "Chrome 150.0.7871.186 for Linux includes the four named security fixes. HolyClaude installs the newer Chromium 151.0.7922.71 release."
+      "rationale": "Chrome 150.0.7871.186 for Linux includes the four named security fixes. HolyClaude installs the newer Chromium 151.0.7922.108 release."
     },
     {
       "id": "chromium-151-7922-71-security-fixes",
@@ -990,7 +990,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1009,7 +1009,7 @@
       },
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-30",
-      "rationale": "Chrome 151.0.7922.71 for Linux includes the named security fixes. HolyClaude installs that exact Chromium release from Debian Bookworm Security."
+      "rationale": "Chrome 151.0.7922.108 for Linux includes the named security fixes. HolyClaude installs that exact Chromium release from Debian Bookworm Security."
     },
     {
       "id": "chromium-151-7922-71-debian-fixed-2026-08-02",
@@ -1038,7 +1038,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1057,7 +1057,7 @@
       },
       "reviewedAt": "2026-08-02",
       "expiresAt": "2026-09-01",
-      "rationale": "Debian marks every named Bookworm chromium finding resolved at 151.0.7922.71-1~deb12u1, the exact chromium, chromium-common, and chromium-sandbox version installed in both HolyClaude variants."
+      "rationale": "Debian marks every named Bookworm chromium finding resolved at 151.0.7922.108-1~deb12u1, the exact chromium, chromium-common, and chromium-sandbox version installed in both HolyClaude variants."
     },
     {
       "id": "chromium-cve-2026-15899-macos-not-affected",
@@ -1071,7 +1071,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1105,7 +1105,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1139,7 +1139,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.71-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1259,6 +1259,230 @@
       "expiresAt": "2026-08-29",
       "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
       "approvedBy": "CoderLuii"
+    },
+    {
+      "id": "v157-netlify-image-size-downstream-backport",
+      "vulnerabilities": [
+        "GHSA-w3rx-r6r6-pgpr",
+        "GHSA-5p2g-fcmc-qvqq"
+      ],
+      "component": {
+        "names": [
+          "image-size"
+        ],
+        "versions": [
+          "2.0.2"
+        ],
+        "types": [
+          "npm"
+        ],
+        "locationPatterns": [
+          "^/usr/local/lib/node_modules/netlify-cli/node_modules/image-size/package\\.json$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "HolyClaude downstream patch",
+      "authority": {
+        "name": "image-size upstream fixes",
+        "url": "https://github.com/image-size/image-size/commit/bdbe560bfd98af6feab93b46aed67f2f0a77e4d5"
+      },
+      "reviewedAt": "2026-08-12",
+      "expiresAt": "2026-09-11",
+      "rationale": "The exact Netlify image-size@2.0.2 installation is patched across all 16 distributed CJS and ESM files. HEIF and JXL use upstream commit bdbe560bfd98af6feab93b46aed67f2f0a77e4d5; ICNS uses upstream commit 0f6a6665a166c530ba126a8ab8608a0603cb49dc. scripts/patch-netlify-image-size.mjs is pinned as SHA-256 72d5cfdb0a926ad1fa85f8dd6dcf63a906399341ceae2ea410e497bbb876a1df and fails closed unless each original or patched expression occurs exactly 12 times across the exact 16-file set.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v157-ffmpeg-dvbsub-downstream-backport",
+      "vulnerabilities": [
+        "CVE-2026-70628"
+      ],
+      "component": {
+        "names": [
+          "ffmpeg",
+          "libavcodec59",
+          "libavdevice59",
+          "libavfilter8",
+          "libavformat59",
+          "libavutil57",
+          "libpostproc56",
+          "libswresample4",
+          "libswscale6"
+        ],
+        "versions": [
+          "7:5.1.9-0+deb12u1+holyclaude1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/ffmpeg/",
+          "^/usr/share/doc/libavcodec59/",
+          "^/usr/share/doc/libavdevice59/",
+          "^/usr/share/doc/libavfilter8/",
+          "^/usr/share/doc/libavformat59/",
+          "^/usr/share/doc/libavutil57/",
+          "^/usr/share/doc/libpostproc56/",
+          "^/usr/share/doc/libswresample4/",
+          "^/usr/share/doc/libswscale6/",
+          "^/var/lib/dpkg/status$",
+          "^/var/lib/dpkg/info/ffmpeg\\.list$",
+          "^/var/lib/dpkg/info/ffmpeg\\.md5sums$",
+          "^/var/lib/dpkg/info/libavcodec59:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavcodec59:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavdevice59:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavdevice59:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavfilter8:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavfilter8:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavformat59:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavformat59:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavutil57:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavutil57:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libpostproc56:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libpostproc56:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswresample4:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswresample4:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswscale6:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswscale6:arm64\\.md5sums$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "HolyClaude downstream patch",
+      "authority": {
+        "name": "FFmpeg upstream fix",
+        "url": "https://github.com/FFmpeg/FFmpeg/commit/02fc47e13f903768b75f7985a2706a6223ab4506"
+      },
+      "reviewedAt": "2026-08-12",
+      "expiresAt": "2026-09-11",
+      "rationale": "The exact 7:5.1.9-0+deb12u1+holyclaude1 package set is rebuilt from Debian's checksum-bound source with upstream commit 02fc47e13f903768b75f7985a2706a6223ab4506. The committed pure patch is bound by SHA-256 d68cd830fb5f5dd2f597918def2efcdbf15306a9c8697cdae44636d1dd76c179.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v157-ffmpeg-cfhd-downstream-backport",
+      "vulnerabilities": [
+        "CVE-2026-70632"
+      ],
+      "component": {
+        "names": [
+          "ffmpeg",
+          "libavcodec59",
+          "libavdevice59",
+          "libavfilter8",
+          "libavformat59",
+          "libavutil57",
+          "libpostproc56",
+          "libswresample4",
+          "libswscale6"
+        ],
+        "versions": [
+          "7:5.1.9-0+deb12u1+holyclaude1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/ffmpeg/",
+          "^/usr/share/doc/libavcodec59/",
+          "^/usr/share/doc/libavdevice59/",
+          "^/usr/share/doc/libavfilter8/",
+          "^/usr/share/doc/libavformat59/",
+          "^/usr/share/doc/libavutil57/",
+          "^/usr/share/doc/libpostproc56/",
+          "^/usr/share/doc/libswresample4/",
+          "^/usr/share/doc/libswscale6/",
+          "^/var/lib/dpkg/status$",
+          "^/var/lib/dpkg/info/ffmpeg\\.list$",
+          "^/var/lib/dpkg/info/ffmpeg\\.md5sums$",
+          "^/var/lib/dpkg/info/libavcodec59:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavcodec59:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavdevice59:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavdevice59:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavfilter8:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavfilter8:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavformat59:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavformat59:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavutil57:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libavutil57:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libpostproc56:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libpostproc56:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswresample4:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswresample4:arm64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswscale6:amd64\\.md5sums$",
+          "^/var/lib/dpkg/info/libswscale6:arm64\\.md5sums$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "HolyClaude downstream patch",
+      "authority": {
+        "name": "FFmpeg upstream fix",
+        "url": "https://github.com/FFmpeg/FFmpeg/commit/16b2049d4d5222db6cd7c031409058571c94f6a9"
+      },
+      "reviewedAt": "2026-08-12",
+      "expiresAt": "2026-09-11",
+      "rationale": "The exact 7:5.1.9-0+deb12u1+holyclaude1 package set is rebuilt from Debian's checksum-bound source with upstream commit 16b2049d4d5222db6cd7c031409058571c94f6a9. The committed pure patch is bound by SHA-256 a45eaa63baad988a38aacdd4c58470e3b80ef49ecd19f3e53c68b954317594a7.",
+      "variants": [
+        "full"
+      ]
+    },
+    {
+      "id": "v157-azure-cryptography-x509-downstream-backport",
+      "vulnerabilities": [
+        "GHSA-jwv3-5hgf-82ww"
+      ],
+      "component": {
+        "names": ["cryptography"],
+        "versions": ["46.0.7+holyclaude.1"],
+        "types": ["python"],
+        "locationPatterns": [
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/METADATA$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/RECORD$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/direct_url\\.json$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "HolyClaude downstream patch",
+      "authority": {
+        "name": "cryptography upstream fix",
+        "url": "https://github.com/pyca/cryptography/commit/4a12cf49675a184e47f912b00b04f3a629283582"
+      },
+      "reviewedAt": "2026-08-12",
+      "expiresAt": "2026-09-11",
+      "rationale": "The exact Azure CLI cryptography installation is rebuilt as 46.0.7+holyclaude.1 with upstream commit 4a12cf49675a184e47f912b00b04f3a629283582 and its focused regression coverage.",
+      "variants": ["full"]
+    },
+    {
+      "id": "v157-azure-cryptography-pkcs7-downstream-backport",
+      "vulnerabilities": [
+        "GHSA-g6cj-pr64-35w5"
+      ],
+      "component": {
+        "names": ["cryptography"],
+        "versions": ["46.0.7+holyclaude.1"],
+        "types": ["python"],
+        "locationPatterns": [
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/METADATA$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/RECORD$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/direct_url\\.json$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "HolyClaude downstream patch",
+      "authority": {
+        "name": "cryptography upstream fix",
+        "url": "https://github.com/pyca/cryptography/commit/53fccd93413a8d7f07d6d8999681f27b75cffa3f"
+      },
+      "reviewedAt": "2026-08-12",
+      "expiresAt": "2026-09-11",
+      "rationale": "The exact Azure CLI cryptography installation is rebuilt as 46.0.7+holyclaude.1 with upstream commit 53fccd93413a8d7f07d6d8999681f27b75cffa3f and its focused regression coverage.",
+      "variants": ["full"]
     },
     {
       "id": "v155-aom-debian-minor",
@@ -1532,7 +1756,7 @@
           "libswscale6"
         ],
         "versions": [
-          "7:5.1.9-0+deb12u1"
+          "7:5.1.9-0+deb12u1+holyclaude1"
         ],
         "types": [
           "deb"
@@ -1544,14 +1768,14 @@
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
+      "owner": "HolyClaude FFmpeg downstream backport",
       "authority": {
         "name": "Debian Security Tracker",
         "url": "https://security-tracker.debian.org/tracker/source-package/ffmpeg"
       },
-      "reviewedAt": "2026-07-31",
+      "reviewedAt": "2026-08-12",
       "expiresAt": "2026-08-29",
-      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "rationale": "The locally rebuilt Debian source package retains these separately reviewed findings while backporting CVE-2026-70628 and CVE-2026-70632. The documented full toolset still requires FFmpeg, and this exact exception expires before the next release review.",
       "variants": [
         "full"
       ],
@@ -2133,6 +2357,8 @@
     {
       "id": "v155-libssh2-high-exception",
       "vulnerabilities": [
+        "CVE-2026-58050",
+        "CVE-2026-58051",
         "CVE-2026-55199",
         "CVE-2026-55200",
         "CVE-2026-66032",
@@ -2162,9 +2388,9 @@
         "name": "Debian Security Tracker",
         "url": "https://security-tracker.debian.org/tracker/source-package/libssh2"
       },
-      "reviewedAt": "2026-07-31",
-      "expiresAt": "2026-08-29",
-      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
+      "reviewedAt": "2026-08-12",
+      "expiresAt": "2026-09-10",
+      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. CVE-2026-58050 affects 32-bit platforms while HolyClaude publishes amd64 and arm64 images; CVE-2026-58051 requires a malicious SSH server response to a connecting client. HolyClaude retains libssh2 for the documented common toolset, and this exact exception expires before the next release review.",
       "approvedBy": "CoderLuii"
     },
     {
@@ -2598,38 +2824,6 @@
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-29",
       "rationale": "Debian classifies these exact Bookworm findings as Minor issues. The raw Grype High records remain preserved in the release evidence."
-    },
-    {
-      "id": "v155-redis-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-66373"
-      ],
-      "component": {
-        "names": [
-          "redis-tools"
-        ],
-        "versions": [
-          "5:7.0.15-1~deb12u8"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/",
-          "^/var/lib/dpkg/"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/source-package/redis"
-      },
-      "reviewedAt": "2026-07-31",
-      "expiresAt": "2026-08-29",
-      "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii"
     },
     {
       "id": "v155-sqlite3-debian-minor",
@@ -3118,14 +3312,15 @@
           "cryptography"
         ],
         "versions": [
-          "46.0.7"
+          "46.0.7+holyclaude.1"
         ],
         "types": [
           "python"
         ],
         "locationPatterns": [
-          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\.dist-info/METADATA$",
-          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\.dist-info/RECORD$"
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/METADATA$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/RECORD$",
+          "^/opt/az/lib/python3\\.14/site-packages/cryptography-46\\.0\\.7\\+holyclaude\\.1\\.dist-info/direct_url\\.json$"
         ]
       },
       "disposition": "high_exception",
@@ -3135,9 +3330,9 @@
         "name": "GitHub Security Advisory",
         "url": "https://github.com/advisories/GHSA-537c-gmf6-5ccf"
       },
-      "reviewedAt": "2026-07-31",
+      "reviewedAt": "2026-08-12",
       "expiresAt": "2026-08-29",
-      "rationale": "Azure CLI still bundles this exact component and no compatible owning-tool update was selected for v1.5.5. The finding remains effective High and this exact exception expires before the next release review.",
+      "rationale": "Azure CLI uses the locally rebuilt 46.0.7+holyclaude.1 component. That rebuild backports two separate advisories but does not change this finding, which remains effective High under its exact expiring review.",
       "variants": [
         "full"
       ],

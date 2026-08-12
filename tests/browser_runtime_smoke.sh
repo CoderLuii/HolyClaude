@@ -32,8 +32,13 @@ esac
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 HELPER="$SCRIPT_DIR/browser_runtime_container_checks.sh"
+SNAPSHOT_RETRY_HELPER="$SCRIPT_DIR/browser_snapshot_retry.sh"
 if [ ! -f "$HELPER" ]; then
   echo "missing helper: $HELPER" >&2
+  exit 1
+fi
+if [ ! -f "$SNAPSHOT_RETRY_HELPER" ]; then
+  echo "missing helper: $SNAPSHOT_RETRY_HELPER" >&2
   exit 1
 fi
 
@@ -122,10 +127,13 @@ else
 fi
 
 HELPER_HOST_PATH="$HELPER"
+SNAPSHOT_RETRY_HELPER_HOST_PATH="$SNAPSHOT_RETRY_HELPER"
 if command -v cygpath >/dev/null 2>&1; then
   HELPER_HOST_PATH="$(cygpath -w "$HELPER")"
+  SNAPSHOT_RETRY_HELPER_HOST_PATH="$(cygpath -w "$SNAPSHOT_RETRY_HELPER")"
 fi
 docker_literal_cmd cp "$HELPER_HOST_PATH" "$CONTAINER:/tmp/browser_runtime_container_checks.sh"
+docker_literal_cmd cp "$SNAPSHOT_RETRY_HELPER_HOST_PATH" "$CONTAINER:/tmp/browser_snapshot_retry.sh"
 docker_literal_cmd exec "$CONTAINER" chmod 0755 /tmp/browser_runtime_container_checks.sh
 docker_literal_cmd exec \
   -u claude \

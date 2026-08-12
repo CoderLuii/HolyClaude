@@ -1,7 +1,7 @@
 schema-version: 1
-release: v1.5.6
-reviewed-at: 2026-07-31
-expires-at: 2026-08-29
+release: v1.5.7
+reviewed-at: 2026-08-12
+expires-at: 2026-09-09
 
 base-images:
   - name: Actionlint workflow validator
@@ -10,12 +10,20 @@ base-images:
     status: pinned
   - name: Go esbuild builder
     reference: golang:1.26.5-bookworm
-    digest: sha256:1ecb7edf62a0408027bd5729dfd6b1b8766e578e8df93995b225dfd0944eb651
-    status: retained
-  - name: HolyClaude runtime
-    reference: node:26.5.1-bookworm-slim
-    digest: sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73
+    digest: sha256:53eeac89074db483fdf0ab3be1df32bf6e47562263d2d0d6baa7f26acb4957dd
     status: updated
+  - name: HolyClaude runtime
+    reference: node:26.7.0-bookworm-slim
+    digest: sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341
+    status: updated
+  - name: Python cryptography builder
+    reference: python:3.14.0-slim-bookworm
+    digest: sha256:d13fa0424035d290decef3d575cea23d1b7d5952cdf429df8f5542c71e961576
+    status: pinned
+  - name: Rust cryptography toolchain
+    reference: rust:1.88-bookworm
+    digest: sha256:af306cfa71d987911a781c37b59d7d67d934f49684058f96cf72079c3626bfe0
+    status: pinned
 
 release-assets:
   - name: s6-overlay
@@ -34,13 +42,13 @@ release-assets:
     verification-mode: committed-hash
     status: retained
   - name: Debian Chromium package trio
-    version: 151.0.7922.71-1~deb12u1
-    amd64-chromium-package-sha256: 455423ff7608b4a2af8ef6e66596ce86d313ae9e055381feee9e39df9f6165ef
-    arm64-chromium-package-sha256: 1abbdfc529cd7b8576ec41b2f2aa4660888f7fd3efd6579b3d79cfc30bc0389d
-    amd64-chromium-common-package-sha256: a99c21a89cac35e18997df511d4173cfb7bc57ea0312e88b0c3b99e564050938
-    arm64-chromium-common-package-sha256: d26cdb3cc2ed1080a499603f5f0483ee9f377c9a753a8469dcf5be2004e74e8d
-    amd64-chromium-sandbox-package-sha256: d3ae37073eb000326047e9d352beb32333beb6d0b1655dfe389ff2ba2a26a9c9
-    arm64-chromium-sandbox-package-sha256: 99c6c715559c7f6fd6f116880d3427bb1289f4c33ebcbfa51127c1ae7230e4eb
+    version: 151.0.7922.108-1~deb12u1
+    amd64-chromium-package-sha256: 739f6bccad739686bdfef6554e5e47860e0db7c2feba12a872f112fc1be28bfc
+    arm64-chromium-package-sha256: e53e8dd2bc749924e077a74ac81e6417bdcbbd5c4e09a5deb458104ddb34d37b
+    amd64-chromium-common-package-sha256: fdd4bf2650ce78eec74f3926c01cbcb4b8312d24691ebf5fadfd8408e8f5675b
+    arm64-chromium-common-package-sha256: b9e304cd2612c33bdc04c7edb33c5574b5cb06a35d2159714d42fe04b3c843c8
+    amd64-chromium-sandbox-package-sha256: 09a74c710900e19fda7c510486dfa1b7fd52d16c095e40585aeacd3e8a0de0f1
+    arm64-chromium-sandbox-package-sha256: f9dd0a0f27b0a6e7da50459c212f011c09f89d5d5bab461d4aa5adb3328bcc0b
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
     status: updated
@@ -71,6 +79,54 @@ release-assets:
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
+  - name: CloudCLI nanoid nested package
+    version: 3.3.17
+    archive-sha256: fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: CloudCLI and npm ip-address nested package
+    version: 10.3.1
+    archive-sha256: ad1790063beea11a312c801df30d58e147de762f4f77787552376eb7424623e5
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: CloudCLI fast-uri nested package
+    version: 3.1.5
+    archive-sha256: 82a71e7e3716dc8c392cac0762bce80614cf539ef22000415e26eaf5c453ce2f
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: CloudCLI js-yaml nested package
+    version: 3.15.1
+    archive-sha256: df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Full-image undici 7 nested package
+    version: 7.29.0
+    archive-sha256: ec2005d822734765fc08c3ee5d50b1f720bf1c3fc6235ab028e5cc61c85a3a70
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Full-image undici 8 nested package
+    version: 8.9.0
+    archive-sha256: f554abb3e9352e04bc325208066a25c229163d8408bb1d5161db3d793445d69c
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Full-image js-yaml nested package
+    version: 4.3.1
+    archive-sha256: 08d6282b77a3e7242061f6dd5516c019b25c53041ad267bca3b790d79ddd5f34
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Full-image nanoid nested package
+    version: 3.3.17
+    archive-sha256: fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
   - name: setuptools
     version: 83.0.0
     wheel-sha256: 29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3
@@ -92,12 +148,6 @@ release-assets:
   - name: glob
     version: 11.1.0
     archive-sha256: 8816e244d245d86a1b8adf9ed0bf61c9665dbb1ee7b00dd6b3283f3ac0393bfb
-    verification: npm registry tarball
-    verification-mode: committed-hash
-    status: security-patched
-  - name: js-yaml
-    version: 4.3.0
-    archive-sha256: 8594ee34496dd2e41ec934fd202843dc993be9ab2d7d5d47579146962fbdfae6
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
@@ -144,8 +194,8 @@ release-assets:
     verification-mode: committed-hash
     status: updated
   - name: Vite
-    version: 8.2.0
-    archive-sha256: 618d8d574ecaec329f9910ffba7b16b5c6c6893462f470abddd565df763b1109
+    version: 8.2.1
+    archive-sha256: f243199f6a0f64bd3c620797ce921a0fceded02530ed3165db226711c6331a19
     verification: npm registry tarball
     verification-mode: committed-hash
     status: updated
@@ -168,6 +218,69 @@ release-assets:
     verification-mode: committed-hash
     status: updated
 
+  - name: Netlify image-size downstream backport
+    version: 2.0.2
+    upstream-heif-jxl-commit: bdbe560bfd98af6feab93b46aed67f2f0a77e4d5
+    upstream-icns-commit: 0f6a6665a166c530ba126a8ab8608a0603cb49dc
+    patch: scripts/patch-netlify-image-size.mjs
+    patch-sha256: 72d5cfdb0a926ad1fa85f8dd6dcf63a906399341ceae2ea410e497bbb876a1df
+    verification: exact 16-file downstream patch
+    verification-mode: committed-hash
+    status: security-patched
+  - name: FFmpeg Debian source
+    version: 7:5.1.9-0+deb12u1
+    dsc-sha256: 055f82fca9a92f1d47216be2c2488d09373c7ca154806fbc36b0127c191d5104
+    orig-sha256: d9b593bb2ba93d4b50f74177e0cdcd41747e708596367deed0c30348a71dd176
+    orig-signature-sha256: 443e6cdfe1560aab22f90ec40a967866ee04d5bbea32bc32625bd6e514d589f4
+    debian-tar-sha256: 71b20472ecd2764bc98e3229d34c0f7c8dcfe4a6cbacc23fd5604c23bac04632
+    verification: Debian security source package
+    verification-mode: committed-hash
+    status: security-patched
+  - name: FFmpeg CVE-2026-70628 backport
+    version: 02fc47e13f903768b75f7985a2706a6223ab4506
+    patch-sha256: d68cd830fb5f5dd2f597918def2efcdbf15306a9c8697cdae44636d1dd76c179
+    verification: upstream FFmpeg n9.0 commit patch
+    verification-mode: committed-hash
+    status: security-patched
+  - name: FFmpeg CVE-2026-70632 backport
+    version: 16b2049d4d5222db6cd7c031409058571c94f6a9
+    patch-sha256: a45eaa63baad988a38aacdd4c58470e3b80ef49ecd19f3e53c68b954317594a7
+    verification: upstream FFmpeg n9.0 commit patch
+    verification-mode: committed-hash
+    status: security-patched
+  - name: FFmpeg reproducible PTX gzip backport
+    version: 1a7a85137e593f5164027da7ce53219829253f65
+    patch-sha256: 7958bf202bc5c88c6b90ba66fab05d0849df49e2b86cc1d2698bf3d826461e5f
+    verification: upstream FFmpeg commit patch
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Azure cryptography source
+    version: 46.0.7
+    source-commit: 622d672e429a7cff836a23c5903683dbec1901f5
+    archive-sha256: e4cfd68c5f3e0bfdad0d38e023239b96a2fe84146481852dffbcca442c245aa5
+    builder-sha256: 9c82916377e98407d0d1d3cfda5d36f6f1e3fcce8b942aead68cb69fee9ac884
+    verification: PyPI source archive
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Azure cryptography x509 backport
+    version: 4a12cf49675a184e47f912b00b04f3a629283582
+    patch-sha256: 92b6f545d41388c441d83f6f1e1a99ddfd76cc3eb5eed91dd167a25c0d032120
+    verification: upstream cryptography commit patch
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Azure cryptography PKCS7 backport
+    version: 53fccd93413a8d7f07d6d8999681f27b75cffa3f
+    patch-sha256: b2cf0e72db71646297ee78eba680d690676578e97cd8281ca46aa70c5f4593c0
+    verification: upstream cryptography commit patch
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Azure cryptography build requirements
+    version: maturin-1.9.6_cffi-2.0.0_pycparser-2.23_setuptools-80.10.2
+    requirements-sha256: 9b439a3c0b18727178ef8ceb3863b4075b8194e83f49cd6085223c575ca3c3cb
+    verification: committed pip hashes for CPython 3.14 amd64 and arm64 wheels
+    verification-mode: committed-hash
+    status: pinned
+
 installers:
   - name: Claude Code
     version: 2.1.220
@@ -175,6 +288,7 @@ installers:
     amd64-output-sha256: 674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863
     arm64-output-sha256: 159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185
     status: pinned
+
   - name: Junie
     version: "2470.4"
     amd64-archive-sha256: 661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c

@@ -20,6 +20,7 @@ workspace/
 evidence/
 .evidence/
 tests/
+!tests/cryptography_security_backport_smoke.py
 
 # Environment and credentials
 .env

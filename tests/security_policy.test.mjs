@@ -313,12 +313,12 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
         )
         .map(syntheticHighMatch);
     },
-    { variant: 'slim', arch: 'amd64', asOf: '2026-08-02' },
+    { variant: 'slim', arch: 'amd64', asOf: '2026-08-12' },
   );
   assert.equal(result.status, 0, result.stderr);
 });
 
-test('tracks the refreshed v1.5.6 scanner findings with exact current reviews', () => {
+test('tracks the refreshed v1.5.7 scanner findings with exact current reviews', () => {
   const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
   const chromiumIds = [
     'CVE-2026-17652',
@@ -343,7 +343,7 @@ test('tracks the refreshed v1.5.6 scanner findings with exact current reviews', 
     const reviews = ledger.reviews.filter((review) =>
       review.vulnerabilities.includes(vulnerability) &&
       review.component.names.includes('chromium') &&
-      review.component.versions.includes('151.0.7922.71-1~deb12u1'));
+      review.component.versions.includes('151.0.7922.108-1~deb12u1'));
     assert.equal(reviews.length, 1, `${vulnerability} must have one exact Chromium review`);
     assert.equal(reviews[0].disposition, 'fixed');
     assert.equal(reviews[0].effectiveSeverity, 'None');
@@ -358,10 +358,109 @@ test('tracks the refreshed v1.5.6 scanner findings with exact current reviews', 
   assert.equal(netty[0].disposition, 'high_exception');
   assert.equal(netty[0].approvedBy, 'CoderLuii');
 
+  const libssh2 = ledger.reviews.filter((review) =>
+    review.vulnerabilities.includes('CVE-2026-58050') &&
+    review.vulnerabilities.includes('CVE-2026-58051') &&
+    review.component.names.includes('libssh2-1') &&
+    review.component.versions.includes('1.10.0-3+b1'));
+  assert.equal(libssh2.length, 1);
+  assert.equal(libssh2[0].disposition, 'high_exception');
+  assert.equal(libssh2[0].approvedBy, 'CoderLuii');
+
+  assert.equal(ledger.reviews.some((review) => review.id === 'v155-redis-high-exception'), false);
+
   assert.equal(
     ledger.reviews.some((review) => review.id.startsWith('v155-brace-expansion-high-exception-')),
     false,
   );
+});
+
+test('maps both downstream FFmpeg fixes across every rebuilt runtime package', () => {
+  const packageNames = [
+    'ffmpeg',
+    'libavcodec59',
+    'libavdevice59',
+    'libavfilter8',
+    'libavformat59',
+    'libavutil57',
+    'libpostproc56',
+    'libswresample4',
+    'libswscale6',
+  ];
+  const vulnerabilities = ['CVE-2026-70628', 'CVE-2026-70632'];
+  const result = runFixture(
+    ({ report, ledger, vex }) => {
+      const committed = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
+      ledger.reviews = committed.reviews.filter((review) =>
+        vulnerabilities.some((vulnerability) => review.vulnerabilities.includes(vulnerability)) &&
+        review.component.versions.includes('7:5.1.9-0+deb12u1+holyclaude1'));
+      vex.statements = [];
+      report.matches = vulnerabilities.flatMap((vulnerability) =>
+        packageNames.map((name) => ({
+          vulnerability: { id: vulnerability, severity: 'High', fix: { versions: [] } },
+          artifact: {
+            name,
+            version: '7:5.1.9-0+deb12u1+holyclaude1',
+            type: 'deb',
+            locations: name === 'ffmpeg'
+              ? [
+                  { path: '/usr/share/doc/ffmpeg/copyright' },
+                  { path: '/var/lib/dpkg/info/ffmpeg.list' },
+                  { path: '/var/lib/dpkg/info/ffmpeg.md5sums' },
+                  { path: '/var/lib/dpkg/status' },
+                ]
+              : [
+                  { path: `/usr/share/doc/${name}/copyright` },
+                  { path: `/var/lib/dpkg/info/${name}:amd64.md5sums` },
+                  { path: '/var/lib/dpkg/status' },
+                ],
+          },
+        })));
+    },
+    { variant: 'full', arch: 'amd64', asOf: '2026-08-12' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.policy.rawHighCount, 18);
+  assert.equal(result.policy.mappedHighCount, 18);
+});
+
+test('maps the rebuilt cryptography wheel across every installed metadata location', () => {
+  const reviewIds = [
+    'v157-azure-cryptography-x509-downstream-backport',
+    'v157-azure-cryptography-pkcs7-downstream-backport',
+    'v155-cryptography-high-exception-7c76579622',
+  ];
+  const vulnerabilities = [
+    'GHSA-jwv3-5hgf-82ww',
+    'GHSA-g6cj-pr64-35w5',
+    'GHSA-537c-gmf6-5ccf',
+  ];
+  const locations = [
+    '/opt/az/lib/python3.14/site-packages/cryptography-46.0.7+holyclaude.1.dist-info/METADATA',
+    '/opt/az/lib/python3.14/site-packages/cryptography-46.0.7+holyclaude.1.dist-info/RECORD',
+    '/opt/az/lib/python3.14/site-packages/cryptography-46.0.7+holyclaude.1.dist-info/direct_url.json',
+  ];
+  const result = runFixture(
+    ({ report, ledger, vex }) => {
+      const committed = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
+      ledger.reviews = committed.reviews.filter((review) => reviewIds.includes(review.id));
+      assert.deepEqual(ledger.reviews.map((review) => review.id), reviewIds);
+      vex.statements = [];
+      report.matches = vulnerabilities.map((vulnerability) => ({
+        vulnerability: { id: vulnerability, severity: 'High', fix: { versions: [] } },
+        artifact: {
+          name: 'cryptography',
+          version: '46.0.7+holyclaude.1',
+          type: 'python',
+          locations: locations.map((path) => ({ path })),
+        },
+      }));
+    },
+    { variant: 'full', arch: 'arm64', asOf: '2026-08-12' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.policy.rawHighCount, 3);
+  assert.equal(result.policy.mappedHighCount, 3);
 });
 
 test('audits Grype built-in linux-libc-dev indirect kernel suppressions', () => {
@@ -485,7 +584,7 @@ test('rejects a not-affected review without the Docker Hub product scope', () =>
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [{
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=full',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full',
         subcomponents: [
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64' } },
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=arm64' } },
@@ -522,8 +621,8 @@ test('rejects statement-level vulnerability aliases', () => {
       vulnerability: { name: 'CVE-2099-0001' },
       aliases: ['CVE-2099-0002'],
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.6?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -543,8 +642,8 @@ test('rejects a not-affected product without exact component subcomponents', () 
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.6?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -571,11 +670,11 @@ test('emits digest-bound OpenVEX with the exact component subcomponent', () => {
         vulnerability: { name: 'CVE-2099-0001' },
         products: [
           {
-            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=full',
+            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
           {
-            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.6?variant=full',
+            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
         ],
@@ -725,11 +824,11 @@ test('rejects unexpected review fields and orphan OpenVEX statements', () => {
       vulnerability: { '@id': 'https://nvd.nist.gov/vuln/detail/CVE-2099-0002', name: 'CVE-2099-0002' },
       products: [
         {
-          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.6?variant=full',
+          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
         {
-          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.6?variant=full',
+          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
       ],

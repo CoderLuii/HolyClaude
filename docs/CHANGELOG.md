@@ -4,6 +4,20 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.7] - 08/12/2026
+
+### Changed
+- Updated Node to 26.7.0, Playwright to 1.62.0, tsx to 4.23.12, pnpm to 11.21.0, Vite to 8.2.1, esbuild to 0.28.2, and ESLint to 10.8.1. Retained npm 11.19.0 because npm 12 rejects CloudCLI's verified shrinkwrap, and retained TypeScript 6.0.3 because the 7.0.2 native binary carries fixed-version Go findings.
+- Updated CloudCLI's nested nanoid, ip-address, fast-uri, and js-yaml packages. Updated the compatible Undici, Nanoid, and js-yaml copies bundled by Wrangler, Pi, EAS, PM2, and Vercel.
+- Pinned the retained Azure CLI package version at the installer boundary.
+
+### Fixed
+- Restored rollback evidence into the directory consumed by the release workflow.
+- Retried only the CloudCLI browser snapshot once while preserving first-attempt diagnostics.
+- Backported the upstream image-size fixes used by Netlify for malformed ICNS, HEIF, and JXL files.
+- Backported the upstream FFmpeg fixes for CVE-2026-70628 and CVE-2026-70632 into the Bookworm package set.
+- Backported the upstream cryptography fixes for GHSA-jwv3-5hgf-82ww and GHSA-g6cj-pr64-35w5 into Azure CLI's Python environment.
+
 ## [1.5.6] - 08/02/2026
 
 ### Changed

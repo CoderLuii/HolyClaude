@@ -6,8 +6,8 @@ const dockerfile = readFileSync('Dockerfile', 'utf8');
 const wrapper = readFileSync('scripts/holyclaude-chromium', 'utf8');
 
 test('Dockerfile uses pinned Playwright bindings and the canonical browser path', () => {
-  assert.match(dockerfile, /playwright@1\.61\.0/);
-  assert.match(dockerfile, /playwright==1\.61\.0/);
+  assert.match(dockerfile, /playwright@1\.62\.0/);
+  assert.match(dockerfile, /playwright==1\.62\.0/);
   assert.doesNotMatch(dockerfile, /PLAYWRIGHT_BROWSERS_PATH=/);
   assert.match(dockerfile, /NODE_PATH=\/usr\/local\/lib\/node_modules/);
   assert.match(dockerfile, /CHROME_PATH=\/usr\/bin\/chromium/);
@@ -15,7 +15,7 @@ test('Dockerfile uses pinned Playwright bindings and the canonical browser path'
 });
 
 test('Dockerfile pins the Bookworm security Chromium packages', () => {
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.71-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.108-1~deb12u1/);
   for (const packageName of ['CHROMIUM_PACKAGE', 'CHROMIUM_COMMON_PACKAGE', 'CHROMIUM_SANDBOX_PACKAGE']) {
     assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_AMD64=[0-9a-f]{64}`));
     assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_ARM64=[0-9a-f]{64}`));

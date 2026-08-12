@@ -18,8 +18,17 @@ const FULL_PACKAGES = [
     '5.0.7',
     '5.0.9',
   ],
+  [
+    'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json',
+    'undici',
+    '8.5.0',
+    '8.9.0',
+  ],
   ['usr/local/lib/node_modules/sharp-cli/node_modules/glob/package.json', 'glob', '11.0.3', '11.1.0'],
-  ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.0'],
+  ['usr/local/lib/node_modules/wrangler/node_modules/undici/package.json', 'undici', '7.28.0', '7.29.0'],
+  ['usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json', 'nanoid', '3.3.8', '3.3.17'],
+  ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.0', '4.3.1'],
+  ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.1'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/minimatch/package.json', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/vercel/node_modules/minimatch/package.json', 'minimatch', '10.1.1', '10.2.6'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/node-forge/package.json', 'node-forge', '1.3.1', '1.4.0'],
@@ -47,15 +56,42 @@ const FULL_PACKAGES = [
 
 const FULL_DEPENDENCIES = [
   ['usr/local/lib/node_modules/sharp-cli/package.json', 'sharp-cli', '5.2.0', 'glob', '11.0.x', '11.1.0'],
+  [
+    'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
+    'miniflare',
+    '4.20260730.0',
+    'undici',
+    '7.28.0',
+    '7.29.0',
+  ],
+  [
+    'usr/local/lib/node_modules/wrangler/package.json',
+    'wrangler',
+    '4.116.0',
+    'undici',
+    '7.28.0',
+    '7.29.0',
+    'devDependencies',
+  ],
+  [
+    'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json',
+    '@earendil-works/pi-coding-agent',
+    '0.82.1',
+    'undici',
+    '8.5.0',
+    '8.9.0',
+  ],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'nanoid', '3.3.8', '3.3.17'],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'node-forge', '1.3.1', '1.4.0'],
+  ['usr/local/lib/node_modules/pm2/package.json', 'pm2', '7.0.3', 'js-yaml', '4.3.0', '4.3.1'],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
     '@vercel/python-analysis',
     '0.11.1',
     'js-yaml',
     '4.1.1',
-    '4.3.0',
+    '4.3.1',
   ],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
@@ -160,18 +196,18 @@ function verifyPackage(root, definition, checkBaseline) {
 }
 
 function patchDependency(root, definition, checkBaseline) {
-  const [relativePath, name, version, dependency, baseline, target] = definition;
+  const [relativePath, name, version, dependency, baseline, target, dependencyGroup = 'dependencies'] = definition;
   const path = resolve(root, relativePath);
   const value = loadPackage(path, name, version);
   const expected = checkBaseline ? baseline : target;
-  const current = value.dependencies?.[dependency];
+  const current = value[dependencyGroup]?.[dependency];
   if (current !== expected && !(checkBaseline === false && current === baseline)) {
     throw new Error(
       `unexpected ${dependency} dependency in ${path}: expected ${JSON.stringify(expected)}, found ${JSON.stringify(current)}`,
     );
   }
   if (!checkBaseline && current === baseline) {
-    value.dependencies[dependency] = target;
+    value[dependencyGroup][dependency] = target;
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
   }
 }

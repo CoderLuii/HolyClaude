@@ -21,8 +21,17 @@ const packages = [
     '5.0.7',
     '5.0.9',
   ],
+  [
+    'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json',
+    'undici',
+    '8.5.0',
+    '8.9.0',
+  ],
   ['usr/local/lib/node_modules/sharp-cli/node_modules/glob/package.json', 'glob', '11.0.3', '11.1.0'],
-  ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.0'],
+  ['usr/local/lib/node_modules/wrangler/node_modules/undici/package.json', 'undici', '7.28.0', '7.29.0'],
+  ['usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json', 'nanoid', '3.3.8', '3.3.17'],
+  ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.0', '4.3.1'],
+  ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.1'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/minimatch/package.json', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/vercel/node_modules/minimatch/package.json', 'minimatch', '10.1.1', '10.2.6'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/node-forge/package.json', 'node-forge', '1.3.1', '1.4.0'],
@@ -50,15 +59,42 @@ const packages = [
 
 const dependencies = [
   ['usr/local/lib/node_modules/sharp-cli/package.json', 'sharp-cli', '5.2.0', 'glob', '11.0.x', '11.1.0'],
+  [
+    'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
+    'miniflare',
+    '4.20260730.0',
+    'undici',
+    '7.28.0',
+    '7.29.0',
+  ],
+  [
+    'usr/local/lib/node_modules/wrangler/package.json',
+    'wrangler',
+    '4.116.0',
+    'undici',
+    '7.28.0',
+    '7.29.0',
+    'devDependencies',
+  ],
+  [
+    'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json',
+    '@earendil-works/pi-coding-agent',
+    '0.82.1',
+    'undici',
+    '8.5.0',
+    '8.9.0',
+  ],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'nanoid', '3.3.8', '3.3.17'],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'node-forge', '1.3.1', '1.4.0'],
+  ['usr/local/lib/node_modules/pm2/package.json', 'pm2', '7.0.3', 'js-yaml', '4.3.0', '4.3.1'],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
     '@vercel/python-analysis',
     '0.11.1',
     'js-yaml',
     '4.1.1',
-    '4.3.0',
+    '4.3.1',
   ],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
@@ -136,16 +172,17 @@ function fixture() {
   for (const [path, name, baseline] of packages) {
     writeJson(join(root, path), { name, version: baseline });
   }
-  for (const [path, name, version, dependency, baseline] of dependencies) {
+  for (const [path, name, version, dependency, baseline, , dependencyGroup = 'dependencies'] of dependencies) {
     const manifestPath = join(root, path);
     const value = (() => {
       try {
         return JSON.parse(readFileSync(manifestPath));
       } catch {
-        return { name, version, dependencies: {} };
+        return { name, version };
       }
     })();
-    value.dependencies[dependency] = baseline;
+    value[dependencyGroup] ??= {};
+    value[dependencyGroup][dependency] = baseline;
     writeJson(manifestPath, value);
   }
   return root;
@@ -170,9 +207,9 @@ test('patches only verified full-image dependency specs', () => {
   const result = run(root);
   assert.equal(result.status, 0, result.stderr);
 
-  for (const [path, , , dependency, , target] of dependencies) {
+  for (const [path, , , dependency, , target, dependencyGroup = 'dependencies'] of dependencies) {
     const value = JSON.parse(readFileSync(join(root, path)));
-    assert.equal(value.dependencies[dependency], target);
+    assert.equal(value[dependencyGroup][dependency], target);
   }
 });
 
@@ -201,4 +238,57 @@ test('fails closed when a dependency specification drifts', () => {
   const result = run(root, true);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /unexpected glob dependency/);
+});
+
+test('fails closed when a reviewed full-image package baseline drifts', () => {
+  for (const [path, name, baseline] of [
+    packages.find(([path]) => path.endsWith('/wrangler/node_modules/undici/package.json')),
+    packages.find(([path]) => path.endsWith('/pi-coding-agent/node_modules/undici/package.json')),
+    packages.find(([path]) => path.endsWith('/eas-cli/node_modules/nanoid/package.json')),
+    packages.find(([path]) => path.endsWith('/pm2/node_modules/js-yaml/package.json')),
+  ]) {
+    const root = fixture();
+    writeJson(join(root, path), { name, version: `${baseline}-drift` });
+    const result = run(root, true);
+    assert.notEqual(result.status, 0, `${name} baseline drift should fail`);
+    assert.match(result.stderr, new RegExp(`expected ${name.replace('-', '\\-')}@${baseline.replaceAll('.', '\\.')}\\b`));
+  }
+});
+
+test('fails closed when a reviewed dependency owner version drifts', () => {
+  for (const [path, name, version] of [
+    dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
+    dependencies.find(([path]) => path.endsWith('/wrangler/package.json')),
+    dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
+    dependencies.find(([path, , , dependency]) => path.endsWith('/eas-cli/package.json') && dependency === 'nanoid'),
+    dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
+  ]) {
+    const root = fixture();
+    const manifestPath = join(root, path);
+    const value = JSON.parse(readFileSync(manifestPath));
+    value.version = `${version}-drift`;
+    writeJson(manifestPath, value);
+    const result = run(root, true);
+    assert.notEqual(result.status, 0, `${name} owner drift should fail`);
+    assert.match(result.stderr, new RegExp(`expected ${name.replaceAll('/', '\\/')}@${version.replaceAll('.', '\\.')}\\b`));
+  }
+});
+
+test('fails closed when a reviewed owner dependency baseline drifts', () => {
+  for (const [path, , , dependency, , , dependencyGroup = 'dependencies'] of [
+    dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
+    dependencies.find(([path]) => path.endsWith('/wrangler/package.json')),
+    dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
+    dependencies.find(([path, , , dependency]) => path.endsWith('/eas-cli/package.json') && dependency === 'nanoid'),
+    dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
+  ]) {
+    const root = fixture();
+    const manifestPath = join(root, path);
+    const value = JSON.parse(readFileSync(manifestPath));
+    value[dependencyGroup][dependency] = 'unexpected';
+    writeJson(manifestPath, value);
+    const result = run(root, true);
+    assert.notEqual(result.status, 0, `${dependency} owner declaration drift should fail`);
+    assert.match(result.stderr, new RegExp(`unexpected ${dependency} dependency`));
+  }
 });

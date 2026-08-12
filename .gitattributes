@@ -1,7 +1,9 @@
 Dockerfile text eol=lf
 *.sh text eol=lf
 *.py text eol=lf
-*.patch text eol=lf whitespace=-blank-at-eol
+*.patch text eol=lf whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab
+security/cryptography-security-build-requirements.txt text eol=lf
+scripts/patch-netlify-image-size.mjs text eol=lf
 contracts/*.json text eol=lf
 vendor/artifacts/*.json text eol=lf
 vendor/locks/*.json text eol=lf

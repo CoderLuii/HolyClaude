@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.5.6",
-    "dockerVersion": "1.5.6"
+    "tag": "v1.5.7",
+    "dockerVersion": "1.5.7"
   },
   "registries": {
     "dockerHub": {
@@ -156,11 +156,11 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "151.0.7922.71",
+      "version": "151.0.7922.108",
       "executable": "/usr/bin/chromium"
     },
     "playwright": {
-      "version": "1.61.0",
+      "version": "1.62.0",
       "browserDownload": false,
       "executable": "/usr/bin/chromium"
     }
