@@ -49,7 +49,7 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
 
 FROM rust:1.88-bookworm@sha256:af306cfa71d987911a781c37b59d7d67d934f49684058f96cf72079c3626bfe0 AS cryptography-rust-toolchain
 
-FROM python:3.14.0-slim-bookworm@sha256:d13fa0424035d290decef3d575cea23d1b7d5952cdf429df8f5542c71e961576 AS cryptography-security-builder
+FROM python:3.14.7-slim-bookworm@sha256:23c59390fc717bf09f9336908199a0ae75d9c4264bf296123f94ad772fea3b52 AS cryptography-security-builder
 ARG VARIANT
 COPY --from=cryptography-rust-toolchain /usr/local/cargo /usr/local/cargo
 COPY --from=cryptography-rust-toolchain /usr/local/rustup /usr/local/rustup
