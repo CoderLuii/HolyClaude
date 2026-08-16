@@ -9,7 +9,7 @@
 
 ARG VARIANT=full
 
-FROM golang:1.26.5-bookworm@sha256:53eeac89074db483fdf0ab3be1df32bf6e47562263d2d0d6baa7f26acb4957dd AS esbuild-builder
+FROM golang:1.27rc2-bookworm@sha256:a2f9daa5dbd9f7a68eb3c32cf91e4f9fc50a11a07f8b9cd9ffa542d2298d9f82 AS esbuild-builder
 
 ARG TARGETARCH
 RUN case "$TARGETARCH" in amd64) ;; arm64) ;; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac; \
