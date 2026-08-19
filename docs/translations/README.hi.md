@@ -1215,11 +1215,11 @@ MIT — [LICENSE](../../LICENSE) देखें। इसे जैसे च�
 
 <!-- Star History -->
 <div align="center">
-<a href="https://star-history.com/#CoderLuii/HolyClaude&Date">
+<a href="https://star-history.dera.page/#CoderLuii/HolyClaude&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=CoderLuii/HolyClaude&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=CoderLuii/HolyClaude&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=CoderLuii/HolyClaude&type=Date" width="600" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=CoderLuii/HolyClaude&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=CoderLuii/HolyClaude&type=Date" />
+    <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=CoderLuii/HolyClaude&type=Date" width="600" />
   </picture>
 </a>
 </div>
