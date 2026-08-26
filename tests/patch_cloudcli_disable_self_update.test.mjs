@@ -10,16 +10,45 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-disable-self-update.mjs');
-const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
+const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz');
 
-const indexTargets = [
-  'server/index.js',
-  'dist-server/server/index.js'
+// CloudCLI 1.37.x replaced the flat server/cli.js and server/index.js with the cli and
+// system modules, so the patch now spans four files per tree.
+const cliServiceTargets = [
+  'server/modules/cli/cli.service.ts',
+  'dist-server/server/modules/cli/cli.service.js'
 ];
 
-const cliTargets = [
-  'server/cli.js',
-  'dist-server/server/cli.js'
+const cliModuleTargets = [
+  'server/modules/cli/cli.module.ts',
+  'dist-server/server/modules/cli/cli.module.js'
+];
+
+const systemRouteTargets = [
+  'server/modules/system/system.routes.ts',
+  'dist-server/server/modules/system/system.routes.js'
+];
+
+const systemServiceTargets = [
+  'server/modules/system/system.service.ts',
+  'dist-server/server/modules/system/system.service.js'
+];
+
+const fileTreeRouteTargets = [
+  'server/modules/file-tree/file-tree.routes.ts',
+  'dist-server/server/modules/file-tree/file-tree.routes.js'
+];
+
+const fileTreeServiceTargets = [
+  'server/modules/file-tree/file-tree.service.ts',
+  'dist-server/server/modules/file-tree/file-tree.service.js'
+];
+
+const allTargets = [
+  ...cliServiceTargets,
+  ...cliModuleTargets,
+  ...systemRouteTargets,
+  ...systemServiceTargets
 ];
 
 async function unpackCloudCli() {
@@ -42,99 +71,130 @@ function countOccurrences(source, searchText) {
   return source.split(searchText).length - 1;
 }
 
-function assertPatchedIndex(source, relativePath) {
+function assertPatchedCliService(source, relativePath) {
   assert.equal(
-    countOccurrences(source, 'const HOLYCLAUDE_UPDATE_DISABLED_RESPONSE = {'),
+    countOccurrences(source, 'const HOLYCLAUDE_CLOUDCLI_SELF_UPDATE_DISABLED = true;'),
     1,
-    `${relativePath} should contain exactly one HolyClaude update response marker`
+    `${relativePath} should contain exactly one CLI self-update disabled marker`
+  );
+  assert.ok(
+    source.includes('CloudCLI self-update is disabled in HolyClaude.'),
+    `${relativePath} should explain that self-update is disabled`
+  );
+  assert.ok(
+    source.includes("const HOLYCLAUDE_DOCKER_UPDATE_COMMAND = 'docker compose pull && docker compose up -d';"),
+    `${relativePath} should point at the image update command`
   );
   assert.equal(
-    countOccurrences(source, 'const expandWorkspacePath = (inputPath) => {'),
-    1,
-    `${relativePath} should preserve exactly one expandWorkspacePath helper`
-  );
-  assert.ok(
-    source.includes("app.post('/api/system/update', authenticateToken, async (req, res) => {"),
-    `${relativePath} should keep the system update route`
-  );
-  assert.ok(
-    source.includes('res.status(409).json(HOLYCLAUDE_UPDATE_DISABLED_RESPONSE);'),
-    `${relativePath} should return the disabled update response`
-  );
-  assert.ok(
-    source.includes("app.get('/api/browse-filesystem', authenticateToken, async (req, res) => {"),
-    `${relativePath} should keep the browse route`
-  );
-  assert.ok(
-    source.includes("app.post('/api/create-folder', authenticateToken, async (req, res) => {"),
-    `${relativePath} should keep the create-folder route`
-  );
-  assert.ok(
-    source.includes('let targetPath = dirPath ? expandWorkspacePath(dirPath) : defaultRoot;'),
-    `${relativePath} should keep browse route tilde expansion`
-  );
-  assert.ok(
-    source.includes('const expandedPath = expandWorkspacePath(folderPath);'),
-    `${relativePath} should keep create-folder tilde expansion`
-  );
-  assert.equal(
-    source.includes('npm install -g @cloudcli-ai/cloudcli@latest'),
-    false,
-    `${relativePath} should remove the npm global self-update command`
-  );
-
-  const updateRouteIndex = source.indexOf("app.post('/api/system/update'");
-  const helperIndex = source.indexOf('const expandWorkspacePath');
-  const browseRouteIndex = source.indexOf("app.get('/api/browse-filesystem'");
-  const createFolderRouteIndex = source.indexOf("app.post('/api/create-folder'");
-
-  assert.ok(updateRouteIndex < helperIndex, `${relativePath} should leave the helper after the update route`);
-  assert.ok(helperIndex < browseRouteIndex, `${relativePath} should define the helper before browsing uses it`);
-  assert.ok(helperIndex < createFolderRouteIndex, `${relativePath} should define the helper before folder creation uses it`);
-}
-
-function assertPatchedCli(source, relativePath) {
-  assert.ok(
-    source.includes('const HOLYCLAUDE_CLOUDCLI_SELF_UPDATE_DISABLED = true;'),
-    `${relativePath} should contain the CLI self-update disabled marker`
-  );
-  assert.equal(
-    source.includes("execSync('npm update -g @cloudcli-ai/cloudcli', { stdio: 'inherit' });"),
+    source.includes('npm update -g @cloudcli-ai/cloudcli'),
     false,
     `${relativePath} should remove the CLI npm self-update command`
   );
   assert.equal(
-    source.includes("Run ${c.bright('cloudcli update')} to update"),
+    source.includes("Run ${terminalTextStyles.bright('cloudcli update')} to update"),
     false,
     `${relativePath} should remove the old update prompt`
   );
 }
 
-test('CloudCLI self-update patch preserves workspace browse helpers', async () => {
+function assertPatchedCliModule(source, relativePath) {
+  assert.equal(
+    source.includes("execSync('npm update -g @cloudcli-ai/cloudcli', { stdio: 'inherit' });"),
+    false,
+    `${relativePath} should remove the injected npm self-update command`
+  );
+  assert.ok(
+    source.includes('// HolyClaude disables CloudCLI npm self-updates; see cli.service.'),
+    `${relativePath} should record why the update dependency is inert`
+  );
+}
+
+function assertPatchedSystemRoutes(source, relativePath) {
+  assert.equal(
+    countOccurrences(source, 'const HOLYCLAUDE_UPDATE_DISABLED_RESPONSE = {'),
+    1,
+    `${relativePath} should contain exactly one HolyClaude update response marker`
+  );
+  assert.ok(
+    source.includes("router.post('/update', async (_request, response) => {"),
+    `${relativePath} should keep the system update route`
+  );
+  assert.ok(
+    source.includes('response.status(409).json(HOLYCLAUDE_UPDATE_DISABLED_RESPONSE);'),
+    `${relativePath} should return the disabled update response`
+  );
+
+  const constantIndex = source.indexOf('const HOLYCLAUDE_UPDATE_DISABLED_RESPONSE = {');
+  const routeIndex = source.indexOf("router.post('/update'");
+  assert.ok(constantIndex < routeIndex, `${relativePath} should declare the response before the route uses it`);
+}
+
+function assertPatchedSystemService(source, relativePath) {
+  assert.equal(
+    source.includes("'npm install -g @cloudcli-ai/cloudcli@latest'"),
+    false,
+    `${relativePath} should remove the npm global self-update command`
+  );
+  assert.ok(
+    source.includes('const HOLYCLAUDE_DISABLED_UPDATE_COMMAND ='),
+    `${relativePath} should replace the update command with a failing placeholder`
+  );
+}
+
+async function assertWorkspaceBrowsingPreserved(cloudcliRoot) {
+  for (const target of fileTreeRouteTargets) {
+    const source = await readCloudCliFile(cloudcliRoot, target);
+    assert.ok(source.includes("router.get('/browse-filesystem'"), `${target} should keep the browse route`);
+    assert.ok(source.includes("router.post('/create-folder'"), `${target} should keep the create-folder route`);
+  }
+
+  for (const target of fileTreeServiceTargets) {
+    const source = await readCloudCliFile(cloudcliRoot, target);
+    assert.ok(source.includes('function expandWorkspacePath'), `${target} should keep the workspace path helper`);
+    assert.ok(
+      source.includes('const expandedPath = expandWorkspacePath(dependencies.workspace.rootPath, folderPath);'),
+      `${target} should keep create-folder tilde expansion`
+    );
+  }
+}
+
+test('CloudCLI self-update patch disables updates and preserves workspace browsing', async () => {
   const cloudcliRoot = await unpackCloudCli();
 
-  for (const target of indexTargets) {
+  for (const target of systemServiceTargets) {
     const source = await readCloudCliFile(cloudcliRoot, target);
-    assert.ok(source.includes('const expandWorkspacePath = (inputPath) => {'), `${target} fixture should start with helper`);
-    assert.ok(source.includes('npm install -g @cloudcli-ai/cloudcli@latest'), `${target} fixture should start with update command`);
+    assert.ok(
+      source.includes("'npm install -g @cloudcli-ai/cloudcli@latest'"),
+      `${target} fixture should start with the update command`
+    );
   }
+  await assertWorkspaceBrowsingPreserved(cloudcliRoot);
 
   await runPatch(cloudcliRoot);
 
   const firstRunSources = new Map();
-  for (const target of [...indexTargets, ...cliTargets]) {
+  for (const target of allTargets) {
     const source = await readCloudCliFile(cloudcliRoot, target);
     firstRunSources.set(target, source);
-    if (indexTargets.includes(target)) {
-      assertPatchedIndex(source, target);
-    } else {
-      assertPatchedCli(source, target);
-    }
   }
+
+  for (const target of cliServiceTargets) {
+    assertPatchedCliService(firstRunSources.get(target), target);
+  }
+  for (const target of cliModuleTargets) {
+    assertPatchedCliModule(firstRunSources.get(target), target);
+  }
+  for (const target of systemRouteTargets) {
+    assertPatchedSystemRoutes(firstRunSources.get(target), target);
+  }
+  for (const target of systemServiceTargets) {
+    assertPatchedSystemService(firstRunSources.get(target), target);
+  }
+  await assertWorkspaceBrowsingPreserved(cloudcliRoot);
 
   await runPatch(cloudcliRoot);
 
-  for (const target of [...indexTargets, ...cliTargets]) {
+  for (const target of allTargets) {
     assert.equal(
       await readCloudCliFile(cloudcliRoot, target),
       firstRunSources.get(target),
@@ -143,15 +203,51 @@ test('CloudCLI self-update patch preserves workspace browse helpers', async () =
   }
 });
 
-test('CloudCLI self-update patch fails closed when the route anchor drifts', async () => {
+test('CloudCLI self-update patch fails closed when the system route anchor drifts', async () => {
   const cloudcliRoot = await unpackCloudCli();
 
-  for (const target of indexTargets) {
-    const indexPath = path.join(cloudcliRoot, target);
-    const source = await readFile(indexPath, 'utf8');
+  for (const target of systemRouteTargets) {
+    const routesPath = path.join(cloudcliRoot, target);
+    const source = await readFile(routesPath, 'utf8');
     await writeFile(
-      indexPath,
-      source.replace("app.post('/api/system/update'", "app.post('/api/system/update-renamed'")
+      routesPath,
+      source.replace("router.post('/update', async (_request, response, next) => {", "router.post('/update-renamed', async (_request, response, next) => {")
+    );
+  }
+
+  await assert.rejects(
+    () => runPatch(cloudcliRoot),
+    /CloudCLI self-update anchors not found/
+  );
+});
+
+test('CloudCLI self-update patch fails closed when the CLI update anchors drift', async () => {
+  const cloudcliRoot = await unpackCloudCli();
+
+  for (const target of cliServiceTargets) {
+    const servicePath = path.join(cloudcliRoot, target);
+    const source = await readFile(servicePath, 'utf8');
+    await writeFile(
+      servicePath,
+      source.replace('const checkForUpdates = async (silent = false)', 'const checkForUpdatesRenamed = async (silent = false)')
+    );
+  }
+
+  await assert.rejects(
+    () => runPatch(cloudcliRoot),
+    /CloudCLI self-update anchors not found/
+  );
+});
+
+test('CloudCLI self-update patch fails closed when workspace browsing drifts', async () => {
+  const cloudcliRoot = await unpackCloudCli();
+
+  for (const target of fileTreeServiceTargets) {
+    const servicePath = path.join(cloudcliRoot, target);
+    const source = await readFile(servicePath, 'utf8');
+    await writeFile(
+      servicePath,
+      source.replaceAll('expandWorkspacePath', 'resolveWorkspacePath')
     );
   }
 

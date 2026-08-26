@@ -355,7 +355,7 @@ export function verifyProductSources(facts, root) {
   const cloudcliInstallRegion = section(dockerfile, 'ARG CLOUDCLI_VERSION=', '# ---------- CloudCLI plugins (');
   requireMatch(
     cloudcliInstallRegion,
-    /tar -xzf \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz[\s\S]+npm ci --omit=dev[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js" \/usr\/local\/bin\/cloudcli/,
+    /tar -xzf \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz[\s\S]+npm ci --omit=dev[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/modules\/cli\/cli\.js" \/usr\/local\/bin\/cloudcli/,
     'CloudCLI exact production install is missing',
   );
   if (cloudcliInstallRegion.includes('$VARIANT')) {

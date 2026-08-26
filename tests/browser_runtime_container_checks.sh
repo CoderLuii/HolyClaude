@@ -168,7 +168,7 @@ const fs = require('node:fs');
 const inventory = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const variant = process.argv[3];
 const common = {
-  '@cloudcli-ai/cloudcli': '1.36.3',
+  '@cloudcli-ai/cloudcli': '1.37.2',
   '@google/gemini-cli': '0.53.0',
   '@openai/codex': '0.146.0',
   concurrently: '10.0.4',
@@ -281,12 +281,12 @@ assert_runtime_identity() {
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
   test -x /usr/lib/chromium/chromium
-  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.108-1~deb12u1"
+  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.173-1~deb12u1"
   local cloudcli_version
   local cloudcli_package_version
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   cloudcli_package_version="$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
-  require_eq "CloudCLI package version" "$cloudcli_package_version" "1.36.3"
+  require_eq "CloudCLI package version" "$cloudcli_package_version" "1.37.2"
   require_eq "Node version" "$(node --version)" "v26.7.0"
   require_eq "npm version" "$(npm --version)" "11.19.0"
   require_eq "pnpm version" "$(pnpm --version)" "11.21.0"
@@ -297,8 +297,8 @@ assert_runtime_identity() {
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.6.2"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.1"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.220"
-  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.23-e383d2b"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.231"
+  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.08.11-e8db854"
   if [ "$VARIANT" = "full" ]; then
     local libssh_gcrypt_path
     require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u2"
@@ -432,21 +432,27 @@ function close(server) {
 }
 
 for (const [dependency, version] of Object.entries({
+  '@remix-run/router': '1.23.4',
   'better-sqlite3': '12.11.1',
-  dompurify: '3.4.12',
+  'brace-expansion': '2.1.4',
+  dompurify: '3.4.14',
   express: '4.22.2',
-  'fast-uri': '3.1.5',
-  'ip-address': '10.3.1',
+  'fast-uri': '3.1.6',
+  glob: '10.5.0',
+  'ip-address': '10.5.0',
   'js-yaml': '3.15.1',
-  nanoid: '3.3.17',
-  hono: '4.12.32',
+  nanoid: '3.3.18',
+  hono: '4.13.5',
   jws: '3.2.3',
+  minimatch: '9.0.9',
   multer: '2.2.0',
   'path-to-regexp': '0.1.13',
   picomatch: '2.3.2',
-  postcss: '8.5.25',
+  postcss: '8.5.26',
+  'react-router': '6.30.6',
+  'react-router-dom': '6.30.6',
   'tar-fs': '2.1.5',
-  ws: '8.21.1',
+  ws: '8.21.3',
   yaml: '2.9.0',
 })) {
   assert.equal(packageVersion(dependency), version, `${dependency} should use the reviewed version`);
@@ -454,7 +460,7 @@ for (const [dependency, version] of Object.entries({
 
 assert.equal(
   JSON.parse(readFileSync('/usr/local/lib/node_modules/npm/node_modules/ip-address/package.json', 'utf8')).version,
-  '10.3.1',
+  '10.5.0',
   'npm ip-address should use the reviewed version',
 );
 
@@ -752,7 +758,7 @@ rotate_cloudcli_account() {
   DATABASE_PATH=/home/claude/.cloudcli/auth.db node --input-type=module - "$old_token" <<'NODE'
 const oldToken = process.argv[2];
 const { authenticateWebSocket } = await import(
-  'file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/middleware/auth.js'
+  'file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/auth/auth.middleware.js'
 );
 if (authenticateWebSocket(oldToken) !== null) {
   console.error('CloudCLI accepted an invalidated WebSocket token');

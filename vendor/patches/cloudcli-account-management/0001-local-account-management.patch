@@ -1,10 +1,10 @@
-diff --git a/server/middleware/auth.js b/server/middleware/auth.js
-index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a584bb1943f 100644
---- a/server/middleware/auth.js
-+++ b/server/middleware/auth.js
-@@ -2,9 +2,21 @@ import jwt from 'jsonwebtoken';
- import { userDb, appConfigDb } from '../modules/database/index.js';
- import { IS_PLATFORM } from '../constants/config.js';
+diff --git a/server/modules/auth/auth.middleware.ts b/server/modules/auth/auth.middleware.ts
+index da45196..99c158b 100644
+--- a/server/modules/auth/auth.middleware.ts
++++ b/server/modules/auth/auth.middleware.ts
+@@ -5,9 +5,21 @@ import { IS_PLATFORM } from '@/shared/utils.js';
+ 
+ import { userDb, appConfigDb } from '../database/index.js';
  
 +const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
 +
@@ -24,7 +24,7 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
  // Optional API key middleware
  const validateApiKey = (req, res, next) => {
    // Skip API key validation if not configured
-@@ -52,6 +64,10 @@ const authenticateToken = async (req, res, next) => {
+@@ -59,6 +71,10 @@ const authenticateToken = async (req, res, next) => {
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
  
@@ -35,7 +35,7 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
      // Verify user still exists and is active
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
-@@ -78,14 +94,16 @@ const authenticateToken = async (req, res, next) => {
+@@ -104,14 +120,16 @@ const authenticateToken = async (req, res, next) => {
  
  // Generate JWT token
  const generateToken = (user) => {
@@ -60,7 +60,7 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
  };
  
  // WebSocket authentication function
-@@ -111,6 +129,10 @@ const authenticateWebSocket = (token) => {
+@@ -137,6 +155,10 @@ const authenticateWebSocket = (token) => {
  
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
@@ -71,8 +71,340 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
      // Verify user actually exists in database (matches REST authenticateToken behavior)
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
+diff --git a/server/modules/auth/auth.module.ts b/server/modules/auth/auth.module.ts
+index 33a4f43..d22ddad 100644
+--- a/server/modules/auth/auth.module.ts
++++ b/server/modules/auth/auth.module.ts
+@@ -1,6 +1,8 @@
++import { randomUUID } from 'node:crypto';
+ import { createRequire } from 'node:module';
+ 
+-import { getConnection, userDb } from '@/modules/database/index.js';
++import { appConfigDb, getConnection, userDb } from '@/modules/database/index.js';
++import { IS_PLATFORM } from '@/shared/utils.js';
+ 
+ import { authenticateToken, generateToken } from './auth.middleware.js';
+ import { createAuthRouter } from './auth.routes.js';
+@@ -22,16 +24,23 @@ const authService = createAuthService({
+     hasUsers: () => userDb.hasUsers(),
+     createUser: (username, passwordHash) => userDb.createUser(username, passwordHash),
+     getUserByUsername: (username) => userDb.getUserByUsername(username),
++    getUserAuthById: (userId) => userDb.getUserAuthById(userId),
+     updateLastLogin: (userId) => userDb.updateLastLogin(userId),
++    updatePasswordHash: (userId, passwordHash) => userDb.updatePasswordHash(userId, passwordHash),
+   },
+   transaction: {
+     begin: () => databaseConnection.prepare('BEGIN').run(),
+     commit: () => databaseConnection.prepare('COMMIT').run(),
+     rollback: () => databaseConnection.prepare('ROLLBACK').run(),
+   },
++  appConfig: {
++    set: (key, value) => appConfigDb.set(key, value),
++  },
+   hashPassword: (password) => bcrypt.hash(password, 12),
+   comparePassword: (password, passwordHash) => bcrypt.compare(password, passwordHash),
+   generateToken,
++  createTokenGeneration: () => randomUUID(),
++  isPlatform: IS_PLATFORM,
+ });
+ 
+ /** Auth router assembled for the server entrypoint. */
+diff --git a/server/modules/auth/auth.routes.ts b/server/modules/auth/auth.routes.ts
+index 99342fe..279fb99 100644
+--- a/server/modules/auth/auth.routes.ts
++++ b/server/modules/auth/auth.routes.ts
+@@ -1,6 +1,8 @@
+ import express from 'express';
+ import type { RequestHandler } from 'express';
+ 
++import { AppError } from '@/shared/utils.js';
++
+ import type { createAuthService } from './auth.service.js';
+ 
+ type AuthenticatedRequest = express.Request & { user?: unknown };
+@@ -49,6 +51,28 @@ export function createAuthRouter(
+     res.json(service.refreshSession((req as AuthenticatedRequest).user));
+   });
+ 
++  // HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE: local account password rotation.
++  // This handler answers with the flat `{ error }` shape the Account settings
++  // tab reads, rather than deferring to the global envelope middleware.
++  router.post('/change-password', authenticateToken, async (req, res) => {
++    try {
++      const body = req.body as { currentPassword?: unknown; newPassword?: unknown };
++      res.json(await service.changePassword(
++        (req as AuthenticatedRequest).user,
++        body.currentPassword,
++        body.newPassword,
++      ));
++    } catch (error) {
++      if (error instanceof AppError) {
++        res.status(error.statusCode).json({ error: error.message });
++        return;
++      }
++
++      console.error('Change password error:', error);
++      res.status(500).json({ error: 'Internal server error' });
++    }
++  });
++
+   router.post('/logout', authenticateToken, (_req, res) => {
+     res.json(service.logout());
+   });
+diff --git a/server/modules/auth/auth.service.ts b/server/modules/auth/auth.service.ts
+index 91d61f0..893ed0e 100644
+--- a/server/modules/auth/auth.service.ts
++++ b/server/modules/auth/auth.service.ts
+@@ -12,22 +12,46 @@ type AuthDependencies = {
+     hasUsers(): boolean;
+     createUser(username: string, passwordHash: string): AuthUser;
+     getUserByUsername(username: string): AuthLoginUser | undefined;
++    getUserAuthById(userId: number): AuthLoginUser | undefined;
+     updateLastLogin(userId: number): void;
++    updatePasswordHash(userId: number, passwordHash: string): void;
+   };
+   transaction: {
+     begin(): void;
+     commit(): void;
+     rollback(): void;
+   };
++  appConfig: {
++    set(key: string, value: string): void;
++  };
+   hashPassword(password: string): Promise<string>;
+   comparePassword(password: string, passwordHash: string): Promise<boolean>;
+   generateToken(user: AuthUser): string;
++  createTokenGeneration(): string;
++  isPlatform: boolean;
+ };
+ 
++// HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE: shared with the Account settings tab.
++const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
++const PASSWORD_MIN_LENGTH = 6;
++
+ function numericUserId(userId: number | bigint): number {
+   return Number(userId);
+ }
+ 
++function resolveAuthenticatedUserId(authenticatedUser: unknown): number | null {
++  if (
++    typeof authenticatedUser !== 'object'
++    || authenticatedUser === null
++    || !('id' in authenticatedUser)
++    || (typeof authenticatedUser.id !== 'number' && typeof authenticatedUser.id !== 'bigint')
++  ) {
++    return null;
++  }
++
++  return numericUserId(authenticatedUser.id);
++}
++
+ function isUniqueConstraintError(error: unknown): boolean {
+   return typeof error === 'object'
+     && error !== null
+@@ -58,9 +82,9 @@ export function createAuthService(dependencies: AuthDependencies) {
+           statusCode: 400,
+         });
+       }
+-      if (username.length < 3 || password.length < 6) {
++      if (username.length < 3 || password.length < PASSWORD_MIN_LENGTH) {
+         throw new AppError(
+-          'Username must be at least 3 characters, password at least 6 characters',
++          `Username must be at least 3 characters, password at least ${PASSWORD_MIN_LENGTH} characters`,
+           { code: 'AUTH_CREDENTIALS_TOO_SHORT', statusCode: 400 },
+         );
+       }
+@@ -148,6 +172,71 @@ export function createAuthService(dependencies: AuthDependencies) {
+       return { token: dependencies.generateToken(user as AuthUser) };
+     },
+ 
++    // HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE: local account password rotation.
++    // Rotates the stored hash and bumps the token generation so every session
++    // token issued before the change stops validating.
++    async changePassword(
++      authenticatedUser: unknown,
++      currentPasswordInput: unknown,
++      newPasswordInput: unknown,
++    ) {
++      if (dependencies.isPlatform) {
++        throw new AppError('Password changes are not available in platform mode', {
++          code: 'AUTH_PASSWORD_CHANGE_UNAVAILABLE',
++          statusCode: 403,
++        });
++      }
++
++      const currentPassword = typeof currentPasswordInput === 'string' ? currentPasswordInput : '';
++      const newPassword = typeof newPasswordInput === 'string' ? newPasswordInput : '';
++
++      if (!currentPassword || !newPassword) {
++        throw new AppError('Current password and new password are required', {
++          code: 'AUTH_PASSWORD_CHANGE_FIELDS_REQUIRED',
++          statusCode: 400,
++        });
++      }
++
++      if (newPassword.length < PASSWORD_MIN_LENGTH) {
++        throw new AppError(
++          `New password must be at least ${PASSWORD_MIN_LENGTH} characters`,
++          { code: 'AUTH_PASSWORD_TOO_SHORT', statusCode: 400 },
++        );
++      }
++
++      const userId = resolveAuthenticatedUserId(authenticatedUser);
++      const user = userId === null ? undefined : dependencies.users.getUserAuthById(userId);
++      if (!user) {
++        throw new AppError('Invalid token. User not found.', {
++          code: 'AUTH_USER_REQUIRED',
++          statusCode: 401,
++        });
++      }
++
++      const validPassword = await dependencies.comparePassword(currentPassword, user.password_hash);
++      if (!validPassword) {
++        throw new AppError('Current password is incorrect', {
++          code: 'AUTH_CURRENT_PASSWORD_INVALID',
++          statusCode: 401,
++        });
++      }
++
++      const passwordHash = await dependencies.hashPassword(newPassword);
++      const nextTokenGeneration = dependencies.createTokenGeneration();
++
++      dependencies.transaction.begin();
++      try {
++        dependencies.users.updatePasswordHash(numericUserId(user.id), passwordHash);
++        dependencies.appConfig.set(AUTH_TOKEN_GENERATION_KEY, nextTokenGeneration);
++        dependencies.transaction.commit();
++      } catch (error) {
++        dependencies.transaction.rollback();
++        throw error;
++      }
++
++      return { success: true, message: 'Password updated. Please sign in again.' };
++    },
++
+     logout() {
+       return { success: true, message: 'Logged out successfully' };
+     },
+diff --git a/server/modules/auth/tests/auth.service.test.ts b/server/modules/auth/tests/auth.service.test.ts
+index e5f89c1..9b0758d 100644
+--- a/server/modules/auth/tests/auth.service.test.ts
++++ b/server/modules/auth/tests/auth.service.test.ts
+@@ -13,16 +13,23 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
+       hasUsers: () => false,
+       createUser: (username, passwordHash) => ({ id: 1, username, password_hash: passwordHash }),
+       getUserByUsername: () => undefined,
++      getUserAuthById: () => undefined,
+       updateLastLogin: () => undefined,
++      updatePasswordHash: () => undefined,
+     },
+     transaction: {
+       begin: () => undefined,
+       commit: () => undefined,
+       rollback: () => undefined,
+     },
++    appConfig: {
++      set: () => undefined,
++    },
+     hashPassword: async () => 'hashed-password',
+     comparePassword: async () => false,
+     generateToken: () => 'signed-token',
++    createTokenGeneration: () => 'token-generation',
++    isPlatform: false,
+     ...overrides,
+   };
+ }
+@@ -46,7 +53,9 @@ test('register hashes credentials and commits through injected dependencies', as
+         return { id: 1, username, password_hash: passwordHash };
+       },
+       getUserByUsername: () => undefined,
++      getUserAuthById: () => undefined,
+       updateLastLogin: (userId) => operations.push(`login:${userId}`),
++      updatePasswordHash: () => undefined,
+     },
+   }));
+ 
+@@ -63,7 +72,9 @@ test('login rejects an invalid password without issuing a token', async () => {
+       hasUsers: () => true,
+       createUser: () => { throw new Error('unused'); },
+       getUserByUsername: () => ({ id: 1, username: 'alice', password_hash: 'hash' }),
++      getUserAuthById: () => undefined,
+       updateLastLogin: () => undefined,
++      updatePasswordHash: () => undefined,
+     },
+     comparePassword: async () => false,
+     generateToken: () => {
+@@ -93,3 +104,68 @@ test('refreshSession issues a replacement token for the authenticated user', ()
+   assert.deepEqual(result, { token: 'replacement-token' });
+   assert.deepEqual(tokenUser, { id: 7, username: 'alice' });
+ });
++
++test('changePassword rejects an incorrect current password before touching storage', async () => {
++  const operations: string[] = [];
++  const service = createAuthService(createDependencies({
++    users: {
++      hasUsers: () => true,
++      createUser: () => { throw new Error('unused'); },
++      getUserByUsername: () => undefined,
++      getUserAuthById: () => ({ id: 1, username: 'alice', password_hash: 'hash' }),
++      updateLastLogin: () => undefined,
++      updatePasswordHash: () => operations.push('update'),
++    },
++    comparePassword: async () => false,
++  }));
++
++  await assert.rejects(
++    service.changePassword({ id: 1, username: 'alice' }, 'wrong-password', 'replacement'),
++    (error: unknown) => error instanceof AppError && error.code === 'AUTH_CURRENT_PASSWORD_INVALID',
++  );
++  assert.deepEqual(operations, []);
++});
++
++test('changePassword rotates the hash and the token generation in one transaction', async () => {
++  const operations: string[] = [];
++  const service = createAuthService(createDependencies({
++    transaction: {
++      begin: () => operations.push('begin'),
++      commit: () => operations.push('commit'),
++      rollback: () => operations.push('rollback'),
++    },
++    users: {
++      hasUsers: () => true,
++      createUser: () => { throw new Error('unused'); },
++      getUserByUsername: () => undefined,
++      getUserAuthById: () => ({ id: 1, username: 'alice', password_hash: 'hash' }),
++      updateLastLogin: () => undefined,
++      updatePasswordHash: (userId, passwordHash) => operations.push(`update:${userId}:${passwordHash}`),
++    },
++    appConfig: {
++      set: (key, value) => operations.push(`config:${key}:${value}`),
++    },
++    comparePassword: async () => true,
++    hashPassword: async () => 'next-hash',
++    createTokenGeneration: () => 'generation-2',
++  }));
++
++  const result = await service.changePassword({ id: 1, username: 'alice' }, 'secret12', 'secret34');
++
++  assert.equal(result.success, true);
++  assert.deepEqual(operations, [
++    'begin',
++    'update:1:next-hash',
++    'config:auth_token_generation:generation-2',
++    'commit',
++  ]);
++});
++
++test('changePassword refuses to run in platform mode', async () => {
++  const service = createAuthService(createDependencies({ isPlatform: true }));
++
++  await assert.rejects(
++    service.changePassword({ id: 1, username: 'alice' }, 'secret12', 'secret34'),
++    (error: unknown) => error instanceof AppError && error.code === 'AUTH_PASSWORD_CHANGE_UNAVAILABLE',
++  );
++});
 diff --git a/server/modules/database/repositories/app-config.ts b/server/modules/database/repositories/app-config.ts
-index 691a1b4eb2721c1c983d41b4d5b272df1e170f62..e929b35629d6a3566a1abff00b43b5d9552e6e2b 100644
+index 691a1b4..e929b35 100644
 --- a/server/modules/database/repositories/app-config.ts
 +++ b/server/modules/database/repositories/app-config.ts
 @@ -29,6 +29,15 @@ export const appConfigDb = {
@@ -92,7 +424,7 @@ index 691a1b4eb2721c1c983d41b4d5b272df1e170f62..e929b35629d6a3566a1abff00b43b5d9
    set(key: string, value: string): void {
      const db = getConnection();
 diff --git a/server/modules/database/repositories/users.ts b/server/modules/database/repositories/users.ts
-index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6313c93c9 100644
+index 25bb57b..adfa0a6 100644
 --- a/server/modules/database/repositories/users.ts
 +++ b/server/modules/database/repositories/users.ts
 @@ -66,6 +66,22 @@ export const userDb = {
@@ -118,112 +450,21 @@ index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6
    /** Updates the last_login timestamp. Non-fatal — logs but does not throw. */
    updateLastLogin(userId: number): void {
      try {
-diff --git a/server/routes/auth.js b/server/routes/auth.js
-index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..26c9bb943a8e3d1e31cab8af9af6be325d9486ca 100644
---- a/server/routes/auth.js
-+++ b/server/routes/auth.js
-@@ -1,11 +1,15 @@
-+import crypto from 'crypto';
- import express from 'express';
- import bcrypt from 'bcrypt';
--import { userDb } from '../modules/database/index.js';
-+import { userDb, appConfigDb } from '../modules/database/index.js';
- import { getConnection } from '../modules/database/connection.js';
-+import { IS_PLATFORM } from '../constants/config.js';
- import { generateToken, authenticateToken } from '../middleware/auth.js';
- 
- const router = express.Router();
- const db = getConnection();
-+const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
-+const PASSWORD_MIN_LENGTH = 6;
- 
- // Check auth status and setup requirements
- router.get('/status', async (req, res) => {
-@@ -31,8 +35,10 @@ router.post('/register', async (req, res) => {
-       return res.status(400).json({ error: 'Username and password are required' });
-     }
-     
--    if (username.length < 3 || password.length < 6) {
--      return res.status(400).json({ error: 'Username must be at least 3 characters, password at least 6 characters' });
-+    if (username.length < 3 || password.length < PASSWORD_MIN_LENGTH) {
-+      return res.status(400).json({
-+        error: `Username must be at least 3 characters, password at least ${PASSWORD_MIN_LENGTH} characters`,
-+      });
-     }
-     
-     // Use a transaction to prevent race conditions
-@@ -127,6 +133,56 @@ router.get('/user', authenticateToken, (req, res) => {
-   });
- });
- 
-+// HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE: local account password rotation.
-+// Change the local account password and invalidate older session tokens.
-+router.post('/change-password', authenticateToken, async (req, res) => {
-+  if (IS_PLATFORM) {
-+    return res.status(403).json({ error: 'Password changes are not available in platform mode' });
-+  }
-+
-+  try {
-+    const { currentPassword, newPassword } = req.body;
-+
-+    if (!currentPassword || !newPassword) {
-+      return res.status(400).json({ error: 'Current password and new password are required' });
-+    }
-+
-+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
-+      return res.status(400).json({
-+        error: `New password must be at least ${PASSWORD_MIN_LENGTH} characters`,
-+      });
-+    }
-+
-+    const user = userDb.getUserAuthById(req.user.id);
-+    if (!user) {
-+      return res.status(401).json({ error: 'Invalid token. User not found.' });
-+    }
-+
-+    const isValidPassword = await bcrypt.compare(currentPassword, user.password_hash);
-+    if (!isValidPassword) {
-+      return res.status(401).json({ error: 'Current password is incorrect' });
-+    }
-+
-+    const passwordHash = await bcrypt.hash(newPassword, 12);
-+    const nextTokenGeneration = crypto.randomUUID();
-+
-+    db.prepare('BEGIN').run();
-+    try {
-+      userDb.updatePasswordHash(user.id, passwordHash);
-+      appConfigDb.set(AUTH_TOKEN_GENERATION_KEY, nextTokenGeneration);
-+      db.prepare('COMMIT').run();
-+    } catch (error) {
-+      db.prepare('ROLLBACK').run();
-+      throw error;
-+    }
-+
-+    res.json({ success: true, message: 'Password updated. Please sign in again.' });
-+  } catch (error) {
-+    console.error('Change password error:', error);
-+    res.status(500).json({ error: 'Internal server error' });
-+  }
-+});
-+
- // Logout (client-side token removal, but this endpoint can be used for logging)
- router.post('/logout', authenticateToken, (req, res) => {
-   // In a simple JWT system, logout is mainly client-side
 diff --git a/src/components/auth/context/AuthContext.tsx b/src/components/auth/context/AuthContext.tsx
-index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f310305095 100644
+index 65d3e4a..8961bbc 100644
 --- a/src/components/auth/context/AuthContext.tsx
 +++ b/src/components/auth/context/AuthContext.tsx
-@@ -3,6 +3,7 @@ import { IS_PLATFORM } from '../../../constants/config';
- import { api } from '../../../utils/api';
+@@ -11,6 +11,7 @@ import {
+ } from '../../../utils/api';
  import { AUTH_ERROR_MESSAGES, AUTH_TOKEN_STORAGE_KEY } from '../constants';
  import type {
 +  ApiErrorPayload,
    AuthContextValue,
    AuthProviderProps,
    AuthSessionPayload,
-@@ -191,6 +192,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
-     }
-   }, [clearSession, token]);
+@@ -271,6 +272,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
+     clearSession();
+   }, [clearSession]);
  
 +  const changePassword = useCallback<AuthContextValue['changePassword']>(
 +    async (currentPassword, newPassword) => {
@@ -250,7 +491,7 @@ index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f3
    const contextValue = useMemo<AuthContextValue>(
      () => ({
        user,
-@@ -202,12 +225,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
+@@ -282,12 +305,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
        login,
        register,
        logout,
@@ -266,7 +507,7 @@ index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f3
        logout,
        needsSetup,
 diff --git a/src/components/auth/types.ts b/src/components/auth/types.ts
-index e745a3727fee890991bd2aa70b0ead71533499fb..a9b151563655db4bbf489c9156f52d36436a2649 100644
+index e745a37..a9b1515 100644
 --- a/src/components/auth/types.ts
 +++ b/src/components/auth/types.ts
 @@ -42,6 +42,7 @@ export type AuthContextValue = {
@@ -278,7 +519,7 @@ index e745a3727fee890991bd2aa70b0ead71533499fb..a9b151563655db4bbf489c9156f52d36
  };
  
 diff --git a/src/components/settings/constants/constants.ts b/src/components/settings/constants/constants.ts
-index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057eecf8e1b 100644
+index 8c42908..cb4bbc4 100644
 --- a/src/components/settings/constants/constants.ts
 +++ b/src/components/settings/constants/constants.ts
 @@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
@@ -299,7 +540,7 @@ index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057
    { id: 'git', label: 'Git', keywords: 'git github commits', icon: GitBranch },
 diff --git a/src/components/settings/hooks/normalizeMainTab.ts b/src/components/settings/hooks/normalizeMainTab.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..44ef3d105e0a2ec9d99d3d562e4ae06d6ae1cdc9
+index 0000000..44ef3d1
 --- /dev/null
 +++ b/src/components/settings/hooks/normalizeMainTab.ts
 @@ -0,0 +1,12 @@
@@ -316,18 +557,19 @@ index 0000000000000000000000000000000000000000..44ef3d105e0a2ec9d99d3d562e4ae06d
 +  return KNOWN_MAIN_TABS.includes(tab as SettingsMainTab) ? (tab as SettingsMainTab) : 'agents';
 +};
 diff --git a/src/components/settings/hooks/useSettingsController.ts b/src/components/settings/hooks/useSettingsController.ts
-index cc57d377321fe9fdca0d1754e6780eca23790e04..ac312b918e3ff59b74bcc7029fa797c17f222465 100644
+index cc57d37..9221506 100644
 --- a/src/components/settings/hooks/useSettingsController.ts
 +++ b/src/components/settings/hooks/useSettingsController.ts
-@@ -8,6 +8,7 @@ import {
-   DEFAULT_CODE_EDITOR_SETTINGS,
-   DEFAULT_CURSOR_PERMISSIONS,
- } from '../constants/constants';
+@@ -19,6 +19,8 @@ import type {
+   SettingsMainTab,
+ } from '../types/types';
+ 
 +import { normalizeMainTab } from './normalizeMainTab';
- import type {
-   AgentProvider,
-   ClaudePermissionsState,
-@@ -53,17 +54,6 @@ type NotificationPreferencesResponse = {
++
+ type ThemeContextValue = {
+   isDarkMode: boolean;
+   toggleDarkMode: () => void;
+@@ -53,17 +55,6 @@ type NotificationPreferencesResponse = {
  
  type ActiveLoginProvider = AgentProvider | '';
  
@@ -346,7 +588,7 @@ index cc57d377321fe9fdca0d1754e6780eca23790e04..ac312b918e3ff59b74bcc7029fa797c1
    if (!value) {
      return fallback;
 diff --git a/src/components/settings/types/types.ts b/src/components/settings/types/types.ts
-index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5ce8243158 100644
+index 514de2f..2318ce6 100644
 --- a/src/components/settings/types/types.ts
 +++ b/src/components/settings/types/types.ts
 @@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
@@ -359,7 +601,7 @@ index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5c
  export type AgentCategory = 'account' | 'permissions' | 'mcp' | 'skills';
  export type ProjectSortOrder = 'name' | 'date';
 diff --git a/src/components/settings/view/Settings.tsx b/src/components/settings/view/Settings.tsx
-index 37f40bc96d5ad1de989e558082ec37cd90038392..d49b47ed9ef96b6559c5b59e94f69306ab42577a 100644
+index 37f40bc..d49b47e 100644
 --- a/src/components/settings/view/Settings.tsx
 +++ b/src/components/settings/view/Settings.tsx
 @@ -6,6 +6,7 @@ import ProviderLoginModal from '../../provider-auth/view/ProviderLoginModal';
@@ -380,7 +622,7 @@ index 37f40bc96d5ad1de989e558082ec37cd90038392..d49b47ed9ef96b6559c5b59e94f69306
                  <AppearanceSettingsTab
                    projectSortOrder={projectSortOrder}
 diff --git a/src/components/settings/view/SettingsMainTabs.tsx b/src/components/settings/view/SettingsMainTabs.tsx
-index 5c15f6de91b2d12acebbe163e18c35df4ae3dad0..269a5d8d89eebd42a0cdbc4137256b6ad3853281 100644
+index 5c15f6d..269a5d8 100644
 --- a/src/components/settings/view/SettingsMainTabs.tsx
 +++ b/src/components/settings/view/SettingsMainTabs.tsx
 @@ -1,4 +1,4 @@
@@ -398,7 +640,7 @@ index 5c15f6de91b2d12acebbe163e18c35df4ae3dad0..269a5d8d89eebd42a0cdbc4137256b6a
    { id: 'appearance', labelKey: 'mainTabs.appearance' },
    { id: 'git', labelKey: 'mainTabs.git', icon: GitBranch },
 diff --git a/src/components/settings/view/SettingsSidebar.tsx b/src/components/settings/view/SettingsSidebar.tsx
-index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65a67a2397 100644
+index 3b76976..edf35c2 100644
 --- a/src/components/settings/view/SettingsSidebar.tsx
 +++ b/src/components/settings/view/SettingsSidebar.tsx
 @@ -1,4 +1,4 @@
@@ -442,19 +684,20 @@ index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65
            })}
 diff --git a/src/components/settings/view/tabs/AccountSettingsTab.tsx b/src/components/settings/view/tabs/AccountSettingsTab.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..f75c8284222e172f91834f434f847ddc732a2e0b
+index 0000000..188b760
 --- /dev/null
 +++ b/src/components/settings/view/tabs/AccountSettingsTab.tsx
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,156 @@
++import { Loader2, LogOut } from 'lucide-react';
 +import { useCallback, useState } from 'react';
 +import type { FormEvent } from 'react';
-+import { Loader2, LogOut } from 'lucide-react';
 +
-+import { IS_PLATFORM } from '../../../../constants/config';
-+import { useAuth } from '../../../auth/context/AuthContext';
++import { IS_PLATFORM } from '../../../../shared/utils';
 +import { Button, Input } from '../../../../shared/view/ui';
++import { useAuth } from '../../../auth/context/AuthContext';
 +import SettingsCard from '../SettingsCard';
 +import SettingsSection from '../SettingsSection';
++
 +import { validatePasswordForm } from './accountSettings';
 +import type { PasswordFormState } from './accountSettings';
 +
@@ -603,7 +846,7 @@ index 0000000000000000000000000000000000000000..f75c8284222e172f91834f434f847ddc
 +}
 diff --git a/src/components/settings/view/tabs/accountSettings.ts b/src/components/settings/view/tabs/accountSettings.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..6344e9631e7daf284b505d8574e3c6ab1fe1780a
+index 0000000..6344e96
 --- /dev/null
 +++ b/src/components/settings/view/tabs/accountSettings.ts
 @@ -0,0 +1,23 @@
@@ -631,11 +874,11 @@ index 0000000000000000000000000000000000000000..6344e9631e7daf284b505d8574e3c6ab
 +  return null;
 +}
 diff --git a/src/utils/api.js b/src/utils/api.js
-index e5eb3fbcd4bd8545af1aca11bcc15375a6153422..7532dce7f302870081a8e7d964a36934d3949e5a 100644
+index 3bffd89..9767dca 100644
 --- a/src/utils/api.js
 +++ b/src/utils/api.js
-@@ -58,6 +58,10 @@ export const api = {
-     }),
+@@ -142,6 +142,10 @@ export const api = {
+     refresh: () => authenticatedFetch('/api/auth/refresh', { method: 'POST' }),
      user: () => authenticatedFetch('/api/auth/user'),
      logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
 +    changePassword: (currentPassword, newPassword) => authenticatedFetch('/api/auth/change-password', {

@@ -9,10 +9,10 @@ const UPSTREAM_ERROR_EXIT_CODE = 'exitCode: 1';
 const providerCompleteWithFieldsPattern = /raw\.type === ['"]turn_complete['"][\s\S]*?kind:\s*['"]complete['"],\s*\r?\n\s*exitCode:\s*0,\s*\r?\n\s*success:\s*true,\s*\r?\n\s*aborted:\s*false,/m;
 const providerCompleteWithoutFieldsPattern = /(\s*if\s*\(raw\.type === ['"]turn_complete['"]\)\s*\{\s*\r?\n\s*return\s*\[createNormalizedMessage\(\{\s*\r?\n\s*id:\s*baseId,\s*\r?\n\s*sessionId,\s*\r?\n\s*timestamp:\s*ts,\s*\r?\n\s*provider:\s*PROVIDER,\s*\r?\n\s*kind:\s*['"]complete['"],\s*\r?\n)(\s*\}\)\];)/m;
 
-function verifyOpenAiCodexTargets(root) {
+function verifyCodexRuntimeTargets(root) {
   const targets = [
-    { label: 'source openai-codex', path: `${root}/server/openai-codex.js` },
-    { label: 'runtime openai-codex', path: `${root}/dist-server/server/openai-codex.js` }
+    { label: 'source codex runtime', path: `${root}/server/modules/providers/list/codex/codex-runtime.provider.js` },
+    { label: 'runtime codex runtime', path: `${root}/dist-server/server/modules/providers/list/codex/codex-runtime.provider.js` }
   ];
 
   for (const target of targets) {
@@ -35,7 +35,7 @@ function resolveTargets() {
   }
 
   const root = cliTarget || DEFAULT_CLOUDCLI_ROOT;
-  verifyOpenAiCodexTargets(root);
+  verifyCodexRuntimeTargets(root);
   const targets = [
     { label: 'source provider', path: `${root}/server/modules/providers/list/codex/codex-sessions.provider.ts` },
     { label: 'runtime provider', path: `${root}/dist-server/server/modules/providers/list/codex/codex-sessions.provider.js` }

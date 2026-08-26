@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.5.7",
-    "dockerVersion": "1.5.7"
+    "tag": "v1.5.8",
+    "dockerVersion": "1.5.8"
   },
   "registries": {
     "dockerHub": {
@@ -26,7 +26,7 @@
   "cloudcli": {
     "name": "CloudCLI",
     "command": "cloudcli",
-    "version": "1.36.3",
+    "version": "1.37.2",
     "variants": [
       "full",
       "slim"
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.220",
+      "version": "2.1.231",
       "variants": [
         "full",
         "slim"
@@ -67,7 +67,7 @@
       "id": "cursor-agent",
       "name": "Cursor Agent",
       "command": "cursor",
-      "version": "2026.07.23-e383d2b",
+      "version": "2026.08.11-e8db854",
       "variants": [
         "full",
         "slim"
@@ -156,7 +156,7 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "151.0.7922.108",
+      "version": "151.0.7922.173",
       "executable": "/usr/bin/chromium"
     },
     "playwright": {

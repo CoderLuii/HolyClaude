@@ -74,7 +74,7 @@ RUN test -x /usr/local/bin/build-cryptography-security-backport.sh && \
 
 FROM node:26.7.0-bookworm-slim@sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341
 
-ARG HOLYCLAUDE_VERSION=1.5.7
+ARG HOLYCLAUDE_VERSION=1.5.8
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -86,23 +86,23 @@ ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd7121
 ARG FZF_VERSION=0.74.1
 ARG FZF_ARCHIVE_SHA256_AMD64=df53438be5f51e151bb4044d78fda72bdfe209e3ecd2baecae48e8dea370c81b
 ARG FZF_ARCHIVE_SHA256_ARM64=f22204dd1a091d43e102268d062fd53b47133c8d8581671ee5eb225b75e31183
-ARG CHROMIUM_DEBIAN_VERSION=151.0.7922.108-1~deb12u1
-ARG CHROMIUM_PACKAGE_SHA256_AMD64=739f6bccad739686bdfef6554e5e47860e0db7c2feba12a872f112fc1be28bfc
-ARG CHROMIUM_PACKAGE_SHA256_ARM64=e53e8dd2bc749924e077a74ac81e6417bdcbbd5c4e09a5deb458104ddb34d37b
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=fdd4bf2650ce78eec74f3926c01cbcb4b8312d24691ebf5fadfd8408e8f5675b
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=b9e304cd2612c33bdc04c7edb33c5574b5cb06a35d2159714d42fe04b3c843c8
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=09a74c710900e19fda7c510486dfa1b7fd52d16c095e40585aeacd3e8a0de0f1
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=f9dd0a0f27b0a6e7da50459c212f011c09f89d5d5bab461d4aa5adb3328bcc0b
-ARG CLAUDE_CODE_VERSION=2.1.220
-ARG CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
-ARG CLAUDE_BINARY_SHA256_AMD64=674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863
-ARG CLAUDE_BINARY_SHA256_ARM64=159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185
+ARG CHROMIUM_DEBIAN_VERSION=151.0.7922.173-1~deb12u1
+ARG CHROMIUM_PACKAGE_SHA256_AMD64=3c8f1f513675d8785925e67a6858407fd5461e4b1903463d127ea6e651a649de
+ARG CHROMIUM_PACKAGE_SHA256_ARM64=8a7f778630287297b1217414d4cd53b9638046ce48f13c2e2994fb5afee012a2
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=560f6d013d1c733d4a84e27209d80235968f3672745c27f6ecd2947ac6c12bd8
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=f0deb575d2486b1d72e4a28c4ea2c3dc0e5abed21c23aa236fdb96a1fa007b3b
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=21d610b5b25e74796350e6d7420acf51917641b7a8f1603a16f9b212b84c3af2
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=5266f3e47219fbed422bd885e05e7c5fc1252203b5112db64d15a986e9293790
+ARG CLAUDE_CODE_VERSION=2.1.231
+ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
+ARG CLAUDE_BINARY_SHA256_AMD64=47a01daebf794f6c86c13d1875ad6e5be0627029ad8600731161f24018ecde5b
+ARG CLAUDE_BINARY_SHA256_ARM64=4ee7c484b11dece6521aa2173a19ea913428c1c78599186d62559d2d2aef4e32
 ARG JUNIE_VERSION=2470.4
 ARG JUNIE_ARCHIVE_SHA256_AMD64=661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c
 ARG JUNIE_ARCHIVE_SHA256_ARM64=976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630
-ARG CURSOR_BUILD_ID=2026.07.23-e383d2b
-ARG CURSOR_ARCHIVE_SHA256_AMD64=702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4
-ARG CURSOR_ARCHIVE_SHA256_ARM64=f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb
+ARG CURSOR_BUILD_ID=2026.08.11-e8db854
+ARG CURSOR_ARCHIVE_SHA256_AMD64=bfff4bf6f4e9dd30c1d0ef0a70b6077b074015dd2948e4c50685d53afdcfce5a
+ARG CURSOR_ARCHIVE_SHA256_ARM64=ea13f92e295f523a99ce8d8f57d6894d21e5d1e2d030ffad718ccd5955ca2eed
 ARG CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -126,12 +126,12 @@ ARG PATH_TO_REGEXP_8_VERSION=8.4.2
 ARG PATH_TO_REGEXP_8_ARCHIVE_SHA256=e8712a9c53b0a2a27cfecc7b80c54df92afb4643c01351e2b2ebb7784bcabd78
 ARG WS_VERSION=8.21.1
 ARG WS_ARCHIVE_SHA256=bb0f7e58ba1f64746672734d36175fe185f226491e336abc0743e2a8f4472ec1
-ARG CLOUDCLI_NANOID_VERSION=3.3.17
-ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6
-ARG NESTED_IP_ADDRESS_VERSION=10.3.1
-ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=ad1790063beea11a312c801df30d58e147de762f4f77787552376eb7424623e5
-ARG CLOUDCLI_FAST_URI_VERSION=3.1.5
-ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=82a71e7e3716dc8c392cac0762bce80614cf539ef22000415e26eaf5c453ce2f
+ARG CLOUDCLI_NANOID_VERSION=3.3.18
+ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009
+ARG NESTED_IP_ADDRESS_VERSION=10.5.0
+ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=35e23227dfeca9179f03f899a9e3a21faf542a8079821bce95d5620642d75873
+ARG CLOUDCLI_FAST_URI_VERSION=3.1.6
+ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=264af0e32c4b7b7bcb9ce5b4623c82469ee3e69ba5d171920f1762d626db1064
 ARG CLOUDCLI_JS_YAML_VERSION=3.15.1
 ARG CLOUDCLI_JS_YAML_ARCHIVE_SHA256=df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e
 ARG UNDICI_7_VERSION=7.29.0
@@ -609,9 +609,9 @@ RUN set -eux; \
     fi; \
     rm -f /tmp/patch-global-node-security-dependencies.mjs /tmp/patch-netlify-image-size.mjs
 
-ARG CLOUDCLI_VERSION=1.36.3
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7
+ARG CLOUDCLI_VERSION=1.37.2
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=02e3a6d5522c22fee90f1c773a7ab94f45e7a804840eeb8ad1d9d95fea04dc39
 COPY vendor/artifacts/${CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT} /tmp/vendor/cloudcli-ai-cloudcli.tgz
 COPY vendor/artifacts/cloudcli-account-management.manifest.json /tmp/vendor/cloudcli-account-management.manifest.json
 COPY --chown=claude:claude vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json /tmp/vendor/web-terminal-package-lock.json
@@ -625,8 +625,8 @@ RUN echo "$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  /tmp/vendor/cloudcli-ai-
     cd "$CLOUDCLI_ROOT" && \
     npm ci --omit=dev && \
     node --input-type=module -e "import { createRequire } from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json'); const Database = require('better-sqlite3'); const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (id INTEGER)'); db.close();" && \
-    chmod 0755 "$CLOUDCLI_ROOT/dist-server/server/cli.js" && \
-    ln -s "$CLOUDCLI_ROOT/dist-server/server/cli.js" /usr/local/bin/cloudcli && \
+    chmod 0755 "$CLOUDCLI_ROOT/dist-server/server/modules/cli/cli.js" && \
+    ln -s "$CLOUDCLI_ROOT/dist-server/server/modules/cli/cli.js" /usr/local/bin/cloudcli && \
     test -x /usr/local/bin/cloudcli && \
     rm -rf /tmp/vendor/cloudcli-ai-cloudcli.tgz /tmp/cloudcli-unpack
 RUN set -eux; \
@@ -642,12 +642,12 @@ RUN set -eux; \
       done; \
       rm -f "$archive"; \
     }; \
-    replace_nested_node_module nanoid 3.3.17 fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6 \
+    replace_nested_node_module nanoid 3.3.18 b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009 \
       /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/nanoid; \
-    replace_nested_node_module ip-address 10.3.1 ad1790063beea11a312c801df30d58e147de762f4f77787552376eb7424623e5 \
+    replace_nested_node_module ip-address 10.5.0 35e23227dfeca9179f03f899a9e3a21faf542a8079821bce95d5620642d75873 \
       /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address \
       /usr/local/lib/node_modules/npm/node_modules/ip-address; \
-    replace_nested_node_module fast-uri 3.1.5 82a71e7e3716dc8c392cac0762bce80614cf539ef22000415e26eaf5c453ce2f \
+    replace_nested_node_module fast-uri 3.1.6 264af0e32c4b7b7bcb9ce5b4623c82469ee3e69ba5d171920f1762d626db1064 \
       /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/fast-uri; \
     replace_nested_node_module js-yaml 3.15.1 df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e \
       /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/js-yaml
@@ -674,17 +674,17 @@ RUN CLOUDCLI_BROWSER_USE="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist
 # patch: disable CloudCLI npm self-update inside HolyClaude (issue #50)
 RUN node /tmp/patch-cloudcli-disable-self-update.mjs && rm -f /tmp/patch-cloudcli-disable-self-update.mjs
 
-# CloudCLI 1.36.3 already contains the WebSocket binary-frame fix, provider
+# CloudCLI 1.37.2 already contains the WebSocket binary-frame fix, provider
 # model flow, and final Codex complete exit codes. Keep checks fail-closed.
 RUN CLOUDCLI_WS_PROXY="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/websocket/services/plugin-websocket-proxy.service.js" && \
     grep -q "binary: isBinary" "$CLOUDCLI_WS_PROXY" && \
     echo "[patch] WebSocket frame type fix already present upstream"
 
-RUN CLOUDCLI_COMMANDS="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/routes/commands.js" && \
+RUN CLOUDCLI_COMMANDS="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/providers/provider.routes.js" && \
     grep -q "providerModelsService.getProviderModels" "$CLOUDCLI_COMMANDS" && \
     echo "[patch] Provider model command flow already present upstream"
 
-RUN CLOUDCLI_CODEX="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/openai-codex.js" && \
+RUN CLOUDCLI_CODEX="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/providers/list/codex/codex-runtime.provider.js" && \
     grep -q "exitCode: terminalFailure ? 1 : 0" "$CLOUDCLI_CODEX" && \
     grep -q "exitCode: 1" "$CLOUDCLI_CODEX" && \
     echo "[patch] Codex final completion exitCode fix already present upstream"

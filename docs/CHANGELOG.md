@@ -4,6 +4,19 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.8] - 08/26/2026
+
+### Changed
+- Updated Claude Code to the latest stable release, 2.1.231, and Cursor Agent to build `2026.08.11-e8db854`, retaining checksum verification for both Linux architectures.
+- Updated the vendored CloudCLI baseline from 1.36.3 to 1.37.2, which adds the gpt-5.6 model family (`gpt-5.6`, `-sol`, `-luna`, `-terra`) to the provider model picker.
+- Rebased the account-management bridge onto CloudCLI's modular server refactor. Password rotation and session-token revocation now live in the `auth` module: `auth.service.ts` owns `changePassword`, `auth.routes.ts` exposes `/api/auth/change-password`, and `auth.module.ts` injects the repository, app-config, and token-generation dependencies.
+- Retargeted the Docker-build CloudCLI patches at the modular layout. `openai-codex.js` became `codex-runtime.provider.js`, `server/cli.js` became the `cli` module, and the `/api/system/update` route moved into the `system` module.
+- Extended Multer field-nesting hardening to CloudCLI 1.37.x's fourth multipart parser, the chat attachment upload.
+- Raised CloudCLI's nested nanoid to 3.3.18, ip-address to 10.5.0, and fast-uri to 3.1.6 so the Docker overlays no longer downgrade the verified artifact.
+- Updated CloudCLI's reviewed production dependency tree with compatible security fixes for `@remix-run/router`, `brace-expansion`, `glob`, `ip-address`, and React Router, keeping the artifact's production audit at 0 Critical and 0 High.
+- Moved the CloudCLI entrypoint symlink to `dist-server/server/modules/cli/cli.js`, which is where 1.37.x publishes its `bin` target.
+- Updated the pinned Debian Chromium trio from 151.0.7922.108-1~deb12u1 to 151.0.7922.173-1~deb12u1. Bookworm security superseded the previous upload and removed it from the archive, so the pinned build could no longer resolve; the replacement is a later security release on the same branch.
+
 ## [1.5.7] - 08/12/2026
 
 ### Changed

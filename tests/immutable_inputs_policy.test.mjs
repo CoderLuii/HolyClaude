@@ -7,8 +7,8 @@ import test from 'node:test';
 
 const validator = resolve('scripts/verify-immutable-inputs.mjs');
 const committedEvidence = readFileSync(resolve('security/immutable-inputs.yml'), 'utf8');
-const asOf = '2026-08-12';
-const reviewedAt = '2026-08-12';
+const asOf = '2026-08-26';
+const reviewedAt = '2026-08-26';
 
 function runFixture(mutate = (value) => value) {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-immutable-inputs-'));
@@ -20,7 +20,7 @@ function runFixture(mutate = (value) => value) {
     );
     return spawnSync(
       process.execPath,
-      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.5.7'],
+      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.5.8'],
       { encoding: 'utf8' },
     );
   } finally {
@@ -37,16 +37,16 @@ test('rejects immutable input evidence expired before the deterministic as-of da
   const result = runFixture((value) =>
     value
       .replace(`reviewed-at: ${reviewedAt}`, 'reviewed-at: 2026-06-20')
-      .replace('expires-at: 2026-09-09', 'expires-at: 2026-07-20'),
+      .replace('expires-at: 2026-09-23', 'expires-at: 2026-07-20'),
   );
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /expired on 2026-07-20/);
 });
 
 test('rejects immutable input evidence for another release', () => {
-  const result = runFixture((value) => value.replace('release: v1.5.7', 'release: v1.5.1'));
+  const result = runFixture((value) => value.replace('release: v1.5.8', 'release: v1.5.1'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected release v1\.5\.7/);
+  assert.match(result.stderr, /expected release v1\.5\.8/);
 });
 
 test('rejects an invalid review date', () => {
@@ -56,9 +56,9 @@ test('rejects an invalid review date', () => {
 });
 
 test('rejects immutable input evidence reviewed after the deterministic as-of date', () => {
-  const result = runFixture((value) => value.replace(`reviewed-at: ${reviewedAt}`, 'reviewed-at: 2026-08-13'));
+  const result = runFixture((value) => value.replace(`reviewed-at: ${reviewedAt}`, 'reviewed-at: 2026-08-27'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /reviewed-at 2026-08-13 is after as-of 2026-08-12/);
+  assert.match(result.stderr, /reviewed-at 2026-08-27 is after as-of 2026-08-26/);
 });
 
 for (const category of [
@@ -107,7 +107,7 @@ test('rejects a committed-hash release asset without payload hashes', () => {
 test('rejects a missing vendored artifact', () => {
   const result = runFixture((value) =>
     value.replace(
-      'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz',
+      'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz',
       'vendor/artifacts/missing-cloudcli.tgz',
     ),
   );
@@ -172,7 +172,7 @@ test('verifies a referenced manifest hash when one is supplied', () => {
 });
 
 test('rejects duplicate top-level keys instead of silently overriding them', () => {
-  const result = runFixture((value) => `release: v1.5.7\n${value}`);
+  const result = runFixture((value) => `release: v1.5.8\n${value}`);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /duplicate top-level key release/);
 });

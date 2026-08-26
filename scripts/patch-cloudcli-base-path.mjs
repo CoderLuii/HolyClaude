@@ -297,8 +297,8 @@ function patchServerIndex(filePath) {
   );
   source = replaceRequired(
     source,
-    `// Make WebSocket server available to routes\napp.locals.wss = wss;\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token'] }));`,
-    `// Make WebSocket server available to routes\napp.locals.wss = wss;\napp.use((req, res, next) => {\n    const strippedUrl = stripHolyClaudeBasePathFromUrl(req.url);\n    if (strippedUrl !== req.url) {\n        req.url = strippedUrl;\n    }\n    next();\n});\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token'] }));`
+    `// Make WebSocket server available to routes\napp.locals.wss = wss;\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));`,
+    `// Make WebSocket server available to routes\napp.locals.wss = wss;\napp.use((req, res, next) => {\n    const strippedUrl = stripHolyClaudeBasePathFromUrl(req.url);\n    if (strippedUrl !== req.url) {\n        req.url = strippedUrl;\n    }\n    next();\n});\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));`
   );
   source = replaceRequired(
     source,

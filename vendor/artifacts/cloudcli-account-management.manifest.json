@@ -3,9 +3,9 @@
   "state": "holyclaude-bridge-complete",
   "upstream": {
     "repository": "https://github.com/siteboon/claudecodeui.git",
-    "commit": "27eaf0146a46aa8a55178f3d394360ff7465420f",
+    "commit": "677b7ba43695d5624d1a981c62f87fa086187991",
     "package": "@cloudcli-ai/cloudcli",
-    "version": "1.36.3",
+    "version": "1.37.2",
     "license": "AGPL-3.0-or-later"
   },
   "build": {
@@ -37,59 +37,71 @@
     ],
     "generatedAt": "2026-07-21T00:00:00Z",
     "sourceDateNote": "Timestamp is fixed in this manifest so reproducibility checks compare stable fields.",
-    "sourceTreeSha256": "602bd1b037f8b1d2466eae37f2cf077eb996d49442da06629959661dfc78044d"
+    "sourceTreeSha256": "a161128f650fcb1b82af4f8b8f2b8aec05fb4e4cb7a7f61031ff9fdea0a24885"
   },
   "artifact": {
-    "file": "cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz",
-    "sha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7",
-    "size": 4490158,
-    "packageFileListSha256": "6e7446ba29f55b53620e762e7520e52307c864776ee337c07761a517e0c98e3a",
-    "shrinkwrapSha256": "2abc7f037745f710cfa168a1b2823fbe0268b98a9a9fbb0d1dd3099cd9645dd2",
-    "productionDependencyTreeSha256": "769d21f2188581a527f5eb2f3456233c163a72e0d1ae53a96542a651d6724819",
-    "duplicatePackSha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7"
+    "file": "cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz",
+    "sha256": "02e3a6d5522c22fee90f1c773a7ab94f45e7a804840eeb8ad1d9d95fea04dc39",
+    "size": 5601442,
+    "packageFileListSha256": "4980e84beb10d5aaf3288ed5ef2d4b403746147deb38b3380b7b332fa3820f36",
+    "shrinkwrapSha256": "e07735aa2fd46a7ce2f9f8f8b059d59a6232ac8b7a83a8ed5e9a0338c6c3fb83",
+    "productionDependencyTreeSha256": "79171e9a1e2990b2114e9e4dbe42d9102b9c8bf2959f32787ac4eeda3f3336cf",
+    "duplicatePackSha256": "02e3a6d5522c22fee90f1c773a7ab94f45e7a804840eeb8ad1d9d95fea04dc39"
   },
   "patches": [
     {
       "file": "0001-local-account-management.patch",
-      "sha256": "177c6ccbefa70779a7096c352e51e5342084f7d0f7d925a54d15c9a9b2ad2cc2"
+      "sha256": "609b1915bbb3ee372ac093e8497f5f7f2e836c3d988c48169b1a261c8b54973e"
     },
     {
       "file": "0002-security-dependency-refresh.patch",
-      "sha256": "d6d9fe20049190f925e01114b3665ea0e32f023dee7b728803ce846609d275c8"
+      "sha256": "a97b5116fcc02bda7cd4c3e0c78c1e8719672c59e48086e90eb7e7b87c6d1e6a"
     }
   ],
   "verification": {
     "detector": "scripts/verify-cloudcli-account-management-support.mjs",
     "expectedState": "holyclaude-bridge-complete",
     "reviewedLockDependencies": {
+      "node_modules/@remix-run/router": "1.23.4",
       "node_modules/better-sqlite3": "12.11.1",
-      "node_modules/dompurify": "3.4.12",
+      "node_modules/brace-expansion": "2.1.4",
+      "node_modules/dompurify": "3.4.14",
       "node_modules/express": "4.22.2",
-      "node_modules/fast-uri": "3.1.4",
-      "node_modules/hono": "4.12.32",
+      "node_modules/fast-uri": "3.1.6",
+      "node_modules/glob": "10.5.0",
+      "node_modules/hono": "4.13.5",
+      "node_modules/ip-address": "10.5.0",
       "node_modules/jws": "3.2.3",
       "node_modules/minimatch": "9.0.9",
       "node_modules/multer": "2.2.0",
       "node_modules/path-to-regexp": "0.1.13",
       "node_modules/picomatch": "2.3.2",
-      "node_modules/postcss": "8.5.25",
+      "node_modules/postcss": "8.5.26",
+      "node_modules/react-router": "6.30.6",
+      "node_modules/react-router-dom": "6.30.6",
       "node_modules/tar-fs": "2.1.5",
-      "node_modules/ws": "8.21.1",
+      "node_modules/ws": "8.21.3",
       "node_modules/yaml": "2.9.0"
     },
     "requiredRuntimeDependencies": {
+      "node_modules/@remix-run/router": "1.23.4",
       "node_modules/better-sqlite3": "12.11.1",
-      "node_modules/dompurify": "3.4.12",
+      "node_modules/brace-expansion": "2.1.4",
+      "node_modules/dompurify": "3.4.14",
       "node_modules/express": "4.22.2",
-      "node_modules/fast-uri": "3.1.4",
-      "node_modules/hono": "4.12.32",
+      "node_modules/fast-uri": "3.1.6",
+      "node_modules/glob": "10.5.0",
+      "node_modules/hono": "4.13.5",
+      "node_modules/ip-address": "10.5.0",
       "node_modules/jws": "3.2.3",
       "node_modules/multer": "2.2.0",
       "node_modules/path-to-regexp": "0.1.13",
       "node_modules/picomatch": "2.3.2",
-      "node_modules/postcss": "8.5.25",
+      "node_modules/postcss": "8.5.26",
+      "node_modules/react-router": "6.30.6",
+      "node_modules/react-router-dom": "6.30.6",
       "node_modules/tar-fs": "2.1.5",
-      "node_modules/ws": "8.21.1",
+      "node_modules/ws": "8.21.3",
       "node_modules/yaml": "2.9.0"
     },
     "forbiddenRuntimeDependencies": [
@@ -97,11 +109,11 @@
     ],
     "productionAudit": {
       "info": 0,
-      "low": 0,
-      "moderate": 12,
+      "low": 1,
+      "moderate": 14,
       "high": 0,
       "critical": 0,
-      "total": 12
+      "total": 15
     },
     "existingHolyClaudeRuntimePatchesRunAfterInstall": true
   },
@@ -118,21 +130,21 @@
     "builds": [
       {
         "name": "build-a",
-        "artifactSha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7",
+        "artifactSha256": "02e3a6d5522c22fee90f1c773a7ab94f45e7a804840eeb8ad1d9d95fea04dc39",
         "buildEnvironmentSha256": "05a4102ccde9653d506887ce3b0ffd841cdbc9a221eb44d0d8e0e076475d8297",
-        "sourceTreeSha256": "602bd1b037f8b1d2466eae37f2cf077eb996d49442da06629959661dfc78044d",
-        "packageFileListSha256": "6e7446ba29f55b53620e762e7520e52307c864776ee337c07761a517e0c98e3a",
-        "shrinkwrapSha256": "2abc7f037745f710cfa168a1b2823fbe0268b98a9a9fbb0d1dd3099cd9645dd2",
-        "productionDependencyTreeSha256": "769d21f2188581a527f5eb2f3456233c163a72e0d1ae53a96542a651d6724819"
+        "sourceTreeSha256": "a161128f650fcb1b82af4f8b8f2b8aec05fb4e4cb7a7f61031ff9fdea0a24885",
+        "packageFileListSha256": "4980e84beb10d5aaf3288ed5ef2d4b403746147deb38b3380b7b332fa3820f36",
+        "shrinkwrapSha256": "e07735aa2fd46a7ce2f9f8f8b059d59a6232ac8b7a83a8ed5e9a0338c6c3fb83",
+        "productionDependencyTreeSha256": "79171e9a1e2990b2114e9e4dbe42d9102b9c8bf2959f32787ac4eeda3f3336cf"
       },
       {
         "name": "build-b",
-        "artifactSha256": "a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7",
+        "artifactSha256": "02e3a6d5522c22fee90f1c773a7ab94f45e7a804840eeb8ad1d9d95fea04dc39",
         "buildEnvironmentSha256": "05a4102ccde9653d506887ce3b0ffd841cdbc9a221eb44d0d8e0e076475d8297",
-        "sourceTreeSha256": "602bd1b037f8b1d2466eae37f2cf077eb996d49442da06629959661dfc78044d",
-        "packageFileListSha256": "6e7446ba29f55b53620e762e7520e52307c864776ee337c07761a517e0c98e3a",
-        "shrinkwrapSha256": "2abc7f037745f710cfa168a1b2823fbe0268b98a9a9fbb0d1dd3099cd9645dd2",
-        "productionDependencyTreeSha256": "769d21f2188581a527f5eb2f3456233c163a72e0d1ae53a96542a651d6724819"
+        "sourceTreeSha256": "a161128f650fcb1b82af4f8b8f2b8aec05fb4e4cb7a7f61031ff9fdea0a24885",
+        "packageFileListSha256": "4980e84beb10d5aaf3288ed5ef2d4b403746147deb38b3380b7b332fa3820f36",
+        "shrinkwrapSha256": "e07735aa2fd46a7ce2f9f8f8b059d59a6232ac8b7a83a8ed5e9a0338c6c3fb83",
+        "productionDependencyTreeSha256": "79171e9a1e2990b2114e9e4dbe42d9102b9c8bf2959f32787ac4eeda3f3336cf"
       }
     ]
   }

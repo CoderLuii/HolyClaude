@@ -11,7 +11,7 @@ const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-base-path.mjs');
 const disableSelfUpdateScript = path.join(repoRoot, 'scripts/patch-cloudcli-disable-self-update.mjs');
-const cloudCliArtifact = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
+const cloudCliArtifact = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz');
 
 async function createPackageFixture() {
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-base-path-'));
@@ -86,12 +86,15 @@ test('CloudCLI base path patch applies after the Docker self-update patch order'
   await runPatch(packageRoot);
 
   const runtimeServer = await readPackageSource(packageRoot, 'dist-server/server/index.js');
-  const sourceServer = await readPackageSource(packageRoot, 'server/index.js');
+  // CloudCLI 1.37.x serves the update route from the system module, so the two patches
+  // no longer share a file; both still have to survive the documented Docker order.
+  const runtimeSystemRoutes = await readPackageSource(packageRoot, 'dist-server/server/modules/system/system.routes.js');
+  const sourceSystemRoutes = await readPackageSource(packageRoot, 'server/modules/system/system.routes.ts');
 
-  assert.ok(runtimeServer.includes('HOLYCLAUDE_UPDATE_DISABLED_RESPONSE'));
+  assert.ok(runtimeSystemRoutes.includes('HOLYCLAUDE_UPDATE_DISABLED_RESPONSE'));
   assert.ok(runtimeServer.includes('HolyClaude base path support (issue #64)'));
   assert.ok(runtimeServer.includes('sendHolyClaudeIndexHtml(req, res, indexPath)'));
-  assert.ok(sourceServer.includes('HOLYCLAUDE_UPDATE_DISABLED_RESPONSE'));
+  assert.ok(sourceSystemRoutes.includes('HOLYCLAUDE_UPDATE_DISABLED_RESPONSE'));
 });
 
 test('CloudCLI base path normalizer accepts only safe absolute path prefixes', async () => {

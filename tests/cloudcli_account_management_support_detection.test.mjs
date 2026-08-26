@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const detectorScript = path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs');
-const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
+const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz');
 
 async function runDetector(targetPath) {
   const { stdout } = await execFileAsync(process.execPath, [detectorScript, targetPath], { cwd: repoRoot });
@@ -55,7 +55,13 @@ test('CloudCLI account-management detector accepts generated HolyClaude bridge a
 
 test('CloudCLI account-management detector accepts upstream support without HolyClaude bridge markers', async () => {
   const cloudcliRoot = await unpackArtifact(bridgeTarball);
-  for (const target of ['server/routes/auth.js', 'dist-server/server/routes/auth.js']) {
+  const bridgeTargets = [
+    'server/modules/auth/auth.routes.ts',
+    'server/modules/auth/auth.service.ts',
+    'dist-server/server/modules/auth/auth.routes.js',
+    'dist-server/server/modules/auth/auth.service.js',
+  ];
+  for (const target of bridgeTargets) {
     const filePath = path.join(cloudcliRoot, target);
     const source = await readFile(filePath, 'utf8');
     await writeFile(filePath, source.replaceAll('HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE', 'UPSTREAM_ACCOUNT_MANAGEMENT'));
@@ -68,11 +74,11 @@ test('CloudCLI account-management detector accepts upstream support without Holy
 
 test('CloudCLI account-management detector fails closed for an unsupported known baseline', async () => {
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-cloudcli-unsupported-'));
-  await mkdir(path.join(fixtureRoot, 'server/routes'), { recursive: true });
-  await mkdir(path.join(fixtureRoot, 'dist-server/server/routes'), { recursive: true });
-  await writeFile(path.join(fixtureRoot, 'package.json'), JSON.stringify({ name: '@cloudcli-ai/cloudcli', version: '1.36.3' }));
-  await writeFile(path.join(fixtureRoot, 'server/routes/auth.js'), "router.post('/logout', authenticateToken, () => {});");
-  await writeFile(path.join(fixtureRoot, 'dist-server/server/routes/auth.js'), "router.post('/logout', authenticateToken, () => {});");
+  await mkdir(path.join(fixtureRoot, 'server/modules/auth'), { recursive: true });
+  await mkdir(path.join(fixtureRoot, 'dist-server/server/modules/auth'), { recursive: true });
+  await writeFile(path.join(fixtureRoot, 'package.json'), JSON.stringify({ name: '@cloudcli-ai/cloudcli', version: '1.37.2' }));
+  await writeFile(path.join(fixtureRoot, 'server/modules/auth/auth.routes.ts'), "router.post('/logout', authenticateToken, () => {});");
+  await writeFile(path.join(fixtureRoot, 'dist-server/server/modules/auth/auth.routes.js'), "router.post('/logout', authenticateToken, () => {});");
 
   await runDetectorRejects(fixtureRoot, 'unsupported-known');
 });

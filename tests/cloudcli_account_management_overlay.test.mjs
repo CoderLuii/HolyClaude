@@ -61,8 +61,8 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
 
   assert.equal(manifest.bridge, 'cloudcli-account-management');
   assert.equal(manifest.state, 'holyclaude-bridge-complete');
-  assert.equal(manifest.upstream.commit, '27eaf0146a46aa8a55178f3d394360ff7465420f');
-  assert.equal(manifest.upstream.version, '1.36.3');
+  assert.equal(manifest.upstream.commit, '677b7ba43695d5624d1a981c62f87fa086187991');
+  assert.equal(manifest.upstream.version, '1.37.2');
   assert.equal(manifest.build.node, 'v26.5.1');
   assert.equal(manifest.build.npm, '11.19.0');
   assert.match(manifest.build.image, /^node:26\.5\.1-bookworm-slim@sha256:[0-9a-f]{64}$/);
@@ -71,34 +71,46 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   assert.equal(manifest.artifact.duplicatePackSha256, manifest.artifact.sha256);
   assert.equal(sha256(artifactBuffer), manifest.artifact.sha256);
   assert.deepEqual(manifest.verification.reviewedLockDependencies, {
+    'node_modules/@remix-run/router': '1.23.4',
     'node_modules/better-sqlite3': '12.11.1',
-    'node_modules/dompurify': '3.4.12',
+    'node_modules/brace-expansion': '2.1.4',
+    'node_modules/dompurify': '3.4.14',
     'node_modules/express': '4.22.2',
-    'node_modules/fast-uri': '3.1.4',
-    'node_modules/hono': '4.12.32',
+    'node_modules/fast-uri': '3.1.6',
+    'node_modules/glob': '10.5.0',
+    'node_modules/hono': '4.13.5',
+    'node_modules/ip-address': '10.5.0',
     'node_modules/jws': '3.2.3',
     'node_modules/minimatch': '9.0.9',
     'node_modules/multer': '2.2.0',
     'node_modules/path-to-regexp': '0.1.13',
     'node_modules/picomatch': '2.3.2',
-    'node_modules/postcss': '8.5.25',
+    'node_modules/postcss': '8.5.26',
+    'node_modules/react-router': '6.30.6',
+    'node_modules/react-router-dom': '6.30.6',
     'node_modules/tar-fs': '2.1.5',
-    'node_modules/ws': '8.21.1',
+    'node_modules/ws': '8.21.3',
     'node_modules/yaml': '2.9.0',
   });
   assert.deepEqual(manifest.verification.requiredRuntimeDependencies, {
+    'node_modules/@remix-run/router': '1.23.4',
     'node_modules/better-sqlite3': '12.11.1',
-    'node_modules/dompurify': '3.4.12',
+    'node_modules/brace-expansion': '2.1.4',
+    'node_modules/dompurify': '3.4.14',
     'node_modules/express': '4.22.2',
-    'node_modules/fast-uri': '3.1.4',
-    'node_modules/hono': '4.12.32',
+    'node_modules/fast-uri': '3.1.6',
+    'node_modules/glob': '10.5.0',
+    'node_modules/hono': '4.13.5',
+    'node_modules/ip-address': '10.5.0',
     'node_modules/jws': '3.2.3',
     'node_modules/multer': '2.2.0',
     'node_modules/path-to-regexp': '0.1.13',
     'node_modules/picomatch': '2.3.2',
-    'node_modules/postcss': '8.5.25',
+    'node_modules/postcss': '8.5.26',
+    'node_modules/react-router': '6.30.6',
+    'node_modules/react-router-dom': '6.30.6',
     'node_modules/tar-fs': '2.1.5',
-    'node_modules/ws': '8.21.1',
+    'node_modules/ws': '8.21.3',
     'node_modules/yaml': '2.9.0',
   });
   assert.deepEqual(manifest.verification.forbiddenRuntimeDependencies, [
@@ -113,26 +125,32 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   const cloudcliRoot = await unpackArtifact(artifactPath);
   const packageJson = JSON.parse(await readFile(path.join(cloudcliRoot, 'package.json'), 'utf8'));
   const shrinkwrap = JSON.parse(await readFile(path.join(cloudcliRoot, 'npm-shrinkwrap.json'), 'utf8'));
-  assert.equal(packageJson.version, '1.36.3');
+  assert.equal(packageJson.version, '1.37.2');
   assert.equal(packageJson.scripts?.prepare, undefined);
   assert.equal(packageJson.optionalDependencies?.['screenshot-desktop'], undefined);
-  assert.equal(shrinkwrap.version, '1.36.3');
-  assert.equal(shrinkwrap.packages[''].version, '1.36.3');
+  assert.equal(shrinkwrap.version, '1.37.2');
+  assert.equal(shrinkwrap.packages[''].version, '1.37.2');
   assert.equal(shrinkwrap.packages['node_modules/better-sqlite3'].version, '12.11.1');
   assert.equal(shrinkwrap.packages['node_modules/screenshot-desktop'], undefined);
   for (const [dependency, version] of Object.entries({
-    dompurify: '3.4.12',
+    '@remix-run/router': '1.23.4',
+    'brace-expansion': '2.1.4',
+    dompurify: '3.4.14',
     express: '4.22.2',
-    'fast-uri': '3.1.4',
-    hono: '4.12.32',
+    'fast-uri': '3.1.6',
+    glob: '10.5.0',
+    hono: '4.13.5',
+    'ip-address': '10.5.0',
     jws: '3.2.3',
     minimatch: '9.0.9',
     multer: '2.2.0',
     'path-to-regexp': '0.1.13',
     picomatch: '2.3.2',
-    postcss: '8.5.25',
+    postcss: '8.5.26',
+    'react-router': '6.30.6',
+    'react-router-dom': '6.30.6',
     'tar-fs': '2.1.5',
-    ws: '8.21.1',
+    ws: '8.21.3',
     yaml: '2.9.0',
   })) {
     assert.equal(
@@ -236,8 +254,8 @@ test('CloudCLI patches keep account navigation valid and constrain upload nestin
   }
   assert.equal(
     securityPatch.match(/fieldNestingDepth: 0/g)?.length,
-    3,
-    'all three Multer configurations should reject nested field names',
+    4,
+    'all four Multer configurations should reject nested field names',
   );
   assert.match(buildScript, /patches\.length !== 2/);
   assert.ok(
@@ -246,19 +264,25 @@ test('CloudCLI patches keep account navigation valid and constrain upload nestin
     'patched dependency versions should be verified after both patches apply',
   );
   for (const [dependency, version] of Object.entries({
+    '@remix-run/router': '1.23.4',
     'better-sqlite3': '12.11.1',
-    dompurify: '3.4.12',
+    'brace-expansion': '2.1.4',
+    dompurify: '3.4.14',
     express: '4.22.2',
-    'fast-uri': '3.1.4',
-    hono: '4.12.32',
+    'fast-uri': '3.1.6',
+    glob: '10.5.0',
+    hono: '4.13.5',
+    'ip-address': '10.5.0',
     jws: '3.2.3',
     minimatch: '9.0.9',
     multer: '2.2.0',
     'path-to-regexp': '0.1.13',
     picomatch: '2.3.2',
-    postcss: '8.5.25',
+    postcss: '8.5.26',
+    'react-router': '6.30.6',
+    'react-router-dom': '6.30.6',
     'tar-fs': '2.1.5',
-    ws: '8.21.1',
+    ws: '8.21.3',
     yaml: '2.9.0',
   })) {
     const escapedDependency = dependency.replaceAll('-', String.raw`\-`);
@@ -279,14 +303,19 @@ test('CloudCLI account-management artifact contains patched source runtime and c
   const artifactPath = path.join(repoRoot, 'vendor/artifacts', manifest.artifact.file);
   const cloudcliRoot = await unpackArtifact(artifactPath);
 
-  for (const target of ['server/routes/auth.js', 'dist-server/server/routes/auth.js']) {
+  for (const target of ['server/modules/auth/auth.routes.ts', 'dist-server/server/modules/auth/auth.routes.js']) {
     const source = await readCloudCliFile(cloudcliRoot, target);
     assert.ok(source.includes("router.post('/change-password'"), `${target} should expose change-password route`);
-    assert.ok(source.includes('auth_token_generation'), `${target} should rotate auth token generation`);
     assert.ok(source.includes('HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE'), `${target} should keep bridge marker`);
   }
 
-  for (const target of ['server/middleware/auth.js', 'dist-server/server/middleware/auth.js']) {
+  for (const target of ['server/modules/auth/auth.service.ts', 'dist-server/server/modules/auth/auth.service.js']) {
+    const source = await readCloudCliFile(cloudcliRoot, target);
+    assert.ok(source.includes('auth_token_generation'), `${target} should rotate auth token generation`);
+    assert.ok(source.includes('Current password is incorrect'), `${target} should reject a wrong current password`);
+  }
+
+  for (const target of ['server/modules/auth/auth.middleware.ts', 'dist-server/server/modules/auth/auth.middleware.js']) {
     const source = await readCloudCliFile(cloudcliRoot, target);
     assert.ok(source.includes('authTokenGeneration'), `${target} should validate token generation`);
     assert.ok(source.includes('authenticateWebSocket'), `${target} should keep WebSocket auth`);

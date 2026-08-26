@@ -9,26 +9,32 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchDir = path.join(repoRoot, 'vendor/patches/cloudcli-account-management');
 const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
-const upstreamCommit = '27eaf0146a46aa8a55178f3d394360ff7465420f';
-const packageVersion = '1.36.3';
+const upstreamCommit = '677b7ba43695d5624d1a981c62f87fa086187991';
+const packageVersion = '1.37.2';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
 const expectedBuildImage = 'node:26.5.1-bookworm-slim@sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73';
 const expectedNode = 'v26.5.1';
 const expectedNpm = '11.19.0';
 const reviewedLockDependencies = {
+  'node_modules/@remix-run/router': '1.23.4',
   'node_modules/better-sqlite3': '12.11.1',
-  'node_modules/dompurify': '3.4.12',
+  'node_modules/brace-expansion': '2.1.4',
+  'node_modules/dompurify': '3.4.14',
   'node_modules/express': '4.22.2',
-  'node_modules/fast-uri': '3.1.4',
-  'node_modules/hono': '4.12.32',
+  'node_modules/fast-uri': '3.1.6',
+  'node_modules/glob': '10.5.0',
+  'node_modules/hono': '4.13.5',
+  'node_modules/ip-address': '10.5.0',
   'node_modules/jws': '3.2.3',
   'node_modules/minimatch': '9.0.9',
   'node_modules/multer': '2.2.0',
   'node_modules/path-to-regexp': '0.1.13',
   'node_modules/picomatch': '2.3.2',
-  'node_modules/postcss': '8.5.25',
+  'node_modules/postcss': '8.5.26',
+  'node_modules/react-router': '6.30.6',
+  'node_modules/react-router-dom': '6.30.6',
   'node_modules/tar-fs': '2.1.5',
-  'node_modules/ws': '8.21.1',
+  'node_modules/ws': '8.21.3',
   'node_modules/yaml': '2.9.0',
 };
 const expectedRuntimeDependencies = Object.fromEntries(

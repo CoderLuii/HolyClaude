@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 
 const DEFAULT_CLOUDCLI_ROOT = '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli';
 const inputPath = process.argv[2] || DEFAULT_CLOUDCLI_ROOT;
-const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2', '1.36.3']);
+const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2', '1.36.3', '1.37.0', '1.37.1', '1.37.2']);
 
 let cleanupPath = null;
 
@@ -52,12 +52,22 @@ function includesAll(source, markers) {
   return markers.every((marker) => source.includes(marker));
 }
 
+function readCombined(root, relativePaths) {
+  return relativePaths.map((relativePath) => readOptional(path.join(root, relativePath))).join('\n');
+}
+
 const root = unpackIfNeeded(inputPath);
 const packageJson = readPackageJson(root);
-const sourceAuthRoute = readOptional(path.join(root, 'server/routes/auth.js'));
-const runtimeAuthRoute = readOptional(path.join(root, 'dist-server/server/routes/auth.js'));
-const sourceAuthMiddleware = readOptional(path.join(root, 'server/middleware/auth.js'));
-const runtimeAuthMiddleware = readOptional(path.join(root, 'dist-server/server/middleware/auth.js'));
+const sourceAuthRoute = readCombined(root, [
+  'server/modules/auth/auth.routes.ts',
+  'server/modules/auth/auth.service.ts',
+]);
+const runtimeAuthRoute = readCombined(root, [
+  'dist-server/server/modules/auth/auth.routes.js',
+  'dist-server/server/modules/auth/auth.service.js',
+]);
+const sourceAuthMiddleware = readOptional(path.join(root, 'server/modules/auth/auth.middleware.ts'));
+const runtimeAuthMiddleware = readOptional(path.join(root, 'dist-server/server/modules/auth/auth.middleware.js'));
 const sourceUsersRepo = readOptional(path.join(root, 'server/modules/database/repositories/users.ts'));
 const runtimeUsersRepo = readOptional(path.join(root, 'dist-server/server/modules/database/repositories/users.js'));
 const clientApi = readOptional(path.join(root, 'src/utils/api.js'));

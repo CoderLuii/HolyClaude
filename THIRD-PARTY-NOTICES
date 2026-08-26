@@ -10,7 +10,7 @@ licensed under MIT (see LICENSE).
 - Copyright: CloudCLI UI Contributors
 - Homepage: https://cloudcli.ai
 - npm: https://www.npmjs.com/package/@cloudcli-ai/cloudcli
-- Version: 1.36.3, installed from HolyClaude's vendored source-release tarball
+- Version: 1.37.2, installed from HolyClaude's vendored source-release tarball
 
 CloudCLI is installed as a standalone program via npm and runs as an
 independent process managed by s6-overlay.
@@ -96,7 +96,7 @@ HolyClaude keeps the JavaScript package versions required by the bundled full-im
 HolyClaude replaces selected compatible dependency copies with version-pinned
 archives and fail-closed path checks. Overlays that replace a known vendored copy
 also verify its owning tool and original dependency version before changing it.
-v1.5.7 updates selected copies of setuptools, Piscina, brace-expansion, glob,
+v1.5.8 retains selected compatible copies of setuptools, Piscina, brace-expansion, glob,
 js-yaml, minimatch, Nanoid, node-forge, path-to-regexp, Undici, and ws. Cursor Agent uses
 HolyClaude's patched Node 26.7.0 runtime instead of its bundled Node binary.
 
@@ -109,7 +109,7 @@ Dockerfile, `security/immutable-inputs.yml`, and the release source.
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 151.0.7922.108-1~deb12u1, installed from Bookworm security packages
+- Version: 151.0.7922.173-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 

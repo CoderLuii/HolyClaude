@@ -1,7 +1,7 @@
 schema-version: 1
-release: v1.5.7
-reviewed-at: 2026-08-12
-expires-at: 2026-09-09
+release: v1.5.8
+reviewed-at: 2026-08-26
+expires-at: 2026-09-23
 
 base-images:
   - name: Actionlint workflow validator
@@ -42,13 +42,13 @@ release-assets:
     verification-mode: committed-hash
     status: retained
   - name: Debian Chromium package trio
-    version: 151.0.7922.108-1~deb12u1
-    amd64-chromium-package-sha256: 739f6bccad739686bdfef6554e5e47860e0db7c2feba12a872f112fc1be28bfc
-    arm64-chromium-package-sha256: e53e8dd2bc749924e077a74ac81e6417bdcbbd5c4e09a5deb458104ddb34d37b
-    amd64-chromium-common-package-sha256: fdd4bf2650ce78eec74f3926c01cbcb4b8312d24691ebf5fadfd8408e8f5675b
-    arm64-chromium-common-package-sha256: b9e304cd2612c33bdc04c7edb33c5574b5cb06a35d2159714d42fe04b3c843c8
-    amd64-chromium-sandbox-package-sha256: 09a74c710900e19fda7c510486dfa1b7fd52d16c095e40585aeacd3e8a0de0f1
-    arm64-chromium-sandbox-package-sha256: f9dd0a0f27b0a6e7da50459c212f011c09f89d5d5bab461d4aa5adb3328bcc0b
+    version: 151.0.7922.173-1~deb12u1
+    amd64-chromium-package-sha256: 3c8f1f513675d8785925e67a6858407fd5461e4b1903463d127ea6e651a649de
+    arm64-chromium-package-sha256: 8a7f778630287297b1217414d4cd53b9638046ce48f13c2e2994fb5afee012a2
+    amd64-chromium-common-package-sha256: 560f6d013d1c733d4a84e27209d80235968f3672745c27f6ecd2947ac6c12bd8
+    arm64-chromium-common-package-sha256: f0deb575d2486b1d72e4a28c4ea2c3dc0e5abed21c23aa236fdb96a1fa007b3b
+    amd64-chromium-sandbox-package-sha256: 21d610b5b25e74796350e6d7420acf51917641b7a8f1603a16f9b212b84c3af2
+    arm64-chromium-sandbox-package-sha256: 5266f3e47219fbed422bd885e05e7c5fc1252203b5112db64d15a986e9293790
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
     status: updated
@@ -80,20 +80,20 @@ release-assets:
     verification-mode: committed-hash
     status: security-patched
   - name: CloudCLI nanoid nested package
-    version: 3.3.17
-    archive-sha256: fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6
+    version: 3.3.18
+    archive-sha256: b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
   - name: CloudCLI and npm ip-address nested package
-    version: 10.3.1
-    archive-sha256: ad1790063beea11a312c801df30d58e147de762f4f77787552376eb7424623e5
+    version: 10.5.0
+    archive-sha256: 35e23227dfeca9179f03f899a9e3a21faf542a8079821bce95d5620642d75873
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
   - name: CloudCLI fast-uri nested package
-    version: 3.1.5
-    archive-sha256: 82a71e7e3716dc8c392cac0762bce80614cf539ef22000415e26eaf5c453ce2f
+    version: 3.1.6
+    archive-sha256: 264af0e32c4b7b7bcb9ce5b4623c82469ee3e69ba5d171920f1762d626db1064
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
@@ -283,11 +283,11 @@ release-assets:
 
 installers:
   - name: Claude Code
-    version: 2.1.220
-    installer-sha256: cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
-    amd64-output-sha256: 674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863
-    arm64-output-sha256: 159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185
-    status: pinned
+    version: 2.1.231
+    installer-sha256: 3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
+    amd64-output-sha256: 47a01daebf794f6c86c13d1875ad6e5be0627029ad8600731161f24018ecde5b
+    arm64-output-sha256: 4ee7c484b11dece6521aa2173a19ea913428c1c78599186d62559d2d2aef4e32
+    status: updated
 
   - name: Junie
     version: "2470.4"
@@ -296,9 +296,9 @@ installers:
     install: direct from verified release archive
     status: pinned
   - name: Cursor CLI
-    build-id: 2026.07.23-e383d2b
-    amd64-archive-sha256: 702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4
-    arm64-archive-sha256: f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb
+    build-id: 2026.08.11-e8db854
+    amd64-archive-sha256: bfff4bf6f4e9dd30c1d0ef0a70b6077b074015dd2948e4c50685d53afdcfce5a
+    arm64-archive-sha256: ea13f92e295f523a99ce8d8f57d6894d21e5d1e2d030ffad718ccd5955ca2eed
     launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -316,12 +316,12 @@ installers:
 
 vendored-artifacts:
   - name: CloudCLI HolyClaude account-management artifact
-    version: 1.36.3
-    upstream-commit: 27eaf0146a46aa8a55178f3d394360ff7465420f
-    artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz
+    version: 1.37.2
+    upstream-commit: 677b7ba43695d5624d1a981c62f87fa086187991
+    artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    manifest-sha256: 0aa75b9ae5e9f0e543719022bb319c7ba99dfa29e2b08db8da8facad5998f523
-    sha256: a90aefd34ca6ad467e911c5907fe9c19fc65e171c77145b07ea6b7a23db9bbc7
+    manifest-sha256: 11a5ba7eacccfc9a0bc0bc2e27e5af3334397f2568899553b7e2a7efaee6797e
+    sha256: 02e3a6d5522c22fee90f1c773a7ab94f45e7a804840eeb8ad1d9d95fea04dc39
     verification: two independent clean builds in the pinned Node image
     status: updated
 
