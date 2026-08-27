@@ -6,13 +6,14 @@ Complete reference for all HolyClaude configuration options.
 
 ## Docker Compose Files
 
-HolyClaude ships with three compose files:
+HolyClaude ships with four compose files:
 
 | File | Purpose | Usage |
 |------|---------|-------|
 | `docker-compose.yaml` | Quick start — minimal config, just works | `docker compose up -d` |
 | `docker-compose.full.yaml` | All options — ports, API keys, polling, notifications | `docker compose -f docker-compose.full.yaml up -d` |
 | `docker-compose.podman-rootless.yaml` | Rootless Podman on SELinux hosts with bidirectional workspace editing | `podman compose -f docker-compose.podman-rootless.yaml up -d` |
+| `docker-compose.docker-cli.yaml` | Optional Docker-host socket override for trusted local workspaces | `docker compose -f docker-compose.yaml -f docker-compose.docker-cli.yaml up -d` |
 
 ---
 
@@ -134,6 +135,18 @@ podman compose -f docker-compose.podman-rootless.yaml up -d
 ```
 
 That profile uses `userns_mode: "keep-id:uid=1000,gid=1000"` and `:Z` volume labels. `PUID` and `PGID` still document the intended container user, but they do not control Podman's host-visible subordinate UID mapping by themselves. Do not add `:U` to `/workspace` when you want to edit the same files from both the host and the container.
+
+### Docker CLI and Compose
+
+Both image variants include `docker` and `docker compose`, but no Docker daemon. They can use a remote daemon configured through the standard `DOCKER_HOST` and TLS variables, or a local Docker host only when you explicitly add the socket override:
+
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.docker-cli.yaml up -d
+```
+
+The override bind-mounts `/var/run/docker.sock`. During normal root-starting Docker startup, HolyClaude maps that socket's numeric group to the `claude` user before services start, so `docker ps` works without `sudo`. Do not apply it to `docker-compose.podman-rootless.yaml`; rootless startup cannot safely create that group mapping.
+
+Mounting the Docker socket is equivalent to granting effective root control over the Docker host: clients can create privileged containers, publish host ports, and mount host paths. Keep it opt-in, use it only with trusted local workspaces, and never expose the HolyClaude web UI publicly when it is enabled.
 
 ### Notifications (Apprise)
 

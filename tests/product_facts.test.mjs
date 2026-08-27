@@ -158,6 +158,19 @@ test('rejects capability and port drift from Compose', () => {
   expectInvalid(badBinding, /defaultBinding: must equal "127\.0\.0\.1"/);
 });
 
+test('Docker host access remains an explicit opt-in override', () => {
+  const quickCompose = readFileSync('docker-compose.yaml', 'utf8');
+  const fullCompose = readFileSync('docker-compose.full.yaml', 'utf8');
+  const dockerCliOverride = readFileSync('docker-compose.docker-cli.yaml', 'utf8');
+  const entrypoint = readFileSync('scripts/entrypoint.sh', 'utf8');
+
+  assert.doesNotMatch(quickCompose, /docker\.sock/);
+  assert.doesNotMatch(fullCompose, /docker\.sock/);
+  assert.match(dockerCliOverride, /\/var\/run\/docker\.sock:\/var\/run\/docker\.sock/);
+  assert.match(dockerCliOverride, /effective root control of the Docker host/);
+  assert.match(entrypoint, /configure_docker_socket_access/);
+});
+
 test('release workflow gates candidates and does not run on master', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   const triggers = workflow.slice(workflow.indexOf('on:'), workflow.indexOf('\nconcurrency:'));

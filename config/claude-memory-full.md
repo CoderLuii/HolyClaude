@@ -101,6 +101,7 @@ The `--break-system-packages` flag is required (no venv in container context).
 - **Process:** htop, lsof, strace, iproute2 (`ip`, `ss`)
 - **Terminal:** tmux
 - **Version control:** git, gh (GitHub CLI)
+- **Containers:** docker (Docker CE CLI), `docker compose` (Docker Compose plugin). Docker host access needs an explicitly mounted socket or configured remote daemon; a host socket is effectively root access to that host.
 
 ### Database CLIs:
 - **PostgreSQL:** `psql`

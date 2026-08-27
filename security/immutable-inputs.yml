@@ -313,6 +313,20 @@ installers:
     amd64-package-sha256: 7c7fa3bb890db0934baf65910d97b8c0fa437b2e590f7f7daf6bdf82c5c486d7
     arm64-package-sha256: 0ba7a76739c865d82ebde24667d875d9b8caa55db47c7597c24accdd4defd2bb
     status: updated
+  - name: Docker CE CLI release package
+    version: "5:29.7.2-1~debian.12~bookworm"
+    amd64-package-sha256: 9048b959cfe8ffc329a24145b4d06f189623c43b0bba64454009adc02cb1362c
+    arm64-package-sha256: 3cb8d9313adcb6759656aad781a4d9be545a5587496953ecba620589376915eb
+    verification: Docker official Bookworm package index
+    verification-mode: committed-hash
+    status: added
+  - name: Docker Compose plugin release package
+    version: 5.5.0-1~debian.12~bookworm
+    amd64-package-sha256: e54ead5156cce87b4f920c4dd3045834056bd6f94734b05e794d0e418a909143
+    arm64-package-sha256: 6ed7bc67f1f03f447dd2416d633d1046388036de50fee95c4b8f3c1833d29adc
+    verification: Docker official Bookworm package index
+    verification-mode: committed-hash
+    status: added
 
 vendored-artifacts:
   - name: CloudCLI HolyClaude account-management artifact

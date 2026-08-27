@@ -590,6 +590,7 @@ This is not a minimal container. This is an entire development workstation.
 | Tool | What it's for |
 |------|---------------|
 | `git`, `gh` | Version control + GitHub CLI (PRs, issues, releases from the terminal) |
+| `docker`, `docker compose` | Docker CE client and Compose plugin; host access is opt-in |
 | `ripgrep` (`rg`), `fd`, `fzf` | Blazing-fast search — Claude uses these constantly |
 | `bat`, `tree`, `jq` | Better cat (syntax highlighting), directory trees, JSON processing |
 | `curl`, `wget` | HTTP downloads |
@@ -676,6 +677,31 @@ The full image includes everything above, plus:
 </details>
 
 > **Slim users:** Missing a package? Ask Claude. It installs npm/pip packages in seconds. System packages (pandoc, ffmpeg) take 1-2 minutes. You get the same capabilities — the full image just has zero wait time.
+
+<p align="right">
+  <a href="#top">↑ back to top</a>
+</p>
+
+---
+
+## :whale: Docker host access (optional)
+
+Both images include the Docker CE client (`docker`) and the Docker Compose plugin (`docker compose`). They do **not** include or start a Docker daemon. By default, HolyClaude cannot access Docker containers on your host.
+
+To deliberately let a trusted HolyClaude workspace manage the host Docker daemon on Linux, start it with the separate socket override:
+
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.docker-cli.yaml up -d
+```
+
+Then, from HolyClaude's terminal:
+
+```bash
+docker ps
+docker compose ls
+```
+
+> **Security boundary:** mounting `/var/run/docker.sock` gives processes in HolyClaude effective root-level control of the Docker host. It can create privileged containers and mount host paths. Do not use this override for untrusted workspaces, shared users, or remotely exposed instances. The rootless Podman profile intentionally does not enable this Docker-host override.
 
 <p align="right">
   <a href="#top">↑ back to top</a>
@@ -836,6 +862,7 @@ holyclaude/
 ├── Dockerfile               # Multi-stage build
 ├── docker-compose.yaml      # Quick start (minimal config)
 ├── docker-compose.full.yaml # Full config (all options)
+├── docker-compose.docker-cli.yaml # Optional Docker-host socket access
 ├── docker-compose.podman-rootless.yaml # Rootless Podman keep-id profile
 ├── LICENSE
 └── README.md

@@ -53,6 +53,8 @@ Mosh is not a daemon. The `mosh-server` wrapper only runs when `HOLYCLAUDE_MOSH_
 
 HolyClaude vendors `@cloudcli-ai/cloudcli` and applies Docker-build patches to the source and compiled runtime files. Do not replace CloudCLI from inside a running container with `cloudcli update` or `npm install -g @cloudcli-ai/cloudcli@latest`; update HolyClaude with `docker compose pull && docker compose up -d` instead.
 
+Both image variants include the Docker CE client and Docker Compose plugin, but no Docker daemon. The normal Compose files do not mount a Docker socket. The separate `docker-compose.docker-cli.yaml` override mounts `/var/run/docker.sock` only for trusted local workspaces; that socket grants effective root-level control of the Docker host, so do not use it with untrusted code, shared users, or a remotely exposed HolyClaude UI.
+
 The vendored CloudCLI version must stay at or above the fixes for:
 
 | Advisory | What it covered | Fixed upstream |

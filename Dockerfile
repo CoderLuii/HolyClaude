@@ -147,6 +147,12 @@ ARG AZURE_CLI_INSTALLER_SHA256=01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e486
 ARG GITHUB_CLI_VERSION=2.97.0
 ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=7c7fa3bb890db0934baf65910d97b8c0fa437b2e590f7f7daf6bdf82c5c486d7
 ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=0ba7a76739c865d82ebde24667d875d9b8caa55db47c7597c24accdd4defd2bb
+ARG DOCKER_CLI_VERSION=5:29.7.2-1~debian.12~bookworm
+ARG DOCKER_CLI_PACKAGE_SHA256_AMD64=9048b959cfe8ffc329a24145b4d06f189623c43b0bba64454009adc02cb1362c
+ARG DOCKER_CLI_PACKAGE_SHA256_ARM64=3cb8d9313adcb6759656aad781a4d9be545a5587496953ecba620589376915eb
+ARG DOCKER_COMPOSE_PLUGIN_VERSION=5.5.0-1~debian.12~bookworm
+ARG DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256_AMD64=e54ead5156cce87b4f920c4dd3045834056bd6f94734b05e794d0e418a909143
+ARG DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256_ARM64=6ed7bc67f1f03f447dd2416d633d1046388036de50fee95c4b8f3c1833d29adc
 ARG NODE_TAR_VERSION=7.5.22
 ARG NODE_TAR_SHA256=b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6
 ARG TARGETARCH
@@ -301,6 +307,33 @@ RUN GITHUB_CLI_ARCH=$(case "$TARGETARCH" in amd64) echo "amd64";; arm64) echo "a
     apt-get update && apt-get install -y "/tmp/${GITHUB_CLI_PACKAGE}" && \
     test "$(dpkg-query -W -f='${Version}' gh)" = "$GITHUB_CLI_VERSION" && \
     rm -f "/tmp/${GITHUB_CLI_PACKAGE}" && \
+    rm -rf /var/lib/apt/lists/*
+
+# ---------- Docker CLI and Compose plugin ----------
+# The image contains clients only. A Docker daemon remains external and must be
+# connected explicitly by mounting a socket or configuring DOCKER_HOST at runtime.
+RUN set -eux; \
+    DOCKER_ARCH=$(case "$TARGETARCH" in amd64) echo "amd64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac); \
+    DOCKER_CLI_PACKAGE_SHA256=$(case "$TARGETARCH" in amd64) echo "$DOCKER_CLI_PACKAGE_SHA256_AMD64";; arm64) echo "$DOCKER_CLI_PACKAGE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac); \
+    DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256=$(case "$TARGETARCH" in amd64) echo "$DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256_AMD64";; arm64) echo "$DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac); \
+    DOCKER_CLI_PACKAGE="docker-ce-cli_${DOCKER_CLI_VERSION#*:}_${DOCKER_ARCH}.deb"; \
+    DOCKER_COMPOSE_PLUGIN_PACKAGE="docker-compose-plugin_${DOCKER_COMPOSE_PLUGIN_VERSION}_${DOCKER_ARCH}.deb"; \
+    DOCKER_PACKAGE_URL="https://download.docker.com/linux/debian/dists/bookworm/pool/stable/${DOCKER_ARCH}"; \
+    curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o "/tmp/${DOCKER_CLI_PACKAGE}" "${DOCKER_PACKAGE_URL}/${DOCKER_CLI_PACKAGE}"; \
+    curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o "/tmp/${DOCKER_COMPOSE_PLUGIN_PACKAGE}" "${DOCKER_PACKAGE_URL}/${DOCKER_COMPOSE_PLUGIN_PACKAGE}"; \
+    printf '%s  %s\\n' \
+      "$DOCKER_CLI_PACKAGE_SHA256" "/tmp/${DOCKER_CLI_PACKAGE}" \
+      "$DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256" "/tmp/${DOCKER_COMPOSE_PLUGIN_PACKAGE}" \
+      | sha256sum -c -; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends "/tmp/${DOCKER_CLI_PACKAGE}" "/tmp/${DOCKER_COMPOSE_PLUGIN_PACKAGE}"; \
+    test "$(dpkg-query -W -f='${Version}' docker-ce-cli)" = "$DOCKER_CLI_VERSION"; \
+    test "$(dpkg-query -W -f='${Version}' docker-compose-plugin)" = "$DOCKER_COMPOSE_PLUGIN_VERSION"; \
+    test "$(docker --version | awk '{print $3}' | tr -d ',')" = "${DOCKER_CLI_VERSION#*:}"; \
+    test "$(docker compose version --short | sed 's/^v//')" = "${DOCKER_COMPOSE_PLUGIN_VERSION%%-*}"; \
+    ! command -v dockerd; \
+    ! command -v containerd; \
+    rm -f "/tmp/${DOCKER_CLI_PACKAGE}" "/tmp/${DOCKER_COMPOSE_PLUGIN_PACKAGE}"; \
     rm -rf /var/lib/apt/lists/*
 
 # ---------- bat symlink (Debian names it batcat) ----------

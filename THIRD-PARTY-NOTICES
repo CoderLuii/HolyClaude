@@ -83,6 +83,17 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 - Source: https://github.com/junegunn/fzf
 - Version: 0.74.1, installed from checksum-verified upstream archives
 
+## Docker CE CLI and Docker Compose plugin
+
+- License: Apache-2.0
+- Source: https://github.com/moby/moby/tree/master/cli and https://github.com/docker/compose
+- Versions: Docker CE CLI 29.7.2 and Docker Compose plugin 5.5.0
+
+HolyClaude installs only the Docker client and Compose plugin from
+checksum-verified Docker Bookworm packages. It does not include or start a
+Docker daemon. Host daemon access requires an explicit socket or remote-daemon
+configuration at runtime.
+
 ## esbuild
 
 - License: MIT

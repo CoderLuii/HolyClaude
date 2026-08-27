@@ -297,6 +297,13 @@ assert_runtime_identity() {
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.6.2"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.1"
+  require_eq "Docker CE CLI Debian package version" "$(dpkg-query -W -f='${Version}' docker-ce-cli)" "5:29.7.2-1~debian.12~bookworm"
+  require_eq "Docker Compose plugin Debian package version" "$(dpkg-query -W -f='${Version}' docker-compose-plugin)" "5.5.0-1~debian.12~bookworm"
+  require_eq "Docker CLI version" "$(docker --version | awk '{print $3}' | tr -d ',')" "29.7.2"
+  require_eq "Docker Compose plugin version" "$(docker compose version --short | sed 's/^v//')" "5.5.0"
+  ! command -v dockerd >/dev/null
+  ! command -v containerd >/dev/null
+  ! test -S /var/run/docker.sock
   require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.220"
   require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.23-e383d2b"
   if [ "$VARIANT" = "full" ]; then

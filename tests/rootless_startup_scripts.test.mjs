@@ -23,6 +23,14 @@ test('entrypoint gates root-only operations for non-root startup', () => {
   assert.match(entrypoint, /usermod -o -u/);
 });
 
+test('entrypoint grants Docker socket access only when a socket is explicitly mounted', () => {
+  assert.match(entrypoint, /configure_docker_socket_access\(\)/);
+  assert.match(entrypoint, /DOCKER_SOCKET="\/var\/run\/docker\.sock"/);
+  assert.match(entrypoint, /\[ -S "\$DOCKER_SOCKET" \] \|\| return 0/);
+  assert.match(entrypoint, /usermod -a -G "\$DOCKER_SOCKET_GROUP" "\$CLAUDE_USER"/);
+  assert.match(entrypoint, /Docker socket is mounted but the non-root user lacks group/);
+});
+
 test('bootstrap uses the same root-aware command helpers', () => {
   assert.match(bootstrap, /RUNNING_AS_ROOT=0/);
   assert.match(bootstrap, /run_as_claude\(\)/);

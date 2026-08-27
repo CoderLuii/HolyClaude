@@ -1,0 +1,14 @@
+# ==============================================================================
+# HolyClaude — Optional Docker host access
+# Usage:
+#   docker compose -f docker-compose.yaml -f docker-compose.docker-cli.yaml up -d
+#
+# This is intentionally separate from the default Compose files. A writable
+# Docker socket grants this container effective root control of the Docker host.
+# Enable it only for a trusted local HolyClaude workspace.
+# ==============================================================================
+
+services:
+  holyclaude:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

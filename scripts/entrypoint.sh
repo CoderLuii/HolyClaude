@@ -64,6 +64,39 @@ is_read_only_mount_path() {
     findmnt -no OPTIONS -T "$1" 2>/dev/null | tr ',' '\n' | grep -Fxq ro
 }
 
+configure_docker_socket_access() {
+    DOCKER_SOCKET="/var/run/docker.sock"
+    [ -S "$DOCKER_SOCKET" ] || return 0
+
+    DOCKER_SOCKET_GID="$(stat -c '%g' "$DOCKER_SOCKET" 2>/dev/null || true)"
+    if ! [[ "$DOCKER_SOCKET_GID" =~ ^[0-9]+$ ]]; then
+        echo "[entrypoint] WARNING: unable to determine Docker socket group; Docker CLI stays unavailable to $CLAUDE_USER"
+        return 0
+    fi
+
+    if [ "$RUNNING_AS_ROOT" != "1" ]; then
+        if id -G | tr ' ' '\n' | grep -Fxq "$DOCKER_SOCKET_GID"; then
+            echo "[entrypoint] Docker socket detected; current non-root user has socket group access"
+        else
+            echo "[entrypoint] WARNING: Docker socket is mounted but the non-root user lacks group $DOCKER_SOCKET_GID"
+        fi
+        return 0
+    fi
+
+    if id -G "$CLAUDE_USER" | tr ' ' '\n' | grep -Fxq "$DOCKER_SOCKET_GID"; then
+        echo "[entrypoint] Docker socket detected; $CLAUDE_USER already has socket group access"
+        return 0
+    fi
+
+    DOCKER_SOCKET_GROUP="$(getent group "$DOCKER_SOCKET_GID" | cut -d: -f1 | head -n 1)"
+    if [ -z "$DOCKER_SOCKET_GROUP" ]; then
+        DOCKER_SOCKET_GROUP="holyclaude-docker-host"
+        groupadd -g "$DOCKER_SOCKET_GID" "$DOCKER_SOCKET_GROUP"
+    fi
+    usermod -a -G "$DOCKER_SOCKET_GROUP" "$CLAUDE_USER"
+    echo "[entrypoint] Docker socket detected; granted $CLAUDE_USER access through group $DOCKER_SOCKET_GID"
+}
+
 disable_sshd_service() {
     rm -f /etc/s6-overlay/user-bundles.d/user/contents.d/sshd 2>/dev/null || true
 }
@@ -248,6 +281,12 @@ else
         echo "[entrypoint] WARNING: running as $(id -u):$(id -g), but $CLAUDE_USER is $CURRENT_UID:$CURRENT_GID"
     fi
 fi
+
+# ---------- Optional Docker host socket ----------
+# Mounting this socket intentionally grants host Docker control. When Docker
+# starts us as root, map the socket's numeric group to the runtime user before
+# s6 drops privileges to claude.
+configure_docker_socket_access
 
 # ---------- Fix home directory ownership ----------
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME"

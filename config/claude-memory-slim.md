@@ -132,6 +132,7 @@ These take longer to install (~1-2 minutes) because they require system dependen
 - **Process:** htop, lsof, strace, iproute2 (`ip`, `ss`)
 - **Terminal:** tmux
 - **Version control:** git, gh (GitHub CLI)
+- **Containers:** docker (Docker CE CLI), `docker compose` (Docker Compose plugin). Docker host access needs an explicitly mounted socket or configured remote daemon; a host socket is effectively root access to that host.
 
 ### Database CLIs:
 - **PostgreSQL:** `psql`

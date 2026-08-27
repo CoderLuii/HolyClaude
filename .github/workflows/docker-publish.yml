@@ -336,6 +336,14 @@ jobs:
             "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
             "${{ matrix.variant }}-${{ matrix.arch }}"
 
+      - name: Smoke Docker CLI host access
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          bash tests/docker_host_cli_smoke.sh \
+            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
+            "${{ matrix.variant }}-${{ matrix.arch }}"
+
       - name: Smoke CloudCLI volume persistence
         timeout-minutes: 15
         run: |
@@ -1347,6 +1355,14 @@ jobs:
         run: |
           set -euo pipefail
           bash tests/docker_cli_persistence_smoke.sh \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            "${{ matrix.registry }}-${{ matrix.variant }}-${{ matrix.arch }}"
+
+      - name: Smoke final Docker CLI host access
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          bash tests/docker_host_cli_smoke.sh \
             "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
             "${{ matrix.registry }}-${{ matrix.variant }}-${{ matrix.arch }}"
 

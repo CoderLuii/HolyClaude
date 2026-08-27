@@ -166,6 +166,16 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_AMD64=[0-9a-f]{64}/);
   assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_ARM64=[0-9a-f]{64}/);
   assert.match(dockerfile, /github\.com\/cli\/cli\/releases\/download\/v\$\{GITHUB_CLI_VERSION\}/);
+  assert.match(dockerfile, /ARG DOCKER_CLI_VERSION=5:29\.7\.2-1~debian\.12~bookworm/);
+  assert.match(dockerfile, /DOCKER_CLI_PACKAGE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
+  assert.match(dockerfile, /ARG DOCKER_COMPOSE_PLUGIN_VERSION=5\.5\.0-1~debian\.12~bookworm/);
+  assert.match(dockerfile, /DOCKER_COMPOSE_PLUGIN_PACKAGE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
+  assert.match(dockerfile, /download\.docker\.com\/linux\/debian\/dists\/bookworm\/pool\/stable/);
+  assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' docker-ce-cli/);
+  assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' docker-compose-plugin/);
+  assert.match(dockerfile, /docker compose version --short/);
+  assert.match(dockerfile, /! command -v dockerd/);
+  assert.match(browserRuntimeChecks, /! test -S \/var\/run\/docker\.sock/);
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
@@ -178,6 +188,10 @@ test('immutable input inventory binds the release-critical inputs', () => {
     'bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788',
     '887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86',
     '0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458',
+    '9048b959cfe8ffc329a24145b4d06f189623c43b0bba64454009adc02cb1362c',
+    '3cb8d9313adcb6759656aad781a4d9be545a5587496953ecba620589376915eb',
+    'e54ead5156cce87b4f920c4dd3045834056bd6f94734b05e794d0e418a909143',
+    '6ed7bc67f1f03f447dd2416d633d1046388036de50fee95c4b8f3c1833d29adc',
     'a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d',
     'dbcb813823bdd20940b903addbd779551569679f',
     '4895cd3fd33362471e739b786493aba048487bcc',
@@ -389,6 +403,13 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
   for (const match of workflow.matchAll(/^\s*uses:\s*[^@\s]+@([^\s#]+)/gm)) {
     assert.match(match[1], /^[0-9a-f]{40}$/, `Action ref should be a full SHA: ${match[0].trim()}`);
   }
+});
+
+test('release workflow exercises explicit Docker host access without changing default Compose files', () => {
+  const dockerSocketSmokeCount = (workflow.match(/bash tests\/docker_host_cli_smoke\.sh/g) ?? []).length;
+  assert.equal(dockerSocketSmokeCount, 2, 'candidate and published images must both exercise Docker socket access');
+  assert.match(workflow, /name: Smoke Docker CLI host access/);
+  assert.match(workflow, /name: Smoke final Docker CLI host access/);
 });
 
 test('runtime smoke rotates CloudCLI credentials and rejects the old token', () => {
