@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.231",
+      "version": "2.1.220",
       "variants": [
         "full",
         "slim"

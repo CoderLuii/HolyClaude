@@ -283,11 +283,11 @@ release-assets:
 
 installers:
   - name: Claude Code
-    version: 2.1.231
-    installer-sha256: 3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-    amd64-output-sha256: 47a01daebf794f6c86c13d1875ad6e5be0627029ad8600731161f24018ecde5b
-    arm64-output-sha256: 4ee7c484b11dece6521aa2173a19ea913428c1c78599186d62559d2d2aef4e32
-    status: updated
+    version: 2.1.220
+    installer-sha256: cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125
+    amd64-output-sha256: 674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863
+    arm64-output-sha256: 159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185
+    status: pinned
 
   - name: Junie
     version: "2470.4"

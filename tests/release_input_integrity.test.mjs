@@ -121,10 +121,10 @@ test('release base and archive inputs are versioned and checksum-verified', () =
 });
 
 test('native installers and their outputs are pinned without unsupported flags', () => {
-  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.231/);
-  assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=47a01daebf794f6c86c13d1875ad6e5be0627029ad8600731161f24018ecde5b/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=4ee7c484b11dece6521aa2173a19ea913428c1c78599186d62559d2d2aef4e32/);
+  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.220/);
+  assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185/);
   assert.match(dockerfile, /bash \/tmp\/claude-install\.sh "\$CLAUDE_CODE_VERSION"/);
   assert.match(dockerfile, /\/home\/claude\/\.local\/bin\/claude --version/);
 
@@ -183,8 +183,8 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '4895cd3fd33362471e739b786493aba048487bcc',
     '8aa41f614c216d961e7c0d9c3e67982c6b2d9da3',
     'b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6',
-    '47a01daebf794f6c86c13d1875ad6e5be0627029ad8600731161f24018ecde5b',
-    '4ee7c484b11dece6521aa2173a19ea913428c1c78599186d62559d2d2aef4e32',
+    '674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863',
+    '159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185',
     '661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c',
     '976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630',
     'bfff4bf6f4e9dd30c1d0ef0a70b6077b074015dd2948e4c50685d53afdcfce5a',

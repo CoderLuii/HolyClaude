@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.8, CloudCLI moves to the verified 1.37.2 baseline and adds the gpt-5.6 model family while preserving HolyClaude's account-management, browser, base-path, notification, and Codex patches. Claude Code tracks stable 2.1.231 and Cursor Agent moves to build `2026.08.11-e8db854`. npm stays at 11.19.0 because npm 12 rejects CloudCLI's verified shrinkwrap, and TypeScript stays at 6.0.3 because the 7.0.2 native binary carries fixed-version Go findings.
+In v1.5.8, CloudCLI moves to the verified 1.37.2 baseline and adds the gpt-5.6 model family while preserving HolyClaude's account-management, browser, base-path, notification, and Codex patches. Cursor Agent moves to build `2026.08.11-e8db854`. npm stays at 11.19.0 because npm 12 rejects CloudCLI's verified shrinkwrap, and TypeScript stays at 6.0.3 because the 7.0.2 native binary carries fixed-version Go findings.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
