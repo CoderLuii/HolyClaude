@@ -343,7 +343,7 @@ test('tracks the refreshed v1.5.7 scanner findings with exact current reviews', 
     const reviews = ledger.reviews.filter((review) =>
       review.vulnerabilities.includes(vulnerability) &&
       review.component.names.includes('chromium') &&
-      review.component.versions.includes('151.0.7922.108-1~deb12u1'));
+      review.component.versions.includes('151.0.7922.173-1~deb12u1'));
     assert.equal(reviews.length, 1, `${vulnerability} must have one exact Chromium review`);
     assert.equal(reviews[0].disposition, 'fixed');
     assert.equal(reviews[0].effectiveSeverity, 'None');

@@ -156,7 +156,7 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "151.0.7922.108",
+      "version": "151.0.7922.173",
       "executable": "/usr/bin/chromium"
     },
     "playwright": {

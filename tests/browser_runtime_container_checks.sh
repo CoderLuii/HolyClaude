@@ -281,7 +281,7 @@ assert_runtime_identity() {
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
   test -x /usr/lib/chromium/chromium
-  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.108-1~deb12u1"
+  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.173-1~deb12u1"
   local cloudcli_version
   local cloudcli_package_version
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"

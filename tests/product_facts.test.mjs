@@ -197,7 +197,7 @@ test('public documentation matches the product facts contract', () => {
   assert.match(dockerHubDescription, /bundled tools contact configured providers directly/i);
   assert.match(dockerHubDescription, /file-based credentials stored there/i);
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 151\.0\.7922\.108/);
+  assert.match(memories, /Debian Chromium 151\.0\.7922\.173/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;
