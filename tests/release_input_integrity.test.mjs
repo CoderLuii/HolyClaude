@@ -137,9 +137,9 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /test -x "\$JUNIE_STAGING\/junie-app\/bin\/junie"/);
   assert.doesNotMatch(dockerfile, /junie\.jetbrains\.com\/install\.sh/);
 
-  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.07\.23-e383d2b/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb/);
+  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.08\.11-e8db854/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=bfff4bf6f4e9dd30c1d0ef0a70b6077b074015dd2948e4c50685d53afdcfce5a/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=ea13f92e295f523a99ce8d8f57d6894d21e5d1e2d030ffad718ccd5955ca2eed/);
   assert.match(dockerfile, /downloads\.cursor\.com\/lab\/\$\{CURSOR_BUILD_ID\}\/linux\/\$\{CURSOR_ASSET_ARCH\}\/agent-cli-package\.tar\.gz/);
   assert.match(dockerfile, /tar --strip-components=1 -xzf \/tmp\/cursor-agent\.tar\.gz -C "\$CURSOR_DIR"/);
   assert.doesNotMatch(dockerfile, /cursor\.com\/install/);
@@ -187,8 +187,8 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185',
     '661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c',
     '976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630',
-    '702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4',
-    'f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb',
+    'bfff4bf6f4e9dd30c1d0ef0a70b6077b074015dd2948e4c50685d53afdcfce5a',
+    'ea13f92e295f523a99ce8d8f57d6894d21e5d1e2d030ffad718ccd5955ca2eed',
     cloudcliManifest.artifact.sha256,
   ]) {
     assert.ok(immutableInputs.includes(value), `immutable input inventory should contain ${value}`);

@@ -298,7 +298,7 @@ assert_runtime_identity() {
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.1"
   require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.220"
-  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.23-e383d2b"
+  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.08.11-e8db854"
   if [ "$VARIANT" = "full" ]; then
     local libssh_gcrypt_path
     require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u2"

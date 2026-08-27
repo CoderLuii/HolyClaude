@@ -67,7 +67,7 @@
       "id": "cursor-agent",
       "name": "Cursor Agent",
       "command": "cursor",
-      "version": "2026.07.23-e383d2b",
+      "version": "2026.08.11-e8db854",
       "variants": [
         "full",
         "slim"
