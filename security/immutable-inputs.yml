@@ -296,9 +296,9 @@ installers:
     install: direct from verified release archive
     status: pinned
   - name: Cursor CLI
-    build-id: 2026.08.11-e8db854
-    amd64-archive-sha256: bfff4bf6f4e9dd30c1d0ef0a70b6077b074015dd2948e4c50685d53afdcfce5a
-    arm64-archive-sha256: ea13f92e295f523a99ce8d8f57d6894d21e5d1e2d030ffad718ccd5955ca2eed
+    build-id: 2026.07.23-e383d2b
+    amd64-archive-sha256: 702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4
+    arm64-archive-sha256: f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb
     launcher-sha256: eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1

@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 const COMMON_PACKAGES = [
   ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.9'],
   [
-    'home/claude/.local/share/cursor-agent/versions/2026.08.11-e8db854/node_modules/piscina/package.json',
+    'home/claude/.local/share/cursor-agent/versions/2026.07.23-e383d2b/node_modules/piscina/package.json',
     'piscina',
     '4.9.0',
     '4.9.3',
