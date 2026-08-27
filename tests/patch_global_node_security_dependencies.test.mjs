@@ -79,7 +79,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json',
     '@earendil-works/pi-coding-agent',
-    '0.82.1',
+    '0.84.3',
     'undici',
     '8.5.0',
     '8.9.0',

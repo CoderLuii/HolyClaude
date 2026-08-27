@@ -188,7 +188,7 @@ const common = {
 };
 const full = {
   '@cloudflare/next-on-pages': '1.13.16',
-  '@earendil-works/pi-coding-agent': '0.82.1',
+  '@earendil-works/pi-coding-agent': '0.84.3',
   '@lhci/cli': '0.15.1',
   '@marp-team/marp-cli': '4.5.0',
   'drizzle-kit': '0.31.10',
@@ -359,7 +359,7 @@ assert_runtime_identity() {
     require_eq "Lighthouse package version" "$(node -p "require('/usr/local/lib/node_modules/lighthouse/package.json').version")" "13.4.1"
     require_eq "Marp CLI package version" "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/package.json').version")" "4.5.0"
     require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.10"
-    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.82.1"
+    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.84.3"
     require_eq "Pi undici dependency" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').dependencies.undici")" "8.9.0"
     require_eq "Pi undici package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json').version")" "8.9.0"
     npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all >/dev/null

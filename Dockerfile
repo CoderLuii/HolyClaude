@@ -529,7 +529,7 @@ RUN if [ "$VARIANT" = "full" ]; then \
 
 # ---------- Pi Coding Agent (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.82.1; \
+    npm i -g --ignore-scripts @earendil-works/pi-coding-agent@0.84.3; \
     fi
 
 # Replace compatible vulnerable transitive packages without changing tool majors.

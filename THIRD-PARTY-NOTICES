@@ -174,7 +174,7 @@ create `.desloppify/`, or modify project files unless a user runs Desloppify.
 - License: MIT
 - Source: https://github.com/earendil-works/pi
 - npm: https://www.npmjs.com/package/@earendil-works/pi-coding-agent
-- Version: 0.82.1, installed in the full image only
+- Version: 0.84.3, installed in the full image only
 
 ## Downstream security backports
 

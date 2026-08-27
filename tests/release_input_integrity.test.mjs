@@ -211,7 +211,7 @@ test('compatible package updates and plugin locks are exact', () => {
     '@google/gemini-cli@0.53.0',
     '@openai/codex@0.146.0',
     'opencode-ai@1.18.10',
-    '@earendil-works/pi-coding-agent@0.82.1',
+    '@earendil-works/pi-coding-agent@0.84.3',
     'pandas==3.0.5',
     'tqdm==4.70.0',
     'matplotlib==3.11.1',
