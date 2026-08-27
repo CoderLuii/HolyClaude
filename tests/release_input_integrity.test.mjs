@@ -86,18 +86,18 @@ test('release base and archive inputs are versioned and checksum-verified', () =
   assert.match(dockerfile, /test "\$\(grep -F "  \$\{FZF_ASSET\}" \/tmp\/fzf-checksums\.txt \| cut -d' ' -f1\)" = "\$FZF_ARCHIVE_SHA256"/);
   assert.match(dockerfile, /echo "\$FZF_ARCHIVE_SHA256  \/tmp\/\$\{FZF_ASSET\}" \| sha256sum -c -/);
   assert.doesNotMatch(dockerfile, /tmux fzf bat bubblewrap/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.173-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=3c8f1f513675d8785925e67a6858407fd5461e4b1903463d127ea6e651a649de/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=8a7f778630287297b1217414d4cd53b9638046ce48f13c2e2994fb5afee012a2/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=560f6d013d1c733d4a84e27209d80235968f3672745c27f6ecd2947ac6c12bd8/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=f0deb575d2486b1d72e4a28c4ea2c3dc0e5abed21c23aa236fdb96a1fa007b3b/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=21d610b5b25e74796350e6d7420acf51917641b7a8f1603a16f9b212b84c3af2/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=5266f3e47219fbed422bd885e05e7c5fc1252203b5112db64d15a986e9293790/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.108-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=739f6bccad739686bdfef6554e5e47860e0db7c2feba12a872f112fc1be28bfc/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=e53e8dd2bc749924e077a74ac81e6417bdcbbd5c4e09a5deb458104ddb34d37b/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=fdd4bf2650ce78eec74f3926c01cbcb4b8312d24691ebf5fadfd8408e8f5675b/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=b9e304cd2612c33bdc04c7edb33c5574b5cb06a35d2159714d42fe04b3c843c8/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=09a74c710900e19fda7c510486dfa1b7fd52d16c095e40585aeacd3e8a0de0f1/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=f9dd0a0f27b0a6e7da50459c212f011c09f89d5d5bab461d4aa5adb3328bcc0b/);
   assert.match(dockerfile, /apt-get download[\s\S]+chromium-common[\s\S]+chromium-sandbox/);
   assert.match(dockerfile, /\| sha256sum -c -/);
   assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' chromium/);
   assert.doesNotMatch(dockerfile, /playwright install/);
-  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 151\.0\.7922\.173-1~deb12u1/);
+  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 151\.0\.7922\.108-1~deb12u1/);
   for (const field of [
     'amd64-chromium-package-sha256',
     'arm64-chromium-package-sha256',

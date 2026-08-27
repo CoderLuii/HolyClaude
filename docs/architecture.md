@@ -144,7 +144,7 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 v1.5.8 keeps the browser stack baked at build time:
 
 - Playwright 1.62.0 is installed for both Node and Python
-- Debian Chromium 151.0.7922.173 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
+- Debian Chromium 151.0.7922.108 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
 - `/usr/bin/chromium` remains the supported wrapper, and `CHROME_PATH` / `PUPPETEER_EXECUTABLE_PATH` still point there
 - Node Playwright, Python Playwright, and CloudCLI Browser Use launch that same wrapper instead of downloading a separate browser
 - There is no runtime browser download

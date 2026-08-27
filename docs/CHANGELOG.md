@@ -15,7 +15,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Raised CloudCLI's nested nanoid to 3.3.18, ip-address to 10.5.0, and fast-uri to 3.1.6 so the Docker overlays no longer downgrade the verified artifact.
 - Updated CloudCLI's reviewed production dependency tree with compatible security fixes for `@remix-run/router`, `brace-expansion`, `glob`, `ip-address`, and React Router, keeping the artifact's production audit at 0 Critical and 0 High.
 - Moved the CloudCLI entrypoint symlink to `dist-server/server/modules/cli/cli.js`, which is where 1.37.x publishes its `bin` target.
-- Updated the pinned Debian Chromium trio from 151.0.7922.108-1~deb12u1 to 151.0.7922.173-1~deb12u1. Bookworm security superseded the previous upload and removed it from the archive, so the pinned build could no longer resolve; the replacement is a later security release on the same branch.
 
 ## [1.5.7] - 08/12/2026
 

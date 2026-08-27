@@ -809,7 +809,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -828,7 +828,7 @@
       },
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-30",
-      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 151.0.7922.173."
+      "rationale": "Both advisories affect Chromium before 150.0.7871.128. HolyClaude installs Debian Chromium 151.0.7922.108."
     },
     {
       "id": "chromium-150-7871-186-security-fixes",
@@ -845,7 +845,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -864,7 +864,7 @@
       },
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-30",
-      "rationale": "Chrome 150.0.7871.186 for Linux includes the four named security fixes. HolyClaude installs the newer Chromium 151.0.7922.173 release."
+      "rationale": "Chrome 150.0.7871.186 for Linux includes the four named security fixes. HolyClaude installs the newer Chromium 151.0.7922.108 release."
     },
     {
       "id": "chromium-151-7922-71-security-fixes",
@@ -990,7 +990,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1009,7 +1009,7 @@
       },
       "reviewedAt": "2026-07-31",
       "expiresAt": "2026-08-30",
-      "rationale": "Chrome 151.0.7922.108 for Linux includes the named security fixes. HolyClaude installs Chromium 151.0.7922.173 from Debian Bookworm Security, a later release on the same branch."
+      "rationale": "Chrome 151.0.7922.108 for Linux includes the named security fixes. HolyClaude installs that exact Chromium release from Debian Bookworm Security."
     },
     {
       "id": "chromium-151-7922-71-debian-fixed-2026-08-02",
@@ -1038,7 +1038,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1057,7 +1057,7 @@
       },
       "reviewedAt": "2026-08-02",
       "expiresAt": "2026-09-01",
-      "rationale": "Debian marks every named Bookworm chromium finding resolved at 151.0.7922.108-1~deb12u1. Both HolyClaude variants install chromium, chromium-common, and chromium-sandbox at 151.0.7922.173-1~deb12u1, a later Bookworm security update on the same branch."
+      "rationale": "Debian marks every named Bookworm chromium finding resolved at 151.0.7922.108-1~deb12u1, the exact chromium, chromium-common, and chromium-sandbox version installed in both HolyClaude variants."
     },
     {
       "id": "chromium-cve-2026-15899-macos-not-affected",
@@ -1071,7 +1071,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1105,7 +1105,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"
@@ -1139,7 +1139,7 @@
           "chromium-sandbox"
         ],
         "versions": [
-          "151.0.7922.173-1~deb12u1"
+          "151.0.7922.108-1~deb12u1"
         ],
         "types": [
           "deb"

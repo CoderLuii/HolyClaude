@@ -109,7 +109,7 @@ Dockerfile, `security/immutable-inputs.yml`, and the release source.
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 151.0.7922.173-1~deb12u1, installed from Bookworm security packages
+- Version: 151.0.7922.108-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 

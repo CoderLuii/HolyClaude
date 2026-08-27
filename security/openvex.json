@@ -911,32 +911,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -946,32 +946,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -981,32 +981,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1016,32 +1016,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1063,32 +1063,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1098,32 +1098,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1133,32 +1133,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1168,32 +1168,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1215,32 +1215,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1250,32 +1250,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1285,32 +1285,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
@@ -1320,32 +1320,32 @@
           "subcomponents": [
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-common@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=amd64"
               }
             },
             {
               "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
+                "purl": "pkg:deb/debian/chromium@151.0.7922.108-1~deb12u1?arch=arm64"
               }
             }
           ]
