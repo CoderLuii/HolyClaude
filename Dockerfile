@@ -21,7 +21,7 @@ RUN case "$TARGETARCH" in amd64) ;; arm64) ;; *) echo "Unsupported TARGETARCH: $
       test "$("/out/${ESBUILD_VERSION}/esbuild" --version)" = "$ESBUILD_VERSION"; \
     done
 
-FROM node:26.7.0-bookworm-slim@sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341 AS ffmpeg-security-builder
+FROM node:26.8.1-bookworm-slim@sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e AS ffmpeg-security-builder
 ENV DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 ARG VARIANT
@@ -72,7 +72,7 @@ RUN test -x /usr/local/bin/build-cryptography-security-backport.sh && \
       PYTHON_BIN=python3 /usr/local/bin/build-cryptography-security-backport.sh; \
     fi
 
-FROM node:26.7.0-bookworm-slim@sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341
+FROM node:26.8.1-bookworm-slim@sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e
 
 ARG HOLYCLAUDE_VERSION=1.5.7
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
