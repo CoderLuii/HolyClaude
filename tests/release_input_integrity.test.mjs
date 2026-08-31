@@ -209,7 +209,7 @@ test('compatible package updates and plugin locks are exact', () => {
     'lighthouse@13.4.1',
     '@marp-team/marp-cli@4.5.0',
     '@google/gemini-cli@0.53.0',
-    '@openai/codex@0.146.0',
+    '@openai/codex@0.151.0',
     'opencode-ai@1.18.10',
     '@earendil-works/pi-coding-agent@0.82.1',
     'pandas==3.0.5',

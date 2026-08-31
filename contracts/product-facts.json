@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.146.0",
+      "version": "0.151.0",
       "variants": [
         "full",
         "slim"

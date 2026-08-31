@@ -170,7 +170,7 @@ const variant = process.argv[3];
 const common = {
   '@cloudcli-ai/cloudcli': '1.36.3',
   '@google/gemini-cli': '0.53.0',
-  '@openai/codex': '0.146.0',
+  '@openai/codex': '0.151.0',
   concurrently: '10.0.4',
   'dotenv-cli': '11.0.0',
   esbuild: '0.28.2',
@@ -292,7 +292,7 @@ assert_runtime_identity() {
   require_eq "pnpm version" "$(pnpm --version)" "11.21.0"
   require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.2.1"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.6"
-  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.146.0"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.151.0"
   require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.53.0"
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.6.2"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
