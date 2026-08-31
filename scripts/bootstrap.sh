@@ -80,11 +80,11 @@ approval_policy = "$CODEX_CLI_APPROVAL_POLICY"
 sandbox_mode = "$CODEX_CLI_SANDBOX_MODE"
 
 [features]
-codex_hooks = true
+hooks = true
 TOML
     echo "[bootstrap] Created Codex CLI config ($CODEX_CLI_CONFIG_LABEL, hooks enabled)"
 elif ! grep -q '^\[features\]' "$CLAUDE_HOME/.codex/config.toml"; then
-    printf '\n[features]\ncodex_hooks = true\n' >> "$CLAUDE_HOME/.codex/config.toml"
+    printf '\n[features]\nhooks = true\n' >> "$CLAUDE_HOME/.codex/config.toml"
     echo "[bootstrap] Added [features] section to existing Codex config"
 fi
 

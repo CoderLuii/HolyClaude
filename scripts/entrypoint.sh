@@ -352,6 +352,25 @@ if [ ! -e "$CLAUDE_HOME/.codex" ]; then
     chown_if_root -h "$PUID:$PGID" "$CLAUDE_HOME/.codex"
 fi
 
+# ---------- Codex CLI feature flag migration (every boot) ----------
+# Codex renamed the hooks feature flag to [features].hooks. The old
+# [features].codex_hooks key still works but warns on every session start, and
+# the config is persisted under ~/.claude, so images shipped before the rename
+# leave the deprecated key behind. Rewrite in place rather than with sed -i so
+# a root startup does not take ownership of a file the claude user must write.
+CODEX_CONFIG="$CLAUDE_HOME/.codex/config.toml"
+if [ -f "$CODEX_CONFIG" ] && grep -q '^[[:space:]]*codex_hooks[[:space:]]*=' "$CODEX_CONFIG"; then
+    if grep -q '^[[:space:]]*hooks[[:space:]]*=' "$CODEX_CONFIG"; then
+        codex_config_migrated="$(sed '/^[[:space:]]*codex_hooks[[:space:]]*=/d' "$CODEX_CONFIG")"
+        codex_config_action="Dropped deprecated [features].codex_hooks (hooks already set)"
+    else
+        codex_config_migrated="$(sed 's/^\([[:space:]]*\)codex_hooks\([[:space:]]*=\)/\1hooks\2/' "$CODEX_CONFIG")"
+        codex_config_action="Renamed deprecated [features].codex_hooks to [features].hooks"
+    fi
+    printf '%s\n' "$codex_config_migrated" > "$CODEX_CONFIG"
+    echo "[entrypoint] $codex_config_action in Codex CLI config"
+fi
+
 # ---------- Gemini CLI config symlink (every boot) ----------
 mkdir -p "$CLAUDE_HOME/.claude/.gemini"
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude/.gemini"
