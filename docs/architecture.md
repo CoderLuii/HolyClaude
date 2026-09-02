@@ -141,7 +141,7 @@ exec Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp
 
 ### Browser Runtime
 
-v1.5.8 keeps the browser stack baked at build time:
+v1.5.9 keeps the browser stack baked at build time:
 
 - Node Playwright 1.62.1 and Python Playwright 1.62.0 are installed in both image variants
 - Debian Chromium 151.0.7922.173 from Bookworm security is pinned in both image variants for `amd64` and `arm64`
@@ -150,7 +150,7 @@ v1.5.8 keeps the browser stack baked at build time:
 - There is no runtime browser download
 - Lighthouse ships in the full image only
 
-Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions. Cursor is bound to architecture-specific build archives and verified launcher and bundled Node input hashes, then its bundled Node is removed and linked to HolyClaude's Node 26.8.1 runtime. s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. Azure CLI 2.90.0 keeps its own compatible Python 3.14.6 and cryptography 48.0.1 environment. The full image rebuilds the Bookworm FFmpeg package set with the retained upstream security patches. Netlify CLI 27.4.2 no longer carries the image-size target that required a downstream patch. The release inventory in `security/immutable-inputs.yml` binds these values to v1.5.8 and expires the review instead of letting it silently age.
+Release inputs that do not have a package-manager lock are checked during the Docker build. Claude Code and Junie use exact supported versions. Cursor is bound to architecture-specific build archives and verified launcher and bundled Node input hashes, then its bundled Node is removed and linked to HolyClaude's Node 26.8.1 runtime. s6-overlay and fzf are checked against upstream release checksums. Azure CLI and GitHub CLI also have pinned bootstrap inputs and installed package assertions. Azure CLI 2.90.0 keeps its own compatible Python 3.14.6 and cryptography 48.0.1 environment. The full image rebuilds the Bookworm FFmpeg package set with the retained upstream security patches. Netlify CLI 27.4.2 no longer carries the image-size target that required a downstream patch. The release inventory in `security/immutable-inputs.yml` binds these values to v1.5.9 and expires the review instead of letting it silently age.
 
 CloudCLI 1.37.2 is built twice in independent containers from the exact release Node image with npm 12.0.2. Both builds must agree on the artifact, source tree, file list, shrinkwrap, and production dependency tree hashes before the vendored artifact is accepted. The packed artifact includes that shrinkwrap. Project Stats and Web Terminal are pinned by commit and installed with reviewed locks through `npm ci`. The full image keeps each npm package's existing esbuild JavaScript API, but rebuilds the retained 0.15.18, 0.18.20, and 0.25.12 native executables with Go 1.27.0. EAS CLI 23.2.0 and Vercel CLI 59.11.1 keep their existing integration roles; their bundled `tar` directories are replaced with checksum-bound `tar` 7.5.22 after the build verifies the exact parent packages and dependency specs. Additional checksum-bound overlays update the exact retained copies of `brace-expansion`, `js-yaml`, `minimatch`, `nanoid`, `path-to-regexp`, `piscina`, `undici`, and `ws` without replacing the owning tools.
 

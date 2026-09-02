@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.5.8 refreshes the existing workstation without changing how you run it. Node moves to 26.8.1, npm to 12.0.2, TypeScript to 7.0.2, CloudCLI to 1.37.2, and Debian Chromium to 151.0.7922.173. Node Playwright 1.62.1 and Python Playwright 1.62.0 both use that same packaged browser. All eight existing AI CLIs keep their current image-variant assignments, and the pinned deployment, library, checksum, and scanner inputs are updated in place. Azure CLI now owns its compatible cryptography runtime, and Netlify CLI 27.4.2 no longer needs HolyClaude's old image parser backport. The FFmpeg security backport remains in the full image.
+v1.5.9 keeps the v1.5.8 workstation stack and corrects two configuration details. Tracked Markdown files now stay on LF line endings, and new or persisted Codex configurations use the current `hooks` feature flag without overwriting an existing setting.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 

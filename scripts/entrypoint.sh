@@ -352,6 +352,45 @@ if [ ! -e "$CLAUDE_HOME/.codex" ]; then
     chown_if_root -h "$PUID:$PGID" "$CLAUDE_HOME/.codex"
 fi
 
+migrate_codex_hooks_feature() {
+    config_file="$1"
+    [ -f "$config_file" ] || return 0
+    grep -Eq '^[[:space:]]*codex_hooks[[:space:]]*=' "$config_file" || return 0
+
+    config_tmp="$(mktemp "${config_file}.tmp.XXXXXX")"
+    awk '
+        {
+            lines[NR] = $0
+            sections[NR] = section
+        }
+        /^[[:space:]]*\[[^]]+\][[:space:]]*(#.*)?$/ {
+            section = $0
+            sub(/^[[:space:]]*\[/, "", section)
+            sub(/\][[:space:]]*(#.*)?$/, "", section)
+            sections[NR] = section
+        }
+        section == "features" && /^[[:space:]]*hooks[[:space:]]*=/ {
+            has_hooks = 1
+        }
+        END {
+            for (line_number = 1; line_number <= NR; line_number++) {
+                line = lines[line_number]
+                if (sections[line_number] == "features" && line ~ /^[[:space:]]*codex_hooks[[:space:]]*=/) {
+                    if (has_hooks) continue
+                    sub(/codex_hooks/, "hooks", line)
+                }
+                print line
+            }
+        }
+    ' "$config_file" > "$config_tmp"
+    chown_if_root --reference="$config_file" "$config_tmp"
+    chmod --reference="$config_file" "$config_tmp"
+    mv -f "$config_tmp" "$config_file"
+    echo "[entrypoint] Migrated Codex feature flag from codex_hooks to hooks"
+}
+
+migrate_codex_hooks_feature "$CLAUDE_HOME/.codex/config.toml"
+
 # ---------- Gemini CLI config symlink (every boot) ----------
 mkdir -p "$CLAUDE_HOME/.claude/.gemini"
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude/.gemini"

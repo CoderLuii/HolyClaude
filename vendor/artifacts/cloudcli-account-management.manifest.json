@@ -40,16 +40,16 @@
     ],
     "generatedAt": "2026-09-01T00:00:00Z",
     "sourceDateNote": "Timestamp is fixed in this manifest so reproducibility checks compare stable fields.",
-    "sourceTreeSha256": "5476131aa09f98117beb21088f3874197e6045ca062c4d7a5bc0f132ee262f5b"
+    "sourceTreeSha256": "10f79d7e753deed190aaa1a7a8c0dfd31f0ed8cc62f424736d2c6d089abebddd"
   },
   "artifact": {
     "file": "cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz",
-    "sha256": "0a5ee9cb87f84b9b6217e6fdea03c9b12808d34d8f779603b848c192f28ce9fd",
-    "size": 5683004,
+    "sha256": "be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85",
+    "size": 5683116,
     "packageFileListSha256": "9ec7b856bd9d98cb6b92713d846997c07211bf5cb4b9a6dea526f88c11a6d5d4",
-    "shrinkwrapSha256": "326fd341811148f0b3f4d72f26e8878d28ac804e5e81a0ce018b17d7398babea",
+    "shrinkwrapSha256": "8dda2f3769c41978d33a08152e9404cae8b1cd010ddbf8737977abcdbc4485f1",
     "productionDependencyTreeSha256": "5d8463562eaaf5c8f154a5154303c55c0d22bc51867174c6bdc4f7b5d8ed0cdc",
-    "duplicatePackSha256": "0a5ee9cb87f84b9b6217e6fdea03c9b12808d34d8f779603b848c192f28ce9fd"
+    "duplicatePackSha256": "be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85"
   },
   "patches": [
     {
@@ -58,7 +58,7 @@
     },
     {
       "file": "0002-security-dependency-refresh.patch",
-      "sha256": "7290990da8b0d794a208816f93aff8c3685dd724dbaf0400615441afe3b60018"
+      "sha256": "9478677018bfeffa01a4b8b898460313564c0672d92a9f9b2c4077f5cdf585a9"
     }
   ],
   "verification": {
@@ -101,10 +101,10 @@
     "productionAudit": {
       "info": 0,
       "low": 0,
-      "moderate": 12,
+      "moderate": 15,
       "high": 0,
       "critical": 0,
-      "total": 12
+      "total": 15
     },
     "existingHolyClaudeRuntimePatchesRunAfterInstall": true
   },
@@ -121,20 +121,20 @@
     "builds": [
       {
         "name": "build-a",
-        "artifactSha256": "0a5ee9cb87f84b9b6217e6fdea03c9b12808d34d8f779603b848c192f28ce9fd",
+        "artifactSha256": "be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85",
         "buildEnvironmentSha256": "41536ca84148d6cecaa9f305028f757a09ff450f88bd5dee53726b7d717a4648",
-        "sourceTreeSha256": "5476131aa09f98117beb21088f3874197e6045ca062c4d7a5bc0f132ee262f5b",
+        "sourceTreeSha256": "10f79d7e753deed190aaa1a7a8c0dfd31f0ed8cc62f424736d2c6d089abebddd",
         "packageFileListSha256": "9ec7b856bd9d98cb6b92713d846997c07211bf5cb4b9a6dea526f88c11a6d5d4",
-        "shrinkwrapSha256": "326fd341811148f0b3f4d72f26e8878d28ac804e5e81a0ce018b17d7398babea",
+        "shrinkwrapSha256": "8dda2f3769c41978d33a08152e9404cae8b1cd010ddbf8737977abcdbc4485f1",
         "productionDependencyTreeSha256": "5d8463562eaaf5c8f154a5154303c55c0d22bc51867174c6bdc4f7b5d8ed0cdc"
       },
       {
         "name": "build-b",
-        "artifactSha256": "0a5ee9cb87f84b9b6217e6fdea03c9b12808d34d8f779603b848c192f28ce9fd",
+        "artifactSha256": "be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85",
         "buildEnvironmentSha256": "41536ca84148d6cecaa9f305028f757a09ff450f88bd5dee53726b7d717a4648",
-        "sourceTreeSha256": "5476131aa09f98117beb21088f3874197e6045ca062c4d7a5bc0f132ee262f5b",
+        "sourceTreeSha256": "10f79d7e753deed190aaa1a7a8c0dfd31f0ed8cc62f424736d2c6d089abebddd",
         "packageFileListSha256": "9ec7b856bd9d98cb6b92713d846997c07211bf5cb4b9a6dea526f88c11a6d5d4",
-        "shrinkwrapSha256": "326fd341811148f0b3f4d72f26e8878d28ac804e5e81a0ce018b17d7398babea",
+        "shrinkwrapSha256": "8dda2f3769c41978d33a08152e9404cae8b1cd010ddbf8737977abcdbc4485f1",
         "productionDependencyTreeSha256": "5d8463562eaaf5c8f154a5154303c55c0d22bc51867174c6bdc4f7b5d8ed0cdc"
       }
     ]

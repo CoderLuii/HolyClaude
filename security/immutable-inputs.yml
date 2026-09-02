@@ -1,5 +1,5 @@
 schema-version: 1
-release: v1.5.8
+release: v1.5.9
 reviewed-at: 2026-09-01
 expires-at: 2026-09-29
 
@@ -308,8 +308,8 @@ vendored-artifacts:
     upstream-commit: 677b7ba43695d5624d1a981c62f87fa086187991
     artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    manifest-sha256: e3f81c84b4c69f39211a7264f64ebf560a0e5f634a389b3df7bca2655e240a55
-    sha256: 0a5ee9cb87f84b9b6217e6fdea03c9b12808d34d8f779603b848c192f28ce9fd
+    manifest-sha256: b25ec8c9488eaf484aabdc8eaa67c1687eabf78bd675e5c24f1260c519d6f652
+    sha256: be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85
     verification: two independent clean builds in the pinned Node image
     status: updated
 

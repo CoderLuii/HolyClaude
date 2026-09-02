@@ -4,6 +4,12 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.9] - 09/02/2026
+
+### Fixed
+- Normalized tracked Markdown files to LF line endings and added a repository rule to keep them consistent.
+- Updated new and persisted Codex configurations to use the current `hooks` feature flag without overwriting an existing setting.
+
 ## [1.5.8] - 09/01/2026
 
 ### Changed

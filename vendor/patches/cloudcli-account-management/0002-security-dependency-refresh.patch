@@ -39,9 +39,12 @@ index 7456fa8..b260b3d 100644
    },
    "devDependencies": {
      "@commitlint/cli": "^20.5.0",
-@@ -250,7 +249,18 @@
+@@ -250,7 +249,21 @@
      "server/**/*.{js,ts}": "eslint"
    },
++  "overrides": {
++    "fast-uri": "3.1.6"
++  },
 +  "allowScripts": {
 +    "@vscode/ripgrep@1.17.1": true,
 +    "bcrypt@6.0.0": true,

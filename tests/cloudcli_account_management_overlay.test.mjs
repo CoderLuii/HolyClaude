@@ -235,6 +235,7 @@ test('CloudCLI patches keep account navigation valid and constrain upload nestin
     '"express": "^4.22.2"',
     '"multer": "^2.2.0"',
     '"ws": "^8.21.3"',
+    '"fast-uri": "3.1.6"',
     '-    "prepare": "husky",',
   ]) {
     assert.ok(securityPatch.includes(expected), `security patch should include ${expected}`);
@@ -244,6 +245,11 @@ test('CloudCLI patches keep account navigation valid and constrain upload nestin
     buildScript.indexOf('verifyVersionInputs(workdir);')
       > buildScript.indexOf("run('git', ['apply', '--index', patchPath]"),
     'patched dependency versions should be verified after both patches apply',
+  );
+  assert.match(
+    securityPatch,
+    /"overrides": \{\n\+    "fast-uri": "3\.1\.6"\n\+  \}/,
+    'the patched package metadata should deterministically resolve the reviewed fast-uri version',
   );
   for (const [dependency, version] of Object.entries({
     'better-sqlite3': '12.11.1',

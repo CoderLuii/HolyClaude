@@ -60,7 +60,7 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.5.8 vendors CloudCLI `1.37.2` with a refreshed compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+HolyClaude v1.5.9 vendors CloudCLI `1.37.2` with a refreshed compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
 
 CloudCLI is a single-user service. Its account controls one shared workspace and credential context. Putting CloudCLI behind a tunnel or sharing its URL does not create separate users, tenants, workspaces, or credential boundaries.
 

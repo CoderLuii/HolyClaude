@@ -55,7 +55,7 @@ COPY --from=python-runtime /usr/local/ /usr/local/
 RUN test "$(python3 --version)" = "Python 3.14.7" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.5.8
+ARG HOLYCLAUDE_VERSION=1.5.9
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -622,7 +622,7 @@ RUN set -eux; \
 
 ARG CLOUDCLI_VERSION=1.37.2
 ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=0a5ee9cb87f84b9b6217e6fdea03c9b12808d34d8f779603b848c192f28ce9fd
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85
 COPY vendor/artifacts/${CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT} /tmp/vendor/cloudcli-ai-cloudcli.tgz
 COPY vendor/artifacts/cloudcli-account-management.manifest.json /tmp/vendor/cloudcli-account-management.manifest.json
 COPY --chown=claude:claude vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json /tmp/vendor/web-terminal-package-lock.json

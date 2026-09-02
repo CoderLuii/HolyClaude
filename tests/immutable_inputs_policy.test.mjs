@@ -20,7 +20,7 @@ function runFixture(mutate = (value) => value) {
     );
     return spawnSync(
       process.execPath,
-      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.5.8'],
+      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.5.9'],
       { encoding: 'utf8' },
     );
   } finally {
@@ -44,9 +44,9 @@ test('rejects immutable input evidence expired before the deterministic as-of da
 });
 
 test('rejects immutable input evidence for another release', () => {
-  const result = runFixture((value) => value.replace('release: v1.5.8', 'release: v1.5.1'));
+  const result = runFixture((value) => value.replace('release: v1.5.9', 'release: v1.5.1'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected release v1\.5\.8/);
+  assert.match(result.stderr, /expected release v1\.5\.9/);
 });
 
 test('rejects an invalid review date', () => {
@@ -172,7 +172,7 @@ test('verifies a referenced manifest hash when one is supplied', () => {
 });
 
 test('rejects duplicate top-level keys instead of silently overriding them', () => {
-  const result = runFixture((value) => `release: v1.5.8\n${value}`);
+  const result = runFixture((value) => `release: v1.5.9\n${value}`);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /duplicate top-level key release/);
 });

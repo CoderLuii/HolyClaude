@@ -207,7 +207,7 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.5\.8$/m);
+  assert.match(immutableInputs, /^release: v1\.5\.9$/m);
   assert.match(immutableInputs, /^expires-at: 2026-09-29$/m);
   for (const value of [
     'sha256:ded31c68586d2e49e760acc2e65a884b23d032e9bbbed0ae0c55abd3fcaf4452',
@@ -285,7 +285,10 @@ test('compatible package updates and plugin locks are exact', () => {
   assert.match(gitAttributes, /^vendor\/locks\/\*\.json text eol=lf$/m);
   assert.equal(webTerminalLock.lockfileVersion, 3);
   assert.equal(webTerminalLock.packages[''].name, 'cloudcli-plugin-terminal');
-  assert.match(dockerfile, /ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=[0-9a-f]{64}/);
+  assert.match(
+    dockerfile,
+    /ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85/,
+  );
   assert.match(
     dockerfile,
     /echo "\$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz" \| sha256sum -c -[\s\S]+npm ci --omit=dev[\s\S]+chmod 0755 "\$CLOUDCLI_ROOT\/dist-server\/server\/modules\/cli\/cli\.js"[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/modules\/cli\/cli\.js" \/usr\/local\/bin\/cloudcli/,
@@ -340,12 +343,12 @@ test('compatible package updates and plugin locks are exact', () => {
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /^run-name: v1\.5\.8$/m);
-  assert.match(workflow, /default: "1\.5\.8"/);
-  assert.match(workflow, /baseline="fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"/);
+  assert.match(workflow, /^run-name: v1\.5\.9$/m);
+  assert.match(workflow, /default: "1\.5\.9"/);
+  assert.match(workflow, /baseline="933682705791de71afb481bfbe161697197ed792"/);
   assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
   assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(workflow, /git rev-parse 'v1\.5\.7\^\{commit\}'\)" = "fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"/);
+  assert.match(workflow, /git rev-parse 'v1\.5\.8\^\{commit\}'\)" = "933682705791de71afb481bfbe161697197ed792"/);
   assert.match(workflow, /SYFT_VERSION: 1\.51\.1/);
   assert.match(workflow, /GRYPE_VERSION: 0\.118\.0/);
   assert.match(workflow, /SYFT_SHA256_AMD64: 8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3/);
@@ -591,10 +594,10 @@ test('libssh findings use exact backend, version, and vendor-severity evidence',
   assert.match(browserRuntimeChecks, /libssh_backend=gcrypt openssl=absent/);
 });
 
-test('release OpenVEX identity uses the v1.5.8 publication date', () => {
+test('release OpenVEX identity uses the v1.5.9 publication date', () => {
   const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
-  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.5.8');
-  assert.equal(vex.timestamp, '2026-09-01T00:00:00Z');
+  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.5.9');
+  assert.equal(vex.timestamp, '2026-09-02T00:00:00Z');
 });
 
 test('json-server smoke tolerates only wait cleanup failure', () => {
