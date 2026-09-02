@@ -335,7 +335,7 @@ export function verifyProductSources(facts, root) {
     throw new Error('claude-code is not installed before the variant-specific CLI region');
   }
   const fullOnlyInstallAnchors = new Map([
-    ['junie', 'JUNIE_ARCHIVE="junie-release-${JUNIE_VERSION}'],
+    ['junie', 'JUNIE_ARCHIVE="junie-nightly-${JUNIE_VERSION}'],
     ['opencode', versionAnchors.get('opencode')],
     ['pi-coding-agent', versionAnchors.get('pi-coding-agent')],
   ]);
@@ -355,7 +355,7 @@ export function verifyProductSources(facts, root) {
   const cloudcliInstallRegion = section(dockerfile, 'ARG CLOUDCLI_VERSION=', '# ---------- CloudCLI plugins (');
   requireMatch(
     cloudcliInstallRegion,
-    /tar -xzf \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz[\s\S]+npm ci --omit=dev[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js" \/usr\/local\/bin\/cloudcli/,
+    /tar -xzf \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz[\s\S]+npm ci --omit=dev[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/modules\/cli\/cli\.js" \/usr\/local\/bin\/cloudcli/,
     'CloudCLI exact production install is missing',
   );
   if (cloudcliInstallRegion.includes('$VARIANT')) {
@@ -364,9 +364,13 @@ export function verifyProductSources(facts, root) {
 
   const chromium = facts.browser.chromium.version;
   requireMatch(dockerfile, new RegExp(`ARG CHROMIUM_DEBIAN_VERSION=${escapeRegex(chromium)}-`), 'Chromium version does not match Dockerfile');
-  for (const binding of ['playwright@', 'playwright==']) {
-    if (!dockerfile.includes(`${binding}${facts.browser.playwright.version}`)) {
-      throw new Error('Playwright version does not match Dockerfile');
+  const playwrightBindings = [
+    ['playwright@', facts.browser.playwright.nodeVersion, 'Node'],
+    ['playwright==', facts.browser.playwright.pythonVersion, 'Python'],
+  ];
+  for (const [binding, version, runtime] of playwrightBindings) {
+    if (!dockerfile.includes(`${binding}${version}`)) {
+      throw new Error(`Playwright ${runtime} version does not match Dockerfile`);
     }
   }
 

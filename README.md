@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-In v1.5.7, Node moves to 26.7.0, Playwright to 1.62.0, tsx to 4.23.12, pnpm to 11.21.0, Vite to 8.2.1, esbuild to 0.28.2, and ESLint to 10.8.1. npm stays at 11.19.0 because npm 12 rejects CloudCLI's verified shrinkwrap. TypeScript stays at 6.0.3 because the 7.0.2 native binary carries fixed-version Go findings. CloudCLI stays at the verified 1.36.3 baseline with patched nested security dependencies. Compatible nested packages in Wrangler, Pi, EAS, PM2, and Vercel are refreshed too. The full image carries downstream backports for Netlify image parsing, FFmpeg, and Azure CLI's cryptography runtime. The release workflow also restores rollback evidence to its consumed path and retries only a failed browser snapshot once.
+v1.5.8 refreshes the existing workstation without changing how you run it. Node moves to 26.8.1, npm to 12.0.2, TypeScript to 7.0.2, CloudCLI to 1.37.2, and Debian Chromium to 151.0.7922.173. Node Playwright 1.62.1 and Python Playwright 1.62.0 both use that same packaged browser. All eight existing AI CLIs keep their current image-variant assignments, and the pinned deployment, library, checksum, and scanner inputs are updated in place. Azure CLI now owns its compatible cryptography runtime, and Netlify CLI 27.4.2 no longer needs HolyClaude's old image parser backport. The FFmpeg security backport remains in the full image.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -580,7 +580,7 @@ This is not a minimal container. This is an entire development workstation.
 | `pyyaml`, `python-dotenv` | Config file parsing |
 | `rich`, `click`, `tqdm` | Beautiful CLIs and progress bars |
 | `desloppify`, `bandit`, `tree-sitter` | Code-quality scans, Python security checks, parser-backed code analysis |
-| `playwright` | Browser automation (Playwright 1.62.0, baked at build time) |
+| `playwright` | Browser automation (Python 1.62.0; Node 1.62.1 is also baked into both images) |
 
 </details>
 

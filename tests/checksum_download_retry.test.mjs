@@ -9,7 +9,6 @@ import test from 'node:test';
 
 const dockerfile = readFileSync('Dockerfile', 'utf8');
 const ffmpegBuilder = readFileSync('scripts/build-ffmpeg-security-backport.sh', 'utf8');
-const cryptographyBuilder = readFileSync('scripts/build-cryptography-security-backport.sh', 'utf8');
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
 const productionRetryArguments = [
   '--disable',
@@ -95,6 +94,7 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
     `${productionCurlPrefix} "/tmp/\${GITHUB_CLI_PACKAGE}"`,
     `${productionCurlPrefix} /tmp/claude-install.sh`,
     `${productionCurlPrefix} /tmp/node-tar.tgz`,
+    `${productionCurlPrefix} /tmp/prisma-mysql2.tgz`,
     `${productionCurlPrefix} "/tmp/setuptools-\${SETUPTOOLS_VERSION}-py3-none-any.whl"`,
     `${productionCurlPrefix} /tmp/cursor-agent.tar.gz`,
     `${productionCurlPrefix} "/tmp/\${JUNIE_ARCHIVE}"`,
@@ -106,23 +106,21 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
   assert.equal(dockerfile.split(`${productionCurlPrefix} "$archive"`).length - 1, 2);
   const dockerfileTemplateCount = dockerfile.split(productionCurlPrefix).length - 1;
   const ffmpegTemplateCount = ffmpegBuilder.split(productionCurlPrefix).length - 1;
-  const cryptographyTemplateCount = cryptographyBuilder.split(productionCurlPrefix).length - 1;
-  assert.equal(dockerfileTemplateCount, 13);
+  assert.equal(dockerfileTemplateCount, 14);
   assert.equal(ffmpegTemplateCount, 1);
-  assert.equal(cryptographyTemplateCount, 1);
-  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount + cryptographyTemplateCount, 15);
+  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 15);
 
   const replaceNodeDownloads = (dockerfile.match(/^\s+replace_node_module \S+/gm) ?? []).length;
   const replaceNestedDownloads = (dockerfile.match(/^\s+replace_nested_node_module \S+/gm) ?? []).length;
   const ffmpegDownloads = (ffmpegBuilder.match(/^download '/gm) ?? []).length;
-  assert.equal(replaceNodeDownloads, 14);
+  assert.equal(replaceNodeDownloads, 10);
   assert.equal(replaceNestedDownloads, 4);
   assert.equal(ffmpegDownloads, 4);
-  const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 7
-    + replaceNodeDownloads + replaceNestedDownloads + ffmpegDownloads + 1;
-  assert.equal(logicalDownloads, 36);
+  const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 8
+    + replaceNodeDownloads + replaceNestedDownloads + ffmpegDownloads;
+  assert.equal(logicalDownloads, 32);
 
-  const checksumDownloadSources = `${dockerfile}\n${ffmpegBuilder}\n${cryptographyBuilder}`;
+  const checksumDownloadSources = `${dockerfile}\n${ffmpegBuilder}`;
   assert.doesNotMatch(checksumDownloadSources, /--retry-delay/);
   assert.doesNotMatch(checksumDownloadSources, /curl -fsSL(?: --retry 3)?/);
   assert.match(s6Block, /if ! \{[\s\S]*?sha256sum -c -;\s*\\\r?\n\s*\}; then/);
@@ -130,7 +128,6 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
   assert.match(s6Block, /rm -f \/tmp\/s6-overlay-noarch\.tar\.xz \/tmp\/s6-overlay-noarch\.tar\.xz\.sha256 "\/tmp\/s6-overlay-\$\{S6_ARCH\}\.tar\.xz" "\/tmp\/s6-overlay-\$\{S6_ARCH\}\.tar\.xz\.sha256"/);
   assert.match(fzfBlock, /fzf_\$\{FZF_VERSION\}_checksums\.txt[\s\S]*?test "\$\(grep -F[\s\S]*?sha256sum -c -/);
   assert.match(ffmpegBuilder, /download 'ffmpeg_5\.1\.9-0\+deb12u1\.debian\.tar\.xz'[\s\S]*?printf '%s  %s\\n'[\s\S]*?\| sha256sum -c -/);
-  assert.match(cryptographyBuilder, /CRYPTOGRAPHY_SOURCE_URL[\s\S]*?printf '%s  %s\\n'[\s\S]*?\| sha256sum -c -/);
 });
 
 test('runtime probes and checksum-verified installer internals remain outside download retries', () => {

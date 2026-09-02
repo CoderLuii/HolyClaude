@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.5.7
+run-name: v1.5.8
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.7"
+        default: "1.5.8"
         type: string
   push:
     branches:
@@ -26,12 +26,12 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
-  SYFT_VERSION: 1.50.0
-  GRYPE_VERSION: 0.116.1
-  SYFT_SHA256_AMD64: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788
-  SYFT_SHA256_ARM64: 887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86
-  GRYPE_SHA256_AMD64: 0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458
-  GRYPE_SHA256_ARM64: a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d
+  SYFT_VERSION: 1.51.1
+  GRYPE_VERSION: 0.118.0
+  SYFT_SHA256_AMD64: 8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3
+  SYFT_SHA256_ARM64: a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f
+  GRYPE_SHA256_AMD64: 1d444c5e7360471815f7158f71935fcecc68a3c417d85c7344f770854300bba2
+  GRYPE_SHA256_ARM64: 32aceeb8ee837244775fcb522372c8b3a47914986385f3148f4ee2c930482a84
   SBOM_UTILITY_VERSION: 0.19.2
   SBOM_UTILITY_SHA256_AMD64: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
   SBOM_UTILITY_SHA256_ARM64: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"
+          baseline="fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.6^{commit}')" = "b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"
+          test "$(git rev-parse 'v1.5.7^{commit}')" = "fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -100,6 +100,24 @@ jobs:
             --as-of "${as_of}" \
             --release "${release}"
           echo "release=${release}" >> "${GITHUB_OUTPUT}"
+
+      - name: Validate committed advisory ledger and OpenVEX
+        shell: bash
+        run: |
+          set -euo pipefail
+          as_of="$(date -u +%F)"
+          node scripts/preflight-security-policy.mjs \
+            --ledger security/advisory-reviews.json \
+            --authority-evidence security/critical-exception-authority-evidence.json \
+            --vex security/openvex.json \
+            --as-of "${as_of}"
+          for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
+            node scripts/preflight-security-policy.mjs \
+              --ledger security/advisory-reviews.json \
+              --authority-evidence "security/critical-exception-authority-evidence-${target}.json" \
+              --vex security/openvex.json \
+              --as-of "${as_of}"
+          done
 
       - name: Run release source checks
         shell: bash
@@ -122,7 +140,7 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v')
     name: candidate (${{ matrix.variant }}, ${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 120
+    timeout-minutes: 300
     needs: validate-release-ref
     permissions:
       actions: read
@@ -150,6 +168,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Free up disk space
@@ -174,7 +193,68 @@ jobs:
           swapon --show --bytes | grep -F "${swap_file}"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Verify CloudCLI artifact reproducibility from two clean builds
+        if: matrix.variant == 'full' && matrix.arch == 'amd64'
+        timeout-minutes: 60
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          node scripts/build-cloudcli-account-management-artifact-container.mjs
+          git diff --exit-code -- \
+            vendor/artifacts/cloudcli-account-management.manifest.json \
+            vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
+
+      - name: Verify FFmpeg artifacts from two empty-cache builds when inputs changed
+        if: matrix.variant == 'full'
+        timeout-minutes: 180
+        run: |
+          set -euo pipefail
+          baseline="fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"
+          if git diff --quiet "${baseline}" -- \
+            Dockerfile \
+            scripts/build-ffmpeg-security-backport.sh \
+            security/patches/ffmpeg; then
+            echo "FFmpeg build inputs are unchanged; independent rebuild is not required"
+            exit 0
+          fi
+          for build in a b; do
+            output="${RUNNER_TEMP}/ffmpeg-build-${build}"
+            image="holyclaude-ffmpeg-repro:${GITHUB_SHA}-${{ matrix.arch }}-${build}"
+            rm -rf "${output}"
+            mkdir -p "${output}"
+            docker buildx build \
+              --no-cache \
+              --platform "linux/${{ matrix.arch }}" \
+              --target ffmpeg-security-builder \
+              --build-arg "TARGETARCH=${{ matrix.arch }}" \
+              --build-arg VARIANT=full \
+              --load \
+              --tag "${image}" \
+              .
+            container="$(docker create "${image}")"
+            docker cp "${container}:/out/ffmpeg-security-backport" "${output}/ffmpeg-security-backport"
+            docker rm "${container}"
+            (cd "${output}/ffmpeg-security-backport" && sha256sum -c SHA256SUMS)
+          done
+          cmp \
+            "${RUNNER_TEMP}/ffmpeg-build-a/ffmpeg-security-backport/SHA256SUMS" \
+            "${RUNNER_TEMP}/ffmpeg-build-b/ffmpeg-security-backport/SHA256SUMS"
+          diff -ru \
+            "${RUNNER_TEMP}/ffmpeg-build-a/ffmpeg-security-backport" \
+            "${RUNNER_TEMP}/ffmpeg-build-b/ffmpeg-security-backport"
+
+      - name: Record cryptography reproducibility disposition
+        if: matrix.variant == 'full' && matrix.arch == 'amd64'
+        run: |
+          set -euo pipefail
+          if [[ -x scripts/build-cryptography-security-backport.sh ]]; then
+            echo "A cryptography backport builder exists but has no independent-build gate" >&2
+            exit 1
+          fi
+          echo "cryptography reproducibility is not applicable because the backport builder was removed"
 
       - name: Login to Docker Hub
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -312,45 +392,121 @@ jobs:
           printf 'Docker Hub candidate: %s@%s\n' "${{ steps.refs.outputs.dockerhub_ref }}" "${dockerhub_digest}"
           printf 'GHCR candidate: %s@%s\n' "${{ steps.refs.outputs.ghcr_ref }}" "${ghcr_digest}"
 
-      - name: Smoke Docker Hub candidate digest
-        timeout-minutes: 45
-        run: |
-          set -euo pipefail
-          bash tests/browser_runtime_smoke.sh \
-            --image "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
-            --variant "${{ matrix.variant }}" \
-            --expected-arch "${{ matrix.arch }}"
-
-      - name: Verify reproducible CloudCLI plugin installs
+      - name: Verify architecture and product facts contract
         timeout-minutes: 15
+        env:
+          IMAGE: ${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}
+          VARIANT: ${{ matrix.variant }}
+          ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          bash tests/plugin_reproducibility_smoke.sh \
-            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}"
+          docker run --rm -i \
+            --entrypoint sh \
+            --user claude \
+            --mount "type=bind,source=${GITHUB_WORKSPACE}/contracts/product-facts.json,target=/tmp/product-facts.json,readonly" \
+            "${IMAGE}" -s -- "${VARIANT}" "${ARCH}" <<'CONTAINER'
+          set -eu
+          variant="$1"
+          arch="$2"
+          case "$arch" in
+            amd64) expected_uname=x86_64 ;;
+            arm64) expected_uname=aarch64 ;;
+            *) echo "unsupported architecture: $arch" >&2; exit 1 ;;
+          esac
 
-      - name: Smoke non-root startup
-        timeout-minutes: 10
-        run: |
-          set -euo pipefail
-          bash tests/docker_rootless_smoke.sh \
-            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
-            "${{ matrix.variant }}-${{ matrix.arch }}"
+          require_eq() {
+            label="$1"
+            actual="$2"
+            expected="$3"
+            if [ "$actual" != "$expected" ]; then
+              echo "$label mismatch: $actual != $expected" >&2
+              exit 1
+            fi
+          }
 
-      - name: Smoke CloudCLI volume persistence
-        timeout-minutes: 15
-        run: |
-          set -euo pipefail
-          bash tests/docker_cloudcli_volume_smoke.sh \
-            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
-            "${{ matrix.variant }}-${{ matrix.arch }}"
+          expected_version() {
+            command="$1"
+            node - "$command" <<'NODE'
+          const facts = require('/tmp/product-facts.json');
+          const command = process.argv[2];
+          const component = command === facts.cloudcli.command
+            ? facts.cloudcli
+            : facts.aiClis.find((entry) => entry.command === command);
+          if (!component) process.exit(1);
+          process.stdout.write(component.version);
+          NODE
+          }
 
-      - name: Smoke Git and GitHub CLI persistence
-        timeout-minutes: 15
+          probe_version() {
+            command="$1"
+            expected="$(expected_version "$command")"
+            output="$("$command" --version 2>&1)"
+            printf '%s: %s\n' "$command" "$output"
+            reported="$(VERSION_COMMAND="$command" VERSION_OUTPUT="$output" node <<'NODE'
+          const command = process.env.VERSION_COMMAND;
+          const output = process.env.VERSION_OUTPUT.trim();
+          const patterns = {
+            cursor: /(?:^|[^0-9A-Za-z])(\d{4}\.\d{2}\.\d{2}-[0-9a-f]+)(?=$|[^0-9A-Za-z])/g,
+            junie: /(?:^|[^0-9A-Za-z])(\d+\.\d+)(?=$|[^0-9A-Za-z])/g,
+          };
+          const pattern = patterns[command]
+            ?? /(?:^|[^0-9A-Za-z])(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?=$|[^0-9A-Za-z])/g;
+          const matches = [...output.matchAll(pattern)].map((match) => match[1]);
+          if (matches.length !== 1) {
+            console.error(`${command} --version returned ${matches.length} normalized version tokens: ${output}`);
+            process.exit(1);
+          }
+          process.stdout.write(matches[0]);
+          NODE
+          )"
+            require_eq "$command version" "$reported" "$expected"
+          }
+
+          require_eq "container architecture" "$(uname -m)" "$expected_uname"
+          probe_version cloudcli
+          probe_version claude
+          probe_version gemini
+          probe_version codex
+          probe_version cursor
+          probe_version task-master
+          if [ "$variant" = full ]; then
+            probe_version junie
+            probe_version opencode
+            probe_version pi
+          else
+            ! command -v junie
+            ! command -v opencode
+            ! command -v pi
+          fi
+
+          chromium_expected="$(node -p "require('/tmp/product-facts.json').browser.chromium.version")"
+          chromium_actual="$(dpkg-query -W -f='${Version}' chromium)"
+          case "$chromium_actual" in
+            "$chromium_expected"|"$chromium_expected"-*) ;;
+            *) echo "Chromium mismatch: $chromium_actual != $chromium_expected" >&2; exit 1 ;;
+          esac
+          test -x /usr/bin/chromium
+          test -x /usr/local/bin/entrypoint.sh
+          for plugin in project-stats web-terminal; do
+            test -f "/home/claude/.claude-code-ui/plugins/${plugin}/package.json"
+          done
+          CONTAINER
+
+      - name: Run complete candidate smoke matrix
+        timeout-minutes: 90
+        env:
+          IMAGE: ${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}
+          VARIANT: ${{ matrix.variant }}
+          ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          bash tests/docker_cli_persistence_smoke.sh \
-            "${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}" \
-            "${{ matrix.variant }}-${{ matrix.arch }}"
+          bash tests/browser_runtime_smoke.sh --image "$IMAGE" --variant "$VARIANT" --expected-arch "$ARCH"
+          bash tests/plugin_reproducibility_smoke.sh "$IMAGE"
+          bash tests/docker_rootless_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_cloudcli_volume_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_cli_persistence_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_persistence_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_ssh_mosh_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
 
       - name: Install pinned security scanners
         shell: bash
@@ -410,6 +566,7 @@ jobs:
           evidence_dir="security-evidence/${{ matrix.variant }}-${{ matrix.arch }}"
           image="${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}"
           mkdir -p "${evidence_dir}"
+          cp security/openvex.json "${evidence_dir}/openvex.json"
           grype db status -o json > "${evidence_dir}/grype-db-status.json"
           GRYPE_DB_STATUS="${evidence_dir}/grype-db-status.json" python3 - <<'PY'
           import json
@@ -445,10 +602,15 @@ jobs:
           sbom-utility validate --input-file "${evidence_dir}/sbom.spdx.json" --quiet
           printf '{}\n' > "${RUNNER_TEMP}/grype-empty.yaml"
           grype --config "${RUNNER_TEMP}/grype-empty.yaml" "sbom:${evidence_dir}/sbom.cyclonedx.json" -o json > "${evidence_dir}/grype.json"
+          node scripts/bind-security-authority-report.mjs \
+            --authority-evidence security/critical-exception-authority-evidence-${{ matrix.variant }}-${{ matrix.arch }}.json \
+            --report "${evidence_dir}/grype.json" \
+            --output "${evidence_dir}/critical-exception-authority-evidence.json"
           set +e
           node scripts/evaluate-security-report.mjs \
             --report "${evidence_dir}/grype.json" \
             --ledger security/advisory-reviews.json \
+            --authority-evidence "${evidence_dir}/critical-exception-authority-evidence.json" \
             --vex security/openvex.json \
             --output-dir "${evidence_dir}" \
             --variant "${{ matrix.variant }}" \
@@ -564,15 +726,6 @@ jobs:
           PY
           (cd "${evidence_dir}" && sha256sum ./*.json > SHA256SUMS)
           exit "${policy_status}"
-
-      - name: Smoke GHCR candidate digest
-        timeout-minutes: 45
-        run: |
-          set -euo pipefail
-          bash tests/browser_runtime_smoke.sh \
-            --image "${{ steps.refs.outputs.ghcr_ref }}@${{ steps.digests.outputs.ghcr_digest }}" \
-            --variant "${{ matrix.variant }}" \
-            --expected-arch "${{ matrix.arch }}"
 
       - name: Write candidate evidence
         shell: bash
@@ -702,6 +855,58 @@ jobs:
           run-id: ${{ needs.resolve-candidate-run.outputs.run_id }}
           github-token: ${{ github.token }}
 
+      - name: Capture exact candidate run and job conclusions
+        env:
+          CANDIDATE_RUN_ID: ${{ needs.resolve-candidate-run.outputs.run_id }}
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p candidate-run-evidence
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}" \
+            > candidate-run-evidence/candidate-run.json
+          gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/runs/${CANDIDATE_RUN_ID}/jobs?per_page=100" \
+            > candidate-run-evidence/candidate-jobs.json
+          GITHUB_SHA="${GITHUB_SHA}" python3 - <<'PY'
+          import json
+          import os
+
+          with open("candidate-run-evidence/candidate-run.json", encoding="utf-8") as handle:
+              run = json.load(handle)
+          if run.get("head_sha") != os.environ["GITHUB_SHA"] or run.get("conclusion") != "success":
+              raise SystemExit("candidate run does not prove this exact successful release commit")
+          candidate_run_attempt = str(run.get("run_attempt", ""))
+          if not candidate_run_attempt.isdigit():
+              raise SystemExit("candidate run API response has an invalid run_attempt")
+
+          with open("candidate-run-evidence/candidate-jobs.json", encoding="utf-8") as handle:
+              jobs = json.load(handle).get("jobs", [])
+          expected = {
+              "candidate (full, amd64)",
+              "candidate (full, arm64)",
+              "candidate (slim, amd64)",
+              "candidate (slim, arm64)",
+          }
+          candidate_jobs = [
+              job
+              for job in jobs
+              if job.get("name") in expected and job.get("conclusion") == "success"
+          ]
+          successful = {job.get("name") for job in candidate_jobs}
+          if len(candidate_jobs) != 4 or successful != expected:
+              raise SystemExit(
+                  f"expected exactly four successful native candidate jobs, got {sorted(successful)}"
+              )
+          job_attempts = {str(job.get("run_attempt", "")) for job in candidate_jobs}
+          if job_attempts != {candidate_run_attempt}:
+              raise SystemExit(
+                  "candidate jobs must match the candidate run API attempt: "
+                  f"{sorted(job_attempts)} != {[candidate_run_attempt]}"
+              )
+          PY
+
       - name: Revalidate candidate security evidence
         shell: bash
         run: |
@@ -791,6 +996,7 @@ jobs:
             node scripts/evaluate-security-report.mjs \
               --report "${report}" \
               --ledger security/advisory-reviews.json \
+              --authority-evidence "${evidence_dir}/critical-exception-authority-evidence.json" \
               --vex security/openvex.json \
               --output-dir "${output}" \
               --variant "${variant}" \
@@ -800,7 +1006,7 @@ jobs:
           done
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
       - name: Login to Docker Hub
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -852,6 +1058,11 @@ jobs:
           from pathlib import Path
 
           evidence_dir = Path("evidence")
+          with Path("candidate-run-evidence/candidate-run.json").open(encoding="utf-8") as f:
+              candidate_run = json.load(f)
+          candidate_run_attempt = str(candidate_run.get("run_attempt", ""))
+          if not candidate_run_attempt.isdigit():
+              raise SystemExit("candidate-run.json has an invalid candidate run attempt")
           records = []
           for path in sorted(evidence_dir.glob("*.json")):
               with path.open(encoding="utf-8") as f:
@@ -869,6 +1080,13 @@ jobs:
           seen_targets = {(record.get("variant"), record.get("arch")) for record in records}
           if seen_targets != expected_targets:
               raise SystemExit(f"unexpected target records: {sorted(seen_targets)}")
+
+          record_attempts = {str(record.get("run_attempt", "")) for record in records}
+          if record_attempts != {candidate_run_attempt}:
+              raise SystemExit(
+                  "candidate records must share exactly one attempt matching candidate-run.json: "
+                  f"{sorted(record_attempts)} != {[candidate_run_attempt]}"
+              )
 
           required = {
               "source_sha",
@@ -899,7 +1117,7 @@ jobs:
                   raise SystemExit(f"invalid candidate run identity in {record}")
               expected_suffix = (
                   f"candidate-{record['source_sha']}-{record['run_id']}-"
-                  f"{record['run_attempt']}-{record['variant']}-{record['arch']}"
+                  f"{candidate_run_attempt}-{record['variant']}-{record['arch']}"
               )
               if not record["dockerhub_ref"].endswith(expected_suffix) or not record["ghcr_ref"].endswith(expected_suffix):
                   raise SystemExit(f"candidate ref mismatch in {record}")
@@ -1218,6 +1436,7 @@ jobs:
             promotion/rollback-required
             promotion/manifests/*.json
             promotion/version-manifests/*.json
+            candidate-run-evidence/*.json
             security-revalidation/**/*.json
             security-evidence/**/*
           if-no-files-found: error
@@ -1390,7 +1609,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.moved.outputs.value == 'true'
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
       - name: Login to Docker Hub
         if: steps.moved.outputs.value == 'true'

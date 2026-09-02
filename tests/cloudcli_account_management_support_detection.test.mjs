@@ -10,7 +10,10 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const detectorScript = path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs');
-const bridgeTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
+const bridgeManifest = JSON.parse(
+  await readFile(path.join(repoRoot, 'vendor/artifacts/cloudcli-account-management.manifest.json'), 'utf8'),
+);
+const bridgeTarball = path.join(repoRoot, 'vendor/artifacts', bridgeManifest.artifact.file);
 
 async function runDetector(targetPath) {
   const { stdout } = await execFileAsync(process.execPath, [detectorScript, targetPath], { cwd: repoRoot });
@@ -55,10 +58,13 @@ test('CloudCLI account-management detector accepts generated HolyClaude bridge a
 
 test('CloudCLI account-management detector accepts upstream support without HolyClaude bridge markers', async () => {
   const cloudcliRoot = await unpackArtifact(bridgeTarball);
-  for (const target of ['server/routes/auth.js', 'dist-server/server/routes/auth.js']) {
+  for (const target of [
+    'server/modules/auth/auth.service.ts',
+    'dist-server/server/modules/auth/auth.service.js',
+  ]) {
     const filePath = path.join(cloudcliRoot, target);
     const source = await readFile(filePath, 'utf8');
-    await writeFile(filePath, source.replaceAll('HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE', 'UPSTREAM_ACCOUNT_MANAGEMENT'));
+    await writeFile(filePath, source.replaceAll('AUTH_PASSWORD_CHANGE_UNAVAILABLE', 'UPSTREAM_PASSWORD_CHANGE_UNAVAILABLE'));
   }
 
   const payload = await runDetector(cloudcliRoot);

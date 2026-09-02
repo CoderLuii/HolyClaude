@@ -317,13 +317,17 @@
         "playwright": {
           "type": "object",
           "required": [
-            "version",
+            "nodeVersion",
+            "pythonVersion",
             "browserDownload",
             "executable"
           ],
           "additionalProperties": false,
           "properties": {
-            "version": {
+            "nodeVersion": {
+              "$ref": "#/$defs/version"
+            },
+            "pythonVersion": {
               "$ref": "#/$defs/version"
             },
             "browserDownload": {

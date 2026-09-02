@@ -21,15 +21,13 @@ const INDEX_OLD_NPM_UPDATE = "npm install -g @cloudcli-ai/cloudcli@latest";
 const targets = [
   {
     label: 'source',
-    cliPath: `${CLOUDCLI_ROOT}/server/cli.js`,
-    indexPath: `${CLOUDCLI_ROOT}/server/index.js`
+    servicePath: `${CLOUDCLI_ROOT}/server/modules/system/system.service.ts`
   },
   {
     label: 'runtime',
-    cliPath: `${CLOUDCLI_ROOT}/dist-server/server/cli.js`,
-    indexPath: `${CLOUDCLI_ROOT}/dist-server/server/index.js`
+    servicePath: `${CLOUDCLI_ROOT}/dist-server/server/modules/system/system.service.js`
   }
-].filter((target) => existsSync(target.cliPath) && existsSync(target.indexPath));
+].filter((target) => existsSync(target.servicePath));
 
 if (targets.length === 0) {
   console.error(ERROR_MESSAGE);
@@ -293,9 +291,41 @@ app.post('/api/system/update', authenticateToken, async (req, res) => {
   return alreadyPatched;
 }
 
+function patchSystemService(path) {
+  let source = readSource(path);
+  const marker = 'HOLYCLAUDE_CLOUDCLI_SELF_UPDATE_DISABLED';
+  if (source.includes(marker)) {
+    return true;
+  }
+
+  const functionAnchor = 'async updateSystem()';
+  const functionIndex = source.indexOf(functionAnchor);
+  const functionEndIndex = findFunctionEnd(source, functionAnchor);
+  if (functionIndex === -1 || functionEndIndex === -1 || !source.includes(INDEX_OLD_NPM_UPDATE)) {
+    console.error(ERROR_MESSAGE);
+    process.exit(1);
+  }
+
+  const replacement = `async updateSystem() {
+            const HOLYCLAUDE_CLOUDCLI_SELF_UPDATE_DISABLED = true;
+            return {
+                success: false,
+                disabled: HOLYCLAUDE_CLOUDCLI_SELF_UPDATE_DISABLED,
+                error: 'CloudCLI self-update is disabled in HolyClaude',
+                message: 'Update HolyClaude with docker compose pull && docker compose up -d.',
+            };
+        }`;
+  source = `${source.slice(0, functionIndex)}${replacement}${source.slice(functionEndIndex)}`;
+  if (!source.includes(marker) || source.includes(INDEX_OLD_NPM_UPDATE)) {
+    console.error(ERROR_MESSAGE);
+    process.exit(1);
+  }
+  writeSource(path, source);
+  return false;
+}
+
 for (const target of targets) {
-  const cliAlreadyPatched = patchCli(target.cliPath);
-  const indexAlreadyPatched = patchIndex(target.indexPath);
-  const status = cliAlreadyPatched && indexAlreadyPatched ? 'already disabled' : 'disabled';
+  const alreadyPatched = patchSystemService(target.servicePath);
+  const status = alreadyPatched ? 'already disabled' : 'disabled';
   console.log(`[patch] CloudCLI self-update ${status} (${target.label})`);
 }

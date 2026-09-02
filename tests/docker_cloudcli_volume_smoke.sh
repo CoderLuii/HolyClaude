@@ -75,7 +75,7 @@ assert_cloudcli_state() {
     test -w /home/claude/.cloudcli
     test ! -L /home/claude/.cloudcli
     if [ -f /home/claude/.cloudcli/auth.db ]; then
-      test \"\$(sqlite3 /home/claude/.cloudcli/auth.db 'PRAGMA quick_check;')\" = ok
+      test \"\$(sqlite3 -cmd \".timeout 10000\" /home/claude/.cloudcli/auth.db 'PRAGMA quick_check;')\" = ok
     fi
   "
 }
@@ -84,8 +84,8 @@ assert_persisted_database() {
   docker_cmd exec "$CONTAINER" sh -lc '
     set -eu
     test -f /home/claude/.cloudcli/auth.db
-    test "$(sqlite3 /home/claude/.cloudcli/auth.db "PRAGMA quick_check;")" = ok
-    test "$(sqlite3 /home/claude/.cloudcli/auth.db "SELECT value FROM holyclaude_volume_probe WHERE key = '\''persistence'\'';")" = verified
+    test "$(sqlite3 -cmd ".timeout 10000" /home/claude/.cloudcli/auth.db "PRAGMA quick_check;")" = ok
+    test "$(sqlite3 -cmd ".timeout 10000" /home/claude/.cloudcli/auth.db "SELECT value FROM holyclaude_volume_probe WHERE key = '\''persistence'\'';")" = verified
     for sidecar in auth.db-wal auth.db-shm auth.db-journal; do
       if [ -e "/home/claude/.cloudcli/$sidecar" ]; then
         test "$(stat -c %u:%g "/home/claude/.cloudcli/$sidecar")" = 1000:1000
@@ -110,7 +110,7 @@ fresh_volume="$NEW_VOLUME"
 start_container "$fresh_volume"
 assert_cloudcli_state 1000:1000
 docker_cmd exec "$CONTAINER" sh -lc '
-  sqlite3 /home/claude/.cloudcli/auth.db "
+  sqlite3 -cmd ".timeout 10000" /home/claude/.cloudcli/auth.db "
     CREATE TABLE IF NOT EXISTS holyclaude_volume_probe (key TEXT PRIMARY KEY, value TEXT NOT NULL);
     INSERT OR REPLACE INTO holyclaude_volume_probe VALUES ('\''persistence'\'', '\''verified'\'');
   "

@@ -1,23 +1,34 @@
 #!/usr/bin/env node
 
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ALLOWED_AUTHORITY_HOSTS = new Set([
   'github.com',
+  'go.dev',
   'chromereleases.googleblog.com',
   'mozilla.org',
   'www.mozilla.org',
   'nodejs.org',
+  'openssl-library.org',
   'nvd.nist.gov',
   'pkg.go.dev',
   'security-tracker.debian.org',
   'www.libssh.org',
+  'www.openssl-library.org',
 ]);
-const ALLOWED_DISPOSITIONS = new Set(['fixed', 'high_exception', 'not_affected', 'vendor_severity']);
+const ALLOWED_DISPOSITIONS = new Set([
+  'critical_exception',
+  'fixed',
+  'high_exception',
+  'not_affected',
+  'vendor_severity',
+]);
 const ALLOWED_VARIANTS = new Set(['full', 'slim']);
 const ALLOWED_ARCHITECTURES = new Set(['amd64', 'arm64']);
-const EXPECTED_GRYPE_VERSION = '0.116.1';
+const EXPECTED_GRYPE_VERSION = '0.118.0';
 const GRYPE_SEVERITIES = new Set(['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical']);
 const SEVERITY_ORDER = new Map([
   ['None', 0],
@@ -33,6 +44,7 @@ const REVIEW_KEYS = new Set([
   'id',
   'vulnerabilities',
   'component',
+  'sourcePackage',
   'disposition',
   'effectiveSeverity',
   'owner',
@@ -44,9 +56,36 @@ const REVIEW_KEYS = new Set([
   'approvedBy',
   'variants',
   'architectures',
+  'authorityEvidence',
 ]);
 const COMPONENT_KEYS = new Set(['names', 'versions', 'types', 'locationPatterns']);
 const AUTHORITY_KEYS = new Set(['name', 'url']);
+const AUTHORITY_EVIDENCE_KEYS = new Set(['schemaVersion', 'candidate', 'records']);
+const AUTHORITY_EVIDENCE_CANDIDATE_KEYS = new Set(['variant', 'architecture', 'reportSha256']);
+const AUTHORITY_EVIDENCE_RECORD_KEYS = new Set([
+  'id',
+  'review',
+  'vulnerability',
+  'component',
+  'sourcePackage',
+  'repository',
+  'advisoryStatus',
+  'fixedVersion',
+  'authority',
+  'checkedAt',
+]);
+const AUTHORITY_EVIDENCE_COMPONENT_KEYS = new Set(['name', 'version', 'type', 'locations']);
+const AUTHORITY_EVIDENCE_REPOSITORY_KEYS = new Set([
+  'origin',
+  'distribution',
+  'suite',
+  'urls',
+  'packageVersion',
+]);
+const OFFICIAL_DEBIAN_REPOSITORY_URLS = [
+  'https://deb.debian.org/debian',
+  'https://security.debian.org/debian-security',
+];
 const VEX_KEYS = new Set(['@context', '@id', 'author', 'timestamp', 'version', 'statements']);
 const VEX_STATEMENT_KEYS = new Set([
   '@id',
@@ -71,6 +110,7 @@ function parseArgs(argv) {
   for (const required of [
     'report',
     'ledger',
+    'authority-evidence',
     'vex',
     'output-dir',
     'variant',
@@ -366,6 +406,60 @@ function validateComponent(review) {
   }
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function exactLocationPattern(location) {
+  return `^${escapeRegExp(location)}$`;
+}
+
+function validateLiteralLocationSelectors(review, errorMessage) {
+  for (const pattern of review.component.locationPatterns) {
+    if (!pattern.startsWith('^/') || !pattern.endsWith('$')) {
+      throw new Error(`${review.id}: ${errorMessage}`);
+    }
+    const body = pattern.slice(1, -1);
+    let literal = '';
+    for (let index = 0; index < body.length; index += 1) {
+      const character = body[index];
+      if (character === '\\') {
+        index += 1;
+        if (index >= body.length) {
+          throw new Error(`${review.id}: ${errorMessage}`);
+        }
+        literal += body[index];
+        continue;
+      }
+      if ('.*+?^${}()|[]'.includes(character)) {
+        throw new Error(`${review.id}: ${errorMessage}`);
+      }
+      literal += character;
+    }
+    if (pattern !== exactLocationPattern(literal)) {
+      throw new Error(`${review.id}: ${errorMessage}`);
+    }
+  }
+}
+
+function validateOfficialVendorHigh(review) {
+  if (review.disposition !== 'vendor_severity' || review.effectiveSeverity !== 'High') return;
+  const authorityUrl = new URL(review.authority.url);
+  if (
+    review.authority.name !== 'Chrome Releases' ||
+    authorityUrl.hostname !== 'chromereleases.googleblog.com'
+  ) {
+    throw new Error(`${review.id}: raw Critical vendor severity requires an explicit official vendor High authority`);
+  }
+  if (review.variants?.length !== 1 || review.architectures?.length !== 1) {
+    throw new Error(`${review.id}: raw Critical vendor severity requires exact variant and architecture selectors`);
+  }
+  validateLiteralLocationSelectors(
+    review,
+    'raw Critical vendor severity requires fully anchored literal location selectors',
+  );
+}
+
 function validateReview(review, asOf) {
   if (!isRecord(review)) throw new Error('each review must be an object');
   validateKeys(review, REVIEW_KEYS, review.id || 'advisory review');
@@ -379,18 +473,28 @@ function validateReview(review, asOf) {
   if (review.disposition === 'accepted_risk') throw new Error(`${review.id}: accepted risk is prohibited`);
   if (!ALLOWED_DISPOSITIONS.has(review.disposition)) throw new Error(`${review.id}: invalid disposition`);
   if (!SEVERITY_ORDER.has(review.effectiveSeverity)) throw new Error(`${review.id}: invalid effective severity`);
-  if (review.effectiveSeverity === 'Critical') throw new Error(`${review.id}: effective Critical findings cannot be dispositioned`);
+  if (review.effectiveSeverity === 'Critical' && review.disposition !== 'critical_exception') {
+    throw new Error(`${review.id}: effective Critical findings cannot be dispositioned without a Critical exception`);
+  }
+  if (review.disposition === 'critical_exception' && review.effectiveSeverity !== 'Critical') {
+    throw new Error(`${review.id}: critical_exception requires effective severity Critical`);
+  }
   if (['fixed', 'not_affected'].includes(review.disposition) && review.effectiveSeverity !== 'None') {
     throw new Error(`${review.id}: ${review.disposition} requires effective severity None`);
   }
   if (review.disposition === 'high_exception' && review.effectiveSeverity !== 'High') {
     throw new Error(`${review.id}: high_exception requires effective severity High`);
   }
-  if (review.effectiveSeverity === 'High' && review.disposition !== 'high_exception') {
+  if (
+    review.effectiveSeverity === 'High' &&
+    !['high_exception', 'vendor_severity'].includes(review.disposition)
+  ) {
     throw new Error(`${review.id}: effective High findings require high_exception`);
   }
   validateAuthority(review);
   validateTargetSelectors(review);
+  validateComponent(review);
+  validateOfficialVendorHigh(review);
 
   const reviewedAt = parseDate(review.reviewedAt, `${review.id}.reviewedAt`);
   const expiresAt = parseDate(review.expiresAt, `${review.id}.expiresAt`);
@@ -404,13 +508,186 @@ function validateReview(review, asOf) {
     const lifetimeDays = (expiresAt - reviewedAt) / 86_400_000;
     if (lifetimeDays > 30) throw new Error(`${review.id}: High exception exceeds 30 days`);
   }
+  if (review.disposition === 'critical_exception') {
+    if (review.approvedBy !== 'CoderLuii') {
+      throw new Error(`${review.id}: Critical exceptions require CoderLuii approval`);
+    }
+    const lifetimeDays = (expiresAt - reviewedAt) / 86_400_000;
+    if (lifetimeDays > 7) throw new Error(`${review.id}: Critical exception exceeds 7 days`);
+    if (review.variants?.length !== 1 || review.architectures?.length !== 1) {
+      throw new Error(`${review.id}: Critical exceptions require exact variant and architecture selectors`);
+    }
+    if (review.component.types.some((type) => type !== 'deb')) {
+      throw new Error(`${review.id}: Critical exceptions apply only to official repository packages`);
+    }
+    if (typeof review.sourcePackage !== 'string' || !review.sourcePackage) {
+      throw new Error(`${review.id}: Critical exceptions require an exact source package`);
+    }
+    validateLiteralLocationSelectors(
+      review,
+      'Critical exceptions require fully anchored literal location selectors',
+    );
+    validateUniqueStrings(review.authorityEvidence, `${review.id}.authorityEvidence`);
+    if (review.vexStatement) throw new Error(`${review.id}: Critical exceptions cannot link OpenVEX`);
+  }
   if (review.disposition === 'not_affected' && !review.vexStatement) {
     throw new Error(`${review.id}: not_affected review must link an OpenVEX statement`);
   }
   if (review.disposition === 'not_affected' && review.vulnerabilities.length !== 1) {
     throw new Error(`${review.id}: not_affected review must cover exactly one vulnerability`);
   }
-  validateComponent(review);
+}
+
+function validateAuthorityEvidence(authorityEvidence, reviews, asOf, expectedCandidate, report) {
+  if (!isRecord(authorityEvidence)) throw new Error('Critical exception authority evidence must be an object');
+  validateKeys(authorityEvidence, AUTHORITY_EVIDENCE_KEYS, 'Critical exception authority evidence');
+  if (authorityEvidence.schemaVersion !== 1) {
+    throw new Error('Critical exception authority evidence schemaVersion must be 1');
+  }
+  if (!isRecord(authorityEvidence.candidate)) {
+    throw new Error('Critical exception authority evidence candidate must be an object');
+  }
+  validateKeys(
+    authorityEvidence.candidate,
+    AUTHORITY_EVIDENCE_CANDIDATE_KEYS,
+    'Critical exception authority evidence candidate',
+  );
+  if (
+    !ALLOWED_VARIANTS.has(authorityEvidence.candidate.variant) ||
+    !ALLOWED_ARCHITECTURES.has(authorityEvidence.candidate.architecture) ||
+    (expectedCandidate
+      ? !/^[a-f0-9]{64}$/.test(authorityEvidence.candidate.reportSha256)
+      : authorityEvidence.candidate.reportSha256 !== null &&
+        !/^[a-f0-9]{64}$/.test(authorityEvidence.candidate.reportSha256))
+  ) {
+    throw new Error('Critical exception authority evidence candidate is invalid');
+  }
+  if (expectedCandidate) {
+    const evaluatesEvidenceCandidate =
+      authorityEvidence.candidate.variant === expectedCandidate.variant &&
+      authorityEvidence.candidate.architecture === expectedCandidate.architecture;
+    if (evaluatesEvidenceCandidate && authorityEvidence.candidate.reportSha256 !== expectedCandidate.reportSha256) {
+      throw new Error('authority evidence report SHA-256 does not match the evaluated report');
+    }
+  }
+  if (!Array.isArray(authorityEvidence.records)) {
+    throw new Error('Critical exception authority evidence records must be an array');
+  }
+  const recordsById = new Map();
+  for (const record of authorityEvidence.records) {
+    if (!isRecord(record)) throw new Error('Critical exception authority evidence records must contain objects');
+    validateKeys(record, AUTHORITY_EVIDENCE_RECORD_KEYS, record.id || 'authority evidence record');
+    if (!record.id || recordsById.has(record.id)) {
+      throw new Error('Critical exception authority evidence record ids must be unique');
+    }
+    recordsById.set(record.id, record);
+    if (!isRecord(record.component)) throw new Error(`${record.id}: authority evidence component is required`);
+    validateKeys(record.component, AUTHORITY_EVIDENCE_COMPONENT_KEYS, `${record.id}.component`);
+    validateUniqueStrings(record.component.locations, `${record.id}.component.locations`);
+    if (
+      !record.component.name ||
+      !record.component.version ||
+      record.component.type !== 'deb' ||
+      !record.sourcePackage
+    ) {
+      throw new Error(`${record.id}: authority evidence requires an exact Debian component and source package`);
+    }
+    if (!isRecord(record.repository)) throw new Error(`${record.id}: authority evidence repository is required`);
+    validateKeys(record.repository, AUTHORITY_EVIDENCE_REPOSITORY_KEYS, `${record.id}.repository`);
+    if (record.repository.origin !== 'official_debian_repository') {
+      throw new Error(`${record.id}: authority evidence requires an official Debian repository origin`);
+    }
+    if (
+      record.repository.distribution !== 'Debian' ||
+      record.repository.suite !== 'bookworm' ||
+      JSON.stringify(record.repository.urls) !== JSON.stringify(OFFICIAL_DEBIAN_REPOSITORY_URLS)
+    ) {
+      throw new Error(`${record.id}: authority evidence repository provenance is not the configured official Debian repository`);
+    }
+    if (record.repository.packageVersion !== record.component.version) {
+      throw new Error(`${record.id}: authority evidence package version does not match the exact component tuple`);
+    }
+    if (record.advisoryStatus !== 'open' || record.fixedVersion !== null) {
+      throw new Error(`${record.id}: authority evidence must record an open advisory with no fixed package version`);
+    }
+    if (!isRecord(record.authority)) throw new Error(`${record.id}: authority evidence authority is required`);
+    validateKeys(record.authority, AUTHORITY_KEYS, `${record.id}.authority`);
+    const authorityUrl = new URL(record.authority.url);
+    if (
+      record.authority.name !== 'Debian Security Tracker' ||
+      authorityUrl.protocol !== 'https:' ||
+      authorityUrl.hostname !== 'security-tracker.debian.org' ||
+      authorityUrl.pathname !== `/tracker/${record.vulnerability}`
+    ) {
+      throw new Error(`${record.id}: authority evidence must use the exact Debian Security Tracker advisory`);
+    }
+    const checkedAt = parseDate(record.checkedAt, `${record.id}.checkedAt`);
+    if (checkedAt > asOf) {
+      throw new Error(`${record.id}: authority evidence checkedAt must equal the review date and not be after as-of`);
+    }
+    if (report && expectedCandidate) {
+      const evaluatesEvidenceCandidate =
+        authorityEvidence.candidate.variant === expectedCandidate.variant &&
+        authorityEvidence.candidate.architecture === expectedCandidate.architecture;
+      if (evaluatesEvidenceCandidate) {
+        const tupleMatches = report.matches.filter((match) =>
+          match.vulnerability?.id === record.vulnerability &&
+          match.artifact?.name === record.component.name &&
+          match.artifact?.version === record.component.version &&
+          match.artifact?.type === record.component.type
+        );
+        if (
+          tupleMatches.length > 1 ||
+          (tupleMatches.length === 1 &&
+          JSON.stringify(locationsFor(tupleMatches[0] ?? {}).sort()) !==
+            JSON.stringify([...record.component.locations].sort()))
+        ) {
+          throw new Error(`${record.id}: authority evidence locations do not match the exact Grype component tuple`);
+        }
+      }
+    }
+  }
+
+  const linkedEvidenceIds = new Set();
+  const targetReviews = reviews.filter((item) =>
+    item.disposition === 'critical_exception' &&
+    item.variants[0] === authorityEvidence.candidate.variant &&
+    item.architectures[0] === authorityEvidence.candidate.architecture
+  );
+  for (const review of targetReviews) {
+    const records = review.authorityEvidence.map((id) => {
+      const record = recordsById.get(id);
+      if (!record) throw new Error(`${review.id}: missing authority evidence ${id}`);
+      if (linkedEvidenceIds.has(id)) throw new Error(`${review.id}: authority evidence ${id} is linked more than once`);
+      linkedEvidenceIds.add(id);
+      return record;
+    });
+    const expectedTuples = review.vulnerabilities.flatMap((vulnerability) =>
+      review.component.names.flatMap((name) =>
+        review.component.versions.map((version) => `${vulnerability}\n${name}\n${version}\ndeb`),
+      ),
+    ).sort();
+    const actualTuples = records.map((record) => {
+      if (record.review !== review.id) throw new Error(`${record.id}: authority evidence review does not match ${review.id}`);
+      if (record.sourcePackage !== review.sourcePackage) {
+        throw new Error(`${record.id}: authority evidence source package does not match the exact component tuple`);
+      }
+      if (record.checkedAt !== review.reviewedAt) {
+        throw new Error(`${record.id}: authority evidence checkedAt must equal the review date and not be after as-of`);
+      }
+      return `${record.vulnerability}\n${record.component.name}\n${record.component.version}\n${record.component.type}`;
+    }).sort();
+    if (JSON.stringify(actualTuples) !== JSON.stringify(expectedTuples)) {
+      throw new Error(`${review.id}: authority evidence does not cover every exact vulnerability and component tuple`);
+    }
+    const evidencePatterns = [...new Set(records.flatMap((record) => record.component.locations.map(exactLocationPattern)))].sort();
+    if (JSON.stringify(evidencePatterns) !== JSON.stringify([...review.component.locationPatterns].sort())) {
+      throw new Error(`${review.id}: authority evidence locations do not match the exact component selectors`);
+    }
+  }
+  for (const record of authorityEvidence.records) {
+    if (!linkedEvidenceIds.has(record.id)) throw new Error(`${record.id}: orphan Critical exception authority evidence`);
+  }
 }
 
 function componentPurls(review, arch) {
@@ -500,12 +777,12 @@ function validateVex(vex, reviews, variant, arch, imageDigest) {
     const reviewVariants = review.variants ?? [...ALLOWED_VARIANTS];
     const reviewArchitectures = review.architectures ?? [...ALLOWED_ARCHITECTURES];
     const expectedProductIds = reviewVariants.flatMap((reviewVariant) => [
-      `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=${reviewVariant}`,
-      `pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=${reviewVariant}`,
+      `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=${reviewVariant}`,
+      `pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=${reviewVariant}`,
     ]).sort();
     for (const reviewVariant of reviewVariants) {
-      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=${reviewVariant}`;
-      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=${reviewVariant}`;
+      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=${reviewVariant}`;
+      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=${reviewVariant}`;
       if (!productIds.includes(ghcrProduct)) {
         throw new Error(`${statement['@id']}: missing exact ${reviewVariant} product`);
       }
@@ -553,6 +830,35 @@ function validateVex(vex, reviews, variant, arch, imageDigest) {
   };
 }
 
+export function validateSecurityPolicy({
+  ledger,
+  authorityEvidence,
+  vex,
+  asOfText,
+  variant = 'slim',
+  arch = 'amd64',
+  imageDigest = `sha256:${'0'.repeat(64)}`,
+  reportSha256,
+  report,
+}) {
+  const asOf = parseDate(asOfText, 'as-of');
+  validateLedger(ledger);
+  validateVexDocument(vex);
+  const reviews = ledger.reviews;
+  for (const review of reviews) validateReview(review, asOf);
+  validateAuthorityEvidence(
+    authorityEvidence,
+    reviews,
+    asOf,
+    reportSha256 ? { variant, architecture: arch, reportSha256 } : undefined,
+    report,
+  );
+  return {
+    reviews,
+    targetVex: validateVex(vex, reviews, variant, arch, imageDigest),
+  };
+}
+
 function ownerFor(match) {
   const paths = locationsFor(match).join('\n');
   if (paths.includes('/home/claude/.local/share/cursor-agent/')) return 'Cursor CLI';
@@ -580,6 +886,11 @@ function findingRecord(match) {
   };
 }
 
+function scannerReportsFix(match) {
+  const fix = match.vulnerability?.fix;
+  return (Array.isArray(fix?.versions) && fix.versions.length > 0) || fix?.state === 'fixed';
+}
+
 function enrichHigh(match) {
   const record = findingRecord(match);
   const fixAvailable = record.fixVersions.length > 0;
@@ -596,16 +907,23 @@ function enrichHigh(match) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const asOfText = args['as-of'] ?? new Date().toISOString().slice(0, 10);
-  const asOf = parseDate(asOfText, 'as-of');
-  const report = readJson(args.report);
+  const reportText = readFileSync(args.report, 'utf8').replace(/^\uFEFF/, '');
+  const report = JSON.parse(reportText);
   const ledger = readJson(args.ledger);
+  const authorityEvidence = readJson(args['authority-evidence']);
   const vex = readJson(args.vex);
   validateReport(report);
-  validateLedger(ledger);
-  validateVexDocument(vex);
-  const reviews = ledger.reviews;
-  for (const review of reviews) validateReview(review, asOf);
-  const targetVex = validateVex(vex, reviews, args.variant, args.arch, args['image-digest']);
+  const { reviews, targetVex } = validateSecurityPolicy({
+    ledger,
+    authorityEvidence,
+    vex,
+    asOfText,
+    variant: args.variant,
+    arch: args.arch,
+    imageDigest: args['image-digest'],
+    reportSha256: createHash('sha256').update(reportText).digest('hex'),
+    report,
+  });
 
   const rawCritical = report.matches.filter((match) => match.vulnerability.severity === 'Critical');
   const rawHigh = report.matches.filter((match) => match.vulnerability.severity === 'High');
@@ -624,6 +942,13 @@ function main() {
     },
   }));
   const errors = [];
+  const criticalExceptionMatchCounts = new Map(
+    reviews
+      .filter(
+        (review) => review.disposition === 'critical_exception' && appliesToTarget(review, args.variant, args.arch),
+      )
+      .map((review) => [review.id, 0]),
+  );
   const reviewedCritical = rawCritical.map((match) => {
     const vulnerability = match.vulnerability?.id;
     const candidates = reviews.filter(
@@ -641,6 +966,13 @@ function main() {
       errors.push(`${review.id}: high_exception only applies to raw High findings`);
       return { ...findingRecord(match), policy: null };
     }
+    if (review.disposition === 'critical_exception') {
+      if (scannerReportsFix(match)) {
+        errors.push(`${review.id}: critical_exception is prohibited because a fix is available`);
+        return { ...findingRecord(match), policy: null };
+      }
+      criticalExceptionMatchCounts.set(review.id, (criticalExceptionMatchCounts.get(review.id) ?? 0) + 1);
+    }
     return {
       ...findingRecord(match),
       policy: {
@@ -657,10 +989,9 @@ function main() {
     };
   });
   const unresolvedCritical = reviewedCritical.filter(
-    (finding) => !finding.policy || finding.policy.effectiveSeverity === 'Critical',
+    (finding) => !finding.policy,
   );
   if (unresolvedCritical.length > 0) errors.push(`${unresolvedCritical.length} Critical findings remain unresolved`);
-
   const highExceptionMatchCounts = new Map(
     reviews
       .filter(
@@ -687,6 +1018,13 @@ function main() {
     const record = enrichHigh(match);
     if (candidates.length !== 1) return { ...record, policy: null };
     const review = candidates[0];
+    if (review.disposition === 'critical_exception') {
+      if (scannerReportsFix(match)) {
+        errors.push(`${review.id}: critical_exception is prohibited because a fix is available`);
+        return { ...record, policy: null };
+      }
+      criticalExceptionMatchCounts.set(review.id, (criticalExceptionMatchCounts.get(review.id) ?? 0) + 1);
+    }
     return {
       ...record,
       policy: {
@@ -704,6 +1042,16 @@ function main() {
   for (const [reviewId, count] of highExceptionMatchCounts) {
     if (count < 1) errors.push(`${reviewId}: matched no High findings`);
   }
+  for (const [reviewId, count] of criticalExceptionMatchCounts) {
+    if (count < 1) errors.push(`${reviewId}: matched no effective-Critical findings`);
+    const expectedCount = reviews.find((review) => review.id === reviewId)?.authorityEvidence.length ?? 0;
+    if (count > 0 && count !== expectedCount) {
+      errors.push(`${reviewId}: matched ${count} of ${expectedCount} effective-Critical findings`);
+    }
+  }
+  const acceptedTemporaryCritical = [...reviewedCritical, ...highFindings].filter(
+    (finding) => finding.policy?.disposition === 'critical_exception',
+  );
   const outputDir = resolve(args['output-dir']);
   mkdirSync(outputDir, { recursive: true });
   writeJson(resolve(outputDir, 'critical-findings.json'), reviewedCritical);
@@ -719,6 +1067,10 @@ function main() {
     rawCriticalCount: rawCritical.length,
     reviewedCriticalCount: reviewedCritical.length - unresolvedCritical.length,
     effectiveCriticalCount: unresolvedCritical.length,
+    acceptedTemporaryCriticalCount: acceptedTemporaryCritical.length,
+    acceptedTemporaryCriticalReviews: [
+      ...new Set(acceptedTemporaryCritical.map((finding) => finding.policy.review)),
+    ].sort(),
     rawHighCount: rawHigh.length,
     mappedHighCount: highFindings.filter((finding) => finding.policy).length,
     ignoredMatchCount: report.ignoredMatches.length,
@@ -729,4 +1081,4 @@ function main() {
   if (errors.length > 0) throw new Error(errors.join('\n'));
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 
 const DEFAULT_CLOUDCLI_ROOT = '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli';
 const inputPath = process.argv[2] || DEFAULT_CLOUDCLI_ROOT;
-const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2', '1.36.3']);
+const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2', '1.36.3', '1.37.2']);
 
 let cleanupPath = null;
 
@@ -54,17 +54,20 @@ function includesAll(source, markers) {
 
 const root = unpackIfNeeded(inputPath);
 const packageJson = readPackageJson(root);
-const sourceAuthRoute = readOptional(path.join(root, 'server/routes/auth.js'));
-const runtimeAuthRoute = readOptional(path.join(root, 'dist-server/server/routes/auth.js'));
-const sourceAuthMiddleware = readOptional(path.join(root, 'server/middleware/auth.js'));
-const runtimeAuthMiddleware = readOptional(path.join(root, 'dist-server/server/middleware/auth.js'));
+const sourceAuthRoute = readOptional(path.join(root, 'server/modules/auth/auth.routes.ts'));
+const runtimeAuthRoute = readOptional(path.join(root, 'dist-server/server/modules/auth/auth.routes.js'));
+const sourceAuthMiddleware = readOptional(path.join(root, 'server/modules/auth/auth.middleware.ts'));
+const runtimeAuthMiddleware = readOptional(path.join(root, 'dist-server/server/modules/auth/auth.middleware.js'));
+const sourceAuthService = readOptional(path.join(root, 'server/modules/auth/auth.service.ts'));
+const runtimeAuthService = readOptional(path.join(root, 'dist-server/server/modules/auth/auth.service.js'));
 const sourceUsersRepo = readOptional(path.join(root, 'server/modules/database/repositories/users.ts'));
 const runtimeUsersRepo = readOptional(path.join(root, 'dist-server/server/modules/database/repositories/users.js'));
 const clientApi = readOptional(path.join(root, 'src/utils/api.js'));
 const clientAssets = readClientAssets(root);
 
-const routeMarkers = ["router.post('/change-password'", 'auth_token_generation', 'Current password is incorrect'];
+const routeMarkers = ["router.post('/change-password'", 'service.changePassword'];
 const middlewareMarkers = ['authTokenGeneration', 'authenticateWebSocket', 'Invalid token. Please sign in again.'];
+const serviceMarkers = ['changePassword', 'auth_token_generation', 'Current password is incorrect'];
 const repositoryMarkers = ['getUserAuthById', 'updatePasswordHash'];
 const clientMarkers = ['/api/auth/change-password', 'Change Password', 'Logout removes the saved browser token'];
 
@@ -73,18 +76,22 @@ const checks = {
   runtimeRoute: includesAll(runtimeAuthRoute, routeMarkers),
   sourceMiddleware: includesAll(sourceAuthMiddleware, middlewareMarkers),
   runtimeMiddleware: includesAll(runtimeAuthMiddleware, middlewareMarkers),
+  sourceService: includesAll(sourceAuthService, serviceMarkers),
+  runtimeService: includesAll(runtimeAuthService, serviceMarkers),
   sourceUsersRepo: includesAll(sourceUsersRepo, repositoryMarkers),
   runtimeUsersRepo: includesAll(runtimeUsersRepo, repositoryMarkers),
   clientApi: clientApi === '' || clientApi.includes('/api/auth/change-password'),
   clientAssets: includesAll(clientAssets, clientMarkers),
-  bridgeMarkers: sourceAuthRoute.includes('HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE')
-    || runtimeAuthRoute.includes('HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE'),
+  bridgeMarkers: sourceAuthService.includes('AUTH_PASSWORD_CHANGE_UNAVAILABLE')
+    || runtimeAuthService.includes('AUTH_PASSWORD_CHANGE_UNAVAILABLE'),
 };
 
 const complete = checks.sourceRoute
   && checks.runtimeRoute
   && checks.sourceMiddleware
   && checks.runtimeMiddleware
+  && checks.sourceService
+  && checks.runtimeService
   && checks.sourceUsersRepo
   && checks.runtimeUsersRepo
   && checks.clientApi

@@ -31,8 +31,33 @@ docker_cmd() {
 }
 
 cleanup() {
+  local original_status=$?
+  local cleanup_status=0
+  if docker_cmd ps --format '{{.Names}}' | grep -Fxq "$CONTAINER"; then
+    docker_cmd exec --user 0:0 "$CONTAINER" sh -lc \
+      'chmod -R a+rwX /var/lib/holyclaude-ssh 2>/dev/null || true' >/dev/null 2>&1 || true
+  fi
   docker_cmd rm -f "$CONTAINER" >/dev/null 2>&1 || true
-  rm -rf "$TMP_DIR"
+  if ! rm -rf "$TMP_DIR" 2>/dev/null; then
+    local cleanup_mount
+    cleanup_mount="$(docker_bind_source "$TMP_DIR")"
+    docker_cmd run --rm \
+      --user 0:0 \
+      --entrypoint sh \
+      --mount "type=bind,source=$cleanup_mount,target=/cleanup" \
+      "$IMAGE" \
+      -lc 'chmod -R a+rwX /cleanup' >/dev/null || cleanup_status=$?
+    if [ "$cleanup_status" -eq 0 ]; then
+      rm -rf "$TMP_DIR" || cleanup_status=$?
+    fi
+  fi
+  if [ "$cleanup_status" -ne 0 ]; then
+    echo "HolyClaude SSH/Mosh smoke cleanup failed with status $cleanup_status" >&2
+  fi
+  if [ "$original_status" -ne 0 ]; then
+    return "$original_status"
+  fi
+  return "$cleanup_status"
 }
 
 dump_debug() {

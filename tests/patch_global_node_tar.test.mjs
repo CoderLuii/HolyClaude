@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -15,18 +15,27 @@ function writeJson(path, value) {
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-node-tar-'));
   const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
+  writeJson(join(lib, 'npm', 'package.json'), {
+    name: 'npm',
+    version: '12.0.2',
+    dependencies: { tar: '^7.5.19' },
+  });
+  writeJson(join(lib, 'npm', 'node_modules', 'tar', 'package.json'), {
+    name: 'tar',
+    version: '7.5.19',
+  });
   writeJson(join(lib, 'eas-cli', 'package.json'), {
     name: 'eas-cli',
-    version: '20.5.1',
-    dependencies: { tar: '7.5.7' },
+    version: '23.2.0',
+    dependencies: { tar: '7.5.19' },
   });
   writeJson(join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'), {
     name: 'tar',
-    version: '7.5.7',
+    version: '7.5.19',
   });
   writeJson(join(lib, 'vercel', 'package.json'), {
     name: 'vercel',
-    version: '54.21.1',
+    version: '59.11.1',
   });
   writeJson(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json'), {
     name: '@vercel/fun',
@@ -43,6 +52,7 @@ function fixture() {
 function installReplacement(root) {
   const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
   for (const path of [
+    join(lib, 'npm', 'node_modules', 'tar', 'package.json'),
     join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'),
     join(lib, 'vercel', 'node_modules', 'tar', 'package.json'),
   ]) {
@@ -50,8 +60,8 @@ function installReplacement(root) {
   }
 }
 
-function run(root, checkBaseline = false) {
-  const args = [script, '--root', root];
+function run(root, checkBaseline = false, variant = 'full') {
+  const args = [script, '--root', root, '--variant', variant];
   if (checkBaseline) args.push('--check-baseline');
   return spawnSync(process.execPath, args, {
     cwd: process.cwd(),
@@ -59,7 +69,7 @@ function run(root, checkBaseline = false) {
   });
 }
 
-test('patches only the verified EAS and Vercel tar dependency specs', () => {
+test('patches the verified npm, EAS, and Vercel tar dependency specs', () => {
   const root = fixture();
   const baseline = run(root, true);
   assert.equal(baseline.status, 0, baseline.stderr);
@@ -68,12 +78,33 @@ test('patches only the verified EAS and Vercel tar dependency specs', () => {
   assert.equal(result.status, 0, result.stderr);
 
   const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
+  const npm = JSON.parse(readFileSync(join(lib, 'npm', 'package.json')));
   const eas = JSON.parse(readFileSync(join(lib, 'eas-cli', 'package.json')));
   const vercelFun = JSON.parse(
     readFileSync(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json')),
   );
+  assert.equal(npm.dependencies.tar, '7.5.22');
   assert.equal(eas.dependencies.tar, '7.5.22');
   assert.equal(vercelFun.dependencies.tar, '7.5.22');
+});
+
+test('patches npm tar in the slim variant without requiring full-only packages', () => {
+  const root = fixture();
+  const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
+  rmSync(join(lib, 'eas-cli'), { recursive: true });
+  rmSync(join(lib, 'vercel'), { recursive: true });
+
+  const baseline = run(root, true, 'slim');
+  assert.equal(baseline.status, 0, baseline.stderr);
+  writeJson(join(lib, 'npm', 'node_modules', 'tar', 'package.json'), {
+    name: 'tar',
+    version: '7.5.22',
+  });
+  const result = run(root, false, 'slim');
+  assert.equal(result.status, 0, result.stderr);
+
+  const npm = JSON.parse(readFileSync(join(lib, 'npm', 'package.json')));
+  assert.equal(npm.dependencies.tar, '7.5.22');
 });
 
 test('accepts an already patched verified tree', () => {
@@ -124,7 +155,7 @@ test('fails closed unless both installed baseline packages are exact', () => {
 
   const result = run(root, true);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected tar@7\.5\.7/);
+  assert.match(result.stderr, /expected tar@7\.5\.19/);
 });
 
 test('fails closed unless both replacement packages are exact', () => {

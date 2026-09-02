@@ -22,16 +22,28 @@ function expectInvalid(value, pattern) {
   assert.throws(() => validateProductFacts(value, schema), pattern);
 }
 
+function workflowJob(source, jobName) {
+  const start = source.indexOf(`  ${jobName}:`);
+  assert.notEqual(start, -1, `workflow is missing ${jobName}`);
+  const remainder = source.slice(start + `  ${jobName}:`.length);
+  const nextJob = remainder.search(/^  [a-z0-9-]+:\s*$/m);
+  return nextJob === -1 ? source.slice(start) : source.slice(start, start + `  ${jobName}:`.length + nextJob);
+}
+
+function assertBuildCandidateDependsOnValidation(source) {
+  assert.match(workflowJob(source, 'build-candidate'), /^\s{4}needs:\s*validate-release-ref\s*$/m);
+}
+
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.7'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.8'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
     () => validateExpectedRelease(facts, 'v1.5.4'),
-    /release v1\.5\.7 does not match expected v1\.5\.4/,
+    /release v1\.5\.8 does not match expected v1\.5\.4/,
   );
 });
 
@@ -162,16 +174,25 @@ test('release workflow gates candidates and does not run on master', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   const triggers = workflow.slice(workflow.indexOf('on:'), workflow.indexOf('\nconcurrency:'));
   const validationJob = workflow.slice(workflow.indexOf('  validate-release-ref:'), workflow.indexOf('  build-candidate:'));
-  const candidateJob = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  promote-manifest:'));
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"/);
+  assert.match(validationJob, /baseline="fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.5\.6\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.7\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
-  assert.match(candidateJob, /^\s*needs:\s*validate-release-ref\s*$/m);
+  assertBuildCandidateDependsOnValidation(workflow);
+});
+
+test('release workflow rejects a build-candidate job without validation dependency', () => {
+  const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
+  const candidate = workflowJob(workflow, 'build-candidate');
+  const withoutDependency = workflow.replace(candidate, candidate.replace(/^\s{4}needs:\s*validate-release-ref\s*\r?\n/m, ''));
+  assert.throws(
+    () => assertBuildCandidateDependsOnValidation(withoutDependency),
+    /needs:\\s\*validate-release-ref/,
+  );
 });
 
 test('public documentation matches the product facts contract', () => {
@@ -186,7 +207,7 @@ test('public documentation matches the product facts contract', () => {
   ].join('\n');
 
   assert.match(readme, /contracts\/product-facts\.json/);
-  assert.match(readme, /Playwright 1\.62\.0, baked at build time/);
+  assert.match(readme, /Python 1\.62\.0; Node 1\.62\.1 is also baked into both images/);
   assert.doesNotMatch(readme, /Playwright 1\.61\.0, baked at build time/);
   assert.match(architecture, /contracts\/product-facts\.json/);
   assert.match(readme, /fallback.*request omits `permissionMode`/i);
@@ -197,7 +218,7 @@ test('public documentation matches the product facts contract', () => {
   assert.match(dockerHubDescription, /bundled tools contact configured providers directly/i);
   assert.match(dockerHubDescription, /file-based credentials stored there/i);
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 151\.0\.7922\.108/);
+  assert.match(memories, /Debian Chromium 151\.0\.7922\.173/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;

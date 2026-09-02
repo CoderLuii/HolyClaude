@@ -10,7 +10,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-browser-runtime.mjs');
-const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
+const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz');
 const marker = '// HolyClaude canonical browser runtime';
 const executablePathField = 'executablePath: process.env.CHROME_PATH,';
 const readinessField = 'const executablePath = process.env.CHROME_PATH || playwright.chromium.executablePath();';

@@ -1,10 +1,10 @@
-diff --git a/server/middleware/auth.js b/server/middleware/auth.js
-index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a584bb1943f 100644
---- a/server/middleware/auth.js
-+++ b/server/middleware/auth.js
-@@ -2,9 +2,21 @@ import jwt from 'jsonwebtoken';
- import { userDb, appConfigDb } from '../modules/database/index.js';
- import { IS_PLATFORM } from '../constants/config.js';
+diff --git a/server/modules/auth/auth.middleware.ts b/server/modules/auth/auth.middleware.ts
+index da45196..0cbc579 100644
+--- a/server/modules/auth/auth.middleware.ts
++++ b/server/modules/auth/auth.middleware.ts
+@@ -5,9 +5,18 @@ import { IS_PLATFORM } from '@/shared/utils.js';
+ 
+ import { userDb, appConfigDb } from '../database/index.js';
  
 +const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
 +
@@ -15,16 +15,13 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
 +
 +const isTokenGenerationValid = (decoded) => {
 +  const currentGeneration = getCurrentAuthTokenGeneration();
-+  if (!currentGeneration) {
-+    return true;
-+  }
-+  return decoded.authTokenGeneration === currentGeneration;
++  return !currentGeneration || decoded.authTokenGeneration === currentGeneration;
 +};
 +
  // Optional API key middleware
  const validateApiKey = (req, res, next) => {
    // Skip API key validation if not configured
-@@ -52,6 +64,10 @@ const authenticateToken = async (req, res, next) => {
+@@ -59,6 +68,10 @@ const authenticateToken = async (req, res, next) => {
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
  
@@ -35,7 +32,7 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
      // Verify user still exists and is active
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
-@@ -78,14 +94,16 @@ const authenticateToken = async (req, res, next) => {
+@@ -104,14 +117,10 @@ const authenticateToken = async (req, res, next) => {
  
  // Generate JWT token
  const generateToken = (user) => {
@@ -47,32 +44,154 @@ index c40237b2beebb832152ebfb59ae0d0a908c56640..247f8270a40050e34e35289e15446a58
 -    JWT_SECRET,
 -    { expiresIn: '7d' }
 -  );
-+  const payload = {
-+    userId: user.id,
-+    username: user.username
-+  };
++  const payload = { userId: user.id, username: user.username };
 +  const currentGeneration = getCurrentAuthTokenGeneration();
-+  if (currentGeneration) {
-+    payload.authTokenGeneration = currentGeneration;
-+  }
-+
++  if (currentGeneration) payload.authTokenGeneration = currentGeneration;
 +  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
  };
  
  // WebSocket authentication function
-@@ -111,6 +129,10 @@ const authenticateWebSocket = (token) => {
+@@ -137,6 +146,7 @@ const authenticateWebSocket = (token) => {
  
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
-+    if (!isTokenGenerationValid(decoded)) {
-+      return null;
-+    }
-+
++    if (!isTokenGenerationValid(decoded)) return null;
      // Verify user actually exists in database (matches REST authenticateToken behavior)
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
+diff --git a/server/modules/auth/auth.module.ts b/server/modules/auth/auth.module.ts
+index 33a4f43..77e0620 100644
+--- a/server/modules/auth/auth.module.ts
++++ b/server/modules/auth/auth.module.ts
+@@ -1,6 +1,8 @@
++import { randomUUID } from 'node:crypto';
+ import { createRequire } from 'node:module';
+ 
+-import { getConnection, userDb } from '@/modules/database/index.js';
++import { appConfigDb, getConnection, userDb } from '@/modules/database/index.js';
++import { IS_PLATFORM } from '@/shared/utils.js';
+ 
+ import { authenticateToken, generateToken } from './auth.middleware.js';
+ import { createAuthRouter } from './auth.routes.js';
+@@ -22,8 +24,11 @@ const authService = createAuthService({
+     hasUsers: () => userDb.hasUsers(),
+     createUser: (username, passwordHash) => userDb.createUser(username, passwordHash),
+     getUserByUsername: (username) => userDb.getUserByUsername(username),
++    getUserAuthById: (userId) => userDb.getUserAuthById(userId),
++    updatePasswordHash: (userId, passwordHash) => userDb.updatePasswordHash(userId, passwordHash),
+     updateLastLogin: (userId) => userDb.updateLastLogin(userId),
+   },
++  appConfig: { set: (key, value) => appConfigDb.set(key, value) },
+   transaction: {
+     begin: () => databaseConnection.prepare('BEGIN').run(),
+     commit: () => databaseConnection.prepare('COMMIT').run(),
+@@ -32,6 +37,8 @@ const authService = createAuthService({
+   hashPassword: (password) => bcrypt.hash(password, 12),
+   comparePassword: (password, passwordHash) => bcrypt.compare(password, passwordHash),
+   generateToken,
++  randomUUID,
++  isPlatform: IS_PLATFORM,
+ });
+ 
+ /** Auth router assembled for the server entrypoint. */
+diff --git a/server/modules/auth/auth.routes.ts b/server/modules/auth/auth.routes.ts
+index 99342fe..2d99084 100644
+--- a/server/modules/auth/auth.routes.ts
++++ b/server/modules/auth/auth.routes.ts
+@@ -53,5 +53,18 @@ export function createAuthRouter(
+     res.json(service.logout());
+   });
+ 
++  router.post('/change-password', authenticateToken, async (req, res, next) => {
++    try {
++      const body = req.body as { currentPassword?: unknown; newPassword?: unknown };
++      res.json(await service.changePassword(
++        (req as AuthenticatedRequest).user,
++        body.currentPassword,
++        body.newPassword,
++      ));
++    } catch (error) {
++      next(error);
++    }
++  });
++
+   return router;
+ }
+diff --git a/server/modules/auth/auth.service.ts b/server/modules/auth/auth.service.ts
+index 91d61f0..4a4606c 100644
+--- a/server/modules/auth/auth.service.ts
++++ b/server/modules/auth/auth.service.ts
+@@ -12,8 +12,11 @@ type AuthDependencies = {
+     hasUsers(): boolean;
+     createUser(username: string, passwordHash: string): AuthUser;
+     getUserByUsername(username: string): AuthLoginUser | undefined;
++    getUserAuthById(userId: number): AuthLoginUser | undefined;
++    updatePasswordHash(userId: number, passwordHash: string): void;
+     updateLastLogin(userId: number): void;
+   };
++  appConfig: { set(key: string, value: string): void };
+   transaction: {
+     begin(): void;
+     commit(): void;
+@@ -22,6 +25,8 @@ type AuthDependencies = {
+   hashPassword(password: string): Promise<string>;
+   comparePassword(password: string, passwordHash: string): Promise<boolean>;
+   generateToken(user: AuthUser): string;
++  randomUUID(): string;
++  isPlatform: boolean;
+ };
+ 
+ function numericUserId(userId: number | bigint): number {
+@@ -151,5 +156,47 @@ export function createAuthService(dependencies: AuthDependencies) {
+     logout() {
+       return { success: true, message: 'Logged out successfully' };
+     },
++
++    async changePassword(userInput: unknown, currentPasswordInput: unknown, newPasswordInput: unknown) {
++      if (dependencies.isPlatform) {
++        throw new AppError('Password changes are not available in platform mode', {
++          code: 'AUTH_PASSWORD_CHANGE_UNAVAILABLE', statusCode: 403,
++        });
++      }
++      const currentPassword = typeof currentPasswordInput === 'string' ? currentPasswordInput : '';
++      const newPassword = typeof newPasswordInput === 'string' ? newPasswordInput : '';
++      if (!currentPassword || !newPassword) {
++        throw new AppError('Current password and new password are required', {
++          code: 'AUTH_PASSWORDS_REQUIRED', statusCode: 400,
++        });
++      }
++      if (newPassword.length < 6) {
++        throw new AppError('New password must be at least 6 characters', {
++          code: 'AUTH_PASSWORD_TOO_SHORT', statusCode: 400,
++        });
++      }
++      if (typeof userInput !== 'object' || userInput === null || !('id' in userInput)) {
++        throw new AppError('Authenticated user is required', {
++          code: 'AUTH_USER_REQUIRED', statusCode: 401,
++        });
++      }
++      const user = dependencies.users.getUserAuthById(numericUserId((userInput as AuthUser).id));
++      if (!user || !(await dependencies.comparePassword(currentPassword, user.password_hash))) {
++        throw new AppError('Current password is incorrect', {
++          code: 'AUTH_CURRENT_PASSWORD_INVALID', statusCode: 401,
++        });
++      }
++      const passwordHash = await dependencies.hashPassword(newPassword);
++      dependencies.transaction.begin();
++      try {
++        dependencies.users.updatePasswordHash(numericUserId(user.id), passwordHash);
++        dependencies.appConfig.set('auth_token_generation', dependencies.randomUUID());
++        dependencies.transaction.commit();
++      } catch (error) {
++        dependencies.transaction.rollback();
++        throw error;
++      }
++      return { success: true, message: 'Password updated. Please sign in again.' };
++    },
+   };
+ }
 diff --git a/server/modules/database/repositories/app-config.ts b/server/modules/database/repositories/app-config.ts
-index 691a1b4eb2721c1c983d41b4d5b272df1e170f62..e929b35629d6a3566a1abff00b43b5d9552e6e2b 100644
+index 691a1b4..e929b35 100644
 --- a/server/modules/database/repositories/app-config.ts
 +++ b/server/modules/database/repositories/app-config.ts
 @@ -29,6 +29,15 @@ export const appConfigDb = {
@@ -92,7 +211,7 @@ index 691a1b4eb2721c1c983d41b4d5b272df1e170f62..e929b35629d6a3566a1abff00b43b5d9
    set(key: string, value: string): void {
      const db = getConnection();
 diff --git a/server/modules/database/repositories/users.ts b/server/modules/database/repositories/users.ts
-index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6313c93c9 100644
+index 25bb57b..adfa0a6 100644
 --- a/server/modules/database/repositories/users.ts
 +++ b/server/modules/database/repositories/users.ts
 @@ -66,6 +66,22 @@ export const userDb = {
@@ -118,112 +237,21 @@ index 25bb57bd8c6248c557e5f712a79b2b939e998b0b..adfa0a66fee56f495af85c8d1ca299c6
    /** Updates the last_login timestamp. Non-fatal — logs but does not throw. */
    updateLastLogin(userId: number): void {
      try {
-diff --git a/server/routes/auth.js b/server/routes/auth.js
-index dcb2e3ff5b25e2a4c27fe5b9c6fa2637694c3b89..26c9bb943a8e3d1e31cab8af9af6be325d9486ca 100644
---- a/server/routes/auth.js
-+++ b/server/routes/auth.js
-@@ -1,11 +1,15 @@
-+import crypto from 'crypto';
- import express from 'express';
- import bcrypt from 'bcrypt';
--import { userDb } from '../modules/database/index.js';
-+import { userDb, appConfigDb } from '../modules/database/index.js';
- import { getConnection } from '../modules/database/connection.js';
-+import { IS_PLATFORM } from '../constants/config.js';
- import { generateToken, authenticateToken } from '../middleware/auth.js';
- 
- const router = express.Router();
- const db = getConnection();
-+const AUTH_TOKEN_GENERATION_KEY = 'auth_token_generation';
-+const PASSWORD_MIN_LENGTH = 6;
- 
- // Check auth status and setup requirements
- router.get('/status', async (req, res) => {
-@@ -31,8 +35,10 @@ router.post('/register', async (req, res) => {
-       return res.status(400).json({ error: 'Username and password are required' });
-     }
-     
--    if (username.length < 3 || password.length < 6) {
--      return res.status(400).json({ error: 'Username must be at least 3 characters, password at least 6 characters' });
-+    if (username.length < 3 || password.length < PASSWORD_MIN_LENGTH) {
-+      return res.status(400).json({
-+        error: `Username must be at least 3 characters, password at least ${PASSWORD_MIN_LENGTH} characters`,
-+      });
-     }
-     
-     // Use a transaction to prevent race conditions
-@@ -127,6 +133,56 @@ router.get('/user', authenticateToken, (req, res) => {
-   });
- });
- 
-+// HOLYCLAUDE_ACCOUNT_MANAGEMENT_BRIDGE: local account password rotation.
-+// Change the local account password and invalidate older session tokens.
-+router.post('/change-password', authenticateToken, async (req, res) => {
-+  if (IS_PLATFORM) {
-+    return res.status(403).json({ error: 'Password changes are not available in platform mode' });
-+  }
-+
-+  try {
-+    const { currentPassword, newPassword } = req.body;
-+
-+    if (!currentPassword || !newPassword) {
-+      return res.status(400).json({ error: 'Current password and new password are required' });
-+    }
-+
-+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
-+      return res.status(400).json({
-+        error: `New password must be at least ${PASSWORD_MIN_LENGTH} characters`,
-+      });
-+    }
-+
-+    const user = userDb.getUserAuthById(req.user.id);
-+    if (!user) {
-+      return res.status(401).json({ error: 'Invalid token. User not found.' });
-+    }
-+
-+    const isValidPassword = await bcrypt.compare(currentPassword, user.password_hash);
-+    if (!isValidPassword) {
-+      return res.status(401).json({ error: 'Current password is incorrect' });
-+    }
-+
-+    const passwordHash = await bcrypt.hash(newPassword, 12);
-+    const nextTokenGeneration = crypto.randomUUID();
-+
-+    db.prepare('BEGIN').run();
-+    try {
-+      userDb.updatePasswordHash(user.id, passwordHash);
-+      appConfigDb.set(AUTH_TOKEN_GENERATION_KEY, nextTokenGeneration);
-+      db.prepare('COMMIT').run();
-+    } catch (error) {
-+      db.prepare('ROLLBACK').run();
-+      throw error;
-+    }
-+
-+    res.json({ success: true, message: 'Password updated. Please sign in again.' });
-+  } catch (error) {
-+    console.error('Change password error:', error);
-+    res.status(500).json({ error: 'Internal server error' });
-+  }
-+});
-+
- // Logout (client-side token removal, but this endpoint can be used for logging)
- router.post('/logout', authenticateToken, (req, res) => {
-   // In a simple JWT system, logout is mainly client-side
 diff --git a/src/components/auth/context/AuthContext.tsx b/src/components/auth/context/AuthContext.tsx
-index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f310305095 100644
+index 65d3e4a..84ea9d3 100644
 --- a/src/components/auth/context/AuthContext.tsx
 +++ b/src/components/auth/context/AuthContext.tsx
-@@ -3,6 +3,7 @@ import { IS_PLATFORM } from '../../../constants/config';
- import { api } from '../../../utils/api';
+@@ -11,6 +11,7 @@ import {
+ } from '../../../utils/api';
  import { AUTH_ERROR_MESSAGES, AUTH_TOKEN_STORAGE_KEY } from '../constants';
  import type {
 +  ApiErrorPayload,
    AuthContextValue,
    AuthProviderProps,
    AuthSessionPayload,
-@@ -191,6 +192,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
-     }
-   }, [clearSession, token]);
+@@ -271,6 +272,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
+     clearSession();
+   }, [clearSession]);
  
 +  const changePassword = useCallback<AuthContextValue['changePassword']>(
 +    async (currentPassword, newPassword) => {
@@ -231,12 +259,9 @@ index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f3
 +        setError(null);
 +        const response = await api.auth.changePassword(currentPassword, newPassword);
 +        const payload = await parseJsonSafely<ApiErrorPayload>(response);
-+
 +        if (!response.ok) {
-+          const message = resolveApiErrorMessage(payload, 'Password change failed');
-+          return { success: false, error: message };
++          return { success: false, error: resolveApiErrorMessage(payload, 'Password change failed') };
 +        }
-+
 +        clearSession();
 +        return { success: true };
 +      } catch (caughtError) {
@@ -250,7 +275,7 @@ index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f3
    const contextValue = useMemo<AuthContextValue>(
      () => ({
        user,
-@@ -202,12 +225,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
+@@ -282,12 +302,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
        login,
        register,
        logout,
@@ -266,7 +291,7 @@ index 69bdd8a5d0084fe6fe9610304880fbe98c044314..323c4e539a1751ca4c5274171c0f60f3
        logout,
        needsSetup,
 diff --git a/src/components/auth/types.ts b/src/components/auth/types.ts
-index e745a3727fee890991bd2aa70b0ead71533499fb..a9b151563655db4bbf489c9156f52d36436a2649 100644
+index e745a37..a9b1515 100644
 --- a/src/components/auth/types.ts
 +++ b/src/components/auth/types.ts
 @@ -42,6 +42,7 @@ export type AuthContextValue = {
@@ -278,7 +303,7 @@ index e745a3727fee890991bd2aa70b0ead71533499fb..a9b151563655db4bbf489c9156f52d36
  };
  
 diff --git a/src/components/settings/constants/constants.ts b/src/components/settings/constants/constants.ts
-index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057eecf8e1b 100644
+index 8c42908..cb4bbc4 100644
 --- a/src/components/settings/constants/constants.ts
 +++ b/src/components/settings/constants/constants.ts
 @@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
@@ -299,7 +324,7 @@ index 8c429083dfcfcdabf80899eaeeb28f1c5385f7e7..cb4bbc416b4b7f2e932a94e0ed147057
    { id: 'git', label: 'Git', keywords: 'git github commits', icon: GitBranch },
 diff --git a/src/components/settings/hooks/normalizeMainTab.ts b/src/components/settings/hooks/normalizeMainTab.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..44ef3d105e0a2ec9d99d3d562e4ae06d6ae1cdc9
+index 0000000..44ef3d1
 --- /dev/null
 +++ b/src/components/settings/hooks/normalizeMainTab.ts
 @@ -0,0 +1,12 @@
@@ -316,7 +341,7 @@ index 0000000000000000000000000000000000000000..44ef3d105e0a2ec9d99d3d562e4ae06d
 +  return KNOWN_MAIN_TABS.includes(tab as SettingsMainTab) ? (tab as SettingsMainTab) : 'agents';
 +};
 diff --git a/src/components/settings/hooks/useSettingsController.ts b/src/components/settings/hooks/useSettingsController.ts
-index cc57d377321fe9fdca0d1754e6780eca23790e04..ac312b918e3ff59b74bcc7029fa797c17f222465 100644
+index cc57d37..ac312b9 100644
 --- a/src/components/settings/hooks/useSettingsController.ts
 +++ b/src/components/settings/hooks/useSettingsController.ts
 @@ -8,6 +8,7 @@ import {
@@ -346,7 +371,7 @@ index cc57d377321fe9fdca0d1754e6780eca23790e04..ac312b918e3ff59b74bcc7029fa797c1
    if (!value) {
      return fallback;
 diff --git a/src/components/settings/types/types.ts b/src/components/settings/types/types.ts
-index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5ce8243158 100644
+index 514de2f..2318ce6 100644
 --- a/src/components/settings/types/types.ts
 +++ b/src/components/settings/types/types.ts
 @@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
@@ -359,7 +384,7 @@ index 514de2f3c75323f279dee17a2bce4092a33c4f7f..2318ce6fdd3dc65a9b48c1c4dd3a8b5c
  export type AgentCategory = 'account' | 'permissions' | 'mcp' | 'skills';
  export type ProjectSortOrder = 'name' | 'date';
 diff --git a/src/components/settings/view/Settings.tsx b/src/components/settings/view/Settings.tsx
-index 37f40bc96d5ad1de989e558082ec37cd90038392..d49b47ed9ef96b6559c5b59e94f69306ab42577a 100644
+index 37f40bc..d49b47e 100644
 --- a/src/components/settings/view/Settings.tsx
 +++ b/src/components/settings/view/Settings.tsx
 @@ -6,6 +6,7 @@ import ProviderLoginModal from '../../provider-auth/view/ProviderLoginModal';
@@ -380,7 +405,7 @@ index 37f40bc96d5ad1de989e558082ec37cd90038392..d49b47ed9ef96b6559c5b59e94f69306
                  <AppearanceSettingsTab
                    projectSortOrder={projectSortOrder}
 diff --git a/src/components/settings/view/SettingsMainTabs.tsx b/src/components/settings/view/SettingsMainTabs.tsx
-index 5c15f6de91b2d12acebbe163e18c35df4ae3dad0..269a5d8d89eebd42a0cdbc4137256b6ad3853281 100644
+index 5c15f6d..269a5d8 100644
 --- a/src/components/settings/view/SettingsMainTabs.tsx
 +++ b/src/components/settings/view/SettingsMainTabs.tsx
 @@ -1,4 +1,4 @@
@@ -398,7 +423,7 @@ index 5c15f6de91b2d12acebbe163e18c35df4ae3dad0..269a5d8d89eebd42a0cdbc4137256b6a
    { id: 'appearance', labelKey: 'mainTabs.appearance' },
    { id: 'git', labelKey: 'mainTabs.git', icon: GitBranch },
 diff --git a/src/components/settings/view/SettingsSidebar.tsx b/src/components/settings/view/SettingsSidebar.tsx
-index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65a67a2397 100644
+index 3b76976..edf35c2 100644
 --- a/src/components/settings/view/SettingsSidebar.tsx
 +++ b/src/components/settings/view/SettingsSidebar.tsx
 @@ -1,4 +1,4 @@
@@ -442,7 +467,7 @@ index 3b76976e9f3f78e0d6c0596691587e5563869d6f..edf35c2704266ff58f759b8a6d51ee65
            })}
 diff --git a/src/components/settings/view/tabs/AccountSettingsTab.tsx b/src/components/settings/view/tabs/AccountSettingsTab.tsx
 new file mode 100644
-index 0000000000000000000000000000000000000000..f75c8284222e172f91834f434f847ddc732a2e0b
+index 0000000..f75c828
 --- /dev/null
 +++ b/src/components/settings/view/tabs/AccountSettingsTab.tsx
 @@ -0,0 +1,155 @@
@@ -450,7 +475,7 @@ index 0000000000000000000000000000000000000000..f75c8284222e172f91834f434f847ddc
 +import type { FormEvent } from 'react';
 +import { Loader2, LogOut } from 'lucide-react';
 +
-+import { IS_PLATFORM } from '../../../../constants/config';
++import { IS_PLATFORM } from '../../../../shared/utils';
 +import { useAuth } from '../../../auth/context/AuthContext';
 +import { Button, Input } from '../../../../shared/view/ui';
 +import SettingsCard from '../SettingsCard';
@@ -603,7 +628,7 @@ index 0000000000000000000000000000000000000000..f75c8284222e172f91834f434f847ddc
 +}
 diff --git a/src/components/settings/view/tabs/accountSettings.ts b/src/components/settings/view/tabs/accountSettings.ts
 new file mode 100644
-index 0000000000000000000000000000000000000000..6344e9631e7daf284b505d8574e3c6ab1fe1780a
+index 0000000..6344e96
 --- /dev/null
 +++ b/src/components/settings/view/tabs/accountSettings.ts
 @@ -0,0 +1,23 @@
@@ -631,11 +656,11 @@ index 0000000000000000000000000000000000000000..6344e9631e7daf284b505d8574e3c6ab
 +  return null;
 +}
 diff --git a/src/utils/api.js b/src/utils/api.js
-index e5eb3fbcd4bd8545af1aca11bcc15375a6153422..7532dce7f302870081a8e7d964a36934d3949e5a 100644
+index 3bffd89..9767dca 100644
 --- a/src/utils/api.js
 +++ b/src/utils/api.js
-@@ -58,6 +58,10 @@ export const api = {
-     }),
+@@ -142,6 +142,10 @@ export const api = {
+     refresh: () => authenticatedFetch('/api/auth/refresh', { method: 'POST' }),
      user: () => authenticatedFetch('/api/auth/user'),
      logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
 +    changePassword: (currentPassword, newPassword) => authenticatedFetch('/api/auth/change-password', {
@@ -645,3 +670,43 @@ index e5eb3fbcd4bd8545af1aca11bcc15375a6153422..7532dce7f302870081a8e7d964a36934
    },
  
    // Protected endpoints
+diff --git a/server/modules/auth/tests/auth.service.test.ts b/server/modules/auth/tests/auth.service.test.ts
+index 492db34..b5ef6f4 100644
+--- a/server/modules/auth/tests/auth.service.test.ts
++++ b/server/modules/auth/tests/auth.service.test.ts
+@@ -12,6 +12,9 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
+       hasUsers: () => false,
+       createUser: (username, passwordHash) => ({ id: 1, username, password_hash: passwordHash }),
+       getUserByUsername: () => undefined,
++      getUserAuthById: () => undefined,
++      updatePasswordHash: () => undefined,
+       updateLastLogin: () => undefined,
+     },
++    appConfig: { set: () => undefined },
+     transaction: {
+@@ -28,5 +31,7 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
+     comparePassword: async () => false,
+     generateToken: () => 'signed-token',
++    randomUUID: () => 'token-generation',
++    isPlatform: false,
+     ...overrides,
+   };
+ }
+@@ -43,6 +48,8 @@ test('register hashes credentials and commits through injected dependencies', as
+         return { id: 1, username, password_hash: passwordHash };
+       },
+       getUserByUsername: () => undefined,
++      getUserAuthById: () => undefined,
++      updatePasswordHash: () => undefined,
+       updateLastLogin: (userId) => operations.push(`login:${userId}`),
+     },
+   }));
+@@ -63,6 +70,8 @@ test('login rejects an invalid password without issuing a token', async () => {
+       hasUsers: () => true,
+       createUser: () => { throw new Error('unused'); },
+       getUserByUsername: () => ({ id: 1, username: 'alice', password_hash: 'hash' }),
++      getUserAuthById: () => undefined,
++      updatePasswordHash: () => undefined,
+       updateLastLogin: () => undefined,
+     },
+     comparePassword: async () => false,

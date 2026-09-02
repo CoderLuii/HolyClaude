@@ -10,16 +10,11 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-codex-complete-exit-code.mjs');
-const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.36.3-holyclaude-account-management.tgz');
+const cloudcliTarball = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz');
 
 const providerTargets = [
   'server/modules/providers/list/codex/codex-sessions.provider.ts',
   'dist-server/server/modules/providers/list/codex/codex-sessions.provider.js'
-];
-
-const openAiCodexTargets = [
-  'server/openai-codex.js',
-  'dist-server/server/openai-codex.js'
 ];
 
 async function unpackCloudCli() {
@@ -54,12 +49,6 @@ function assertProviderCompleteFields(source, relativePath) {
 
 test('CloudCLI Codex completion patch guards provider turn_complete fields', async () => {
   const cloudcliRoot = await unpackCloudCli();
-
-  for (const target of openAiCodexTargets) {
-    const source = await readCloudCliFile(cloudcliRoot, target);
-    assert.ok(source.includes('exitCode: terminalFailure ? 1 : 0'), `${target} should include upstream final success exitCode`);
-    assert.ok(source.includes('exitCode: 1'), `${target} should include upstream error exitCode`);
-  }
 
   for (const target of providerTargets) {
     const source = await readCloudCliFile(cloudcliRoot, target);
@@ -97,24 +86,6 @@ test('CloudCLI Codex completion patch fails closed when provider anchor drifts',
     await writeFile(
       targetPath,
       source.replace("raw.type === 'turn_complete'", "raw.type === 'turn_done'")
-    );
-  }
-
-  await assert.rejects(
-    () => runPatch(cloudcliRoot),
-    /CloudCLI Codex complete exitCode anchors not found/
-  );
-});
-
-test('CloudCLI Codex completion patch fails closed without upstream final exitCode', async () => {
-  const cloudcliRoot = await unpackCloudCli();
-
-  for (const target of openAiCodexTargets) {
-    const targetPath = path.join(cloudcliRoot, target);
-    const source = await readFile(targetPath, 'utf8');
-    await writeFile(
-      targetPath,
-      source.replace('exitCode: terminalFailure ? 1 : 0', 'exitCode: 0')
     );
   }
 

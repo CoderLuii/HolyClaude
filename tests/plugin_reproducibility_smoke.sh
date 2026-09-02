@@ -28,7 +28,7 @@ install_and_hash() {
   cp -a "$source" "$target"
   rm -rf "$target/.git" "$target/dist" "$target/node_modules"
   cd "$target"
-  npm ci >/dev/null
+  npm ci --strict-allow-scripts >/dev/null
   npm run build >/dev/null
   tree_hash="$(npm ls --all --omit=dev --json | sha256sum | awk '{print $1}')"
   dist_hash="$(cd dist && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $1}')"

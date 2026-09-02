@@ -4,6 +4,21 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.8] - 09/01/2026
+
+### Changed
+- Updated the build and runtime stack to Go 1.27.0, Node 26.8.1, Python 3.14.7, npm 12.0.2, fzf 0.74.3, Debian Chromium 151.0.7922.173, Azure CLI 2.90.0, and GitHub CLI 2.99.0.
+- Updated Claude Code to 2.1.258, Gemini CLI to 0.58.0, Codex to 0.152.1, Cursor Agent to build `2026.08.31-4057e58`, Junie to 3126.1, OpenCode to 1.18.26, and Pi Coding Agent to 0.84.4. TaskMaster AI remains current at 0.43.1.
+- Updated CloudCLI to 1.37.2 while preserving the existing account management, browser, base-path, Codex, notification, and two-plugin integrations.
+- Updated the pinned JavaScript, Python, deployment, database, browser, and release-tool inputs recorded in the Dockerfile and release contracts. Node Playwright 1.62.1 and Python Playwright 1.62.0 now use an explicit independent-version contract against the same packaged Chromium.
+- Updated Syft to 1.51.1, Grype to 0.118.0, Docker Buildx setup to 4.3.0, immutable checksums, notices, and release contracts for v1.5.8.
+
+### Fixed
+- Made the CloudCLI 1.37.2 artifact reproducible under npm 12 by generating and consuming its committed production shrinkwrap.
+- Removed the obsolete Netlify image-size and Azure cryptography backports after the upgraded parent packages no longer required those downstream patches.
+- Moved the runtime Python packages to the pinned Python 3.14.7 base and updated NumPy to 2.5.2.
+- Kept the Bookworm FFmpeg security backport and its exact source and patch verification.
+
 ## [1.5.7] - 08/12/2026
 
 ### Changed

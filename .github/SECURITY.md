@@ -60,7 +60,7 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.5.5 vendors CloudCLI `1.36.3` with a refreshed compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+HolyClaude v1.5.8 vendors CloudCLI `1.37.2` with a refreshed compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
 
 CloudCLI is a single-user service. Its account controls one shared workspace and credential context. Putting CloudCLI behind a tunnel or sharing its URL does not create separate users, tenants, workspaces, or credential boundaries.
 
@@ -70,7 +70,7 @@ The release gate keeps the original Grype report and then evaluates every raw Cr
 
 Grype suppresses indirect kernel findings for Debian's `linux-libc-dev` headers by default. HolyClaude audits that built-in behavior instead of accepting ignored findings generally: the package, upstream `linux` relationship, indirect-match metadata, rule name, and disabled descriptor must all match exactly. Any changed or additional ignored match stops the release, and the accepted records are preserved as `ignored-findings.json` in the evidence bundle.
 
-The full image keeps EAS CLI 20.5.1 and Vercel CLI 54.21.1 on their tested compatibility lines. Both upstream packages bundled `tar` 7.5.7 when `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw` was published. The Docker build replaces only those two installed copies with checksum-verified `tar` 7.5.22, updates their exact dependency metadata, and fails if the parent package versions or dependency specs drift.
+The full image includes EAS CLI 23.2.0 and Vercel CLI 59.11.1. EAS CLI bundles `tar` 7.5.19, while Vercel's `@vercel/fun` package bundles `tar` 7.5.7. The Docker build replaces only those two installed copies with checksum-verified `tar` 7.5.22, updates their exact dependency metadata, and fails if the parent package versions or dependency specs drift.
 
 [`security/openvex.json`](../security/openvex.json) is limited to findings where the affected code is absent or outside HolyClaude's shipped service paths. Vendor severity corrections stay in the review ledger instead of being presented as VEX. Effective Critical findings cannot be accepted. A temporary effective High exception requires `CoderLuii` approval, names the exact component, and expires within 30 days.
 

@@ -4,34 +4,24 @@ import { resolve } from 'node:path';
 const COMMON_PACKAGES = [
   ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.9'],
   [
-    'home/claude/.local/share/cursor-agent/versions/2026.07.23-e383d2b/node_modules/piscina/package.json',
+    'home/claude/.local/share/cursor-agent/versions/2026.08.31-4057e58/node_modules/piscina/package.json',
     'piscina',
-    '4.9.0',
+    '4.9.3',
     '4.9.3',
   ],
 ];
 
 const FULL_PACKAGES = [
   [
-    'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/brace-expansion/package.json',
-    'brace-expansion',
-    '5.0.7',
-    '5.0.9',
-  ],
-  [
     'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json',
     'undici',
-    '8.5.0',
     '8.9.0',
+    '8.10.1',
   ],
-  ['usr/local/lib/node_modules/sharp-cli/node_modules/glob/package.json', 'glob', '11.0.3', '11.1.0'],
-  ['usr/local/lib/node_modules/wrangler/node_modules/undici/package.json', 'undici', '7.28.0', '7.29.0'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json', 'nanoid', '3.3.8', '3.3.17'],
-  ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.0', '4.3.1'],
   ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.1'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/minimatch/package.json', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/vercel/node_modules/minimatch/package.json', 'minimatch', '10.1.1', '10.2.6'],
-  ['usr/local/lib/node_modules/eas-cli/node_modules/node-forge/package.json', 'node-forge', '1.3.1', '1.4.0'],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/node/node_modules/path-to-regexp/package.json',
     'path-to-regexp',
@@ -51,44 +41,24 @@ const FULL_PACKAGES = [
     '8.2.0',
     '8.4.2',
   ],
-  ['usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws/package.json', 'ws', '8.18.0', '8.21.1'],
+  ['usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws/package.json', 'ws', '8.18.0', '8.21.3'],
 ];
 
 const FULL_DEPENDENCIES = [
-  ['usr/local/lib/node_modules/sharp-cli/package.json', 'sharp-cli', '5.2.0', 'glob', '11.0.x', '11.1.0'],
-  [
-    'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
-    'miniflare',
-    '4.20260730.0',
-    'undici',
-    '7.28.0',
-    '7.29.0',
-  ],
-  [
-    'usr/local/lib/node_modules/wrangler/package.json',
-    'wrangler',
-    '4.116.0',
-    'undici',
-    '7.28.0',
-    '7.29.0',
-    'devDependencies',
-  ],
   [
     'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json',
     '@earendil-works/pi-coding-agent',
-    '0.82.1',
+    '0.84.4',
     'undici',
-    '8.5.0',
     '8.9.0',
+    '8.10.1',
   ],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'nanoid', '3.3.8', '3.3.17'],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'minimatch', '5.1.2', '5.1.9'],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '20.5.1', 'node-forge', '1.3.1', '1.4.0'],
-  ['usr/local/lib/node_modules/pm2/package.json', 'pm2', '7.0.3', 'js-yaml', '4.3.0', '4.3.1'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '23.2.0', 'nanoid', '3.3.8', '3.3.17'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '23.2.0', 'minimatch', '5.1.2', '5.1.9'],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
     '@vercel/python-analysis',
-    '0.11.1',
+    '0.14.0',
     'js-yaml',
     '4.1.1',
     '4.3.1',
@@ -96,7 +66,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
     '@vercel/python-analysis',
-    '0.11.1',
+    '0.14.0',
     'minimatch',
     '10.1.1',
     '10.2.6',
@@ -104,7 +74,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/backends/package.json',
     '@vercel/backends',
-    '0.8.21',
+    '7.0.0',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -112,7 +82,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/express/package.json',
     '@vercel/express',
-    '0.1.112',
+    '7.0.0',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -120,7 +90,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/hono/package.json',
     '@vercel/hono',
-    '0.2.101',
+    '7.0.0',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -136,7 +106,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/node/package.json',
     '@vercel/node',
-    '5.8.22',
+    '12.0.0',
     'path-to-regexp',
     '6.1.0',
     '6.3.0',
@@ -144,7 +114,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/remix-builder/package.json',
     '@vercel/remix-builder',
-    '5.9.1',
+    '12.0.0',
     'path-to-regexp',
     '6.1.0',
     '6.3.0',
@@ -155,7 +125,7 @@ const FULL_DEPENDENCIES = [
     '3.20250718.3',
     'ws',
     '8.18.0',
-    '8.21.1',
+    '8.21.3',
   ],
 ];
 

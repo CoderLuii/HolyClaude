@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -6,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
 const evaluator = resolve('scripts/evaluate-security-report.mjs');
+const authorityBinder = resolve('scripts/bind-security-authority-report.mjs');
 
 const linuxLibcIgnoreRule = {
   namespace: '',
@@ -77,11 +79,11 @@ function fixture() {
     report: {
       source: { type: 'sbom', target: 'fixture.cdx.json' },
       distro: { name: 'debian', version: '12', idLike: ['debian'] },
-      descriptor: { name: 'grype', version: '0.116.1', configuration: {} },
+      descriptor: { name: 'grype', version: '0.118.0', configuration: {} },
       ignoredMatches: [],
       matches: [
         {
-          vulnerability: { id: 'CVE-2099-0001', severity: 'Critical', fix: { versions: ['1.1.0'] } },
+          vulnerability: { id: 'CVE-2099-0001', severity: 'Critical', fix: { versions: [], state: 'not-fixed' } },
           artifact: {
             name: 'example-package',
             version: '1.0.0',
@@ -125,6 +127,42 @@ function fixture() {
       version: 1,
       statements: [],
     },
+    authorityEvidence: {
+      schemaVersion: 1,
+      candidate: {
+        variant: 'slim',
+        architecture: 'arm64',
+        reportSha256: '0'.repeat(64),
+      },
+      records: [
+        {
+          id: 'example-evidence',
+          review: 'example-review',
+          vulnerability: 'CVE-2099-0001',
+          component: {
+            name: 'example-package',
+            version: '1.0.0',
+            type: 'deb',
+            locations: ['/usr/bin/example-package'],
+          },
+          sourcePackage: 'example-package',
+          repository: {
+            origin: 'official_debian_repository',
+            distribution: 'Debian',
+            suite: 'bookworm',
+            urls: ['https://deb.debian.org/debian', 'https://security.debian.org/debian-security'],
+            packageVersion: '1.0.0',
+          },
+          advisoryStatus: 'open',
+          fixedVersion: null,
+          authority: {
+            name: 'Debian Security Tracker',
+            url: 'https://security-tracker.debian.org/tracker/CVE-2099-0001',
+          },
+          checkedAt: '2026-09-01',
+        },
+      ],
+    },
   };
 }
 
@@ -136,13 +174,28 @@ function runFixture(
     asOf = '2026-07-15',
     imageDigest = `sha256:${'a'.repeat(64)}`,
     sbomSha256 = 'b'.repeat(64),
+    evidenceVariant = variant,
+    evidenceArch = arch,
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-security-policy-'));
   try {
     const data = fixture();
     mutate(data);
-    for (const name of ['report', 'ledger', 'vex']) {
+    const criticalEvidenceIds = new Set(
+      (data.ledger.reviews ?? [])
+        .filter((review) => review.disposition === 'critical_exception')
+        .flatMap((review) => review.authorityEvidence ?? []),
+    );
+    if (criticalEvidenceIds.size === 0) data.authorityEvidence.records = [];
+    const reportText = `${JSON.stringify(data.report, null, 2)}\n`;
+    data.authorityEvidence.candidate.variant = evidenceVariant;
+    data.authorityEvidence.candidate.architecture = evidenceArch;
+    if (data.authorityEvidence.candidate.reportSha256 === '0'.repeat(64)) {
+      data.authorityEvidence.candidate.reportSha256 = createHash('sha256').update(reportText).digest('hex');
+    }
+    writeFileSync(join(root, 'report.json'), reportText);
+    for (const name of ['ledger', 'vex', 'authorityEvidence']) {
       writeFileSync(join(root, `${name}.json`), `${JSON.stringify(data[name], null, 2)}\n`);
     }
     const output = join(root, 'output');
@@ -154,6 +207,8 @@ function runFixture(
         join(root, 'report.json'),
         '--ledger',
         join(root, 'ledger.json'),
+        '--authority-evidence',
+        join(root, 'authorityEvidence.json'),
         '--vex',
         join(root, 'vex.json'),
         '--output-dir',
@@ -174,6 +229,7 @@ function runFixture(
     return {
       ...result,
       policy: result.status === 0 ? JSON.parse(readFileSync(join(output, 'policy.json'), 'utf8')) : null,
+      criticalFindings: result.status === 0 ? JSON.parse(readFileSync(join(output, 'critical-findings.json'), 'utf8')) : null,
       openvex: result.status === 0 ? JSON.parse(readFileSync(join(output, 'openvex.json'), 'utf8')) : null,
     };
   } finally {
@@ -299,10 +355,371 @@ test('rejects a High exception for a raw Critical finding', () => {
   assert.match(result.stderr, /high_exception only applies to raw High findings/);
 });
 
+function configureOfficialVendorHigh(review) {
+  review.disposition = 'vendor_severity';
+  review.effectiveSeverity = 'High';
+  review.authority = {
+    name: 'Chrome Releases',
+    url: 'https://chromereleases.googleblog.com/2026/08/stable-channel-update-for-desktop_0256176589.html',
+  };
+  review.variants = ['slim'];
+  review.architectures = ['arm64'];
+}
+
+test('maps a raw Critical finding to official vendor High with exact selectors', () => {
+  const result = runFixture(
+    ({ ledger }) => configureOfficialVendorHigh(ledger.reviews[0]),
+    { variant: 'slim', arch: 'arm64' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.criticalFindings[0].policy.disposition, 'vendor_severity');
+  assert.equal(result.criticalFindings[0].policy.effectiveSeverity, 'High');
+});
+
+test('rejects raw Critical to vendor High without an official vendor severity authority', () => {
+  const result = runFixture(({ ledger }) => {
+    configureOfficialVendorHigh(ledger.reviews[0]);
+    ledger.reviews[0].authority = {
+      name: 'Debian Security Tracker',
+      url: 'https://security-tracker.debian.org/tracker/CVE-2099-0001',
+    };
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /raw Critical vendor severity requires an explicit official vendor High authority/);
+});
+
+test('rejects raw Critical to vendor High with a prefix location selector', () => {
+  const result = runFixture(({ ledger }) => {
+    configureOfficialVendorHigh(ledger.reviews[0]);
+    ledger.reviews[0].component.locationPatterns = ['^/usr/bin/'];
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /raw Critical vendor severity requires fully anchored literal location selectors/);
+});
+
+function configureCriticalException(review) {
+  review.disposition = 'critical_exception';
+  review.effectiveSeverity = 'Critical';
+  review.approvedBy = 'CoderLuii';
+  review.reviewedAt = '2026-09-01';
+  review.expiresAt = '2026-09-08';
+  review.variants = ['slim'];
+  review.architectures = ['arm64'];
+  review.authorityEvidence = ['example-evidence'];
+  review.sourcePackage = 'example-package';
+  review.rationale = 'Temporary exception for the exact authority-evidence record.';
+}
+
+test('maps and explicitly reports one exact temporary Critical exception', () => {
+  const result = runFixture(
+    ({ ledger }) => configureCriticalException(ledger.reviews[0]),
+    { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.policy.effectiveCriticalCount, 0);
+  assert.equal(result.policy.acceptedTemporaryCriticalCount, 1);
+  assert.deepEqual(result.policy.acceptedTemporaryCriticalReviews, ['example-review']);
+  assert.equal(result.criticalFindings[0].policy.disposition, 'critical_exception');
+  assert.equal(result.criticalFindings[0].policy.approvedBy, 'CoderLuii');
+  assert.equal(result.criticalFindings[0].policy.expiresAt, '2026-09-08');
+  assert.equal(result.openvex.statements.length, 0);
+});
+
+for (const [name, mutate, expected] of [
+  [
+    'unapproved Critical exception',
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      ledger.reviews[0].approvedBy = 'SomeoneElse';
+    },
+    'Critical exceptions require CoderLuii approval',
+  ],
+  [
+    'overlong Critical exception',
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      ledger.reviews[0].expiresAt = '2026-09-09';
+    },
+    'Critical exception exceeds 7 days',
+  ],
+  [
+    'global Critical exception without exact target selectors',
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      delete ledger.reviews[0].variants;
+    },
+    'Critical exceptions require exact variant and architecture selectors',
+  ],
+  [
+    'Critical exception without an exact type selector',
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      delete ledger.reviews[0].component.types;
+    },
+    'component.types must contain unique non-empty strings',
+  ],
+  [
+    'Critical exception without structured authority evidence',
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.records = [];
+    },
+    'missing authority evidence example-evidence',
+  ],
+  [
+    'Critical exception backed by a vendor download instead of an official Debian repository',
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.records[0].repository.origin = 'github_release';
+    },
+    'authority evidence requires an official Debian repository origin',
+  ],
+  [
+    'Critical exception with mismatched authority evidence package version',
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.records[0].repository.packageVersion = '2.0.0';
+    },
+    'authority evidence package version does not match the exact component tuple',
+  ],
+  [
+    'Critical exception with mismatched authority evidence source package',
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.records[0].sourcePackage = 'another-source';
+    },
+    'authority evidence source package does not match the exact component tuple',
+  ],
+  [
+    'Critical exception without structured no-fixed-package evidence',
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.records[0].fixedVersion = '1.1.0';
+    },
+    'authority evidence must record an open advisory with no fixed package version',
+  ],
+  [
+    'Critical exception with future authority evidence',
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.records[0].checkedAt = '2099-01-01';
+    },
+    'authority evidence checkedAt must equal the review date and not be after as-of',
+  ],
+  [
+    'Critical exception with a prefix location selector',
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      ledger.reviews[0].component.locationPatterns = ['^/usr/bin/'];
+    },
+    'Critical exceptions require fully anchored literal location selectors',
+  ],
+  [
+    'Critical exception linked to OpenVEX',
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      ledger.reviews[0].vexStatement = 'urn:test:vex:example';
+    },
+    'Critical exceptions cannot link OpenVEX',
+  ],
+]) {
+  test(`rejects ${name}`, () => {
+    const result = runFixture(mutate, { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, new RegExp(expected));
+  });
+}
+
+test('binds each authority evidence record to its own exact Grype tuple locations', () => {
+  const result = runFixture(
+    ({ ledger, authorityEvidence }) => {
+      const review = ledger.reviews[0];
+      configureCriticalException(review);
+      review.component.names.push('second-package');
+      review.component.locationPatterns.push('^/usr/bin/second-package$');
+      review.authorityEvidence.push('second-evidence');
+      authorityEvidence.records[0].component.locations.push('/usr/bin/second-package');
+      authorityEvidence.records.push({
+        ...structuredClone(authorityEvidence.records[0]),
+        id: 'second-evidence',
+        component: {
+          ...structuredClone(authorityEvidence.records[0].component),
+          name: 'second-package',
+          locations: ['/usr/bin/second-package'],
+        },
+      });
+    },
+    { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /authority evidence locations do not match the exact Grype component tuple/);
+});
+
+for (const [name, fix] of [
+  ['a scanner fix version', { versions: ['1.1.0'], state: 'not-fixed' }],
+  ['scanner fixed state', { versions: [], state: 'fixed' }],
+]) {
+  test(`rejects a Critical exception when ${name} is present`, () => {
+    const result = runFixture(
+      ({ report, ledger }) => {
+        configureCriticalException(ledger.reviews[0]);
+        report.matches[0].vulnerability.fix = fix;
+      },
+      { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /critical_exception is prohibited because a fix is available/);
+  });
+}
+
+test('binds authority evidence to the exact candidate report hash', () => {
+  const result = runFixture(
+    ({ ledger, authorityEvidence }) => {
+      configureCriticalException(ledger.reviews[0]);
+      authorityEvidence.candidate.reportSha256 = 'f'.repeat(64);
+    },
+    { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /authority evidence report SHA-256 does not match the evaluated report/);
+});
+
+test('reports an applicable orphan exception as matching no effective-Critical findings', () => {
+  const result = runFixture(
+    ({ report, ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      report.matches = [];
+    },
+    { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /matched no effective-Critical findings/);
+});
+
+test('does not bind a slim arm64 exception manifest to another candidate target', () => {
+  const result = runFixture(
+    ({ report, ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      report.matches = [];
+    },
+    {
+      variant: 'full',
+      arch: 'amd64',
+      evidenceVariant: 'slim',
+      evidenceArch: 'arm64',
+      asOf: '2026-09-01',
+    },
+  );
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('validates only Critical exceptions for the authority evidence target', () => {
+  const result = runFixture(
+    ({ ledger }) => {
+      configureCriticalException(ledger.reviews[0]);
+      ledger.reviews.push({
+        ...structuredClone(ledger.reviews[0]),
+        id: 'full-amd64-exception',
+        variants: ['full'],
+        architectures: ['amd64'],
+        authorityEvidence: ['full-amd64-evidence'],
+      });
+    },
+    { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('selects target-specific Critical authority evidence in the candidate workflow', () => {
+  const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
+  assert.match(
+    workflow,
+    /node scripts\/bind-security-authority-report\.mjs[\s\S]+--authority-evidence security\/critical-exception-authority-evidence-\$\{\{ matrix\.variant \}\}-\$\{\{ matrix\.arch \}\}\.json[\s\S]+--report "\$\{evidence_dir\}\/grype\.json"[\s\S]+--output "\$\{evidence_dir\}\/critical-exception-authority-evidence\.json"/,
+  );
+  assert.equal(
+    (workflow.match(/--authority-evidence "\$\{evidence_dir\}\/critical-exception-authority-evidence\.json"/g) ?? []).length,
+    2,
+  );
+});
+
+test('commits exact target authority records without predicting runtime report bytes', () => {
+  for (const target of ['full-amd64', 'full-arm64', 'slim-amd64', 'slim-arm64']) {
+    const [variant, architecture] = target.split('-');
+    const evidence = JSON.parse(readFileSync(`security/critical-exception-authority-evidence-${target}.json`, 'utf8'));
+    assert.deepEqual(evidence.candidate, { variant, architecture, reportSha256: null });
+    assert.ok(evidence.records.every((record) => record.id.startsWith(`${target}-`)));
+  }
+});
+
+test('binds an authority document to fresh report bytes without changing its authority records', () => {
+  const root = mkdtempSync(join(tmpdir(), 'holyclaude-authority-binding-'));
+  try {
+    const reportText = `${JSON.stringify(fixture().report, null, 2)}\n`;
+    const authorityEvidence = fixture().authorityEvidence;
+    authorityEvidence.candidate.reportSha256 = null;
+    const authorityPath = join(root, 'authority.json');
+    const reportPath = join(root, 'grype.json');
+    const outputPath = join(root, 'bound-authority.json');
+    writeFileSync(authorityPath, `${JSON.stringify(authorityEvidence, null, 2)}\n`);
+    writeFileSync(reportPath, reportText);
+
+    const result = spawnSync(process.execPath, [
+      authorityBinder,
+      '--authority-evidence', authorityPath,
+      '--report', reportPath,
+      '--output', outputPath,
+    ], { encoding: 'utf8' });
+
+    assert.equal(result.status, 0, result.stderr);
+    const bound = JSON.parse(readFileSync(outputPath, 'utf8'));
+    assert.deepEqual(bound.records, authorityEvidence.records);
+    assert.deepEqual(
+      { ...bound, candidate: { ...bound.candidate, reportSha256: null } },
+      authorityEvidence,
+    );
+    assert.equal(bound.candidate.reportSha256, createHash('sha256').update(reportText).digest('hex'));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+for (const type of ['npm', 'go-module', 'binary']) {
+  test(`rejects a Critical exception for ${type} components`, () => {
+    const result = runFixture(
+      ({ ledger }) => {
+        configureCriticalException(ledger.reviews[0]);
+        ledger.reviews[0].component.types = [type];
+      },
+      { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Critical exceptions apply only to official repository packages/);
+  });
+}
+
+test('maps a raw High finding as temporary Critical when the official authority is Critical', () => {
+  const result = runFixture(
+    ({ report, ledger }) => {
+      report.matches[0].vulnerability.severity = 'High';
+      configureCriticalException(ledger.reviews[0]);
+    },
+    { variant: 'slim', arch: 'arm64', asOf: '2026-09-01' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.policy.rawHighCount, 1);
+  assert.equal(result.policy.mappedHighCount, 1);
+  assert.equal(result.policy.acceptedTemporaryCriticalCount, 1);
+  assert.deepEqual(result.policy.acceptedTemporaryCriticalReviews, ['example-review']);
+});
+
 test('validates the committed advisory ledger and OpenVEX policy together', () => {
   const result = runFixture(
     (data) => {
       data.ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
+      data.authorityEvidence = JSON.parse(
+        readFileSync('security/critical-exception-authority-evidence-slim-amd64.json', 'utf8'),
+      );
+      data.authorityEvidence.candidate.reportSha256 = '0'.repeat(64);
       data.vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
       data.report.matches = data.ledger.reviews
         .filter(
@@ -312,13 +729,148 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
             (!review.architectures || review.architectures.includes('amd64')),
         )
         .map(syntheticHighMatch);
+      data.report.matches.push(...data.authorityEvidence.records.map((record) => ({
+        vulnerability: { id: record.vulnerability, severity: 'Critical', fix: { versions: [], state: 'not-fixed' } },
+        artifact: {
+          name: record.component.name,
+          version: record.component.version,
+          type: record.component.type,
+          locations: record.component.locations.map((path) => ({ path })),
+        },
+      })));
     },
-    { variant: 'slim', arch: 'amd64', asOf: '2026-08-12' },
+    {
+      variant: 'slim',
+      arch: 'amd64',
+      evidenceVariant: 'slim',
+      evidenceArch: 'amd64',
+      asOf: '2026-09-02',
+    },
   );
   assert.equal(result.status, 0, result.stderr);
 });
 
-test('tracks the refreshed v1.5.7 scanner findings with exact current reviews', () => {
+test('records the full-image TIFF tool absence as exact not-affected component evidence', () => {
+  const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
+  const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
+  const reviews = ledger.reviews.filter(
+    (review) => review.vulnerabilities.includes('CVE-2026-52490') &&
+      review.component.names.some((name) => ['libtiff-dev', 'libtiffxx6'].includes(name)),
+  );
+  assert.equal(reviews.length, 1);
+
+  const [review] = reviews;
+  assert.equal(review.disposition, 'not_affected');
+  assert.equal(review.effectiveSeverity, 'None');
+  assert.deepEqual(review.component.names, ['libtiff-dev', 'libtiffxx6']);
+  assert.deepEqual(review.component.versions, ['4.5.0-6+deb12u4']);
+  assert.deepEqual(review.component.types, ['deb']);
+  assert.deepEqual(review.variants, ['full']);
+  assert.deepEqual(review.architectures, ['amd64', 'arm64']);
+  assert.equal(review.authority.url, 'https://security-tracker.debian.org/tracker/CVE-2026-52490');
+  assert.equal('approvedBy' in review, false);
+  assert.equal('authorityEvidence' in review, false);
+
+  const statement = vex.statements.find((item) => item['@id'] === review.vexStatement);
+  assert.ok(statement);
+  assert.equal(statement.vulnerability.name, 'CVE-2026-52490');
+  assert.equal(statement.status, 'not_affected');
+  assert.equal(statement.justification, 'vulnerable_code_not_present');
+  assert.deepEqual(
+    statement.products.map((product) => product['@id']).sort(),
+    [
+      'pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=full',
+    ],
+  );
+  const expectedPurls = ['amd64', 'arm64'].flatMap((architecture) =>
+    ['libtiff-dev', 'libtiffxx6'].map(
+      (name) => `pkg:deb/debian/${name}@4.5.0-6%2Bdeb12u4?arch=${architecture}`,
+    ),
+  ).sort();
+  for (const product of statement.products) {
+    assert.deepEqual(
+      product.subcomponents.map((component) => component.identifiers.purl).sort(),
+      expectedPurls,
+    );
+  }
+});
+
+test('commits only exact target-scoped temporary Critical mappings backed by structured authority evidence', () => {
+  const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
+  const evidence = JSON.parse(readFileSync('security/critical-exception-authority-evidence.json', 'utf8'));
+  const expectedVulnerabilities = [
+    'CVE-2026-52490',
+    'CVE-2026-63382',
+    'CVE-2026-63385',
+    'CVE-2026-78935',
+    'CVE-2026-79012',
+    'CVE-2026-79052',
+    'CVE-2026-79054',
+    'CVE-2026-79121',
+    'CVE-2026-79150',
+    'CVE-2026-79200',
+    'CVE-2026-79224',
+    'CVE-2026-79282',
+    'CVE-2026-79290',
+  ];
+  const exceptions = ledger.reviews.filter(
+    (review) => review.disposition === 'critical_exception' &&
+      review.variants[0] === 'slim' && review.architectures[0] === 'arm64',
+  );
+  assert.equal(exceptions.length, 12);
+  assert.deepEqual(
+    exceptions.flatMap((review) => review.vulnerabilities).sort(),
+    expectedVulnerabilities.sort(),
+  );
+  for (const review of exceptions) {
+    assert.equal(review.effectiveSeverity, 'Critical');
+    assert.equal(review.approvedBy, 'CoderLuii');
+    assert.equal(review.reviewedAt, '2026-09-01');
+    assert.equal(review.expiresAt, '2026-09-08');
+    assert.deepEqual(review.variants, ['slim']);
+    assert.deepEqual(review.architectures, ['arm64']);
+    assert.deepEqual(review.component.types, ['deb']);
+    assert.equal('vexStatement' in review, false);
+    assert.ok(review.component.locationPatterns.every((pattern) => pattern.startsWith('^/') && pattern.endsWith('$')));
+    assert.ok(review.authorityEvidence.length > 0);
+  }
+  assert.equal(exceptions.some((review) => review.component.names.includes('gh')), false);
+  assert.equal(evidence.records.length, 33);
+  assert.deepEqual(evidence.candidate, {
+    variant: 'slim',
+    architecture: 'arm64',
+    reportSha256: null,
+  });
+  assert.ok(evidence.records.every((record) => record.repository.origin === 'official_debian_repository'));
+  assert.ok(evidence.records.every((record) => record.advisoryStatus === 'open' && record.fixedVersion === null));
+});
+
+test('documents the temporary Critical exception without weakening the permanent fail-closed policy', () => {
+  const policy = readFileSync('security/advisory-review-policy.md', 'utf8');
+  assert.match(policy, /unreviewed, fixable, or project-controlled Critical findings block the release/i);
+  assert.match(policy, /Critical exceptions require `CoderLuii`/);
+  assert.match(policy, /expire within 7 days/);
+  assert.match(policy, /exact vulnerability, component, version, type, fully anchored literal location, variant, and architecture/i);
+  assert.match(policy, /cannot apply to npm, Go, or source-built components/i);
+  assert.match(policy, /OpenVEX is not used for Critical exceptions/i);
+  assert.match(policy, /High exceptions require `CoderLuii`, expire within 30 days/);
+});
+
+test('a stale full-only review blocks a slim policy evaluation', () => {
+  const result = runFixture(
+    ({ ledger }) => {
+      ledger.reviews[0].variants = ['full'];
+      ledger.reviews[0].reviewedAt = '2026-06-15';
+      ledger.reviews[0].expiresAt = '2026-07-14';
+    },
+    { variant: 'slim', arch: 'amd64', asOf: '2026-07-15' },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /example-review: review expired on 2026-07-14/);
+});
+
+test('tracks the carried scanner findings with exact current component reviews', () => {
   const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
   const chromiumIds = [
     'CVE-2026-17652',
@@ -343,7 +895,7 @@ test('tracks the refreshed v1.5.7 scanner findings with exact current reviews', 
     const reviews = ledger.reviews.filter((review) =>
       review.vulnerabilities.includes(vulnerability) &&
       review.component.names.includes('chromium') &&
-      review.component.versions.includes('151.0.7922.108-1~deb12u1'));
+      review.component.versions.includes('151.0.7922.173-1~deb12u1'));
     assert.equal(reviews.length, 1, `${vulnerability} must have one exact Chromium review`);
     assert.equal(reviews[0].disposition, 'fixed');
     assert.equal(reviews[0].effectiveSeverity, 'None');
@@ -393,14 +945,14 @@ test('maps both downstream FFmpeg fixes across every rebuilt runtime package', (
       const committed = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
       ledger.reviews = committed.reviews.filter((review) =>
         vulnerabilities.some((vulnerability) => review.vulnerabilities.includes(vulnerability)) &&
-        review.component.versions.includes('7:5.1.9-0+deb12u1+holyclaude1'));
+        review.component.versions.includes('7:5.1.9-0+deb12u1+holyclaude2'));
       vex.statements = [];
       report.matches = vulnerabilities.flatMap((vulnerability) =>
         packageNames.map((name) => ({
           vulnerability: { id: vulnerability, severity: 'High', fix: { versions: [] } },
           artifact: {
             name,
-            version: '7:5.1.9-0+deb12u1+holyclaude1',
+            version: '7:5.1.9-0+deb12u1+holyclaude2',
             type: 'deb',
             locations: name === 'ffmpeg'
               ? [
@@ -422,45 +974,6 @@ test('maps both downstream FFmpeg fixes across every rebuilt runtime package', (
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.policy.rawHighCount, 18);
   assert.equal(result.policy.mappedHighCount, 18);
-});
-
-test('maps the rebuilt cryptography wheel across every installed metadata location', () => {
-  const reviewIds = [
-    'v157-azure-cryptography-x509-downstream-backport',
-    'v157-azure-cryptography-pkcs7-downstream-backport',
-    'v155-cryptography-high-exception-7c76579622',
-  ];
-  const vulnerabilities = [
-    'GHSA-jwv3-5hgf-82ww',
-    'GHSA-g6cj-pr64-35w5',
-    'GHSA-537c-gmf6-5ccf',
-  ];
-  const locations = [
-    '/opt/az/lib/python3.14/site-packages/cryptography-46.0.7+holyclaude.1.dist-info/METADATA',
-    '/opt/az/lib/python3.14/site-packages/cryptography-46.0.7+holyclaude.1.dist-info/RECORD',
-    '/opt/az/lib/python3.14/site-packages/cryptography-46.0.7+holyclaude.1.dist-info/direct_url.json',
-  ];
-  const result = runFixture(
-    ({ report, ledger, vex }) => {
-      const committed = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
-      ledger.reviews = committed.reviews.filter((review) => reviewIds.includes(review.id));
-      assert.deepEqual(ledger.reviews.map((review) => review.id), reviewIds);
-      vex.statements = [];
-      report.matches = vulnerabilities.map((vulnerability) => ({
-        vulnerability: { id: vulnerability, severity: 'High', fix: { versions: [] } },
-        artifact: {
-          name: 'cryptography',
-          version: '46.0.7+holyclaude.1',
-          type: 'python',
-          locations: locations.map((path) => ({ path })),
-        },
-      }));
-    },
-    { variant: 'full', arch: 'arm64', asOf: '2026-08-12' },
-  );
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.policy.rawHighCount, 3);
-  assert.equal(result.policy.mappedHighCount, 3);
 });
 
 test('audits Grype built-in linux-libc-dev indirect kernel suppressions', () => {
@@ -516,7 +1029,7 @@ for (const [name, mutate, expected] of [
   ['Grype report without matches', ({ report }) => delete report.matches, 'Grype report matches must be an array'],
   ['Grype report without source', ({ report }) => delete report.source, 'Grype report source is incomplete'],
   ['Grype report without descriptor', ({ report }) => delete report.descriptor, 'Grype report descriptor is incomplete'],
-  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.115.0'), 'expected Grype 0.116.1'],
+  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.116.1'), 'expected Grype 0.118.0'],
   ['Grype report without ignored matches', ({ report }) => delete report.ignoredMatches, 'ignoredMatches must be an array'],
   ['Grype report with arbitrary ignored findings', ({ report }) => report.ignoredMatches.push(structuredClone(report.matches[0])), 'Grype ignored matches require'],
   ['noncanonical Grype severity', ({ report }) => (report.matches[0].vulnerability.severity = 'critical'), 'invalid severity'],
@@ -584,7 +1097,7 @@ test('rejects a not-affected review without the Docker Hub product scope', () =>
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [{
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=full',
         subcomponents: [
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64' } },
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=arm64' } },
@@ -621,8 +1134,8 @@ test('rejects statement-level vulnerability aliases', () => {
       vulnerability: { name: 'CVE-2099-0001' },
       aliases: ['CVE-2099-0002'],
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -642,8 +1155,8 @@ test('rejects a not-affected product without exact component subcomponents', () 
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -670,11 +1183,11 @@ test('emits digest-bound OpenVEX with the exact component subcomponent', () => {
         vulnerability: { name: 'CVE-2099-0001' },
         products: [
           {
-            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full',
+            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
           {
-            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full',
+            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
         ],
@@ -723,13 +1236,13 @@ test('maps an exact vendor disposition to one raw High finding', () => {
   assert.equal(result.policy.mappedHighCount, 1);
 });
 
-test('rejects effective High under a vendor severity review', () => {
+test('rejects effective High under a vendor severity review without explicit official vendor authority', () => {
   const result = runFixture(({ report, ledger }) => {
     report.matches[0].vulnerability.severity = 'High';
     ledger.reviews[0].effectiveSeverity = 'High';
   });
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /effective High findings require high_exception/);
+  assert.match(result.stderr, /raw Critical vendor severity requires an explicit official vendor High authority/);
 });
 
 test('rejects an approved High exception that matches no High finding', () => {
@@ -824,11 +1337,11 @@ test('rejects unexpected review fields and orphan OpenVEX statements', () => {
       vulnerability: { '@id': 'https://nvd.nist.gov/vuln/detail/CVE-2099-0002', name: 'CVE-2099-0002' },
       products: [
         {
-          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.7?variant=full',
+          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.8?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
         {
-          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.7?variant=full',
+          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.8?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
       ],

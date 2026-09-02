@@ -18,10 +18,46 @@ const webTerminalLock = JSON.parse(
   readFileSync('vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json', 'utf8'),
 );
 
-test('Docker context includes only the cryptography smoke required by the image build', () => {
+function assertJsonServerWaitCannotMaskProbeFailure(source) {
+  const start = source.indexOf('    json-server --watch /tmp/json-server-smoke.json');
+  const end = source.indexOf('    fi', start);
+  assert.notEqual(start, -1, 'Dockerfile is missing the json-server smoke');
+  assert.notEqual(end, -1, 'Dockerfile json-server smoke has no full-image boundary');
+  const smoke = source.slice(start, end);
+  assert.match(smoke, /\{ \\\r?\n\s+wait "\$JSON_SERVER_PID" 2>\/dev\/null \|\| true; \\\r?\n\s+\} && \\/);
+  assert.doesNotMatch(smoke, /wait "\$JSON_SERVER_PID" 2>\/dev\/null \|\| true && \\/);
+}
+
+test('Docker context excludes the test suite from image builds', () => {
   assert.match(dockerIgnore, /^tests\/$/m);
-  assert.match(dockerIgnore, /^!tests\/cryptography_security_backport_smoke\.py$/m);
-  assert.equal((dockerIgnore.match(/^!tests\//gm) ?? []).length, 1);
+  assert.equal((dockerIgnore.match(/^!tests\//gm) ?? []).length, 0);
+});
+
+test('next-on-pages legacy esbuild binary is rebuilt with the pinned Go toolchain', () => {
+  assert.match(
+    dockerfile,
+    /NEXT_ON_PAGES_ESBUILD_PACKAGE=\$\(case "\$TARGETARCH" in amd64\) echo "esbuild-linux-64";; arm64\) echo "esbuild-linux-arm64";;/,
+  );
+  assert.match(
+    dockerfile,
+    /NEXT_ON_PAGES_ESBUILD_ROOT="\/usr\/local\/lib\/node_modules\/@cloudflare\/next-on-pages\/node_modules\/\$\{NEXT_ON_PAGES_ESBUILD_PACKAGE\}"/,
+  );
+  assert.match(
+    dockerfile,
+    /require\('\$\{NEXT_ON_PAGES_ESBUILD_ROOT\}\/package\.json'\)\.version"\)" = "0\.15\.18"/,
+  );
+  assert.match(
+    dockerfile,
+    /install -m 0755 \/tmp\/esbuild-0\.15\.18 \\\r?\n\s+"\$\{NEXT_ON_PAGES_ESBUILD_ROOT\}\/bin\/esbuild"/,
+  );
+  assert.match(
+    dockerfile,
+    /test "\$\(sha256sum \/tmp\/esbuild-0\.15\.18 \| cut -d' ' -f1\)" = "\$\(sha256sum "\$\{NEXT_ON_PAGES_ESBUILD_ROOT\}\/bin\/esbuild" \| cut -d' ' -f1\)"/,
+  );
+  assert.match(
+    dockerfile,
+    /test "\$\("\$\{NEXT_ON_PAGES_ESBUILD_ROOT\}\/bin\/esbuild" --version\)" = "0\.15\.18"/,
+  );
 });
 
 test('rollback artifact restores to the paths consumed by the rollback job', () => {
@@ -65,8 +101,9 @@ test('rollback artifact restores to the paths consumed by the rollback job', () 
 });
 
 test('release base and archive inputs are versioned and checksum-verified', () => {
-  assert.match(dockerfile, /^FROM golang:1\.26\.5-bookworm@sha256:[0-9a-f]{64} AS esbuild-builder$/m);
-  assert.match(dockerfile, /^FROM node:26\.7\.0-bookworm-slim@sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341$/m);
+  assert.match(dockerfile, /^FROM golang:1\.27\.0-bookworm@sha256:[0-9a-f]{64} AS esbuild-builder$/m);
+  assert.match(dockerfile, /^FROM node:26\.8\.1-bookworm-slim@sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e AS ffmpeg-security-builder$/m);
+  assert.match(dockerfile, /^FROM python:3\.14\.7-slim-bookworm@sha256:9ab8d9c8514b44f90cf0029dd42fdd7e9e211e639c8b995304cc04568dee900f AS python-runtime$/m);
   assert.match(dockerfile, /for ESBUILD_VERSION in 0\.15\.18 0\.18\.20 0\.25\.12/);
   assert.match(dockerfile, /github\.com\/evanw\/esbuild\/cmd\/esbuild@v\$\{ESBUILD_VERSION\}/);
   for (const version of ['0.15.18', '0.18.20', '0.25.12']) {
@@ -80,24 +117,24 @@ test('release base and archive inputs are versioned and checksum-verified', () =
   assert.match(dockerfile, /echo "\$S6_EXPECTED_SHA256  \/tmp\/s6-overlay-\$\{S6_ASSET\}\.tar\.xz" \| sha256sum -c -/);
   assert.match(dockerfile, /\/etc\/s6-overlay\/user-bundles\.d\/user\/contents\.d\/cloudcli/);
   assert.doesNotMatch(dockerfile, /\/etc\/s6-overlay\/s6-rc\.d\/user\/contents\.d/);
-  assert.match(dockerfile, /ARG FZF_VERSION=0\.74\.1/);
+  assert.match(dockerfile, /ARG FZF_VERSION=0\.74\.3/);
   assert.match(dockerfile, /ARG FZF_ARCHIVE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
   assert.match(dockerfile, /fzf_\$\{FZF_VERSION\}_checksums\.txt/);
   assert.match(dockerfile, /test "\$\(grep -F "  \$\{FZF_ASSET\}" \/tmp\/fzf-checksums\.txt \| cut -d' ' -f1\)" = "\$FZF_ARCHIVE_SHA256"/);
   assert.match(dockerfile, /echo "\$FZF_ARCHIVE_SHA256  \/tmp\/\$\{FZF_ASSET\}" \| sha256sum -c -/);
   assert.doesNotMatch(dockerfile, /tmux fzf bat bubblewrap/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.108-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=739f6bccad739686bdfef6554e5e47860e0db7c2feba12a872f112fc1be28bfc/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=e53e8dd2bc749924e077a74ac81e6417bdcbbd5c4e09a5deb458104ddb34d37b/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=fdd4bf2650ce78eec74f3926c01cbcb4b8312d24691ebf5fadfd8408e8f5675b/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=b9e304cd2612c33bdc04c7edb33c5574b5cb06a35d2159714d42fe04b3c843c8/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=09a74c710900e19fda7c510486dfa1b7fd52d16c095e40585aeacd3e8a0de0f1/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=f9dd0a0f27b0a6e7da50459c212f011c09f89d5d5bab461d4aa5adb3328bcc0b/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=151\.0\.7922\.173-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=3c8f1f513675d8785925e67a6858407fd5461e4b1903463d127ea6e651a649de/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=8a7f778630287297b1217414d4cd53b9638046ce48f13c2e2994fb5afee012a2/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=560f6d013d1c733d4a84e27209d80235968f3672745c27f6ecd2947ac6c12bd8/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=f0deb575d2486b1d72e4a28c4ea2c3dc0e5abed21c23aa236fdb96a1fa007b3b/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=21d610b5b25e74796350e6d7420acf51917641b7a8f1603a16f9b212b84c3af2/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=5266f3e47219fbed422bd885e05e7c5fc1252203b5112db64d15a986e9293790/);
   assert.match(dockerfile, /apt-get download[\s\S]+chromium-common[\s\S]+chromium-sandbox/);
   assert.match(dockerfile, /\| sha256sum -c -/);
   assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' chromium/);
   assert.doesNotMatch(dockerfile, /playwright install/);
-  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 151\.0\.7922\.108-1~deb12u1/);
+  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 151\.0\.7922\.173-1~deb12u1/);
   for (const field of [
     'amd64-chromium-package-sha256',
     'arm64-chromium-package-sha256',
@@ -121,29 +158,29 @@ test('release base and archive inputs are versioned and checksum-verified', () =
 });
 
 test('native installers and their outputs are pinned without unsupported flags', () => {
-  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.220/);
-  assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=cde4f1702d3b1695f92b73d26888364e17bca476e17f0fd676484c951d36c125/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185/);
+  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.258/);
+  assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=704f1334ac65d3e89e1c6c1d7663293ad786a6166afdb71b5075337df630f976/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=43dc490af55262edcb3e9b1cb315de22cc09ccb08bd52a4c39bc5eabaa63100f/);
   assert.match(dockerfile, /bash \/tmp\/claude-install\.sh "\$CLAUDE_CODE_VERSION"/);
   assert.match(dockerfile, /\/home\/claude\/\.local\/bin\/claude --version/);
 
-  assert.match(dockerfile, /ARG JUNIE_VERSION=2470\.4/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630/);
+  assert.match(dockerfile, /ARG JUNIE_VERSION=3126\.1/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=34d8b11dea9f529e42da1b62df673de4ca646fe4ae8d5234a4e271d395b111dd/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=4354392ec33218a66a249cac5cfb988ac31b06f6def2722d3e1277ede95649c5/);
   assert.match(dockerfile, /unzip -Z1 "\/tmp\/\$\{JUNIE_ARCHIVE\}"/);
   assert.match(dockerfile, /test "\$JUNIE_TOP_LEVEL" = "channel junie junie-app shim "/);
   assert.match(dockerfile, /unzip -q "\/tmp\/\$\{JUNIE_ARCHIVE\}" 'junie-app\/\*' -d "\$JUNIE_STAGING"/);
   assert.match(dockerfile, /test -x "\$JUNIE_STAGING\/junie-app\/bin\/junie"/);
   assert.doesNotMatch(dockerfile, /junie\.jetbrains\.com\/install\.sh/);
 
-  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.07\.23-e383d2b/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb/);
+  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.08\.31-4057e58/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=7e306db5750219a99c00ed517fe8b235d3c54e4ca5f77e2ff160cc97ce707798/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=cf5db6b5047b3280d8a49471cfd41beb1d5e475774177df5df2851857ab6514a/);
   assert.match(dockerfile, /downloads\.cursor\.com\/lab\/\$\{CURSOR_BUILD_ID\}\/linux\/\$\{CURSOR_ASSET_ARCH\}\/agent-cli-package\.tar\.gz/);
   assert.match(dockerfile, /tar --strip-components=1 -xzf \/tmp\/cursor-agent\.tar\.gz -C "\$CURSOR_DIR"/);
   assert.doesNotMatch(dockerfile, /cursor\.com\/install/);
-  assert.match(dockerfile, /CURSOR_LAUNCHER_SHA256=eed61c5224668c9236334c4c68936a16aecc37374b592f59e31eb50433817831/);
+  assert.match(dockerfile, /CURSOR_LAUNCHER_SHA256=2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233/);
   assert.match(dockerfile, /CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4/);
   assert.match(dockerfile, /CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1/);
   assert.match(dockerfile, /! grep -aFq -- '--permission'/);
@@ -153,42 +190,57 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /test "\$\(cursor-agent --version\)" = "\$CURSOR_BUILD_ID"/);
   assert.match(dockerfile, /rm -f "\$CURSOR_DIR\/node"/);
   assert.match(dockerfile, /ln -s \/usr\/local\/bin\/node "\$CURSOR_DIR\/node"/);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.7\.0"/);
-  assert.match(dockerfile, /SETUPTOOLS_VERSION=83\.0\.0/);
-  assert.match(dockerfile, /SETUPTOOLS_WHEEL_SHA256=29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3/);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.8\.1"/);
+  assert.match(dockerfile, /SETUPTOOLS_VERSION=84\.0\.0/);
+  assert.match(dockerfile, /SETUPTOOLS_WHEEL_SHA256=51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670/);
   assert.match(dockerfile, /patch-global-node-security-dependencies\.mjs --root \/ --variant "\$VARIANT" --check-baseline/);
 
-  assert.match(dockerfile, /ARG AZURE_CLI_VERSION=2\.88\.0-1~bookworm/);
+  assert.match(dockerfile, /ARG AZURE_CLI_VERSION=2\.90\.0-1~bookworm/);
   assert.match(dockerfile, /AZURE_CLI_INSTALLER_SHA256=[0-9a-f]{64}/);
   assert.match(dockerfile, /sed -i[^\n]+azure-cli=\$AZURE_CLI_VERSION/);
   assert.match(dockerfile, /grep -Fqx[^\n]+azure-cli=\$AZURE_CLI_VERSION/);
-  assert.match(dockerfile, /ARG GITHUB_CLI_VERSION=2\.97\.0/);
-  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_AMD64=[0-9a-f]{64}/);
-  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_ARM64=[0-9a-f]{64}/);
+  assert.match(dockerfile, /ARG GITHUB_CLI_VERSION=2\.99\.0/);
+  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_AMD64=471feb449cc98d527fc9a67601b9ea04296c100b666d970a784a07dc17a59a8f/);
+  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_ARM64=20ccc660b06aef27e2164ae0de5085108e1a3d1e7ba4440e7be10bd9b4b5d0ab/);
   assert.match(dockerfile, /github\.com\/cli\/cli\/releases\/download\/v\$\{GITHUB_CLI_VERSION\}/);
+  assert.match(browserRuntimeChecks, /require_eq "GitHub CLI version"[\s\S]{0,160}"2\.99\.0"/);
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.5\.7$/m);
-  assert.match(immutableInputs, /^expires-at: 2026-09-09$/m);
+  assert.match(immutableInputs, /^release: v1\.5\.8$/m);
+  assert.match(immutableInputs, /^expires-at: 2026-09-29$/m);
   for (const value of [
-    'sha256:53eeac89074db483fdf0ab3be1df32bf6e47562263d2d0d6baa7f26acb4957dd',
-    'sha256:cd565714d4da3e84bfd341e31448f81d47c6362198f152345297c9c1154e6341',
+    'sha256:ded31c68586d2e49e760acc2e65a884b23d032e9bbbed0ae0c55abd3fcaf4452',
+    'sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e',
+    'sha256:9ab8d9c8514b44f90cf0029dd42fdd7e9e211e639c8b995304cc04568dee900f',
     'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667',
-    'bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788',
-    '887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86',
-    '0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458',
-    'a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d',
+    '8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3',
+    'a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f',
+    '1d444c5e7360471815f7158f71935fcecc68a3c417d85c7344f770854300bba2',
+    '32aceeb8ee837244775fcb522372c8b3a47914986385f3148f4ee2c930482a84',
     'dbcb813823bdd20940b903addbd779551569679f',
+    '37fe631027851001ddb9b187196cc803df7f5f0e',
     '4895cd3fd33362471e739b786493aba048487bcc',
     '8aa41f614c216d961e7c0d9c3e67982c6b2d9da3',
     'b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6',
-    '674f61f20ff306f3100cf9200e4c36c4b70278b5bef2884549819b942a89c863',
-    '159e4a51d796f3bf14677577100f7efb845611b1ceaf0c30cbd8d4650d942185',
-    '661dba7d55e097ae0eb62ff2475b4e9fe7a59d8e25560d8c1981aad85901b60c',
-    '976c6f974598bb34197f434dd041cfbb1cd663d95702ee3260bcb07815a0f630',
-    '702ad595213bee5df0268be9f80a19f29fcceaa2a42fc55e39f2b5199051f0c4',
-    'f40b99647cb24e0da885e97620a2048034f1fe8961910d573d827d77c4d26dcb',
+    '704f1334ac65d3e89e1c6c1d7663293ad786a6166afdb71b5075337df630f976',
+    '43dc490af55262edcb3e9b1cb315de22cc09ccb08bd52a4c39bc5eabaa63100f',
+    '34d8b11dea9f529e42da1b62df673de4ca646fe4ae8d5234a4e271d395b111dd',
+    '4354392ec33218a66a249cac5cfb988ac31b06f6def2722d3e1277ede95649c5',
+    '471feb449cc98d527fc9a67601b9ea04296c100b666d970a784a07dc17a59a8f',
+    '20ccc660b06aef27e2164ae0de5085108e1a3d1e7ba4440e7be10bd9b4b5d0ab',
+    '7e306db5750219a99c00ed517fe8b235d3c54e4ca5f77e2ff160cc97ce707798',
+    'cf5db6b5047b3280d8a49471cfd41beb1d5e475774177df5df2851857ab6514a',
+    '8ffeb9e7edddffb054764d00749f39e8cc9804ca9b38b9093f906dd2157322ae',
+    '3db7aab0e08454c908a874c561f75a93d3b304f2da21957272cd7b73ff45195b',
+    '0ed4978e80117a5e203a436026c37276029a3642d633b6916ab45143d10565cd',
+    '24c53aa00801f082e4f5312001d8f379705f3b29d539ae20b6a643a836224765',
+    'd3eabbc23b5ef7e9383697c689b3b919f504d2cba36dcabe1ccc8de67380acb5',
+    '990d8b07111517a78ba779709ff8f438e0dcf2a7fb66d36df7507c8e93358f02',
+    '5e0cc6c6c48d6629c8f5d3d5c9f9670e8dac7ba14d295801bb3f6a783a8f841b',
+    '313b9e2778517054a580068c5ea44ea3737e5dbf86be7991550efe770a3a1fe6',
+    '4c08b90699c05af532a4c376dea8617bfe63c5246df20256ea900637651355a9',
+    'b69df84be5120c6d1c209b4b5cf47fc4366ff01809b0984f7e6eff810bdd3383',
     cloudcliManifest.artifact.sha256,
   ]) {
     assert.ok(immutableInputs.includes(value), `immutable input inventory should contain ${value}`);
@@ -197,56 +249,70 @@ test('immutable input inventory binds the release-critical inputs', () => {
 
 test('compatible package updates and plugin locks are exact', () => {
   for (const expected of [
-    'npm@11.19.0',
-    'pnpm@11.21.0',
-    'vite@8.2.1',
+    'npm@12.0.2',
+    'pnpm@11.25.0',
+    'vite@8.2.2',
     'prettier@3.9.6',
-    'eslint@10.8.1',
-    'concurrently@10.0.4',
-    'wrangler@4.116.0',
-    'vercel@54.21.1',
-    'prisma@7.9.1',
+    'eslint@10.9.1',
+    'concurrently@10.0.5',
+    'wrangler@4.128.0',
+    'vercel@59.11.1',
+    'prisma@7.10.0',
     'lighthouse@13.4.1',
     '@marp-team/marp-cli@4.5.0',
-    '@google/gemini-cli@0.53.0',
-    '@openai/codex@0.146.0',
-    'opencode-ai@1.18.10',
-    '@earendil-works/pi-coding-agent@0.82.1',
+    '@google/gemini-cli@0.58.0',
+    '@openai/codex@0.152.1',
+    'opencode-ai@1.18.26',
+    '@earendil-works/pi-coding-agent@0.84.4',
     'pandas==3.0.5',
     'tqdm==4.70.0',
     'matplotlib==3.11.1',
     'fastapi==0.141.1',
-    'uvicorn==0.52.0',
-    'tree-sitter-language-pack==1.6.2',
-    'CLOUDCLI_VERSION=1.36.3',
+    'uvicorn==0.52.4',
+    'tree-sitter-language-pack==1.16.1',
+    'CLOUDCLI_VERSION=1.37.2',
   ]) {
     assert.ok(dockerfile.includes(expected), `Dockerfile should contain ${expected}`);
   }
   assert.match(dockerfile, /markdown==3\.10\.3/);
   assert.doesNotMatch(dockerfile, /pdfkit/);
 
-  assert.match(dockerfile, /cloudcli-plugin-starter[\s\S]+npm ci && npm run build/);
-  assert.match(dockerfile, /cloudcli-plugin-terminal[\s\S]+web-terminal-package-lock\.json package-lock\.json[\s\S]+npm ci && npm run build/);
+  assert.match(dockerfile, /cloudcli-plugin-starter[\s\S]+npm ci --strict-allow-scripts && npm run build/);
+  assert.match(
+    dockerfile,
+    /cloudcli-plugin-terminal[\s\S]+web-terminal-package-lock\.json package-lock\.json[\s\S]+patch-cloudcli-web-terminal-install-policy\.mjs[\s\S]+npm ci --strict-allow-scripts && node -e "require\('node-pty'\)" && npm run build/,
+  );
   assert.match(gitAttributes, /^vendor\/locks\/\*\.json text eol=lf$/m);
   assert.equal(webTerminalLock.lockfileVersion, 3);
   assert.equal(webTerminalLock.packages[''].name, 'cloudcli-plugin-terminal');
   assert.match(dockerfile, /ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=[0-9a-f]{64}/);
   assert.match(
     dockerfile,
-    /echo "\$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz" \| sha256sum -c -[\s\S]+npm ci --omit=dev[\s\S]+chmod 0755 "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js"[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/cli\.js" \/usr\/local\/bin\/cloudcli/,
+    /echo "\$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  \/tmp\/vendor\/cloudcli-ai-cloudcli\.tgz" \| sha256sum -c -[\s\S]+npm ci --omit=dev[\s\S]+chmod 0755 "\$CLOUDCLI_ROOT\/dist-server\/server\/modules\/cli\/cli\.js"[\s\S]+ln -s "\$CLOUDCLI_ROOT\/dist-server\/server\/modules\/cli\/cli\.js" \/usr\/local\/bin\/cloudcli/,
   );
-  assert.doesNotMatch(dockerfile, /npm@12\./, 'npm 12 rejects the committed CloudCLI npm-shrinkwrap runtime install');
+  assert.match(
+    dockerfile,
+    /CLOUDCLI_SHRINKWRAP_SHA256="\$\(sha256sum npm-shrinkwrap\.json \| cut -d' ' -f1\)" && \\\n+    cp -- npm-shrinkwrap\.json package-lock\.json && \\\n+    echo "\$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap\.json" \| sha256sum -c - && \\\n+    echo "\$CLOUDCLI_SHRINKWRAP_SHA256  package-lock\.json" \| sha256sum -c - && \\\n+    test "\$\(npm --version\)" = "12\.0\.2" && \\\n+    npm ci --omit=dev --allow-remote=all --allow-file=none --allow-git=none --allow-directory=none && \\\n+    echo "\$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap\.json" \| sha256sum -c - && \\\n+    cmp -s npm-shrinkwrap\.json package-lock\.json && \\\n+    rm -f package-lock\.json/,
+  );
+  assert.match(dockerfile, /npm@12\.0\.2/);
+  assert.match(
+    dockerfile,
+    /npm i -g --allow-scripts=opencode-ai opencode-ai@1\.18\.26; \\\n+    test "\$\(opencode --version\)" = "1\.18\.26"/,
+  );
   for (const expected of [
-    'nanoid 3.3.17 fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6',
-    'ip-address 10.3.1 ad1790063beea11a312c801df30d58e147de762f4f77787552376eb7424623e5',
-    'fast-uri 3.1.5 82a71e7e3716dc8c392cac0762bce80614cf539ef22000415e26eaf5c453ce2f',
-    'js-yaml 3.15.1 df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e',
+    'ARG CLOUDCLI_NANOID_VERSION=3.3.18',
+    'ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009',
+    'ARG NESTED_IP_ADDRESS_VERSION=10.7.0',
+    'ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=25a406ee4388fa3d47380ad57b816087fa82a681cc710cccbfe9162cffa8a57a',
+    'ARG CLOUDCLI_FAST_URI_VERSION=3.1.6',
+    'ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=264af0e32c4b7b7bcb9ce5b4623c82469ee3e69ba5d171920f1762d626db1064',
+    'ARG CLOUDCLI_JS_YAML_VERSION=3.15.1',
+    'ARG CLOUDCLI_JS_YAML_ARCHIVE_SHA256=df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e',
   ]) {
     assert.ok(dockerfile.includes(expected), `Dockerfile should bind secure nested package ${expected}`);
   }
   for (const expected of [
-    'ARG UNDICI_7_VERSION=7.29.0', 'ARG UNDICI_7_ARCHIVE_SHA256=ec2005d822734765fc08c3ee5d50b1f720bf1c3fc6235ab028e5cc61c85a3a70',
-    'ARG UNDICI_8_VERSION=8.9.0', 'ARG UNDICI_8_ARCHIVE_SHA256=f554abb3e9352e04bc325208066a25c229163d8408bb1d5161db3d793445d69c',
+    'ARG UNDICI_8_VERSION=8.10.1', 'ARG UNDICI_8_ARCHIVE_SHA256=90e823f192d03af6a6ec64dc7139286519896416694550d6513f79fc51377660',
     'ARG FULL_NANOID_VERSION=3.3.17', 'ARG FULL_NANOID_ARCHIVE_SHA256=fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6',
     'ARG FULL_JS_YAML_VERSION=4.3.1', 'ARG FULL_JS_YAML_ARCHIVE_SHA256=08d6282b77a3e7242061f6dd5516c019b25c53041ad267bca3b790d79ddd5f34',
   ]) assert.ok(dockerfile.includes(expected), `Dockerfile should bind ${expected}`);
@@ -267,26 +333,40 @@ test('compatible package updates and plugin locks are exact', () => {
   assert.match(dockerfile, /ARG NODE_TAR_SHA256=b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6/);
   assert.match(dockerfile, /registry\.npmjs\.org\/tar\/-\/tar-\$\{NODE_TAR_VERSION\}\.tgz/);
   assert.match(dockerfile, /echo "\$NODE_TAR_SHA256  \/tmp\/node-tar\.tgz" \| sha256sum -c -/);
-  assert.match(dockerfile, /patch-global-node-tar\.mjs --root \/ --check-baseline/);
-  assert.match(dockerfile, /node \/tmp\/patch-global-node-tar\.mjs --root \//);
+  assert.match(dockerfile, /patch-global-node-tar\.mjs --root \/ --variant "\$VARIANT" --check-baseline/);
+  assert.match(dockerfile, /node \/tmp\/patch-global-node-tar\.mjs --root \/ --variant "\$VARIANT"/);
+  assert.match(dockerfile, /\/usr\/local\/lib\/node_modules\/npm\/node_modules\/tar/);
   assert.match(dockerfile, /typeof require\(path\)\.list !== 'function'/);
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /^run-name: v1\.5\.7$/m);
-  assert.match(workflow, /default: "1\.5\.7"/);
-  assert.match(workflow, /baseline="b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"/);
+  assert.match(workflow, /^run-name: v1\.5\.8$/m);
+  assert.match(workflow, /default: "1\.5\.8"/);
+  assert.match(workflow, /baseline="fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"/);
   assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
   assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(workflow, /git rev-parse 'v1\.5\.6\^\{commit\}'\)" = "b2c7185ffb44bfa1a0b6c7fd9baed44e1ffe5e1c"/);
-  assert.match(workflow, /SYFT_VERSION: 1\.50\.0/);
-  assert.match(workflow, /GRYPE_VERSION: 0\.116\.1/);
-  assert.match(workflow, /SYFT_SHA256_AMD64: bf7b29ff57f06da30918266a0e1c2885a8f99784798d1bdb1628886aa015d788/);
-  assert.match(workflow, /SYFT_SHA256_ARM64: 887c57cbcc2d0e8c5c110a4571a3fc7150058b24d74f993ee4663516e5c8ce86/);
-  assert.match(workflow, /GRYPE_SHA256_AMD64: 0122df7b655981abe547ad3d2190d65551dac6a2bfc80b4dc2a989b5d0587458/);
-  assert.match(workflow, /GRYPE_SHA256_ARM64: a8d7504a149629324eb5f4ce3dc25dfd211bbfe047e64ee2bf7844b466c3d84d/);
+  assert.match(workflow, /git rev-parse 'v1\.5\.7\^\{commit\}'\)" = "fe0d93c3dd35b28bc2cb4ad61fbf704b5cb690a6"/);
+  assert.match(workflow, /SYFT_VERSION: 1\.51\.1/);
+  assert.match(workflow, /GRYPE_VERSION: 0\.118\.0/);
+  assert.match(workflow, /SYFT_SHA256_AMD64: 8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3/);
+  assert.match(workflow, /SYFT_SHA256_ARM64: a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f/);
+  assert.match(workflow, /GRYPE_SHA256_AMD64: 1d444c5e7360471815f7158f71935fcecc68a3c417d85c7344f770854300bba2/);
+  assert.match(workflow, /GRYPE_SHA256_ARM64: 32aceeb8ee837244775fcb522372c8b3a47914986385f3148f4ee2c930482a84/);
   assert.match(workflow, /SBOM_UTILITY_VERSION: 0\.19\.2/);
   assert.match(workflow, /git diff --check HEAD\^ HEAD/);
+  const policyPreflight = workflow.indexOf('name: Validate committed advisory ledger and OpenVEX');
+  const sourceChecks = workflow.indexOf('name: Run release source checks');
+  const candidateMatrix = workflow.indexOf('  build-candidate:');
+  assert.ok(policyPreflight > -1, 'workflow must have a committed security-policy preflight');
+  assert.ok(policyPreflight < sourceChecks, 'security-policy preflight must run before slower source checks');
+  assert.ok(sourceChecks < candidateMatrix, 'security-policy preflight must run before matrix builds');
+  assert.match(
+    workflow,
+    /for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do[\s\S]+node scripts\/preflight-security-policy\.mjs[\s\S]+--ledger security\/advisory-reviews\.json[\s\S]+--authority-evidence "security\/critical-exception-authority-evidence-\$\{target\}\.json"[\s\S]+--vex security\/openvex\.json[\s\S]+--as-of "\$\{as_of\}"/,
+  );
+  assert.match(workflow, /for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do/);
+  assert.match(workflow, /critical-exception-authority-evidence-\$\{target\}\.json/);
+  assert.match(workflow, /critical-exception-authority-evidence-\$\{\{ matrix\.variant \}\}-\$\{\{ matrix\.arch \}\}\.json/);
   assert.match(workflow, /rhysd\/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667/);
   assert.equal((workflow.match(/docker\/login-action@dbcb813823bdd20940b903addbd779551569679f # v4\.6\.0/g) ?? []).length, 8);
   assert.match(workflow, /test "\$\(git rev-parse HEAD\^\)" = "\$\{baseline\}"/);
@@ -312,6 +392,9 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
   assert.match(workflow, /raw CycloneDX license normalization count mismatch/);
   assert.match(workflow, /normalized CycloneDX license name count mismatch/);
   assert.match(workflow, /node scripts\/evaluate-security-report\.mjs/);
+  assert.match(workflow, /node scripts\/bind-security-authority-report\.mjs/);
+  assert.match(workflow, /--output "\$\{evidence_dir\}\/critical-exception-authority-evidence\.json"/);
+  assert.match(workflow, /--authority-evidence "\$\{evidence_dir\}\/critical-exception-authority-evidence\.json"/);
   assert.match(workflow, /--image-digest "\$\{\{ steps\.digests\.outputs\.dockerhub_digest \}\}"/);
   assert.match(workflow, /--sbom-sha256 "\$\{sbom_sha256\}"/);
   assert.equal((workflow.match(/--image-digest /g) ?? []).length, 2);
@@ -409,6 +492,9 @@ test('runtime smoke rotates CloudCLI credentials and rejects the old token', () 
   assert.match(runtimeChecks, /direct_package_inventory=exact/);
   assert.match(runtimeChecks, /eas-cli\/node_modules\/tar\/package\.json/);
   assert.match(runtimeChecks, /vercel\/node_modules\/tar\/package\.json/);
+  assert.match(runtimeChecks, /npm\/node_modules\/tar\/package\.json/);
+  assert.match(runtimeChecks, /npm tar dependency/);
+  assert.match(runtimeChecks, /npm --prefix \/usr\/local\/lib\/node_modules\/npm ls tar --all/);
   assert.match(runtimeChecks, /Node tar security overlay/);
   assert.match(runtimeChecks, /typeof require\(path\)\.list !== 'function'/);
   for (const expected of [
@@ -432,6 +518,26 @@ test('plugin reproducibility compares dependency trees and built files', () => {
   assert.match(pluginSmoke, /build-output=/);
 });
 
+test('Web Terminal rebuild fails closed before a blocked node-pty lifecycle can reach native load', () => {
+  const pluginSmoke = readFileSync('tests/plugin_reproducibility_smoke.sh', 'utf8');
+  assert.deepEqual(webTerminalLock.packages['node_modules/node-pty'], {
+    version: '1.1.0',
+    resolved: 'https://registry.npmjs.org/node-pty/-/node-pty-1.1.0.tgz',
+    integrity: 'sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg==',
+    hasInstallScript: true,
+    license: 'MIT',
+    dependencies: {
+      'node-addon-api': '^7.1.0',
+    },
+  });
+  assert.match(dockerfile, /patch-cloudcli-web-terminal-install-policy\.mjs/);
+  assert.match(dockerfile, /npm ci --strict-allow-scripts && node -e "require\('node-pty'\)" && npm run build/);
+  assert.match(pluginSmoke, /npm ci --strict-allow-scripts/);
+  assert.match(pluginSmoke, /require\('\/tmp\/plugin-proof-web-terminal-second\/node_modules\/node-pty'\)/);
+  assert.match(pluginSmoke, /pty\.spawn\('\/bin\/sh'/);
+  assert.match(pluginSmoke, /web-terminal-native=ok/);
+});
+
 test('current Debian Critical matches have exact vendor-severity evidence', () => {
   const reviews = JSON.parse(advisoryReviews).reviews;
   const review = reviews.find((item) => item.id === 'libssh2-bookworm-minor');
@@ -445,7 +551,8 @@ test('current Debian Critical matches have exact vendor-severity evidence', () =
   assert.equal(review.disposition, 'vendor_severity');
   assert.equal(review.effectiveSeverity, 'Low');
   assert.equal(review.authority.url, 'https://security-tracker.debian.org/tracker/CVE-2026-7598');
-  assert.equal(review.expiresAt, '2026-08-14');
+  assert.equal(review.reviewedAt, '2026-09-01');
+  assert.equal(review.expiresAt, '2026-10-01');
 });
 
 test('libssh findings use exact backend, version, and vendor-severity evidence', () => {
@@ -484,10 +591,25 @@ test('libssh findings use exact backend, version, and vendor-severity evidence',
   assert.match(browserRuntimeChecks, /libssh_backend=gcrypt openssl=absent/);
 });
 
-test('release OpenVEX identity uses the v1.5.7 publication date', () => {
+test('release OpenVEX identity uses the v1.5.8 publication date', () => {
   const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
-  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.5.7');
-  assert.equal(vex.timestamp, '2026-08-12T00:00:00Z');
+  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.5.8');
+  assert.equal(vex.timestamp, '2026-09-01T00:00:00Z');
+});
+
+test('json-server smoke tolerates only wait cleanup failure', () => {
+  assertJsonServerWaitCannotMaskProbeFailure(dockerfile);
+  const maskedFixture = dockerfile.replace(
+    /\{ \\\r?\n\s+wait "\$JSON_SERVER_PID" 2>\/dev\/null \|\| true; \\\r?\n\s+\} && \\/,
+    'wait "$JSON_SERVER_PID" 2>/dev/null || true && ' + '\\',
+  );
+  assert.throws(() => assertJsonServerWaitCannotMaskProbeFailure(maskedFixture));
+});
+
+test('Dockerfile omits unused package overlay arguments', () => {
+  for (const prefix of ['GLOB_', 'NODE_FORGE_', 'UNDICI_7_']) {
+    assert.doesNotMatch(dockerfile, new RegExp(`^ARG ${prefix}`, 'm'));
+  }
 });
 
 test('removed Netlify proxy findings cannot be carried as risk exceptions', () => {
@@ -498,21 +620,11 @@ test('removed Netlify proxy findings cannot be carried as risk exceptions', () =
   );
 });
 
-test('Netlify image-size receives checksum-bound progress guards', () => {
-  const patcher = readFileSync('scripts/patch-netlify-image-size.mjs', 'utf8');
-  const patchSha256 = createHash('sha256').update(patcher).digest('hex');
-  assert.match(dockerfile, /patch-netlify-image-size\.mjs/);
-  assert.match(patcher, /image-size@2\.0\.2/);
-  assert.match(patcher, /imageHeader\[1\] > 0 \? imageHeader\[1\] : 8/);
-  assert.match(patcher, /baselineCount === 12/);
-  assert.match(patcher, /0f6a6665a166c530ba126a8ab8608a0603cb49dc/);
-  assert.match(immutableInputs, new RegExp(`patch-sha256: ${patchSha256}`));
-  assert.match(patcher, /ispeBox\.size > 0 \? ispeBox\.size : 8/);
-  assert.match(patcher, /jxlpBox\.size > 0 \? jxlpBox\.size : 8/);
-  assert.match(browserRuntimeChecks, /image-size malformed ICNS=bounded/);
-  assert.match(browserRuntimeChecks, /image-size malformed HEIF=bounded/);
-  assert.match(browserRuntimeChecks, /image-size malformed JXL=bounded/);
-  assert.match(gitAttributes, /^scripts\/patch-netlify-image-size\.mjs text eol=lf$/m);
+test('Netlify 27 no longer carries the image-size backport target', () => {
+  assert.equal(existsSync('scripts/patch-netlify-image-size.mjs'), false);
+  assert.doesNotMatch(dockerfile, /patch-netlify-image-size\.mjs/);
+  assert.match(browserRuntimeChecks, /netlify image-size downstream backport=not-required/);
+  assert.doesNotMatch(advisoryReviews, /v157-netlify-image-size-downstream-backport/);
 });
 
 test('FFmpeg security backport is isolated and runtime-probed', () => {
@@ -522,40 +634,34 @@ test('FFmpeg security backport is isolated and runtime-probed', () => {
   assert.match(dockerfile, /mkdir -p \/out\/ffmpeg-security-backport/);
   assert.match(dockerfile, /build-ffmpeg-security-backport\.sh/);
   assert.match(dockerfile, /COPY --from=ffmpeg-security-builder \/out\/ffmpeg-security-backport/);
-  assert.match(dockerfile, /FFMPEG_BACKPORT_VERSION=7:5\.1\.9-0\+deb12u1\+holyclaude1/);
+  assert.match(dockerfile, /FFMPEG_BACKPORT_VERSION=7:5\.1\.9-0\+deb12u1\+holyclaude2/);
   assert.match(browserRuntimeChecks, /ffmpeg -version/);
   assert.match(browserRuntimeChecks, /ffprobe -version/);
   assert.match(browserRuntimeChecks, /\$2 == "cfhd"/);
   assert.match(browserRuntimeChecks, /\$2 == "dvbsub"/);
   assert.match(browserRuntimeChecks, /ffmpeg-smoke\.mkv/);
   assert.doesNotMatch(advisoryReviews, /"7:5\.1\.9-0\+deb12u1"/);
-  assert.match(advisoryReviews, /"id": "v155-ffmpeg-high-exception"[\s\S]{0,1200}"7:5\.1\.9-0\+deb12u1\+holyclaude1"/);
+  assert.match(advisoryReviews, /"id": "v155-ffmpeg-high-exception"[\s\S]{0,1200}"7:5\.1\.9-0\+deb12u1\+holyclaude2"/);
 });
 
-test('Azure cryptography backport is isolated and runtime-probed', () => {
-  const builder = readFileSync('scripts/build-cryptography-security-backport.sh');
-  const builderSha256 = createHash('sha256').update(builder).digest('hex');
-  const buildRequirements = readFileSync('security/cryptography-security-build-requirements.txt');
-  const buildRequirementsSha256 = createHash('sha256').update(buildRequirements).digest('hex');
+test('Prisma nested mysql2 is replaced with the checksum-bound fixed release', () => {
+  assert.match(dockerfile, /ARG PRISMA_MYSQL2_VERSION=3\.22\.0/);
+  assert.match(dockerfile, /ARG PRISMA_MYSQL2_ARCHIVE_SHA256=3bb03632c51e4faf76e913e743b5efb4c222c222dae86780a845bf3c13dbd24e/);
+  assert.match(dockerfile, /PRISMA_ROOT=\/usr\/local\/lib\/node_modules\/prisma[\s\S]*dependencies\.mysql2[\s\S]*3\.15\.3/);
+  assert.match(dockerfile, /https:\/\/registry\.npmjs\.org\/mysql2\/-\/mysql2-\$\{PRISMA_MYSQL2_VERSION\}\.tgz/);
+  assert.match(dockerfile, /npm install --omit=dev --ignore-scripts --no-package-lock/);
+  assert.match(dockerfile, /require\('\$MYSQL2_ROOT\/package\.json'\)\.version[\s\S]*PRISMA_MYSQL2_VERSION/);
+  assert.match(dockerfile, /typeof require\('\$MYSQL2_ROOT'\)\.createConnection/);
+  assert.match(immutableInputs, /name: Prisma mysql2 nested package[\s\S]*version: 3\.22\.0[\s\S]*archive-sha256: 3bb03632c51e4faf76e913e743b5efb4c222c222dae86780a845bf3c13dbd24e/);
+});
 
-  assert.match(dockerfile, /FROM rust:1\.88-bookworm@sha256:af306cfa71d987911a781c37b59d7d67d934f49684058f96cf72079c3626bfe0 AS cryptography-rust-toolchain/);
-  assert.match(gitAttributes, /^security\/cryptography-security-build-requirements\.txt text eol=lf$/m);
-  assert.match(dockerfile, /AS cryptography-security-builder/);
-  assert.match(dockerfile, /COPY --from=cryptography-rust-toolchain \/usr\/local\/cargo \/usr\/local\/cargo/);
-  assert.match(dockerfile, /COPY --from=cryptography-rust-toolchain \/usr\/local\/rustup \/usr\/local\/rustup/);
-  assert.match(dockerfile, /AS cryptography-security-builder[\s\S]*ARG VARIANT[\s\S]*if \[ "\$VARIANT" = "full" \]; then/);
-  assert.match(dockerfile, /patchelf=0\.14\.3-1\+b1/);
-  assert.match(dockerfile, /--only-binary=:all: --require-hashes -r \/tmp\/cryptography-security-build-requirements\.txt/);
-  assert.match(dockerfile, /rustc 1\.88\.0 \(6b00bc388 2025-06-23\)/);
-  assert.match(dockerfile, /cargo 1\.88\.0 \(873a06493 2025-05-10\)/);
-  assert.match(dockerfile, /cryptography-46\.0\.7\+holyclaude\.1-\*\.whl/);
+test('Azure CLI uses its compatible bundled cryptography and runtime probes', () => {
+  assert.doesNotMatch(dockerfile, /AS cryptography-security-builder/);
+  assert.doesNotMatch(dockerfile, /cryptography_security_backport_smoke\.py/);
+  assert.match(dockerfile, /ARG AZURE_CLI_VERSION=2\.90\.0-1~bookworm/);
+  assert.match(dockerfile, /test "\$\(\/opt\/az\/bin\/python3 --version\)" = "Python 3\.14\.6"/);
+  assert.match(dockerfile, /import cryptography; print\(cryptography\.__version__\).*48\.0\.1/);
   assert.match(dockerfile, /\/opt\/az\/bin\/python3 -m pip check/);
-  assert.match(dockerfile, /cryptography_security_backport_smoke\.py/);
-  assert.match(browserRuntimeChecks, /Azure cryptography backport/);
+  assert.match(browserRuntimeChecks, /Azure CLI bundled cryptography/);
   assert.match(browserRuntimeChecks, /az config get core\.collect_telemetry/);
-  assert.match(immutableInputs, /Rust cryptography toolchain[\s\S]{0,200}sha256:af306cfa71d987911a781c37b59d7d67d934f49684058f96cf72079c3626bfe0/);
-  assert.match(immutableInputs, new RegExp(`Azure cryptography source[\\s\\S]{0,400}builder-sha256: ${builderSha256}`));
-  assert.match(immutableInputs, new RegExp(`Azure cryptography build requirements[\\s\\S]{0,300}requirements-sha256: ${buildRequirementsSha256}`));
-  assert.match(advisoryReviews, /"id": "v157-azure-cryptography-x509-downstream-backport"[\s\S]{0,800}"46\.0\.7\+holyclaude\.1"/);
-  assert.match(advisoryReviews, /"id": "v157-azure-cryptography-pkcs7-downstream-backport"[\s\S]{0,800}"46\.0\.7\+holyclaude\.1"/);
 });

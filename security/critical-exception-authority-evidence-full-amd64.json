@@ -1,0 +1,1179 @@
+{
+  "schemaVersion": 1,
+  "candidate": {
+    "variant": "full",
+    "architecture": "amd64",
+    "reportSha256": null
+  },
+  "records": [
+    {
+      "id": "full-amd64-debian-cve-2026-52490-libtiff6",
+      "review": "v158-libtiff-cve-2026-52490-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-52490",
+      "component": {
+        "name": "libtiff6",
+        "version": "4.5.0-6+deb12u4",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/libtiff6/copyright",
+          "/var/lib/dpkg/info/libtiff6:amd64.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "tiff",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "4.5.0-6+deb12u4"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-52490"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-63382-libevent-core-2.1-7",
+      "review": "v158-libevent-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-63382",
+      "component": {
+        "name": "libevent-core-2.1-7",
+        "version": "2.1.12-stable-8",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/libevent-core-2.1-7/copyright",
+          "/var/lib/dpkg/info/libevent-core-2.1-7:amd64.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "libevent",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "2.1.12-stable-8"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-63382"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-63385-libevent-core-2.1-7",
+      "review": "v158-libevent-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-63385",
+      "component": {
+        "name": "libevent-core-2.1-7",
+        "version": "2.1.12-stable-8",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/libevent-core-2.1-7/copyright",
+          "/var/lib/dpkg/info/libevent-core-2.1-7:amd64.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "libevent",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "2.1.12-stable-8"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-63385"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-78935-chromium",
+      "review": "v158-chromium-cve-2026-78935-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-78935",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-78935"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-78935-chromium-common",
+      "review": "v158-chromium-cve-2026-78935-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-78935",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-78935"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-78935-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-78935-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-78935",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-78935"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79012-chromium",
+      "review": "v158-chromium-cve-2026-79012-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79012",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79012"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79012-chromium-common",
+      "review": "v158-chromium-cve-2026-79012-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79012",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79012"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79012-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79012-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79012",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79012"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79052-chromium",
+      "review": "v158-chromium-cve-2026-79052-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79052",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79052"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79052-chromium-common",
+      "review": "v158-chromium-cve-2026-79052-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79052",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79052"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79052-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79052-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79052",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79052"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79054-chromium",
+      "review": "v158-chromium-cve-2026-79054-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79054",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79054"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79054-chromium-common",
+      "review": "v158-chromium-cve-2026-79054-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79054",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79054"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79054-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79054-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79054",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79054"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79121-chromium",
+      "review": "v158-chromium-cve-2026-79121-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79121",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79121"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79121-chromium-common",
+      "review": "v158-chromium-cve-2026-79121-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79121",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79121"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79121-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79121-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79121",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79121"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79150-chromium",
+      "review": "v158-chromium-cve-2026-79150-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79150",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79150"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79150-chromium-common",
+      "review": "v158-chromium-cve-2026-79150-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79150",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79150"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79150-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79150-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79150",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79150"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79200-chromium",
+      "review": "v158-chromium-cve-2026-79200-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79200",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79200"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79200-chromium-common",
+      "review": "v158-chromium-cve-2026-79200-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79200",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79200"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79200-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79200-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79200",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79200"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79224-chromium",
+      "review": "v158-chromium-cve-2026-79224-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79224",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79224"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79224-chromium-common",
+      "review": "v158-chromium-cve-2026-79224-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79224",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79224"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79224-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79224-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79224",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79224"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79282-chromium",
+      "review": "v158-chromium-cve-2026-79282-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79282",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79282"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79282-chromium-common",
+      "review": "v158-chromium-cve-2026-79282-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79282",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79282"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79282-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79282-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79282",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79282"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79290-chromium",
+      "review": "v158-chromium-cve-2026-79290-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79290",
+      "component": {
+        "name": "chromium",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium/copyright",
+          "/var/lib/dpkg/info/chromium.conffiles",
+          "/var/lib/dpkg/info/chromium.list",
+          "/var/lib/dpkg/info/chromium.md5sums",
+          "/var/lib/dpkg/info/chromium.postinst",
+          "/var/lib/dpkg/info/chromium.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79290"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79290-chromium-common",
+      "review": "v158-chromium-cve-2026-79290-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79290",
+      "component": {
+        "name": "chromium-common",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-common/copyright",
+          "/var/lib/dpkg/info/chromium-common.list",
+          "/var/lib/dpkg/info/chromium-common.md5sums",
+          "/var/lib/dpkg/info/chromium-common.shlibs",
+          "/var/lib/dpkg/info/chromium-common.triggers",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79290"
+      },
+      "checkedAt": "2026-09-01"
+    },
+    {
+      "id": "full-amd64-debian-cve-2026-79290-chromium-sandbox",
+      "review": "v158-chromium-cve-2026-79290-critical-exception-full-amd64",
+      "vulnerability": "CVE-2026-79290",
+      "component": {
+        "name": "chromium-sandbox",
+        "version": "151.0.7922.173-1~deb12u1",
+        "type": "deb",
+        "locations": [
+          "/usr/share/doc/chromium-sandbox/copyright",
+          "/var/lib/dpkg/info/chromium-sandbox.list",
+          "/var/lib/dpkg/info/chromium-sandbox.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      },
+      "sourcePackage": "chromium",
+      "repository": {
+        "origin": "official_debian_repository",
+        "distribution": "Debian",
+        "suite": "bookworm",
+        "urls": [
+          "https://deb.debian.org/debian",
+          "https://security.debian.org/debian-security"
+        ],
+        "packageVersion": "151.0.7922.173-1~deb12u1"
+      },
+      "advisoryStatus": "open",
+      "fixedVersion": null,
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-79290"
+      },
+      "checkedAt": "2026-09-01"
+    }
+  ]
+}

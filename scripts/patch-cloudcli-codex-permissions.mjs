@@ -7,7 +7,7 @@ const PATCH_MARKER = 'const HOLYCLAUDE_CODEX_CHAT_PERMISSION_PATCH = true;';
 const ENV_NAME = 'HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE';
 const ENV_CONSTANT = 'HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE_ENV';
 const MAP_ANCHOR = 'function mapPermissionModeToCodexOptions(permissionMode)';
-const QUERY_ANCHOR = 'export async function queryCodex(command, options = {}, ws)';
+const QUERY_ANCHOR = 'export async function queryCodex(command, options = {}, ws, context)';
 const WORKING_DIRECTORY_PATTERN = /^(\s*)const workingDirectory = cwd \|\| projectPath \|\| process\.cwd\(\);/m;
 const MAP_CALL_PATTERN = /const \{ sandboxMode, approvalPolicy \} = mapPermissionModeToCodexOptions\(permissionMode\);/;
 
@@ -53,8 +53,8 @@ function resolveTargets() {
 
   const root = cliTarget || DEFAULT_CLOUDCLI_ROOT;
   return [
-    { label: 'source', path: `${root}/server/openai-codex.js` },
-    { label: 'runtime', path: `${root}/dist-server/server/openai-codex.js` }
+    { label: 'source', path: `${root}/server/modules/providers/list/codex/codex-runtime.provider.js` },
+    { label: 'runtime', path: `${root}/dist-server/server/modules/providers/list/codex/codex-runtime.provider.js` }
   ].filter((target) => existsSync(target.path));
 }
 

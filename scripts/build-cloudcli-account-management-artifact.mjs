@@ -9,26 +9,26 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchDir = path.join(repoRoot, 'vendor/patches/cloudcli-account-management');
 const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
-const upstreamCommit = '27eaf0146a46aa8a55178f3d394360ff7465420f';
-const packageVersion = '1.36.3';
+const upstreamCommit = '677b7ba43695d5624d1a981c62f87fa086187991';
+const packageVersion = '1.37.2';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
-const expectedBuildImage = 'node:26.5.1-bookworm-slim@sha256:9e6f9357d371591e32ab6f2d8a26d63bdd0d17c29eee3f4f3e7e454d9634bf73';
-const expectedNode = 'v26.5.1';
-const expectedNpm = '11.19.0';
+const expectedBuildImage = 'node:26.8.1-bookworm-slim@sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e';
+const expectedNode = 'v26.8.1';
+const expectedNpm = '12.0.2';
 const reviewedLockDependencies = {
   'node_modules/better-sqlite3': '12.11.1',
-  'node_modules/dompurify': '3.4.12',
+  'node_modules/dompurify': '3.4.14',
   'node_modules/express': '4.22.2',
-  'node_modules/fast-uri': '3.1.4',
-  'node_modules/hono': '4.12.32',
+  'node_modules/fast-uri': '3.1.6',
+  'node_modules/hono': '4.13.5',
   'node_modules/jws': '3.2.3',
   'node_modules/minimatch': '9.0.9',
-  'node_modules/multer': '2.2.0',
+  'node_modules/multer': '2.3.0',
   'node_modules/path-to-regexp': '0.1.13',
   'node_modules/picomatch': '2.3.2',
-  'node_modules/postcss': '8.5.25',
+  'node_modules/postcss': '8.5.26',
   'node_modules/tar-fs': '2.1.5',
-  'node_modules/ws': '8.21.1',
+  'node_modules/ws': '8.21.3',
   'node_modules/yaml': '2.9.0',
 };
 const expectedRuntimeDependencies = Object.fromEntries(
@@ -38,9 +38,21 @@ const expectedRuntimeDependencies = Object.fromEntries(
 const forbiddenRuntimeDependencies = [
   'node_modules/screenshot-desktop',
 ];
+const expectedAllowScripts = {
+  '@vscode/ripgrep@1.17.1': true,
+  'bcrypt@6.0.0': true,
+  'better-sqlite3@12.11.1': true,
+  'electron@38.8.6': true,
+  'electron-winstaller@5.4.0': true,
+  'esbuild@0.27.2': true,
+  'esbuild@0.27.7': true,
+  'node-pty@1.2.0-beta.12': true,
+  'sharp@0.34.5': true,
+  'unrs-resolver@1.11.1': true,
+};
 const expectedBuildPackages = {
   'build-essential': '12.9',
-  'ca-certificates': '20230311+deb12u1',
+  'ca-certificates': '20250419~deb12u1',
   git: '1:2.39.5-0+deb12u3',
   'pkg-config': '1.8.1-1',
   python3: '3.11.2-1+b1',
@@ -202,7 +214,7 @@ function verifyVersionInputs(workdir) {
     dompurify: '^3.4.12',
     express: '^4.22.2',
     multer: '^2.2.0',
-    ws: '^8.21.1',
+    ws: '^8.21.3',
   };
   for (const [name, version] of Object.entries(expectedRanges)) {
     if (packageJson.dependencies?.[name] !== version) {
@@ -215,14 +227,19 @@ function verifyVersionInputs(workdir) {
   if (packageJson.scripts?.prepare) {
     throw new Error('CloudCLI package.json must not run a development-only prepare script during production install');
   }
+  if (JSON.stringify(packageJson.allowScripts) !== JSON.stringify(expectedAllowScripts)) {
+    throw new Error(
+      `CloudCLI package.json allowScripts policy drift: expected ${JSON.stringify(expectedAllowScripts)}, got ${JSON.stringify(packageJson.allowScripts)}`,
+    );
+  }
   verifyResolvedDependencies(packageLock, 'CloudCLI package-lock.json');
 }
 
-function normalizeShrinkwrapRegistry(workdir) {
-  const shrinkwrapPath = path.join(workdir, 'npm-shrinkwrap.json');
-  const normalized = readFileSync(shrinkwrapPath, 'utf8')
+function normalizeRegistryFile(workdir, fileName) {
+  const registryFilePath = path.join(workdir, fileName);
+  const normalized = readFileSync(registryFilePath, 'utf8')
     .replaceAll('https://registry.npmmirror.com/', 'https://registry.npmjs.org/');
-  writeFileSync(shrinkwrapPath, normalized);
+  writeFileSync(registryFilePath, normalized);
 }
 
 function verifyShrinkwrap(workdir) {
@@ -305,6 +322,9 @@ try {
     run('git', ['apply', '--check', '--index', patchPath], { cwd: workdir });
     run('git', ['apply', '--index', patchPath], { cwd: workdir });
   }
+  run('npm', ['install', '--package-lock-only', '--ignore-scripts'], { cwd: workdir });
+  runCaptureAllowFailure('npm', ['audit', 'fix', '--package-lock-only', '--ignore-scripts'], { cwd: workdir });
+  normalizeRegistryFile(workdir, 'package-lock.json');
   verifyVersionInputs(workdir);
 
   const trackedFiles = runCapture('git', ['ls-files', '-z'], { cwd: workdir })
@@ -321,8 +341,11 @@ try {
   run('npm', ['run', 'typecheck'], { cwd: workdir });
   run('npm', ['run', 'build'], { cwd: workdir });
   run('npm', ['run', 'lint'], { cwd: workdir });
-  run('npm', ['shrinkwrap', '--omit=dev'], { cwd: workdir });
-  normalizeShrinkwrapRegistry(workdir);
+  await cp(
+    path.join(workdir, 'package-lock.json'),
+    path.join(workdir, 'npm-shrinkwrap.json'),
+  );
+  normalizeRegistryFile(workdir, 'npm-shrinkwrap.json');
   verifyShrinkwrap(workdir);
   const productionAudit = verifyProductionAudit(workdir);
 
@@ -335,20 +358,49 @@ try {
   const artifactPath = path.join(outputDir, artifactFile);
   await rm(artifactPath, { force: true });
   await cp(packedPath, artifactPath);
-  run('node', [path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs'), artifactPath], { cwd: workdir });
 
   const installCache = path.join(workdir, 'install-cache');
   const unpackDir = path.join(workdir, 'pack-check');
   await mkdir(unpackDir);
   run('tar', ['-xzf', artifactPath, '-C', unpackDir]);
   const unpackedPackage = path.join(unpackDir, 'package');
+  await cp(
+    path.join(workdir, 'npm-shrinkwrap.json'),
+    path.join(unpackedPackage, 'npm-shrinkwrap.json'),
+  );
+  await rm(artifactPath, { force: true });
+  run('tar', [
+    '--sort=name',
+    '--mtime=@0',
+    '--owner=0',
+    '--group=0',
+    '--numeric-owner',
+    '--pax-option=delete=atime,delete=ctime',
+    '-czf',
+    artifactPath,
+    '-C',
+    unpackDir,
+    'package',
+  ]);
+  run('node', [path.join(repoRoot, 'scripts/verify-cloudcli-account-management-support.mjs'), artifactPath], { cwd: workdir });
   const packageFileListHash = createHash('sha256')
     .update(collectFiles(unpackedPackage).sort().join('\n'))
     .digest('hex');
   const installRoot = path.join(workdir, 'install', 'lib', 'node_modules', '@cloudcli-ai', 'cloudcli');
   await mkdir(path.dirname(installRoot), { recursive: true });
   await cp(unpackedPackage, installRoot, { recursive: true });
-  run('npm', ['ci', '--omit=dev'], {
+  await cp(
+    path.join(installRoot, 'npm-shrinkwrap.json'),
+    path.join(installRoot, 'package-lock.json'),
+  );
+  run('npm', [
+    'ci',
+    '--omit=dev',
+    '--allow-remote=all',
+    '--allow-file=none',
+    '--allow-git=none',
+    '--allow-directory=none',
+  ], {
     cwd: installRoot,
     env: { ...process.env, npm_config_cache: installCache },
   });
@@ -384,19 +436,22 @@ try {
       commands: [
         'git apply --check --index',
         'git apply --index',
+        'npm install --package-lock-only --ignore-scripts',
+        'npm audit fix --package-lock-only --ignore-scripts',
         'npm ci',
         'native better-sqlite3 smoke',
         'npm run typecheck',
         'npm run build',
         'npm run lint',
-        'npm shrinkwrap --omit=dev',
+        'promote package-lock.json to npm-shrinkwrap.json',
         'npm audit --omit=dev --json',
         'npm pack',
-        'npm ci --omit=dev',
+        'promote npm-shrinkwrap.json to package-lock.json for npm 12 ci',
+        'npm ci --omit=dev --allow-remote=all --allow-file=none --allow-git=none --allow-directory=none',
         'installed runtime dependency verification',
         'installed native better-sqlite3 smoke',
       ],
-      generatedAt: '2026-07-21T00:00:00Z',
+      generatedAt: '2026-09-01T00:00:00Z',
       sourceDateNote: 'Timestamp is fixed in this manifest so reproducibility checks compare stable fields.',
       sourceTreeSha256: sourceTreeHash,
     },

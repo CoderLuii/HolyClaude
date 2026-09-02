@@ -168,41 +168,41 @@ const fs = require('node:fs');
 const inventory = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const variant = process.argv[3];
 const common = {
-  '@cloudcli-ai/cloudcli': '1.36.3',
-  '@google/gemini-cli': '0.53.0',
-  '@openai/codex': '0.146.0',
-  concurrently: '10.0.4',
+  '@cloudcli-ai/cloudcli': '1.37.2',
+  '@google/gemini-cli': '0.58.0',
+  '@openai/codex': '0.152.1',
+  concurrently: '10.0.5',
   'dotenv-cli': '11.0.0',
   esbuild: '0.28.2',
-  eslint: '10.8.1',
+  eslint: '10.9.1',
   nodemon: '3.1.14',
-  npm: '11.19.0',
-  playwright: '1.62.0',
-  pnpm: '11.21.0',
+  npm: '12.0.2',
+  playwright: '1.62.1',
+  pnpm: '11.25.0',
   prettier: '3.9.6',
   serve: '14.2.6',
   'task-master-ai': '0.43.1',
-  tsx: '4.23.12',
-  typescript: '6.0.3',
-  vite: '8.2.1',
+  tsx: '4.23.13',
+  typescript: '7.0.2',
+  vite: '8.2.2',
 };
 const full = {
   '@cloudflare/next-on-pages': '1.13.16',
-  '@earendil-works/pi-coding-agent': '0.82.1',
+  '@earendil-works/pi-coding-agent': '0.84.4',
   '@lhci/cli': '0.15.1',
   '@marp-team/marp-cli': '4.5.0',
   'drizzle-kit': '0.31.10',
-  'eas-cli': '20.5.1',
+  'eas-cli': '23.2.0',
   'http-server': '14.1.1',
-  'json-server': '1.0.0-beta.15',
+  'json-server': '0.17.4',
   lighthouse: '13.4.1',
-  'netlify-cli': '26.2.0',
-  'opencode-ai': '1.18.10',
-  pm2: '7.0.3',
-  prisma: '7.9.1',
-  'sharp-cli': '5.2.0',
-  vercel: '54.21.1',
-  wrangler: '4.116.0',
+  'netlify-cli': '27.4.2',
+  'opencode-ai': '1.18.26',
+  pm2: '7.0.4',
+  prisma: '7.10.0',
+  'sharp-cli': '6.1.0',
+  vercel: '59.11.1',
+  wrangler: '4.128.0',
 };
 const expected = variant === 'full' ? { ...common, ...full } : common;
 const actual = Object.fromEntries(
@@ -219,43 +219,44 @@ import sys
 
 variant = sys.argv[1]
 common = {
-    'apprise': '1.12.0',
+    'apprise': '1.13.1',
     'bandit': '1.9.4',
     'beautifulsoup4': '4.15.0',
-    'click': '8.4.2',
+    'click': '8.5.0',
     'defusedxml': '0.7.1',
     'desloppify': '1.0',
     'httpx': '0.28.1',
     'jinja2': '3.1.6',
-    'lxml': '6.1.1',
+    'lxml': '6.1.2',
     'markdown': '3.10.3',
-    'numpy': '2.4.6',
+    'numpy': '2.5.2',
     'openpyxl': '3.1.5',
     'pandas': '3.0.5',
     'pillow': '12.3.0',
+    'pip': '26.2.1',
     'playwright': '1.62.0',
     'python-docx': '1.2.0',
-    'python-dotenv': '1.2.2',
+    'python-dotenv': '1.2.3',
     'pyyaml': '6.0.3',
     'requests': '2.34.2',
     'rich': '15.0.0',
-    'setuptools': '83.0.0',
-    'stevedore': '5.9.0',
+    'setuptools': '84.0.0',
+    'stevedore': '5.9.1',
     'tqdm': '4.70.0',
     'tree-sitter': '0.26.0',
-    'tree-sitter-language-pack': '1.6.2',
+    'tree-sitter-language-pack': '1.16.1',
 }
 full = {
     'cairosvg': '2.9.0',
     'fastapi': '0.141.1',
-    'fpdf2': '2.8.7',
+    'fpdf2': '2.8.8',
     'img2pdf': '0.6.3',
     'matplotlib': '3.11.1',
-    'pymupdf': '1.28.0',
+    'pymupdf': '1.28.2',
     'python-pptx': '1.0.2',
-    'reportlab': '5.0.0',
+    'reportlab': '5.0.1',
     'seaborn': '0.13.2',
-    'uvicorn': '0.52.0',
+    'uvicorn': '0.52.4',
     'weasyprint': '69.0',
     'xlrd': '2.0.2',
     'xlsxwriter': '3.2.9',
@@ -281,24 +282,29 @@ assert_runtime_identity() {
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
   test -x /usr/lib/chromium/chromium
-  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.108-1~deb12u1"
+  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "151.0.7922.173-1~deb12u1"
   local cloudcli_version
   local cloudcli_package_version
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   cloudcli_package_version="$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
-  require_eq "CloudCLI package version" "$cloudcli_package_version" "1.36.3"
-  require_eq "Node version" "$(node --version)" "v26.7.0"
-  require_eq "npm version" "$(npm --version)" "11.19.0"
-  require_eq "pnpm version" "$(pnpm --version)" "11.21.0"
-  require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.2.1"
+  require_eq "CloudCLI package version" "$cloudcli_package_version" "1.37.2"
+  require_eq "Node version" "$(node --version)" "v26.8.1"
+  require_eq "npm version" "$(npm --version)" "12.0.2"
+  require_eq "npm tar package version" "$(node -p "require('/usr/local/lib/node_modules/npm/node_modules/tar/package.json').version")" "7.5.22"
+  require_eq "npm tar dependency" "$(node -p "require('/usr/local/lib/node_modules/npm/package.json').dependencies.tar")" "7.5.22"
+  node -e "if (typeof require('/usr/local/lib/node_modules/npm/node_modules/tar').list !== 'function') throw new Error('invalid npm tar module')"
+  npm --prefix /usr/local/lib/node_modules/npm ls tar --all >/dev/null
+  require_eq "pnpm version" "$(pnpm --version)" "11.25.0"
+  require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.2.2"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.6"
-  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.146.0"
-  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.53.0"
-  require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.6.2"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.152.1"
+  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.58.0"
+  require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.16.1"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
-  require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.1"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.220"
-  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.07.23-e383d2b"
+  require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.3"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.258"
+  require_eq "GitHub CLI version" "$(gh --version | awk 'NR == 1 {print $3}')" "2.99.0"
+  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.08.31-4057e58"
   if [ "$VARIANT" = "full" ]; then
     local libssh_gcrypt_path
     require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u2"
@@ -315,9 +321,9 @@ assert_runtime_identity() {
     eas --version >/dev/null
     vercel --version >/dev/null
     evidence "Node tar security overlay=7.5.22 eas=ok vercel=ok"
-    require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "26.2.0"
+    require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "27.4.2"
     netlify --version >/dev/null
-    local ffmpeg_backport_version='7:5.1.9-0+deb12u1+holyclaude1'
+    local ffmpeg_backport_version='7:5.1.9-0+deb12u1+holyclaude2'
     for package_name in ffmpeg libavcodec59 libavdevice59 libavfilter8 libavformat59 libavutil57 libpostproc56 libswresample4 libswscale6; do
       dpkg --compare-versions "$(dpkg-query -W -f='${Version}' "$package_name")" eq "$ffmpeg_backport_version"
     done
@@ -340,7 +346,8 @@ assert_runtime_identity() {
       "pcm_s16le,8000"
     timeout 20s ffmpeg -v error -i "$ffmpeg_smoke" -f null -
     evidence "ffmpeg_backport=$ffmpeg_backport_version media_sha256=$(sha256sum "$ffmpeg_smoke" | cut -d' ' -f1)"
-    require_eq "Azure cryptography backport" "$(/opt/az/bin/python3 -c 'import cryptography; print(cryptography.__version__)')" "46.0.7+holyclaude.1"
+    require_eq "Azure CLI embedded Python" "$(/opt/az/bin/python3 --version | awk '{print $2}')" "3.14.6"
+    require_eq "Azure CLI bundled cryptography" "$(/opt/az/bin/python3 -c 'import cryptography; print(cryptography.__version__)')" "48.0.1"
     /opt/az/bin/python3 -m pip check
     local azure_config_dir="$SENTINEL_ROOT/azure"
     AZURE_CONFIG_DIR="$azure_config_dir" AZURE_CORE_COLLECT_TELEMETRY=false az version >/dev/null
@@ -348,20 +355,21 @@ assert_runtime_identity() {
     AZURE_CONFIG_DIR="$azure_config_dir" AZURE_CORE_COLLECT_TELEMETRY=false az config get core.collect_telemetry >/dev/null
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-x64/bin/local-functions-proxy"
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-arm64/bin/local-functions-proxy"
-    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.116.0"
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.128.0"
     require_eq "Wrangler undici development dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').devDependencies.undici")" "7.29.0"
-    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "4.20260730.0"
+    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20260831.0-alpha"
     require_eq "Wrangler Miniflare undici dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.undici")" "7.29.0"
     require_eq "Wrangler undici package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json').version")" "7.29.0"
     npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null
     wrangler --version >/dev/null
-    require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.9.1"
+    require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.10.0"
     require_eq "Lighthouse package version" "$(node -p "require('/usr/local/lib/node_modules/lighthouse/package.json').version")" "13.4.1"
     require_eq "Marp CLI package version" "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/package.json').version")" "4.5.0"
-    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.10"
-    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.82.1"
-    require_eq "Pi undici dependency" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').dependencies.undici")" "8.9.0"
-    require_eq "Pi undici package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json').version")" "8.9.0"
+    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.18.26"
+    require_eq "OpenCode CLI version" "$(opencode --version)" "1.18.26"
+    require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.84.4"
+    require_eq "Pi undici dependency" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').dependencies.undici")" "8.10.1"
+    require_eq "Pi undici package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json').version")" "8.10.1"
     npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all >/dev/null
     pi --version >/dev/null
     require_eq "EAS nanoid dependency" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/package.json').dependencies.nanoid")" "3.3.17"
@@ -370,11 +378,11 @@ assert_runtime_identity() {
     require_eq "PM2 js-yaml dependency" "$(node -p "require('/usr/local/lib/node_modules/pm2/package.json').dependencies['js-yaml']")" "4.3.1"
     require_eq "PM2 js-yaml package version" "$(node -p "require('/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json').version")" "4.3.1"
     npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all >/dev/null
-    PM2_HOME="$SENTINEL_ROOT/pm2" pm2 --version | grep -Fx "7.0.3"
+    PM2_HOME="$SENTINEL_ROOT/pm2" pm2 --version | grep -Fx "7.0.4"
     PM2_HOME="$SENTINEL_ROOT/pm2" pm2 kill >/dev/null
     require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.1"
     require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.141.1"
-    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "2470.4"
+    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3126.1"
   else
     ! dpkg-query -W libssh-gcrypt-4 >/dev/null 2>&1
     test ! -e /usr/local/lib/node_modules/wrangler
@@ -433,20 +441,20 @@ function close(server) {
 
 for (const [dependency, version] of Object.entries({
   'better-sqlite3': '12.11.1',
-  dompurify: '3.4.12',
+  dompurify: '3.4.14',
   express: '4.22.2',
-  'fast-uri': '3.1.5',
-  'ip-address': '10.3.1',
+  'fast-uri': '3.1.6',
+  'ip-address': '10.7.0',
   'js-yaml': '3.15.1',
-  nanoid: '3.3.17',
-  hono: '4.12.32',
+  nanoid: '3.3.18',
+  hono: '4.13.5',
   jws: '3.2.3',
-  multer: '2.2.0',
+  multer: '2.3.0',
   'path-to-regexp': '0.1.13',
   picomatch: '2.3.2',
-  postcss: '8.5.25',
+  postcss: '8.5.26',
   'tar-fs': '2.1.5',
-  ws: '8.21.1',
+  ws: '8.21.3',
   yaml: '2.9.0',
 })) {
   assert.equal(packageVersion(dependency), version, `${dependency} should use the reviewed version`);
@@ -454,14 +462,14 @@ for (const [dependency, version] of Object.entries({
 
 assert.equal(
   JSON.parse(readFileSync('/usr/local/lib/node_modules/npm/node_modules/ip-address/package.json', 'utf8')).version,
-  '10.3.1',
+  '10.7.0',
   'npm ip-address should use the reviewed version',
 );
 
 if (process.env.EXPECT_FULL === '1') {
   for (const [path, version] of Object.entries({
     '/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json': '7.29.0',
-    '/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json': '8.9.0',
+    '/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json': '8.10.1',
     '/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json': '3.3.17',
     '/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json': '4.3.1',
     '/usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json': '4.3.1',
@@ -586,38 +594,8 @@ NODE
 
 assert_netlify_image_size_progress_guards() {
   if [ "$VARIANT" != "full" ]; then return; fi
-  timeout 20s node - <<'NODE'
-const { spawnSync } = require('node:child_process');
-const packageRoot = '/usr/local/lib/node_modules/netlify-cli/node_modules/image-size';
-const devUtils = '/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/dev-utils/dist/main.js';
-const child = String.raw`
-const [mode, format, packageRoot, devUtils] = process.argv.slice(1);
-const payloads = {
-  icns: Uint8Array.from([0x69,0x63,0x6e,0x73, 0,0,0,16, 0x69,0x73,0x33,0x32, 0,0,0,0]),
-  heif: Uint8Array.from([0,0,0,16, 0x66,0x74,0x79,0x70, 0x61,0x76,0x69,0x66, 0,0,0,0, 0,0,0,36, 0x6d,0x65,0x74,0x61, 0,0,0,0, 0,0,0,8, 0x69,0x70,0x72,0x70, 0,0,0,20, 0x69,0x70,0x63,0x6f, 0,0,0,0, 0x69,0x73,0x70,0x65, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]),
-  jxl: Uint8Array.from([0,0,0,20, 0x66,0x74,0x79,0x70, 0x4a,0x58,0x4c,0x20, 0x6a,0x78,0x6c,0x20, 0,0,0,0, 0,0,0,0, 0x6a,0x78,0x6c,0x70]),
-  png: Uint8Array.from(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64')),
-};
-const run = async () => {
-  let result;
-  if (mode === 'cjs') result = require(packageRoot).imageSize(payloads[format]);
-  else if (mode === 'esm') result = (await import(packageRoot + '/dist/index.mjs')).imageSize(payloads[format]);
-  else result = await (await import(devUtils)).getImageResponseSize(new Response(payloads[format], { headers: { 'content-type': 'image/' + format } }));
-  if (format === 'png' && (result.width !== 1 || result.height !== 1)) throw new Error('invalid PNG dimensions');
-};
-run().then(() => process.exit(0)).catch(() => process.exit(format === 'png' ? 1 : 0));
-`;
-for (const mode of ['cjs', 'esm', 'dev-utils']) {
-  for (const format of ['icns', 'heif', 'jxl', 'png']) {
-    const result = spawnSync(process.execPath, ['-e', child, mode, format, packageRoot, devUtils], { timeout: 2000 });
-    if (result.error || result.signal || result.status !== 0) throw new Error(`${mode}/${format} exceeded external watchdog`);
-  }
-}
-NODE
-  evidence "image-size malformed ICNS=bounded"
-  evidence "image-size malformed HEIF=bounded"
-  evidence "image-size malformed JXL=bounded"
-  evidence "image-size cjs_esm_netlify_dev_utils=bounded valid_png=1x1"
+  test ! -e /usr/local/lib/node_modules/netlify-cli/node_modules/image-size/package.json
+  evidence "netlify image-size downstream backport=not-required"
 }
 
 assert_direct_chromium() {
@@ -672,7 +650,7 @@ const url = process.argv[2];
 const expected = process.argv[3];
 const requireFromGlobal = createRequire('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json');
 const version = requireFromGlobal('playwright/package.json').version;
-assert.equal(version, '1.62.0');
+assert.equal(version, '1.62.1');
 (async () => {
   const { chromium } = requireFromGlobal('playwright');
   const browser = await chromium.launch({
@@ -690,7 +668,7 @@ assert.equal(version, '1.62.0');
   process.exit(1);
 });
 NODE
-  evidence "node_playwright=1.62.0 launch=ok"
+  evidence "node_playwright=1.62.1 launch=ok"
 }
 
 register_cloudcli_account() {
@@ -752,7 +730,7 @@ rotate_cloudcli_account() {
   DATABASE_PATH=/home/claude/.cloudcli/auth.db node --input-type=module - "$old_token" <<'NODE'
 const oldToken = process.argv[2];
 const { authenticateWebSocket } = await import(
-  'file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/middleware/auth.js'
+  'file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/modules/auth/auth.middleware.js'
 );
 if (authenticateWebSocket(oldToken) !== null) {
   console.error('CloudCLI accepted an invalidated WebSocket token');
