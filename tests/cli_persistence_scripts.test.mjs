@@ -21,6 +21,8 @@ const entrypoint = readFileSync('scripts/entrypoint.sh', 'utf8');
 const bootstrap = readFileSync('scripts/bootstrap.sh', 'utf8');
 const dockerfile = readFileSync('Dockerfile', 'utf8');
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
+const readme = readFileSync('README.md', 'utf8');
+const configuration = readFileSync('docs/configuration.md', 'utf8');
 const troubleshooting = readFileSync('docs/troubleshooting.md', 'utf8');
 
 function documentedRecoveryScript() {
@@ -109,10 +111,18 @@ test('image installs and runs CLI persistence before first-boot bootstrap', () =
   assert.match(workflow, /python3 -m py_compile scripts\/secure-cli-persistence\.py/);
 
   const persistenceSetup = entrypoint.indexOf('/usr/local/bin/prepare-cli-persistence.sh');
+  const uidRemapping = entrypoint.indexOf('CURRENT_UID=$(id -u "$CLAUDE_USER")');
+  const claudeOwnership = entrypoint.indexOf('chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude"');
   const bootstrapStart = entrypoint.indexOf('# ---------- First-boot bootstrap ----------');
   assert.notEqual(persistenceSetup, -1);
+  assert.notEqual(uidRemapping, -1);
+  assert.notEqual(claudeOwnership, -1);
   assert.notEqual(bootstrapStart, -1);
+  assert.ok(persistenceSetup < claudeOwnership);
+  assert.ok(persistenceSetup < uidRemapping);
+  assert.match(entrypoint, /CLI_PERSISTENCE_PREFLIGHT_ONLY=1 \/usr\/local\/bin\/prepare-cli-persistence\.sh/);
   assert.ok(persistenceSetup < bootstrapStart);
+  assert.doesNotMatch(entrypoint, /mkdir -p "\$CLAUDE_HOME\/\.claude\/\.(?:codex|gemini|cursor)"/);
 });
 
 test('Git initialization moved out of one-time bootstrap', () => {
@@ -127,6 +137,10 @@ test('CLI persistence implementation is bounded and fail closed', () => {
   assert.match(script, /"\$DURABLE_ROOT\/\.gitconfig"/);
   assert.match(script, /"\$DURABLE_ROOT\/\.config\/git"/);
   assert.match(script, /"\$DURABLE_ROOT\/\.config\/gh"/);
+  for (const cli of ['codex', 'gemini', 'cursor']) {
+    assert.match(script, new RegExp(`"\\$CLAUDE_HOME/\\.${cli}"`));
+    assert.match(script, new RegExp(`"\\$DURABLE_ROOT/\\.${cli}"`));
+  }
   assert.match(script, /GIT_CONFIG_GLOBAL/);
   assert.match(script, /GH_CONFIG_DIR/);
   assert.match(script, /XDG_CONFIG_HOME/);
@@ -245,4 +259,25 @@ test('release workflow checks CLI persistence before and after promotion', () =>
   assert.match(smoke, /Manual Bind User/);
   const matches = workflow.match(/tests\/docker_cli_persistence_smoke\.sh/g) ?? [];
   assert.equal(matches.length, 2);
+});
+
+test('troubleshooting preserves unsafe CLI state while inspecting link targets', () => {
+  assert.match(troubleshooting, /keep the mounted data as your backup/);
+  assert.match(troubleshooting, /readlink "\$path"/);
+  assert.match(troubleshooting, /Do not delete or replace these paths/);
+  assert.match(troubleshooting, /only manages its exact generated top-level aliases/);
+  assert.match(troubleshooting, /dangling links, link loops, linked durable directories, and conflicting managed state stop startup/);
+  assert.match(troubleshooting, /separate real directory mounted at a top-level CLI path remains user-managed/);
+});
+
+test('Cursor persistence docs distinguish managed aliases from user-managed live state', () => {
+  for (const document of [configuration, troubleshooting]) {
+    assert.doesNotMatch(document, /\.cursor` \| `\.\/data\/claude\/\.cursor` \| Symlinked to `\.claude\/\.cursor` on every boot/);
+    assert.match(document, /managed alias to `\.claude\/\.cursor` only when the live path is absent/i);
+    assert.match(document, /existing real directory or custom link remains user-managed/i);
+    assert.match(document, /inspect and migrate/i);
+  }
+  assert.match(readme, /Cursor uses `\.claude\/\.cursor` only when HolyClaude creates the managed alias/);
+  assert.match(readme, /existing real directory or custom link remains user-managed/);
+  assert.match(readme, /inspect and migrate/);
 });

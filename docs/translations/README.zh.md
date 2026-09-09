@@ -239,7 +239,7 @@ docker pull coderluii/holyclaude:slim
 
 > **`latest` 始终是完整镜像。** Slim 用户请放心，当你让 Claude 做某件需要缺失工具的事情时，它会在几秒内完成安装。你获得的能力完全相同，只是初始下载体积更小。
 >
-> Docker Hub 显示的是压缩传输大小：`latest` 约 4.1 GB，`slim` 约 2.4 GB。Docker、Synology Container Manager 和 NAS 文件系统在镜像层解压后可能显示更大的占用。
+> 下载大小因版本和架构而异。请在 [Docker Hub](https://hub.docker.com/r/coderluii/holyclaude/tags) 查看各标签的压缩传输大小。Docker、Synology Container Manager 和 NAS 文件系统在镜像层解压后可能显示更大的占用。
 
 <p align="right">
   <a href="#top">↑ 回到顶部</a>

@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { lstatSync, readFileSync, readlinkSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, lstatSync, readFileSync, readlinkSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -8,25 +8,31 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchDir = path.join(repoRoot, 'vendor/patches/cloudcli-account-management');
+const buildLockPath = path.join(
+  repoRoot,
+  'vendor/locks/cloudcli-account-management-70e57859b6224ff0eb0539fcde7d13a3186c9c93.package-lock.json',
+);
+const lockVerifierPath = path.join(repoRoot, 'scripts/verify-cloudcli-account-management-lock.mjs');
 const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
-const upstreamCommit = '677b7ba43695d5624d1a981c62f87fa086187991';
-const packageVersion = '1.37.2';
+const upstreamCommit = '70e57859b6224ff0eb0539fcde7d13a3186c9c93';
+const packageVersion = '1.37.3';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
-const expectedBuildImage = 'node:26.8.1-bookworm-slim@sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e';
-const expectedNode = 'v26.8.1';
+const expectedBuildLockSha256 = '5e84dee0c448f9cd10eed9828a03681c0a8323935a365f42e9dad914e3109025';
+const expectedBuildImage = 'node:26.8.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae';
+const expectedNode = 'v26.8.2';
 const expectedNpm = '12.0.2';
 const reviewedLockDependencies = {
   'node_modules/better-sqlite3': '12.11.1',
-  'node_modules/dompurify': '3.4.14',
+  'node_modules/dompurify': '3.4.15',
   'node_modules/express': '4.22.2',
   'node_modules/fast-uri': '3.1.6',
-  'node_modules/hono': '4.13.5',
+  'node_modules/hono': '4.13.7',
   'node_modules/jws': '3.2.3',
   'node_modules/minimatch': '9.0.9',
   'node_modules/multer': '2.3.0',
   'node_modules/path-to-regexp': '0.1.13',
   'node_modules/picomatch': '2.3.2',
-  'node_modules/postcss': '8.5.26',
+  'node_modules/postcss': '8.5.28',
   'node_modules/tar-fs': '2.1.5',
   'node_modules/ws': '8.21.3',
   'node_modules/yaml': '2.9.0',
@@ -322,9 +328,14 @@ try {
     run('git', ['apply', '--check', '--index', patchPath], { cwd: workdir });
     run('git', ['apply', '--index', patchPath], { cwd: workdir });
   }
-  run('npm', ['install', '--package-lock-only', '--ignore-scripts'], { cwd: workdir });
-  runCaptureAllowFailure('npm', ['audit', 'fix', '--package-lock-only', '--ignore-scripts'], { cwd: workdir });
-  normalizeRegistryFile(workdir, 'package-lock.json');
+  copyFileSync(buildLockPath, path.join(workdir, 'package-lock.json'));
+  run('node', [
+    lockVerifierPath,
+    '--lock',
+    path.join(workdir, 'package-lock.json'),
+    '--package',
+    path.join(workdir, 'package.json'),
+  ], { cwd: workdir });
   verifyVersionInputs(workdir);
 
   const trackedFiles = runCapture('git', ['ls-files', '-z'], { cwd: workdir })
@@ -336,8 +347,34 @@ try {
   run('node', [
     '--input-type=module',
     '-e',
-    "import Database from 'better-sqlite3'; const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (id INTEGER)'); db.close();",
+    "import Database from 'better-sqlite3'; const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (value TEXT NOT NULL)'); const write = db.transaction((value) => db.prepare('INSERT INTO smoke (value) VALUES (?)').run(value)); write('verified'); const row = db.prepare('SELECT value FROM smoke').get(); if (row?.value !== 'verified') throw new Error('better-sqlite3 transaction readback failed'); db.close(); if (db.open) throw new Error('better-sqlite3 database remained open');",
   ], { cwd: workdir });
+  run(path.join(workdir, 'node_modules', '.bin', 'tsx'), [
+    '--tsconfig',
+    'server/tsconfig.json',
+    '--test',
+    'server/modules/auth/tests/auth.service.test.ts',
+    'server/modules/auth/tests/auth-session-registry.test.ts',
+    'server/modules/auth/tests/auth.routes.test.ts',
+  ], { cwd: workdir });
+  run('npm', [
+    'run',
+    'test:client',
+    '--',
+    'src/modules/auth/context/authErrorMessage.test.ts',
+    'src/shared/tests/authToken.test.ts',
+    'src/modules/shell/tests/shellErrorFrame.test.ts',
+    'src/shared/context/WebSocketContext.test.tsx',
+  ], {
+    cwd: workdir,
+    env: {
+      ...process.env,
+      NODE_OPTIONS: [
+        process.env.NODE_OPTIONS,
+        '--no-experimental-webstorage',
+      ].filter(Boolean).join(' '),
+    },
+  });
   run('npm', ['run', 'typecheck'], { cwd: workdir });
   run('npm', ['run', 'build'], { cwd: workdir });
   run('npm', ['run', 'lint'], { cwd: workdir });
@@ -408,7 +445,7 @@ try {
   run('node', [
     '--input-type=module',
     '-e',
-    "import { createRequire } from 'node:module'; const require = createRequire(`${process.cwd()}/package.json`); const Database = require('better-sqlite3'); const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (id INTEGER)'); db.close();",
+    "import { createRequire } from 'node:module'; const require = createRequire(`${process.cwd()}/package.json`); const Database = require('better-sqlite3'); const db = new Database(':memory:'); db.exec('CREATE TABLE smoke (value TEXT NOT NULL)'); const write = db.transaction((value) => db.prepare('INSERT INTO smoke (value) VALUES (?)').run(value)); write('verified'); const row = db.prepare('SELECT value FROM smoke').get(); if (row?.value !== 'verified') throw new Error('better-sqlite3 transaction readback failed'); db.close(); if (db.open) throw new Error('better-sqlite3 database remained open');",
   ], { cwd: installRoot });
   verifyProductionAudit(installRoot);
   const installedDependencyVersions = collectInstalledDependencyVersions(path.join(installRoot, 'node_modules'));
@@ -436,10 +473,12 @@ try {
       commands: [
         'git apply --check --index',
         'git apply --index',
-        'npm install --package-lock-only --ignore-scripts',
-        'npm audit fix --package-lock-only --ignore-scripts',
+        'copy checksum-bound post-patch package-lock.json',
+        'verify checksum-bound post-patch package-lock.json',
         'npm ci',
         'native better-sqlite3 smoke',
+        'focused account service and WebSocket revocation tests',
+        'focused client auth error parsing tests',
         'npm run typecheck',
         'npm run build',
         'npm run lint',
@@ -466,6 +505,10 @@ try {
     patches: patches.map((patch) => ({ file: patch, sha256: sha256(path.join(patchDir, patch)) })),
     verification: {
       detector: 'scripts/verify-cloudcli-account-management-support.mjs',
+      buildLock: {
+        file: path.relative(repoRoot, buildLockPath).replaceAll(path.sep, '/'),
+        sha256: expectedBuildLockSha256,
+      },
       expectedState: 'holyclaude-bridge-complete',
       reviewedLockDependencies,
       requiredRuntimeDependencies: expectedRuntimeDependencies,

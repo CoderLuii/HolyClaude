@@ -4,13 +4,25 @@ HolyClaude includes third-party software distributed within the Docker image.
 Each component retains its original license. HolyClaude's own source code is
 licensed under MIT (see LICENSE).
 
+## Additional developer utilities
+
+- nano: GPL-3.0-or-later, https://www.nano-editor.org/
+- ShellCheck: GPL-3.0-or-later, https://github.com/koalaman/shellcheck
+- yq 4.53.6: MIT, https://github.com/mikefarah/yq
+- Atuin 18.22.0: MIT, https://github.com/atuinsh/atuin
+- pytest and flake8: MIT; package metadata is included with each Python distribution.
+- pytest-asyncio: Apache-2.0; package metadata is included with the Python distribution.
+- aiomqtt: BSD-3-Clause, https://github.com/empicano/aiomqtt.
+- aiohttp: Apache-2.0 AND MIT; package metadata is included with the Python distribution.
+- Debian DNS and MySQL-compatible clients retain their distribution copyright notices under /usr/share/doc.
+
 ## CloudCLI (@cloudcli-ai/cloudcli)
 
 - License: AGPL-3.0-or-later
 - Copyright: CloudCLI UI Contributors
 - Homepage: https://cloudcli.ai
 - npm: https://www.npmjs.com/package/@cloudcli-ai/cloudcli
-- Version: 1.37.2, installed from HolyClaude's vendored source-release tarball
+- Version: 1.37.3, installed from HolyClaude's vendored source-release tarball
 
 CloudCLI is installed as a standalone program via npm and runs as an
 independent process managed by s6-overlay.
@@ -38,9 +50,9 @@ and missing patch anchors fail closed.
 - Base-path bridge: keeps API, asset, router, and WebSocket paths aligned when
   CloudCLI is served under a configured reverse-proxy prefix.
 - Account-management bridge: adds local Logout and Change Password controls,
-  rotates the local password hash in place, and invalidates older REST, SSE,
-  and WebSocket tokens after a password change until upstream CloudCLI ships
-  equivalent support.
+  rotates the local password hash in place, invalidates older REST/SSE tokens,
+  and closes active authenticated WebSocket sessions after a password change
+  until upstream CloudCLI ships equivalent support.
 - Dependency hardening: resolves CloudCLI's runtime and transitive dependency
   tree to reviewed compatible versions, including `ws`, `multer`, DOMPurify,
   Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`,
@@ -61,7 +73,7 @@ HolyClaude builds and enables these CloudCLI plugins in the image:
 - `project-stats`: https://github.com/cloudcli-ai/cloudcli-plugin-starter,
   pinned to commit `4895cd3fd33362471e739b786493aba048487bcc`.
 - `web-terminal`: https://github.com/cloudcli-ai/cloudcli-plugin-terminal,
-  pinned to commit `8aa41f614c216d961e7c0d9c3e67982c6b2d9da3`.
+  pinned to commit `6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d`.
 
 Each plugin remains under its upstream license. Inspect the plugin repositories
 for their source and license files.
@@ -89,16 +101,21 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 - Source: https://github.com/evanw/esbuild
 - Versions: 0.15.18, 0.18.20, and 0.25.12
 
-HolyClaude keeps the JavaScript package versions required by the bundled full-image tools, but rebuilds their native esbuild executables from the matching upstream tags with Go 1.27.0. This removes the older Go runtimes without changing the packages' JavaScript APIs.
+HolyClaude keeps the JavaScript package versions required by the bundled full-image tools, but rebuilds their native esbuild executables from the matching upstream tags with Go 1.27.1. This removes the older Go runtimes without changing the packages' JavaScript APIs.
 
 ## Dependency Security Overlays
 
 HolyClaude replaces selected compatible dependency copies with version-pinned
 archives and fail-closed path checks. Overlays that replace a known vendored copy
 also verify its owning tool and original dependency version before changing it.
-v1.5.8 updates selected copies of setuptools, Piscina, brace-expansion,
-js-yaml, minimatch, Nanoid, path-to-regexp, Undici, and ws. Cursor Agent uses
-HolyClaude's Node 26.8.1 runtime instead of its bundled Node binary.
+v1.6.0 includes overlays for selected copies of setuptools, Piscina, brace-expansion,
+js-yaml, minimatch, Nanoid, path-to-regexp, Sharp, smol-toml, Undici, ws, and xmldom. The full
+image uses js-yaml 4.3.2 in PM2 and Vercel, and Sharp 0.35.4 with matching
+native bindings and libvips package 1.3.3 in Wrangler and Netlify. Vercel uses
+smol-toml 1.7.1. Marp's speech-rule-engine
+uses xmldom 0.9.12; EAS's separate xmldom 0.8.15 copy is unchanged. CloudCLI retains its
+separate js-yaml 3.15.2 overlay. Cursor Agent uses
+HolyClaude's Node 26.8.2 runtime instead of its bundled Node binary.
 
 These packages retain their upstream licenses. The exact versions, archive
 hashes, owning paths, and fail-closed patch checks are recorded in the
@@ -109,7 +126,7 @@ Dockerfile, `security/immutable-inputs.yml`, and the release source.
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 151.0.7922.173-1~deb12u1, installed from Bookworm security packages
+- Version: 152.0.7977.82-1~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 
@@ -133,7 +150,7 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 
 - License: MIT
 - Source: https://github.com/nodejs/node
-- Version: 26.8.1 base image
+- Version: 26.8.2 base image
 
 ## node-tar
 
@@ -143,7 +160,7 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 - Version: 7.5.22, installed in the full image only
 
 HolyClaude uses the checksum-verified npm archive to replace the retained `tar`
-copies bundled by EAS CLI 23.2.0 and Vercel CLI 59.11.1. The replacement
+copies bundled by EAS CLI 24.0.0 and Vercel CLI 59.15.1. The replacement
 contains the upstream fix for `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw`.
 
 ## Netlify CLI
@@ -151,7 +168,7 @@ contains the upstream fix for `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw`.
 - License: MIT
 - Source: https://github.com/netlify/cli
 - npm: https://www.npmjs.com/package/netlify-cli
-- Version: 27.4.2, installed in the full image only
+- Version: 27.5.2, installed in the full image only
 
 HolyClaude removes Netlify CLI's optional `local-functions-proxy` executable.
 The current architecture packages ship that executable with Go 1.16.7. The
@@ -174,7 +191,7 @@ create `.desloppify/`, or modify project files unless a user runs Desloppify.
 - License: MIT
 - Source: https://github.com/earendil-works/pi
 - npm: https://www.npmjs.com/package/@earendil-works/pi-coding-agent
-- Version: 0.84.4, installed in the full image only
+- Version: 0.85.1, installed in the full image only
 
 ## Downstream security backport
 
@@ -183,11 +200,11 @@ create `.desloppify/`, or modify project files unless a user runs Desloppify.
 - License: GPL-2.0-or-later and LGPL-2.1-or-later, depending on the library
 - Source: https://ffmpeg.org/
 - Debian source: https://packages.debian.org/source/bookworm/ffmpeg
-- Version: 7:5.1.9-0+deb12u1+holyclaude1, full image only
-- Fix commits: `02fc47e13f903768b75f7985a2706a6223ab4506` and `16b2049d4d5222db6cd7c031409058571c94f6a9`
+- Version: 7:5.1.9-0+deb12u1+holyclaude2, full image only
+- Fix commits: `02fc47e13f903768b75f7985a2706a6223ab4506`, `16b2049d4d5222db6cd7c031409058571c94f6a9` and `8880a174d08131f94f58a0492d1c8c6d68b74f67`
 
 HolyClaude rebuilds the Bookworm FFmpeg source package with the upstream fixes
-for CVE-2026-70628 and CVE-2026-70632 and installs the complete runtime package set.
+for CVE-2026-70628, CVE-2026-70632 and CVE-2026-75143 and installs the complete runtime package set.
 
 For a complete list of installed packages and their licenses, inspect the
 Docker image directly or refer to the Dockerfile.

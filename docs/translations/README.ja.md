@@ -239,7 +239,7 @@ docker pull coderluii/holyclaude:slim
 
 > **`latest` は常にフルイメージです。** スリムユーザーへ: 足りないパッケージ？ Claude に聞いてください。npm/pip パッケージは数秒でインストールできます。同じ機能が使えます — フルイメージは初回ダウンロードの待ち時間がゼロなだけです。
 >
-> Docker Hub が表示するのは圧縮された転送サイズです: `latest` は約 4.1 GB、`slim` は約 2.4 GB。Docker、Synology Container Manager、NAS のファイルシステムでは、レイヤー展開後により大きなサイズとして表示されることがあります。
+> ダウンロードサイズはリリースとアーキテクチャによって異なります。各タグの圧縮された転送サイズは [Docker Hub](https://hub.docker.com/r/coderluii/holyclaude/tags) で確認してください。Docker、Synology Container Manager、NAS のファイルシステムでは、レイヤー展開後により大きなサイズとして表示されることがあります。
 
 <p align="right">
   <a href="#top">↑ トップへ戻る</a>

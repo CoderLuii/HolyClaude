@@ -44,7 +44,7 @@ That's it. Open your browser, sign in, start building.
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 151.0.7922.173 + Xvfb + Node Playwright 1.62.1 + Python Playwright 1.62.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 152.0.7977.82 + Xvfb + Node Playwright 1.63.0 + Python Playwright 1.62.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 
@@ -62,12 +62,12 @@ That's it. Open your browser, sign in, start building.
 
 | Tag | Description | Docker Hub compressed size |
 |-----|-------------|----------------------------|
-| `latest` | Full image — everything pre-installed, zero wait | ~4.1 GB |
-| `slim` | Core tools only — smaller download, extras install on demand | ~2.4 GB |
+| `latest` | Full image — everything pre-installed, zero wait | [Check by architecture](https://hub.docker.com/r/coderluii/holyclaude/tags?name=latest) |
+| `slim` | Core tools only — smaller download, extras install on demand | [Check by architecture](https://hub.docker.com/r/coderluii/holyclaude/tags?name=slim) |
 | `X.Y.Z` | Full image, pinned version | Same as `latest` for that release |
 | `X.Y.Z-slim` | Slim image, pinned version | Same as `slim` for that release |
 
-Docker Hub reports compressed transfer size. Docker, Synology Container Manager, and NAS filesystems can report a larger unpacked size after layers are extracted. Use `slim` when disk space or bandwidth matters more than first-boot convenience.
+Download size varies by release and architecture; check the matching tag on Docker Hub. It reports compressed transfer size. Docker, Synology Container Manager, and NAS filesystems can report a larger unpacked size after layers are extracted. Use `slim` when disk space or bandwidth matters more than first-boot convenience.
 
 ## Authentication
 

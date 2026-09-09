@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.5.9",
-    "dockerVersion": "1.5.9"
+    "tag": "v1.6.0",
+    "dockerVersion": "1.6.0"
   },
   "registries": {
     "dockerHub": {
@@ -26,7 +26,7 @@
   "cloudcli": {
     "name": "CloudCLI",
     "command": "cloudcli",
-    "version": "1.37.2",
+    "version": "1.37.3",
     "variants": [
       "full",
       "slim"
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.258",
+      "version": "2.1.268",
       "variants": [
         "full",
         "slim"
@@ -47,7 +47,7 @@
       "id": "gemini-cli",
       "name": "Gemini CLI",
       "command": "gemini",
-      "version": "0.58.0",
+      "version": "0.59.0",
       "variants": [
         "full",
         "slim"
@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.152.1",
+      "version": "0.154.0",
       "variants": [
         "full",
         "slim"
@@ -67,7 +67,7 @@
       "id": "cursor-agent",
       "name": "Cursor Agent",
       "command": "cursor",
-      "version": "2026.08.31-4057e58",
+      "version": "2026.09.08-6caf4ff",
       "variants": [
         "full",
         "slim"
@@ -87,7 +87,7 @@
       "id": "junie",
       "name": "Junie",
       "command": "junie",
-      "version": "3126.1",
+      "version": "3220.1",
       "variants": [
         "full"
       ]
@@ -96,7 +96,7 @@
       "id": "opencode",
       "name": "OpenCode",
       "command": "opencode",
-      "version": "1.18.26",
+      "version": "1.18.30",
       "variants": [
         "full"
       ]
@@ -105,7 +105,7 @@
       "id": "pi-coding-agent",
       "name": "Pi Coding Agent",
       "command": "pi",
-      "version": "0.84.4",
+      "version": "0.85.1",
       "variants": [
         "full"
       ]
@@ -156,11 +156,11 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "151.0.7922.173",
+      "version": "152.0.7977.82",
       "executable": "/usr/bin/chromium"
     },
     "playwright": {
-      "nodeVersion": "1.62.1",
+      "nodeVersion": "1.63.0",
       "pythonVersion": "1.62.0",
       "browserDownload": false,
       "executable": "/usr/bin/chromium"

@@ -1,8 +1,8 @@
 {
   "@context": "https://openvex.dev/ns/v0.2.0",
-  "@id": "urn:holyclaude:openvex:v1.5.9",
+  "@id": "urn:holyclaude:openvex:v1.6.0",
   "author": "CoderLuii",
-  "timestamp": "2026-09-02T00:00:00Z",
+  "timestamp": "2026-09-11T00:00:00Z",
   "version": 1,
   "statements": [
     {
@@ -13,7 +13,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -38,7 +38,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -75,7 +75,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -90,7 +90,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -117,7 +117,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -152,7 +152,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -187,7 +187,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -222,7 +222,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -269,7 +269,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -314,7 +314,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -359,7 +359,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -404,7 +404,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -461,7 +461,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -506,7 +506,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -551,7 +551,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -596,7 +596,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -653,7 +653,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -678,7 +678,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -715,7 +715,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -740,7 +740,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -777,7 +777,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -822,7 +822,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -867,7 +867,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -912,7 +912,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -962,462 +962,6 @@
       "impact_statement": "No shipped HolyClaude service deserializes attacker-controlled Perl Storable data; Perl remains an explicit developer tool."
     },
     {
-      "@id": "urn:holyclaude:vex:chromium-cve-2026-15899-macos-not-affected",
-      "vulnerability": {
-        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-15899",
-        "name": "CVE-2026-15899"
-      },
-      "products": [
-        {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        }
-      ],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_present",
-      "impact_statement": "The vendor record limits CVE-2026-15899 to macOS. HolyClaude publishes Linux images only."
-    },
-    {
-      "@id": "urn:holyclaude:vex:chromium-cve-2026-15900-android-not-affected",
-      "vulnerability": {
-        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-15900",
-        "name": "CVE-2026-15900"
-      },
-      "products": [
-        {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        }
-      ],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_present",
-      "impact_statement": "The vendor record limits CVE-2026-15900 to Android. HolyClaude publishes Linux images only."
-    },
-    {
-      "@id": "urn:holyclaude:vex:chromium-cve-2026-16424-android-not-affected",
-      "vulnerability": {
-        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-16424",
-        "name": "CVE-2026-16424"
-      },
-      "products": [
-        {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=slim",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        },
-        {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=slim",
-          "subcomponents": [
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-common@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium-sandbox@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=amd64"
-              }
-            },
-            {
-              "identifiers": {
-                "purl": "pkg:deb/debian/chromium@151.0.7922.173-1~deb12u1?arch=arm64"
-              }
-            }
-          ]
-        }
-      ],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_present",
-      "impact_statement": "The vendor record limits CVE-2026-16424 to Android. HolyClaude publishes Linux images only."
-    },
-    {
       "@id": "urn:holyclaude:vex:libssh-gcrypt-cve-2026-59847",
       "vulnerability": {
         "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-59847",
@@ -1425,7 +969,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1440,7 +984,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1467,7 +1011,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1482,7 +1026,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1509,7 +1053,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1524,7 +1068,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1542,6 +1086,2247 @@
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
       "impact_statement": "The libssh advisory limits this flaw to libssh 0.11.0 and newer. HolyClaude ships Debian libssh-gcrypt-4 0.10.6."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-util-linux-cve-2026-76642",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642",
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream lists versions through 2.42.2 as affected and Debian marks exact Bookworm 2.38.1 source vulnerable. This disposition is limited to the advisory-described privileged post-helper path, which cannot execute because the exact source lacks the post-mount hook framework and X-mount.idmap and owner hooks; it does not declare the version generally unaffected."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-bsdutils-cve-2026-76642",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642",
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream lists versions through 2.42.2 as affected and Debian marks exact Bookworm 2.38.1 source vulnerable. This disposition is limited to the advisory-described privileged post-helper path, which cannot execute because the exact source lacks the post-mount hook framework and X-mount.idmap and owner hooks; it does not declare the version generally unaffected."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-util-linux-cve-2026-78408",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408",
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 predates and does not contain the affected nsenter --join-cgroup feature first released in util-linux 2.40."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-bsdutils-cve-2026-78408",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408",
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 predates and does not contain the affected nsenter --join-cgroup feature first released in util-linux 2.40."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-util-linux-cve-2026-78409",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 lacks the hook_subdir.c detached-tree path and hook-stage framework first released in util-linux 2.42."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-bsdutils-cve-2026-78409",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 lacks the hook_subdir.c detached-tree path and hook-stage framework first released in util-linux 2.42."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-zlib-cve-2026-85091",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-85091",
+        "name": "CVE-2026-85091"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm zlib 1.2.13 predates the affected 1.3.1.2 through 1.3.2 implementation and contains no gz_vacate function."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-bind-clients-cve-2025-40777",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777",
+        "name": "CVE-2025-40777"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim amd64 image ships only these exact BIND client components; the named caching-resolver binary required by CVE-2025-40777 is absent."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-dnsutils-cve-2025-40777",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777",
+        "name": "CVE-2025-40777"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The architecture-all dnsutils metapackage installs BIND clients only; bind9 and /usr/sbin/named are absent, so the caching-resolver assertion path is unavailable in the slim amd64 image."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-libtiff6-cve-2026-52490",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-52490",
+        "name": "CVE-2026-52490"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-52490 is confined to tools/tiffcrop.c, which Debian builds into the separately packaged tiffcrop executable. The full amd64 image contains libtiff6 but no libtiff-tools or tiffcrop; its real TIFF consumers link libtiff.so.6 without the separately compiled tool code."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-libevent-core-cve-2026-63382",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63382",
+        "name": "CVE-2026-63382"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63382 affects evhttp in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The full amd64 image lacks libevent-extra; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-libevent-core-cve-2026-63385",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63385",
+        "name": "CVE-2026-63385"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63385 affects evhttp functions in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The full amd64 image lacks libevent-extra; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-libtiff6-cve-2026-52490",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-52490",
+        "name": "CVE-2026-52490"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-52490 is confined to tools/tiffcrop.c, which Debian builds into the separately packaged tiffcrop executable. The slim amd64 image contains libtiff6 but no libtiff-tools or tiffcrop; its gdk-pixbuf consumer links libtiff.so.6, which does not contain the tool-local functions."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-libevent-core-cve-2026-63382",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63382",
+        "name": "CVE-2026-63382"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63382 affects evhttp in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The slim amd64 image lacks libevent-extra and evhttp exports; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-libevent-core-cve-2026-63385",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63385",
+        "name": "CVE-2026-63385"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=amd64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63385 affects evhttp functions in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The slim amd64 image lacks libevent-extra and evhttp exports; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-libtiff6-cve-2026-52490",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-52490",
+        "name": "CVE-2026-52490"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-52490 is confined to tools/tiffcrop.c, which Debian builds into the separately packaged tiffcrop executable. The full arm64 image must contain the exact inspected libtiff6 shared-library payload but no libtiff-tools or tiffcrop; its TIFF consumers link libtiff.so.6 without the separately compiled tool code."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-libevent-core-cve-2026-63382",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63382",
+        "name": "CVE-2026-63382"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63382 affects evhttp in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The full arm64 image must contain the exact inspected core payload and lack libevent-extra; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-libevent-core-cve-2026-63385",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63385",
+        "name": "CVE-2026-63385"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63385 affects evhttp functions in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The full arm64 image must contain the exact inspected core payload and lack libevent-extra; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-libtiff6-cve-2026-52490",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-52490",
+        "name": "CVE-2026-52490"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-52490 is confined to tools/tiffcrop.c, which Debian builds into the separately packaged tiffcrop executable. The slim arm64 image must contain the exact inspected libtiff6 shared-library payload but no libtiff-tools or tiffcrop; its gdk-pixbuf consumer links libtiff.so.6 without the separately compiled tool code."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-libevent-core-cve-2026-63382",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63382",
+        "name": "CVE-2026-63382"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63382 affects evhttp in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The slim arm64 image must contain the exact inspected core payload and lack libevent-extra and evhttp exports; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-libevent-core-cve-2026-63385",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-63385",
+        "name": "CVE-2026-63385"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libevent-core-2.1-7@2.1.12-stable-8?arch=arm64"}}]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-63385 affects evhttp functions in http.c, which the exact source build assigns to libevent_extra rather than libevent_core. The slim arm64 image must contain the exact inspected core payload and lack libevent-extra and evhttp exports; tmux links only libevent_core."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-util-linux-cve-2026-76642",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642", "name": "CVE-2026-76642"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [
+          {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
+        ]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [
+          {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
+        ]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream includes util-linux releases through 2.42.2 in the affected range. This statement is narrower: the exact full amd64 2.38.1-5+deb12u3 packages lack the advisory's privileged post-helper implementation and its MNT_STAGE_MOUNT_POST and X-mount helper markers."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-bsdutils-cve-2026-76642",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642", "name": "CVE-2026-76642"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream includes util-linux releases through 2.42.2 in the affected range. This statement is narrower: the exact full amd64 bsdutils package lacks the advisory's privileged post-helper implementation and its MNT_STAGE_MOUNT_POST and X-mount helper markers."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-util-linux-cve-2026-78408",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408", "name": "CVE-2026-78408"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [
+          {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
+        ]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [
+          {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
+        ]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable nsenter --join-cgroup option first shipped in util-linux 2.40. The exact full amd64 2.38.1-5+deb12u3 packages do not contain that option."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-bsdutils-cve-2026-78408",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408", "name": "CVE-2026-78408"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable nsenter --join-cgroup option first shipped in util-linux 2.40. The exact full amd64 bsdutils package predates and does not contain that option."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-util-linux-cve-2026-78409",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409", "name": "CVE-2026-78409"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [
+          {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
+        ]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [
+          {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
+        ]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable detached-tree X-mount.subdir hook first shipped in util-linux 2.42. The exact full amd64 2.38.1-5+deb12u3 packages contain no hook_subdir or MNT_STAGE_MOUNT_POST implementation."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-bsdutils-cve-2026-78409",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409", "name": "CVE-2026-78409"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable detached-tree X-mount.subdir hook first shipped in util-linux 2.42. The exact full amd64 bsdutils package predates and does not contain that hook implementation."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-zlib-cve-2026-85091",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-85091", "name": "CVE-2026-85091"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"}}]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-85091 affects zlib 1.3.1.2 through 1.3.2. Exact Bookworm 1.2.13 predates the affected nonblocking gzip implementation, and neither the shared library nor development archive contains gz_vacate."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-bind-clients-cve-2025-40777",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777", "name": "CVE-2025-40777"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"}}]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "CVE-2025-40777 requires the named caching-resolver execution path. The full image contains these BIND client packages but neither the bind9 server package nor the named binary."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-dnsutils-cve-2025-40777",
+      "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777", "name": "CVE-2025-40777"},
+      "products": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"}}]}
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The exact full report identifies dnsutils as the architecture-all BIND client metapackage. The full image contains neither the bind9 server package nor the named caching-resolver execution path required by CVE-2025-40777."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-bind-clients-cve-2025-40777",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777",
+        "name": "CVE-2025-40777"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The slim arm64 image ships only these exact BIND client components; the named caching-resolver binary required by CVE-2025-40777 is absent."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-dnsutils-cve-2025-40777",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777",
+        "name": "CVE-2025-40777"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The architecture-all dnsutils metapackage installs BIND clients only; bind9 and /usr/sbin/named are absent, so the caching-resolver assertion path is unavailable in the slim arm64 image."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-zlib-cve-2026-85091",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-85091",
+        "name": "CVE-2026-85091"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm zlib 1.2.13 predates the affected 1.3.1.2 through 1.3.2 implementation and contains no gz_vacate function."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-util-linux-cve-2026-76642",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642",
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream lists versions through 2.42.2 as affected and Debian marks exact Bookworm 2.38.1 source vulnerable. This disposition is limited to the advisory-described privileged post-helper path, which cannot execute because the exact source lacks the post-mount hook framework and X-mount.idmap and owner hooks; it does not declare the version generally unaffected."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-bsdutils-cve-2026-76642",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642",
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream lists versions through 2.42.2 as affected and Debian marks exact Bookworm 2.38.1 source vulnerable. This disposition is limited to the advisory-described privileged post-helper path, which cannot execute because the exact source lacks the post-mount hook framework and X-mount.idmap and owner hooks; it does not declare the version generally unaffected."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-util-linux-cve-2026-78408",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408",
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 predates and does not contain the affected nsenter --join-cgroup feature first released in util-linux 2.40."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-bsdutils-cve-2026-78408",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408",
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 predates and does not contain the affected nsenter --join-cgroup feature first released in util-linux 2.40."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-util-linux-cve-2026-78409",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 lacks the hook_subdir.c detached-tree path and hook-stage framework first released in util-linux 2.42."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-bsdutils-cve-2026-78409",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Bookworm 2.38.1 lacks the hook_subdir.c detached-tree path and hook-stage framework first released in util-linux 2.42."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-bind-clients-cve-2025-40777",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777",
+        "name": "CVE-2025-40777"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "CVE-2025-40777 requires the named caching-resolver execution path. The full image contains these BIND client packages but neither the bind9 server package nor the named binary."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-dnsutils-cve-2025-40777",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777",
+        "name": "CVE-2025-40777"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The exact full report identifies dnsutils as the architecture-all BIND client metapackage. The full image contains neither the bind9 server package nor the named caching-resolver execution path required by CVE-2025-40777."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-zlib-cve-2026-85091",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-85091",
+        "name": "CVE-2026-85091"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "CVE-2026-85091 affects zlib 1.3.1.2 through 1.3.2. Exact Bookworm 1.2.13 predates the affected nonblocking gzip implementation, and neither the shared library nor development archive contains gz_vacate."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-util-linux-cve-2026-76642",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642",
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream includes util-linux releases through 2.42.2 in the affected range. This statement is narrower: the exact full arm64 2.38.1-5+deb12u3 packages lack the advisory's privileged post-helper implementation and its MNT_STAGE_MOUNT_POST and X-mount helper markers."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-bsdutils-cve-2026-76642",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642",
+        "name": "CVE-2026-76642"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "Upstream includes util-linux releases through 2.42.2 in the affected range. This statement is narrower: the exact full arm64 bsdutils package lacks the advisory's privileged post-helper implementation and its MNT_STAGE_MOUNT_POST and X-mount helper markers."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-util-linux-cve-2026-78408",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408",
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable nsenter --join-cgroup option first shipped in util-linux 2.40. The exact full arm64 2.38.1-5+deb12u3 packages do not contain that option."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-bsdutils-cve-2026-78408",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408",
+        "name": "CVE-2026-78408"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable nsenter --join-cgroup option first shipped in util-linux 2.40. The exact full arm64 bsdutils package predates and does not contain that option."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-util-linux-cve-2026-78409",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            },
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable detached-tree X-mount.subdir hook first shipped in util-linux 2.42. The exact full arm64 2.38.1-5+deb12u3 packages contain no hook_subdir or MNT_STAGE_MOUNT_POST implementation."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-bsdutils-cve-2026-78409",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409",
+        "name": "CVE-2026-78409"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=arm64"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable detached-tree X-mount.subdir hook first shipped in util-linux 2.42. The exact full arm64 bsdutils package predates and does not contain that hook implementation."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-junie-netty-handler-ghsa-c4c3-7fpv-j4q5",
+      "vulnerability": {
+        "@id": "https://github.com/advisories/GHSA-c4c3-7fpv-j4q5",
+        "name": "GHSA-c4c3-7fpv-j4q5"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:maven/io.netty/netty-handler@4.2.9.Final"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:maven/io.netty/netty-handler@4.2.9.Final"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The exact Junie 3220.1 nested JAR contains Netty 4.2.9.Final, but the native full amd64 guard binds its installed path and SHA-256, rejects non-Netty SNI references or gateway TLS configuration, and proves the sole Junie gateway listener is loopback plain HTTP that rejects normal and fragmented TLS ClientHello input and shuts down cleanly."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-junie-netty-handler-ghsa-c4c3-7fpv-j4q5",
+      "vulnerability": {
+        "@id": "https://github.com/advisories/GHSA-c4c3-7fpv-j4q5",
+        "name": "GHSA-c4c3-7fpv-j4q5"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:maven/io.netty/netty-handler@4.2.9.Final"
+              }
+            }
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {
+              "identifiers": {
+                "purl": "pkg:maven/io.netty/netty-handler@4.2.9.Final"
+              }
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The exact Junie 3220.1 nested JAR contains Netty 4.2.9.Final, but the native full arm64 guard binds its installed path and SHA-256, rejects non-Netty SNI references or gateway TLS configuration, and proves the sole Junie gateway listener is loopback plain HTTP that rejects normal and fragmented TLS ClientHello input and shuts down cleanly."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-amd64-libxml2-cve-2026-74860-python-binding",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-74860",
+        "name": "CVE-2026-74860"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}},
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}},
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable Python binding is absent. The native full amd64 guard rejects the python3-libxml2 package, canonical binding artifacts, and Python ABI references in the exact shared and static core libraries."
+    },
+    {
+      "@id": "urn:holyclaude:vex:full-arm64-libxml2-cve-2026-74860-python-binding",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-74860",
+        "name": "CVE-2026-74860"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}},
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}},
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable Python binding is absent. The native full arm64 guard rejects the python3-libxml2 package, canonical binding artifacts, and Python ABI references in the exact shared and static core libraries."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-amd64-libxml2-cve-2026-74860-python-binding",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-74860",
+        "name": "CVE-2026-74860"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable Python binding is absent. The native slim amd64 guard rejects the python3-libxml2 package, canonical binding artifacts, and Python ABI references in the exact shared core library."
+    },
+    {
+      "@id": "urn:holyclaude:vex:slim-arm64-libxml2-cve-2026-74860-python-binding",
+      "vulnerability": {
+        "@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-74860",
+        "name": "CVE-2026-74860"
+      },
+      "products": [
+        {
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
+          ]
+        },
+        {
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim",
+          "subcomponents": [
+            {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable Python binding is absent. The native slim arm64 guard rejects the python3-libxml2 package, canonical binding artifacts, and Python ABI references in the exact shared core library."
     }
   ]
 }

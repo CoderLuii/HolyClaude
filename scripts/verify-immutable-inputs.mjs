@@ -246,6 +246,8 @@ function validateDocument(document, args) {
       'version',
       'upstream-commit',
       'artifact',
+      'lock',
+      'lock-sha256',
       'manifest',
       'manifest-sha256',
       'sha256',
@@ -257,9 +259,12 @@ function validateDocument(document, args) {
     }
     validateHashes('vendored-artifacts', record);
     const artifact = resolveReferencedFile('vendored-artifacts', record, 'artifact');
+    const lock = resolveReferencedFile('vendored-artifacts', record, 'lock');
     const manifest = resolveReferencedFile('vendored-artifacts', record, 'manifest');
     verifyReferencedHash('vendored-artifacts', record, 'artifact', artifact, 'sha256');
+    verifyReferencedHash('vendored-artifacts', record, 'lock', lock, 'lock-sha256');
     verifyReferencedHash('vendored-artifacts', record, 'manifest', manifest, 'manifest-sha256');
+    validateJsonFile('vendored-artifacts', record, 'lock', lock);
     validateJsonFile('vendored-artifacts', record, 'manifest', manifest);
   }
   for (const record of document.plugins) {

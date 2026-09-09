@@ -1,5 +1,5 @@
 schema-version: 1
-release: v1.5.9
+release: v1.6.0
 reviewed-at: 2026-09-01
 expires-at: 2026-09-29
 
@@ -9,12 +9,12 @@ base-images:
     digest: sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
     status: pinned
   - name: Go esbuild builder
-    reference: golang:1.27.0-bookworm
-    digest: sha256:ded31c68586d2e49e760acc2e65a884b23d032e9bbbed0ae0c55abd3fcaf4452
+    reference: golang:1.27.1-bookworm
+    digest: sha256:648f440f42a0958804efb24df176f806f9d353b41f1c0627f666428e40310f6b
     status: updated
   - name: HolyClaude runtime
-    reference: node:26.8.1-bookworm-slim
-    digest: sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e
+    reference: node:26.8.2-bookworm-slim
+    digest: sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae
     status: updated
   - name: Python runtime
     reference: python:3.14.7-slim-bookworm
@@ -37,14 +37,28 @@ release-assets:
     verification: official release checksum list
     verification-mode: committed-hash
     status: retained
+  - name: yq
+    version: 4.53.6
+    amd64-binary-sha256: c5f056448f973ae7d39b5401949648a78f2dc1947d6a8eb65be60d5c504b9385
+    arm64-binary-sha256: 88a1016bc1d657375a35864e4f44b6f333df8ff97b559f51bba0adcb2169df09
+    verification: official GitHub release binaries
+    verification-mode: committed-hash
+    status: added
+  - name: Atuin
+    version: 18.22.0
+    amd64-archive-sha256: b3c123df1887cf27c6480a87d148c86831cd83da478e0a8ab773ca188f3f3222
+    arm64-archive-sha256: 76d12818e3dff64ddac3b9f4ec63b305070ddcf5fc382a2a23dc0826fa9bf5a8
+    verification: official GitHub release musl archives
+    verification-mode: committed-hash
+    status: added
   - name: Debian Chromium package trio
-    version: 151.0.7922.173-1~deb12u1
-    amd64-chromium-package-sha256: 3c8f1f513675d8785925e67a6858407fd5461e4b1903463d127ea6e651a649de
-    arm64-chromium-package-sha256: 8a7f778630287297b1217414d4cd53b9638046ce48f13c2e2994fb5afee012a2
-    amd64-chromium-common-package-sha256: 560f6d013d1c733d4a84e27209d80235968f3672745c27f6ecd2947ac6c12bd8
-    arm64-chromium-common-package-sha256: f0deb575d2486b1d72e4a28c4ea2c3dc0e5abed21c23aa236fdb96a1fa007b3b
-    amd64-chromium-sandbox-package-sha256: 21d610b5b25e74796350e6d7420acf51917641b7a8f1603a16f9b212b84c3af2
-    arm64-chromium-sandbox-package-sha256: 5266f3e47219fbed422bd885e05e7c5fc1252203b5112db64d15a986e9293790
+    version: 152.0.7977.82-1~deb12u1
+    amd64-chromium-package-sha256: a95a8ff7db26ab9ddc69354dd99e89ba006f40b694f7cf643b82a0dcb38c0cb1
+    arm64-chromium-package-sha256: 6c6152158a919619dd2fd7707dfaf1a5f14c46bc6414b912d2654a2c1b511629
+    amd64-chromium-common-package-sha256: aeef827a71b85e9379f7d65f612545d2f589b1322c4f5d1acad979774ef6f062
+    arm64-chromium-common-package-sha256: 9b565f0f02713f9df011b5728cad9b72561a6b7b4096270529221825ffe92ee5
+    amd64-chromium-sandbox-package-sha256: bb8e7023f138cbbfe0d451e10f8f6aceda799d28e51ded090203f140bac7b778
+    arm64-chromium-sandbox-package-sha256: e8fa69b075194cafd4f0c26aec9d447015abe9aadaeb1a41f7776e22d3029e4c
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
     status: updated
@@ -75,9 +89,21 @@ release-assets:
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
+  - name: CloudCLI ripgrep prebuilt archive
+    version: 15.0.1
+    package-version: 1.17.1
+    binary-version: 15.0.0
+    amd64-binary-revision: 3a612f88b8
+    arm64-binary-revision: "none"
+    amd64-archive-sha256: 4499958bfd5252df3d9e7504127fd448e4a14fbf2805ef4f14baaa1bcf775188
+    arm64-archive-sha256: dd3738a4b6e8df0fb3bc3edc5af352c4c39e0d97ad118a23e5176bdc5d48ba08
+    verification: official microsoft/ripgrep-prebuilt release archives cached for the frozen @vscode/ripgrep postinstall
+    verification-mode: committed-hash
+    status: pinned
   - name: Prisma mysql2 nested package
-    version: 3.22.0
-    archive-sha256: 3bb03632c51e4faf76e913e743b5efb4c222c222dae86780a845bf3c13dbd24e
+    version: 3.24.4
+    archive-sha256: ae44923fa285bb1a089101331603ab0d89b766e73038987a79449c79f8017a27
+    npm-integrity: "sha512-A2olluVlj0mvgyIRRISMEzXc51m+21mRtcMVjJyIpt2GG98+XrC9m9HzsqcMsX2LcnfccJvY5NB22g8fENBnOA=="
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
@@ -100,26 +126,114 @@ release-assets:
     verification-mode: committed-hash
     status: security-patched
   - name: CloudCLI js-yaml nested package
-    version: 3.15.1
-    archive-sha256: df86a37e0f5aa855ae32098dcc1d4c5712e43ea515d69fa3e6d51b8f5901c86e
-    verification: npm registry tarball
+    version: 3.15.2
+    archive-sha256: 7f005cf0b8ee639b4557e0e321dc067c1f2aa0a442d096e03f2ab53353738794
+    npm-integrity: "sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w=="
+    verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
   - name: Full-image undici 8 nested package
-    version: 8.10.1
-    archive-sha256: 90e823f192d03af6a6ec64dc7139286519896416694550d6513f79fc51377660
+    version: 8.10.2
+    archive-sha256: 740638ae32d78d2646a6727950e365fa26b6fa87913fa096e60ed4afeb4634aa
+    npm-integrity: "sha512-/y4/bH9YNU5hi9NIrpOuvGXFcxrj3CMrV+/AYpowAYTpHn8gX/XPFjNy766FPoYY0miQhdW977JFWKGNhBdwyQ=="
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
   - name: Full-image js-yaml nested package
-    version: 4.3.1
-    archive-sha256: 08d6282b77a3e7242061f6dd5516c019b25c53041ad267bca3b790d79ddd5f34
+    version: 4.3.2
+    archive-sha256: c7b241d2224cf9253ff53854aa4cee87da91bd889c4d0fa3a3ffd1041ecee5b1
+    npm-integrity: "sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA=="
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
+  - name: Full-image xmldom nested package
+    version: 0.9.12
+    archive-sha256: 08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee
+    npm-integrity: "sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A=="
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Vercel smol-toml nested package
+    version: 1.7.1
+    archive-sha256: 0a5a44e4a1189c7c36d5a516fa169591ce5de56a5d495d07a7847e1a1afaeccb
+    npm-integrity: "sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Wrangler sharp nested package
+    version: 0.35.4
+    archive-sha256: 6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a
+    npm-integrity: "sha512-n++8XWcj+jCOr2IOl7h8LbKnGBDY4aPbmprMONBNFdn0ImXqpGVv5zliDs0V9HbmbCQLpbuo2ej9rAoOQTvMDA=="
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Wrangler sharp Linux x64 payload
+    version: 0.35.4
+    archive-sha256: 9fe2de0bf57643eb603f16d5ed237dceb1c1229ea76f5094aacab1e99162bf3b
+    npm-integrity: "sha512-9qvvEAuk8k89TfWUoX2htWjbAMX8p+NxCppjpcg5k6xMsjhBQPTsoIh36h9Qde4WRuGpJeYnOjdosDn/cnv+OA=="
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Wrangler sharp Linux arm64 payload
+    version: 0.35.4
+    archive-sha256: 556157e2f5de993f0b022d2cce22fd8248daeb95610c37d5a7cb7cca41d5d467
+    npm-integrity: "sha512-De4jpEnAU8Hd5oT0j1G3uL4ZvTuipVMn7YC6vPaJhy6/7EwEae0SVAoBrUMYQbkLGDm85taVWwuPc1a44LTzCQ=="
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Wrangler sharp libvips Linux x64 payload
+    version: 1.3.3
+    archive-sha256: 74b6fa0abb2e41a163853a00e2f247188df5ec1e25bf62c4c5a041f2042a1f6a
+    npm-integrity: "sha512-4vKmvAst9nrowcqquKFAyZJUDolUaIp8uRiN0mWFguJ1IplC9/pitXtlnnlU4aa/eJw3J7i67V+pwUL+wZGdsA=="
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Wrangler sharp libvips Linux arm64 payload
+    version: 1.3.3
+    archive-sha256: b56f6488e113c385a463fd3be8134b043a17114228f544701fc9c040227e4a59
+    npm-integrity: "sha512-0DaL0A6Xu6sQSQFwe4iVCrKWU2cCTItnRsYsCdxAMm9NF6twAA9BKnoqy4hqz4+azQ0JHuA26qiUKsf1XJ/v5A=="
+    verification: npm registry tarball
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Netlify sharp nested package
+    version: 0.35.4
+    archive-sha256: 6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a
+    npm-integrity: "sha512-n++8XWcj+jCOr2IOl7h8LbKnGBDY4aPbmprMONBNFdn0ImXqpGVv5zliDs0V9HbmbCQLpbuo2ej9rAoOQTvMDA=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Netlify sharp Linux x64 payload
+    version: 0.35.4
+    archive-sha256: 9fe2de0bf57643eb603f16d5ed237dceb1c1229ea76f5094aacab1e99162bf3b
+    npm-integrity: "sha512-9qvvEAuk8k89TfWUoX2htWjbAMX8p+NxCppjpcg5k6xMsjhBQPTsoIh36h9Qde4WRuGpJeYnOjdosDn/cnv+OA=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Netlify sharp Linux arm64 payload
+    version: 0.35.4
+    archive-sha256: 556157e2f5de993f0b022d2cce22fd8248daeb95610c37d5a7cb7cca41d5d467
+    npm-integrity: "sha512-De4jpEnAU8Hd5oT0j1G3uL4ZvTuipVMn7YC6vPaJhy6/7EwEae0SVAoBrUMYQbkLGDm85taVWwuPc1a44LTzCQ=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Netlify sharp libvips Linux x64 payload
+    version: 1.3.3
+    archive-sha256: 74b6fa0abb2e41a163853a00e2f247188df5ec1e25bf62c4c5a041f2042a1f6a
+    npm-integrity: "sha512-4vKmvAst9nrowcqquKFAyZJUDolUaIp8uRiN0mWFguJ1IplC9/pitXtlnnlU4aa/eJw3J7i67V+pwUL+wZGdsA=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Netlify sharp libvips Linux arm64 payload
+    version: 1.3.3
+    archive-sha256: b56f6488e113c385a463fd3be8134b043a17114228f544701fc9c040227e4a59
+    npm-integrity: "sha512-0DaL0A6Xu6sQSQFwe4iVCrKWU2cCTItnRsYsCdxAMm9NF6twAA9BKnoqy4hqz4+azQ0JHuA26qiUKsf1XJ/v5A=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
   - name: Full-image nanoid nested package
-    version: 3.3.17
-    archive-sha256: fd821dc3644ff456a61cd8ac67f3741f939d9ce2fb4cbb9c6b3e6c8111285ef6
+    version: 3.3.18
+    archive-sha256: b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009
+    npm-integrity: "sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w=="
     verification: npm registry tarball
     verification-mode: committed-hash
     status: security-patched
@@ -177,56 +291,112 @@ release-assets:
     verification: npm registry tarball
     verification-mode: committed-hash
     status: updated
+  - name: Playwright Node
+    version: 1.63.0
+    archive-sha256: 195a5ee9bfed7c6e9c03965950e32e5e4dbedaa02e740e5a530eb4b87dae050c
+    npm-integrity: "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: updated
+  - name: pnpm
+    version: 12.3.4
+    archive-sha256: 08a3d2d539b377a6b7ea2469b612672255ca71c30a62698530582cb9d35c268f
+    npm-integrity: "sha512-lhqkH7B32joEpEHZ+OFevAyW2o73ELLrZ7+e58sGEOq9SPH9hfUc/+c4RnhfoPh8VqOocqHYk/hEZ0G1zORUVw=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: updated
+  - name: ESLint
+    version: 10.10.0
+    archive-sha256: 897c8ff1a16dbc0420d9815b59bfbad27d079c3ddaef6ee1099bb4b4593c0031
+    npm-integrity: "sha512-NPXn6r5zl4uET1DAVPaOwzX3rut4c0wcmw3dWJAfOsTM5+TogXo0DDjz8pwm/hL8cyVNpHqeK4JpN0NjnyFFNw=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: updated
   - name: Gemini CLI
-    version: 0.58.0
-    archive-sha256: 8ffeb9e7edddffb054764d00749f39e8cc9804ca9b38b9093f906dd2157322ae
-    npm-integrity: "sha512-++LtUYMcLE8dVxMcuwv6kIp8+h6z+std/7iVE+vSunkrwNDaWMFkWw/psv2RSySWjr2A1SsEEIGCK0xULWY2sA=="
+    version: 0.59.0
+    archive-sha256: 59dc2cdb098b3000d36e34a185fc873932df4fd9d00900e817f2b19cd349d98b
+    npm-integrity: "sha512-RHcjpQEMwVkrWz75mEFsuMuM0JRVJgzLQzkGhEY6SE0KjwOWFA1wYKTUqpzDUHprcE2mgcTActyd4ihVdC2dpg=="
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: updated
   - name: OpenAI Codex CLI
-    version: 0.152.1
-    archive-sha256: 3db7aab0e08454c908a874c561f75a93d3b304f2da21957272cd7b73ff45195b
-    amd64-archive-sha256: 0ed4978e80117a5e203a436026c37276029a3642d633b6916ab45143d10565cd
-    arm64-archive-sha256: 24c53aa00801f082e4f5312001d8f379705f3b29d539ae20b6a643a836224765
-    npm-integrity: "sha512-dSwQzl6JgsFe8L9i8xUnwRz9Vy8gn4UvXFU9xq2IJ1eC7zsSttqQ2SGq49ZZIjEyZQ0LZjCs6Bvtxort2Iyebg=="
-    amd64-npm-integrity: "sha512-ar59rr3CX5j4MLMnRcHqcE0eHZPsZlmXlz37ZS2yP3BsV5pNhO+wFXTOzXFdaYmg2cALX7a3Eqv+vB2jQlXnjQ=="
-    arm64-npm-integrity: "sha512-qZXqf7fxn/SCmaJW6tYrzWqwcDo0gMDJjj1Pm4OtrWXR7Oc0Y2e8ngAh/Mep9iFhVbsqntY1eGLaQaXssGvFgA=="
+    version: 0.154.0
+    archive-sha256: 870663d4e65042dd358305e96a22af58708a28317cd4e74a85aa867c69f5859b
+    amd64-archive-sha256: e27c83a49e6031685ee7f956c12aad5f16484d3a80181dd3fea930fb96b3832b
+    arm64-archive-sha256: a2315b5f64bfeaff79b71e0d35505ba8c22cc1e96cab9dc950b614c804105b24
+    npm-integrity: "sha512-FV/x1OHXYv/ifjf3mXj9ThTTAWcUZN6cGIRQRhRxkKNOPuImu1WW0c8ev1vUkE9XGH90dEnYG1tBjIkxRikg0w=="
+    amd64-npm-integrity: "sha512-a4FI3A8sGtwGrOqltrPbrS2hajrHQG591EwmRfiRoLMb10VxdBtUGW4gu6IJVYENiYGA7k3P4jlRHEoCZU/s9Q=="
+    arm64-npm-integrity: "sha512-KmTCB6ST484zeYlPpKP/K5P/gRaYmt6TihVD+zotoe6O9q0JSBP+FYvCz4A/zZXR7xDOHURTSjHp0sD8wWS0YQ=="
     verification: npm registry parent and Linux architecture tarballs
     verification-mode: committed-hash
     status: updated
   - name: Vite
-    version: 8.2.2
-    archive-sha256: 99df542e1d7267c0da524bdb216ebc32a4dfefc17f8fe830067b62a1042fbeb7
+    version: 8.3.0
+    archive-sha256: 8341c0e40cf1700c68998ce5e7b1c715b9f89d700abf6c41f5d8af067a270a72
     verification: npm registry tarball
     verification-mode: committed-hash
     status: updated
   - name: Wrangler
-    version: 4.128.0
-    archive-sha256: 2a9f626e96c965daed53b098fb1998a56c600f627236a8b7428756715051964d
+    version: 4.131.0
+    archive-sha256: ccb1e4746cfbc9f09e4b9f8cc6badb0bc1c66a95f33d08b91fff8c26e6626fee
     verification: npm registry tarball
     verification-mode: committed-hash
     status: updated
   - name: Vercel CLI
-    version: 59.11.1
-    archive-sha256: 313b9e2778517054a580068c5ea44ea3737e5dbf86be7991550efe770a3a1fe6
-    amd64-vc-native-archive-sha256: 4c08b90699c05af532a4c376dea8617bfe63c5246df20256ea900637651355a9
-    arm64-vc-native-archive-sha256: b69df84be5120c6d1c209b4b5cf47fc4366ff01809b0984f7e6eff810bdd3383
-    npm-integrity: "sha512-vGmxxo6NcqfMcHMJ2rtTsOLTdYjb/Jp49eAMh/zpTvvDS7BCqQdCLpeMTxxZ+5yezQWDKvYstzueRicEuNfubg=="
-    amd64-vc-native-npm-integrity: "sha512-CV0nod07WyVceW9KucckRZSi4AVuQYz/T+lKjSmnNOFXz9TPi6i0X1R8ObcDfSzi0o6kgVhUGZS2+DXDiUTHqQ=="
-    arm64-vc-native-npm-integrity: "sha512-npU8GcrkwqyOotX2txj5TRIC9gof7uFr1Lp5fhzlw7qLoZNTzP/uNu//erNsSi4/LjIGBAD0YAnWVv6XkvlT1Q=="
+    version: 59.15.1
+    archive-sha256: 561e35c01ba48ec04b680b59e06575cf9aa454b8d7c867d2d3708a2326c834e6
+    amd64-vc-native-archive-sha256: 6e5d7b002c8b8720cf8790634605af44064f26d453a4e3672cce9d3f4ce40718
+    arm64-vc-native-archive-sha256: 19f77102b2b9743b9c0fdf16aa1a72dbf1a1d854354b8a406c7c11154c2fd2fc
+    npm-integrity: "sha512-FsKpupuWzp/qm2FlGUJ92U9Ey/Dc/Rwux7GOudNRsmUihboJRMPBltru+IT60tBCU/q6kMy32Pl3yxbRdS/mOQ=="
+    amd64-vc-native-npm-integrity: "sha512-pqZUd/37Qnf5Sedqq3lsicTK9yTvTY/G4do8troGH1rsXg3H4ySSyY28ckN0HflYGNkNb2F0PslSL/uRsOwzjg=="
+    arm64-vc-native-npm-integrity: "sha512-ab5uRhGAQzY1Mepwav5v0t9Wqgf+OypD257A8N+ekmTk44HJPd+oQl7jZ6OOdKkmljxHBUu/K3PgailOBLfzFw=="
     verification: npm registry parent and Linux vc-native tarballs
     verification-mode: committed-hash
     status: updated
   - name: OpenCode
-    version: 1.18.26
-    archive-sha256: d3eabbc23b5ef7e9383697c689b3b919f504d2cba36dcabe1ccc8de67380acb5
-    amd64-archive-sha256: 990d8b07111517a78ba779709ff8f438e0dcf2a7fb66d36df7507c8e93358f02
-    arm64-archive-sha256: 5e0cc6c6c48d6629c8f5d3d5c9f9670e8dac7ba14d295801bb3f6a783a8f841b
-    npm-integrity: "sha512-XFPIj/yJZN8eBi4+uTjsnYAd/QezCM+/OUa3JbtL7tKQF4fGHR4onZx2d6oUGqbVs4CNONQ8QFKejeW+qVJIEA=="
-    amd64-npm-integrity: "sha512-21Dr0bTDT4cq+o3Xq5m/8dTQTtNv4Mfu4Y1PRgxCb3d+KJVlgQhlPOeoN5/9IEZlVq3kXYzOin59+0k38jsI6A=="
-    arm64-npm-integrity: "sha512-iOHzx0pvQoxb8120ck7f0M50AL3T9EAcS7r3qmLfhnXlNQ0E7Vq1f2HvnJ4lkBdbqzywgoV9gM6oJFYIaFERaQ=="
+    version: 1.18.30
+    archive-sha256: 3a97a99230d07fcbe6fd1ea2a001556297225d57f55d7880d3c9e6e29960ae90
+    amd64-archive-sha256: aa31a7e68ce5c73cba302c6a4f31c2e308398db125e49d3dbea32f61862fe6de
+    arm64-archive-sha256: 1e20b66e76afbb7c1e5cd9be7515d2744cb4ea3476ff57add1f7e9ad6fb3a32d
+    npm-integrity: "sha512-oLcOLQE4XzDKy6T5L5d1RdVJvXHXwVlD4hRF5V317JbUQorrl2EyDdGZk5kbgv675J9FXp8usg92MZbEWhh6gQ=="
+    amd64-npm-integrity: "sha512-qiJz71TAZjV24Lo0mh3HgHMAZSrAPLEn7ld6H540ub0hLc0XA2Pa2YhZxjn1K845azojLv8Ek+zpK6384VbU/w=="
+    arm64-npm-integrity: "sha512-KU2VO9oGRhV3M9LCYJXeBBtadIIgJYf620KMHFeghrGL0967Zz7PAcMBFZqTy7gUqNEnMaqOqAkSGx57BIw41Q=="
     verification: npm registry parent and Linux architecture tarballs
+    verification-mode: committed-hash
+    status: updated
+  - name: Netlify CLI
+    version: 27.5.2
+    archive-sha256: 32b5995cea50988ff2a9df8c239548f77d250f5126ea01b26685732f15af5a17
+    npm-integrity: "sha512-adtFWbLFN0HXHf6oOpqFiP9w4jl334xojHyd+uOU0Y0WtW6pdX0pkS0ljvnX/TdYeDrBUiCQ/22Q14wu5ud6rA=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: updated
+  - name: EAS CLI
+    version: 24.0.0
+    archive-sha256: 27ffabed12387fd837fddcf9dd4ad9460fb2d034fc2bee464f336c79dd404d9a
+    npm-integrity: "sha512-Y9I5ttSdxIPHowwC513zllZkBlhiODXf8rGMJPPFk5qBDgQ3dFMYRvn5ylmhYPWYqiQk+sUC8EHn6htPhckKqw=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: updated
+  - name: tree-sitter-language-pack
+    version: 1.17.0
+    amd64-wheel-sha256: 5b6177414b40c525c1a231f7a67210342e5065df7821e25c822a1b87a55ed976
+    arm64-wheel-sha256: d82e333bed569c24bc4d00a23f53939a09f56590b204a30235e6ba7e4831a661
+    verification: PyPI manylinux wheel hashes
+    verification-mode: committed-hash
+    status: updated
+  - name: Marp CLI
+    version: 4.5.1
+    archive-sha256: d7702c0cc55af571cc8085c1948fb21d67f57f547a6b3f2793e27a73e677dce9
+    npm-integrity: "sha512-KwjfXZpABRjSivsHOD0pIsOmODxgQFwc3AHjlnFUKCsSZX5U4erHmm4GWd1K7l2NATLvtrGw29At89Tar/cS4g=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: updated
+  - name: Pi Coding Agent
+    version: 0.85.1
+    archive-sha256: 1f498729649bdce647d1160993b4d92bf3c614cc819213bee2f91dd34f2a7af4
+    npm-integrity: "sha512-FGRN+OHbWaefBPGaTggAdLjrIHW+s2PzLyglz/5dfLzb9of7uuXMXYC0fJIeZTw+shS32o2cuQ9jF7YSDuL/oQ=="
+    verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: updated
   - name: Python Markdown
@@ -271,22 +441,22 @@ release-assets:
     status: security-patched
 installers:
   - name: Claude Code
-    version: 2.1.258
+    version: 2.1.268
     installer-sha256: 3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-    amd64-output-sha256: 704f1334ac65d3e89e1c6c1d7663293ad786a6166afdb71b5075337df630f976
-    arm64-output-sha256: 43dc490af55262edcb3e9b1cb315de22cc09ccb08bd52a4c39bc5eabaa63100f
+    amd64-output-sha256: 9691a2b7bd796712ca8cffb8e32e54ff7fc45b662540233171a16a94a0425653
+    arm64-output-sha256: 116fd031f939ef1e09edf170d62c489e1cc28ed6bfbda49f948773ba168c8f62
     status: pinned
 
   - name: Junie
-    version: "3126.1"
-    amd64-archive-sha256: 34d8b11dea9f529e42da1b62df673de4ca646fe4ae8d5234a4e271d395b111dd
-    arm64-archive-sha256: 4354392ec33218a66a249cac5cfb988ac31b06f6def2722d3e1277ede95649c5
+    version: "3220.1"
+    amd64-archive-sha256: 4939fdaa16f39ebe3850b39c59d206bc7fc1cf652f971544729f37d7c4893c27
+    arm64-archive-sha256: 616a1a54abaf1ce8e517ec82928d6b6bba153662ab679af7f6d8939789c534ca
     install: direct from verified release archive
     status: pinned
   - name: Cursor CLI
-    build-id: 2026.08.31-4057e58
-    amd64-archive-sha256: 7e306db5750219a99c00ed517fe8b235d3c54e4ca5f77e2ff160cc97ce707798
-    arm64-archive-sha256: cf5db6b5047b3280d8a49471cfd41beb1d5e475774177df5df2851857ab6514a
+    build-id: 2026.09.08-6caf4ff
+    amd64-archive-sha256: 0d7a11dd01b652b8b92d05cc14f769fbc5a3442b786cd8b636041f189ab81f1e
+    arm64-archive-sha256: 153ae182db90814748d544f2a26abc073e4e4e5df0b867abfd69def0ff77aa71
     launcher-sha256: 2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233
     amd64-node-sha256: e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
     arm64-node-sha256: 47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -297,19 +467,21 @@ installers:
     installer-sha256: 01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
     status: pinned
   - name: GitHub CLI release package
-    version: 2.99.0
-    amd64-package-sha256: 471feb449cc98d527fc9a67601b9ea04296c100b666d970a784a07dc17a59a8f
-    arm64-package-sha256: 20ccc660b06aef27e2164ae0de5085108e1a3d1e7ba4440e7be10bd9b4b5d0ab
+    version: 2.100.0
+    amd64-package-sha256: 698c8d88cc19cc92bfe96bad58d10b2a5b274c52433d6dc57799c81f6139d5fc
+    arm64-package-sha256: 33ccd2ad7ce639c927e1cb209e36555b0e1fbb89f7a38239c0568040ec758612
     status: updated
 
 vendored-artifacts:
   - name: CloudCLI HolyClaude account-management artifact
-    version: 1.37.2
-    upstream-commit: 677b7ba43695d5624d1a981c62f87fa086187991
-    artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
+    version: 1.37.3
+    upstream-commit: 70e57859b6224ff0eb0539fcde7d13a3186c9c93
+    artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz
+    lock: vendor/locks/cloudcli-account-management-70e57859b6224ff0eb0539fcde7d13a3186c9c93.package-lock.json
+    lock-sha256: 5e84dee0c448f9cd10eed9828a03681c0a8323935a365f42e9dad914e3109025
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    manifest-sha256: b25ec8c9488eaf484aabdc8eaa67c1687eabf78bd675e5c24f1260c519d6f652
-    sha256: be2ae9f6c64a6c1c553594cb8ec1ef9e433876401c682c0f124f2b477b110b85
+    manifest-sha256: f3d2eaf0d4670518c0c29f89d206a74e17c42071f27cf98bf1399234d838b0f4
+    sha256: 4d82af8edb903bb22cbc86d8d516e012c3fc74e9cc8172f2be6d5c743f5688ec
     verification: two independent clean builds in the pinned Node image
     status: updated
 
@@ -321,16 +493,18 @@ plugins:
     status: retained
   - name: Web Terminal
     repository: https://github.com/cloudcli-ai/cloudcli-plugin-terminal
-    commit: 8aa41f614c216d961e7c0d9c3e67982c6b2d9da3
-    lock: vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json
-    lock-sha256: 1a8f2c64ca55722aa481d05debc08328aeb94d7c4f67cf6b24001e9c172e1abe
+    commit: 6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d
+    lock: vendor/locks/cloudcli-web-terminal-6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d.package-lock.json
+    lock-sha256: 391c7a29fd4a2136e5eb09b9f34fc9ec1e680da9e7b850a8cd1148d94c61e5b7
     node-pty-version: 1.1.0
     node-pty-integrity: sha512-20JqtutY6JPXTUnL0ij1uad7Qe1baT46lyolh2sSENDd4sTzKZ4nmAFkeAARDKwmlLjPx6XKRlwRUxwjOy+lUg==
     node-pty-install: node scripts/prebuild.js || node-gyp rebuild
     node-pty-postinstall: node scripts/post-install.js
-    allow-scripts: node-pty@1.1.0
+    esbuild-version: 0.25.12
+    esbuild-integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==
+    allow-scripts: esbuild@0.25.12, node-pty@1.1.0
     install: npm ci --strict-allow-scripts
-    status: retained
+    status: updated
 
 github-actions:
   - name: actions/checkout

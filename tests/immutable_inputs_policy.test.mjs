@@ -20,7 +20,7 @@ function runFixture(mutate = (value) => value) {
     );
     return spawnSync(
       process.execPath,
-      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.5.9'],
+      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.6.0'],
       { encoding: 'utf8' },
     );
   } finally {
@@ -44,9 +44,9 @@ test('rejects immutable input evidence expired before the deterministic as-of da
 });
 
 test('rejects immutable input evidence for another release', () => {
-  const result = runFixture((value) => value.replace('release: v1.5.9', 'release: v1.5.1'));
+  const result = runFixture((value) => value.replace('release: v1.6.0', 'release: v1.5.1'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected release v1\.5\.9/);
+  assert.match(result.stderr, /expected release v1\.6\.0/);
 });
 
 test('rejects an invalid review date', () => {
@@ -107,7 +107,7 @@ test('rejects a committed-hash release asset without payload hashes', () => {
 test('rejects a missing vendored artifact', () => {
   const result = runFixture((value) =>
     value.replace(
-      'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz',
+      'vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz',
       'vendor/artifacts/missing-cloudcli.tgz',
     ),
   );
@@ -121,6 +121,25 @@ test('rejects a vendored artifact hash mismatch', () => {
   );
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /vendored-artifacts.*artifact hash mismatch/);
+});
+
+test('rejects a missing vendored artifact build lock', () => {
+  const result = runFixture((value) =>
+    value.replace(
+      'vendor/locks/cloudcli-account-management-70e57859b6224ff0eb0539fcde7d13a3186c9c93.package-lock.json',
+      'vendor/locks/missing-cloudcli.package-lock.json',
+    ),
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /vendored-artifacts.*lock does not exist/);
+});
+
+test('rejects a vendored artifact build lock hash mismatch', () => {
+  const result = runFixture((value) =>
+    value.replace(/(vendored-artifacts:[\s\S]*?\n    lock-sha256: )[a-f0-9]{64}/, '$1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /vendored-artifacts.*lock hash mismatch/);
 });
 
 test('rejects a missing referenced manifest', () => {
@@ -140,7 +159,7 @@ test('rejects a vendored artifact without a manifest hash', () => {
 test('rejects a missing plugin lock', () => {
   const result = runFixture((value) =>
     value.replace(
-      'vendor/locks/cloudcli-web-terminal-8aa41f614c216d961e7c0d9c3e67982c6b2d9da3.package-lock.json',
+      'vendor/locks/cloudcli-web-terminal-6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d.package-lock.json',
       'vendor/locks/missing.package-lock.json',
     ),
   );
@@ -172,7 +191,7 @@ test('verifies a referenced manifest hash when one is supplied', () => {
 });
 
 test('rejects duplicate top-level keys instead of silently overriding them', () => {
-  const result = runFixture((value) => `release: v1.5.9\n${value}`);
+  const result = runFixture((value) => `release: v1.6.0\n${value}`);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /duplicate top-level key release/);
 });

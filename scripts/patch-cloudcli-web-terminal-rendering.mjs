@@ -121,6 +121,37 @@ function assertIndexPatched(source) {
   }
 }
 
+function isCurrentServerPatched(source) {
+  return source.includes("encoding: 'utf8',")
+    && source.includes('ptyProc.onData((text: string) => {')
+    && source.includes("const chunk = Buffer.from(text, 'utf8');")
+    && source.includes('sendData(session.ws, chunk,')
+    && source.includes("if (isBinary) {")
+    && source.includes('session.pty.write(Buffer.isBuffer(raw) ? raw : Buffer.from(String(raw), \'utf8\'))');
+}
+
+function isCurrentPrefsPatched(source) {
+  return source.includes("const LEGACY_WEBGL_KEY = 'web-terminal-disable-webgl';")
+    && source.includes('export const DEFAULT_FONT_FAMILY =')
+    && source.includes('Noto Sans Mono CJK JP')
+    && source.includes('fontFamily: DEFAULT_FONT_FAMILY,')
+    && source.includes('webgl: typeof stored.webgl === \'boolean\' ? stored.webgl : readLegacyWebglFlag(),');
+}
+
+function isCurrentSessionPatched(source) {
+  return source.includes("import { WebglAddon } from '@xterm/addon-webgl';")
+    && source.includes('fontFamily: options.prefs.fontFamily,')
+    && source.includes('this.applyWebgl(options.prefs.webgl);')
+    && source.includes('addon.onContextLoss(() => {')
+    && source.includes('// No WebGL (software rendering, blocked driver) — the DOM renderer stays.');
+}
+
+function acceptsCurrentUpstream(serverSource, prefsSource, sessionSource) {
+  return isCurrentServerPatched(serverSource)
+    && isCurrentPrefsPatched(prefsSource)
+    && isCurrentSessionPatched(sessionSource);
+}
+
 function patchServer(path) {
   let source = readSource(path);
 
@@ -153,9 +184,24 @@ function patchIndex(path) {
 
 const serverPath = `${PLUGIN_ROOT}/src/server.ts`;
 const indexPath = `${PLUGIN_ROOT}/src/index.ts`;
+const prefsPath = `${PLUGIN_ROOT}/src/prefs.ts`;
+const sessionPath = `${PLUGIN_ROOT}/src/session.ts`;
 
 if (!existsSync(serverPath) || !existsSync(indexPath)) {
   fail();
+}
+
+if (existsSync(prefsPath) || existsSync(sessionPath)) {
+  if (!existsSync(prefsPath) || !existsSync(sessionPath)) {
+    fail();
+  }
+
+  if (!acceptsCurrentUpstream(readSource(serverPath), readSource(prefsPath), readSource(sessionPath))) {
+    fail();
+  }
+
+  console.log('[patch] CloudCLI web terminal rendering already satisfies policy');
+  process.exit(0);
 }
 
 patchServer(serverPath);

@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.5.9
+run-name: v1.6.0
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.5.9"
+        default: "1.6.0"
         type: string
   push:
     branches:
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="933682705791de71afb481bfbe161697197ed792"
+          baseline="fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.8^{commit}')" = "933682705791de71afb481bfbe161697197ed792"
+          test "$(git rev-parse 'v1.5.9^{commit}')" = "fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -123,13 +123,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          bash -n scripts/*.sh tests/*.sh
-          sh -n scripts/holyclaude-chromium scripts/holyclaude-mosh-server
+          for file in scripts/*.sh tests/*.sh; do bash -n "$file"; done
+          for file in scripts/holyclaude-chromium scripts/holyclaude-mosh-server; do sh -n "$file"; done
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
           PYTHONPYCACHEPREFIX="${RUNNER_TEMP}/pycache" python3 -m py_compile scripts/secure-cli-persistence.py
           node scripts/verify-product-facts.mjs --release "${{ steps.source.outputs.release }}"
           node --test tests/*.test.mjs
-          python3 -m unittest tests/test_notify.py
+          python3 -m unittest tests/test_notify.py tests/junie_applicability_guard_unit.py tests/libxml2_python_binding_guard_unit.py
           git diff --check HEAD^ HEAD
           docker run --rm \
             -v "${GITHUB_WORKSPACE}:/repo" \
@@ -193,6 +193,7 @@ jobs:
           swapon --show --bytes | grep -F "${swap_file}"
 
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
       - name: Verify CloudCLI artifact reproducibility from two clean builds
@@ -205,14 +206,14 @@ jobs:
           node scripts/build-cloudcli-account-management-artifact-container.mjs
           git diff --exit-code -- \
             vendor/artifacts/cloudcli-account-management.manifest.json \
-            vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz
+            vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz
 
       - name: Verify FFmpeg artifacts from two empty-cache builds when inputs changed
         if: matrix.variant == 'full'
         timeout-minutes: 180
         run: |
           set -euo pipefail
-          baseline="933682705791de71afb481bfbe161697197ed792"
+          baseline="fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"
           if git diff --quiet "${baseline}" -- \
             Dockerfile \
             scripts/build-ffmpeg-security-backport.sh \
@@ -493,7 +494,7 @@ jobs:
           CONTAINER
 
       - name: Run complete candidate smoke matrix
-        timeout-minutes: 90
+        timeout-minutes: 150
         env:
           IMAGE: ${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}
           VARIANT: ${{ matrix.variant }}
@@ -501,12 +502,42 @@ jobs:
         run: |
           set -euo pipefail
           bash tests/browser_runtime_smoke.sh --image "$IMAGE" --variant "$VARIANT" --expected-arch "$ARCH"
+          bash tests/cloudcli_auth_session_smoke.sh --image "$IMAGE" --variant "$VARIANT" --expected-arch "$ARCH"
           bash tests/plugin_reproducibility_smoke.sh "$IMAGE"
+          bash tests/atuin_runtime_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/plugin_runtime_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_lifecycle_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_upgrade_rollback_smoke.sh "$IMAGE" "$VARIANT" "$ARCH" "${VARIANT}-${ARCH}"
+          bash tests/docker_home_recovery_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          bash tests/docker_startup_symlink_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+          docker run --rm --user claude --entrypoint bash -v "$PWD/tests:/tests:ro" "$IMAGE" /tests/developer_tools_smoke.sh
+          if [ "$VARIANT" = slim ]; then
+            docker run --rm --entrypoint bash -v "$PWD/tests:/tests:ro" "$IMAGE" /tests/slim_linux_advisory_runtime_checks.sh
+          fi
+          if [ "$VARIANT" = full ]; then
+            docker run --rm --entrypoint bash -v "$PWD/tests:/tests:ro" "$IMAGE" /tests/full_linux_advisory_runtime_checks.sh
+          fi
+          if [ "$VARIANT" = full ]; then
+            docker run --rm --init --network none --entrypoint bash -v "$PWD/tests:/tests:ro" "$IMAGE" /tests/full_additional_linux_advisory_runtime_checks.sh
+          fi
           bash tests/docker_rootless_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
           bash tests/docker_cloudcli_volume_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
           bash tests/docker_cli_persistence_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
           bash tests/docker_persistence_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
           bash tests/docker_ssh_mosh_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+
+      - name: Reclaim candidate scanner disk
+        shell: bash
+        timeout-minutes: 10
+        env:
+          IMAGE: ${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}
+          VARIANT: ${{ matrix.variant }}
+          ARCH: ${{ matrix.arch }}
+          SOURCE_SHA: ${{ github.sha }}
+          BUILDER: ${{ steps.buildx.outputs.name }}
+        run: |
+          set -euo pipefail
+          bash tests/cleanup_candidate_scanner_disk.sh "$IMAGE" "$VARIANT" "$ARCH" "$SOURCE_SHA" "$BUILDER"
 
       - name: Install pinned security scanners
         shell: bash
@@ -559,7 +590,7 @@ jobs:
       - name: Generate digest-bound security evidence
         shell: bash
         env:
-          GOGC: "50"
+          GOGC: "10"
           GOMEMLIMIT: 8GiB
         run: |
           set -euo pipefail
@@ -1553,6 +1584,60 @@ jobs:
             --variant "${{ matrix.variant }}" \
             --expected-arch "${{ matrix.arch }}"
 
+      - name: Smoke final auth sessions
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          bash tests/cloudcli_auth_session_smoke.sh \
+            --image "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            --variant "${{ matrix.variant }}" \
+            --expected-arch "${{ matrix.arch }}"
+
+      - name: Smoke final developer tools
+        run: |
+          set -euo pipefail
+          docker run --rm --user claude --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            /tests/developer_tools_smoke.sh
+
+      - name: Smoke final runtime lifecycle coverage
+        timeout-minutes: 30
+        run: |
+          set -euo pipefail
+          image="${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}"
+          label="${{ matrix.registry }}-${{ matrix.variant }}-${{ matrix.arch }}"
+          bash tests/atuin_runtime_smoke.sh "$image" "$label"
+          bash tests/plugin_runtime_smoke.sh "$image" "$label"
+          bash tests/docker_lifecycle_smoke.sh "$image" "$label"
+
+      - name: Verify final slim advisory evidence
+        if: matrix.variant == 'slim'
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            /tests/slim_linux_advisory_runtime_checks.sh
+
+      - name: Verify final full advisory evidence
+        if: matrix.variant == 'full'
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            /tests/full_linux_advisory_runtime_checks.sh
+
+      - name: Verify final additional full advisory evidence
+        if: matrix.variant == 'full'
+        run: |
+          set -euo pipefail
+          docker run --rm --init --network none --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${{ steps.image.outputs.ref }}@${{ steps.image.outputs.digest }}" \
+            /tests/full_additional_linux_advisory_runtime_checks.sh
+
       - name: Smoke final CloudCLI volume persistence
         timeout-minutes: 15
         run: |
@@ -1712,6 +1797,39 @@ jobs:
             --image "${IMAGE_REF}" \
             --variant "${{ matrix.variant }}" \
             --expected-arch "${{ matrix.arch }}"
+
+      - name: Verify published slim advisory evidence
+        if: matrix.variant == 'slim'
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${IMAGE_REF}" \
+            /tests/slim_linux_advisory_runtime_checks.sh
+
+      - name: Verify published full advisory evidence
+        if: matrix.variant == 'full'
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${IMAGE_REF}" \
+            /tests/full_linux_advisory_runtime_checks.sh
+
+      - name: Verify published additional full advisory evidence
+        if: matrix.variant == 'full'
+        env:
+          IMAGE_REF: ${{ steps.image.outputs.ref }}
+        run: |
+          set -euo pipefail
+          docker run --rm --init --network none --entrypoint bash \
+            -v "$PWD/tests:/tests:ro" \
+            "${IMAGE_REF}" \
+            /tests/full_additional_linux_advisory_runtime_checks.sh
 
   update-dockerhub-description:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')

@@ -262,11 +262,80 @@ verify_directory_writable() {
     fi
 }
 
+preflight_cli_directory() {
+    local live="$1"
+    local target="$2"
+    local label="$3"
+    local link_target
+
+    validate_parent_chain "$live"
+    validate_parent_chain "$target"
+
+    if [ -L "$target" ]; then
+        fail "durable $label state must not be a symbolic link: $target"
+    fi
+    if [ -e "$target" ]; then
+        validate_path_kind "$target" directory "durable $label state"
+    fi
+
+    if [ -L "$live" ]; then
+        link_target="$(readlink "$live")"
+        if [ "$link_target" = "$target" ]; then
+            [ -d "$target" ] ||
+                fail "generated $label alias points to a missing durable directory: $live -> $target"
+            return
+        fi
+        if [ -e "$live" ]; then
+            [ -d "$live" ] ||
+                fail "user-managed $label link must resolve to a directory: $live -> $link_target"
+            return
+        fi
+        fail "unexpected dangling symbolic link for $label: $live -> $link_target"
+    fi
+    if [ -e "$live" ]; then
+        validate_path_kind "$live" directory "live $label state"
+    fi
+}
+
+prepare_cli_directory() {
+    local live="$1"
+    local target="$2"
+    local label="$3"
+    local link_target
+
+    if [ -L "$live" ]; then
+        link_target="$(readlink "$live")"
+        if [ "$link_target" = "$target" ]; then
+            secure_target "$target" directory
+            return
+        fi
+        echo "[cli-persistence] WARNING: leaving user-managed $label link unchanged: $live -> $link_target"
+        return
+    fi
+    if [ -e "$live" ]; then
+        echo "[cli-persistence] Existing $label directory remains user-managed: $live"
+        return
+    fi
+
+    ensure_target "$target" directory
+    run_as_claude ln -s "$target" "$live" || fail "could not link $label state: $live -> $target"
+    secure_target "$target" directory
+}
+
 MANAGE_GIT_GLOBAL=1
 MANAGE_XDG_GIT=1
 MANAGE_GH=1
 DEFAULT_XDG="$(normalize_path "$CLAUDE_HOME/.config")"
 CONFIGURED_XDG="$(normalize_path "${XDG_CONFIG_HOME:-$DEFAULT_XDG}")"
+PREFLIGHT_ONLY="${CLI_PERSISTENCE_PREFLIGHT_ONLY:-0}"
+
+if [ -L "$DURABLE_ROOT" ] || { [ -e "$DURABLE_ROOT" ] && [ ! -d "$DURABLE_ROOT" ]; }; then
+    fail "Claude durable state must be a real directory: $DURABLE_ROOT"
+fi
+
+preflight_cli_directory "$CLAUDE_HOME/.codex" "$DURABLE_ROOT/.codex" "Codex CLI"
+preflight_cli_directory "$CLAUDE_HOME/.gemini" "$DURABLE_ROOT/.gemini" "Gemini CLI"
+preflight_cli_directory "$CLAUDE_HOME/.cursor" "$DURABLE_ROOT/.cursor" "Cursor CLI"
 
 if [ -n "${GIT_CONFIG_GLOBAL:-}" ]; then
     MANAGE_GIT_GLOBAL=0
@@ -304,7 +373,18 @@ if [ "$MANAGE_GH" = "1" ]; then
         "GitHub CLI configuration"
 fi
 
+preflight_path "$CLAUDE_HOME/.bash_aliases" "$DURABLE_ROOT/.bash_aliases" file "Bash aliases"
+
+if [ "$PREFLIGHT_ONLY" = "1" ]; then
+    exit 0
+fi
+
 ensure_managed_directory "$DURABLE_ROOT"
+
+prepare_cli_directory "$CLAUDE_HOME/.codex" "$DURABLE_ROOT/.codex" "Codex CLI"
+prepare_cli_directory "$CLAUDE_HOME/.gemini" "$DURABLE_ROOT/.gemini" "Gemini CLI"
+prepare_cli_directory "$CLAUDE_HOME/.cursor" "$DURABLE_ROOT/.cursor" "Cursor CLI"
+prepare_path "$CLAUDE_HOME/.bash_aliases" "$DURABLE_ROOT/.bash_aliases" file "Bash aliases"
 
 GIT_MANAGED=0
 XDG_GIT_MANAGED=0

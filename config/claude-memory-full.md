@@ -14,6 +14,12 @@ You are running inside a **HolyClaude Docker container** (full variant). Everyth
 - **Process manager:** s6-overlay v3 (PID 1) — manages all long-running services
 - **Display:** Xvfb virtual display at `:99` for headless browser operations
 
+## Developer utilities
+
+Use `nano` to edit files, `shellcheck` to lint Bash, `dig` for DNS queries, and `mysql` or `mysqldump` for MySQL-compatible databases. `yq` is Mike Farah's YAML processor.
+
+Python includes `pytest`, `pytest-asyncio`, `flake8`, `aiomqtt`, and `aiohttp`. Atuin is installed but has no shell integration or account configured. Your `~/.bash_aliases` file is persisted under `~/.claude/.bash_aliases`.
+
 ## Running Services
 
 | Service | What it does | Port |
@@ -115,8 +121,8 @@ The `--break-system-packages` flag is required (no venv in container context).
 
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
-- **Node Playwright 1.62.1 and Python Playwright 1.62.0** — baked at build time, no runtime browser download
-- **Debian Chromium 151.0.7922.173** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Node Playwright 1.63.0 and Python Playwright 1.62.0** — baked at build time, no runtime browser download
+- **Debian Chromium 152.0.7977.82** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 - Lighthouse and `@lhci/cli` are full-image tools

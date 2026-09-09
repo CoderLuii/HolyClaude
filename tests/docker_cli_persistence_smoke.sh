@@ -108,6 +108,8 @@ assert_persistent_state() {
     test "$(readlink /home/claude/.gitconfig)" = /home/claude/.claude/.gitconfig
     test "$(readlink /home/claude/.config/git)" = /home/claude/.claude/.config/git
     test "$(readlink /home/claude/.config/gh)" = /home/claude/.claude/.config/gh
+    test "$(readlink /home/claude/.bash_aliases)" = /home/claude/.claude/.bash_aliases
+    bash -ic "hc_alias_smoke"
     test "$(git config --global user.name)" = "Manual User"
     test "$(git config --global user.email)" = "first@example.invalid"
     test "$(git config --global alias.audit)" = status
@@ -263,6 +265,7 @@ docker_cmd exec --user 1000:1000 "$FIRST_CONTAINER" sh -lc '
   set -eu
   git config --global user.name "Manual User"
   git config --global alias.audit status
+  printf "alias hc_alias_smoke=true\n" > /home/claude/.bash_aliases
   printf "[alias]\n\txdg-audit = status\n[credential]\n\thelper = test-helper\n" \
     > /home/claude/.config/git/config
   printf "github.com:\n    user: test-user\n    oauth_token: synthetic-cli-persistence-token\n" \

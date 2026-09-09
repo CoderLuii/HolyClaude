@@ -239,7 +239,7 @@ docker pull coderluii/holyclaude:slim
 
 > **`latest` es siempre la imagen completa.** Usuarios de slim: no te preocupes — cuando le pides a Claude que haga algo que necesita una herramienta que falta, la instala en segundos. Obtienes las mismas capacidades, solo con una descarga inicial mas pequena.
 >
-> Docker Hub muestra el tamaño comprimido de descarga: `latest` ronda los 4.1 GB y `slim` ronda los 2.4 GB. Docker, Synology Container Manager y los sistemas de archivos NAS pueden mostrar un tamaño mayor después de extraer las capas.
+> El tamaño de descarga varía según la versión y la arquitectura. Consulta el tamaño comprimido de cada etiqueta en [Docker Hub](https://hub.docker.com/r/coderluii/holyclaude/tags). Docker, Synology Container Manager y los sistemas de archivos NAS pueden mostrar un tamaño mayor después de extraer las capas.
 
 <p align="right">
   <a href="#top">↑ volver arriba</a>

@@ -35,6 +35,157 @@ run_prepare() {
     bash "$SCRIPT"
 }
 
+run_preflight() {
+  local home="$1"
+  env \
+    CLAUDE_HOME="$home" \
+    CLAUDE_USER="$(id -un)" \
+    PUID="$(id -u)" \
+    PGID="$(id -g)" \
+    CLI_PERSISTENCE_PREFLIGHT_ONLY=1 \
+    bash "$SCRIPT"
+}
+
+assert_unsafe_layout() {
+  local name="$1"
+  local expected="$2"
+  local home="$TMP_DIR/$name"
+  shift 2
+  mkdir -p "$home"
+  "$@" "$home"
+  if run_prepare "$home" >"$TMP_DIR/$name.log" 2>&1; then
+    echo "expected unsafe layout $name to fail" >&2
+    exit 1
+  fi
+  grep -Fq "$expected" "$TMP_DIR/$name.log"
+}
+
+make_claude_self_link() { ln -s .claude "$1/.claude"; }
+make_claude_absolute_self_link() { ln -s "$1/.claude" "$1/.claude"; }
+make_claude_two_node_loop() { ln -s "$1/.claude-loop" "$1/.claude"; ln -s "$1/.claude" "$1/.claude-loop"; }
+make_claude_dangling_link() { ln -s "$1/missing-claude" "$1/.claude"; }
+make_claude_external_link() { mkdir -p "$1-external"; printf 'external-parent\n' > "$1-external/sentinel"; chmod 0640 "$1-external/sentinel"; ln -s "$1-external" "$1/.claude"; }
+
+# The durable root is validated before any ownership repair, creation, or migration.
+assert_unsafe_layout claude-self 'Claude durable state must be a real directory' make_claude_self_link
+assert_unsafe_layout claude-absolute-self 'Claude durable state must be a real directory' make_claude_absolute_self_link
+assert_unsafe_layout claude-two-node 'Claude durable state must be a real directory' make_claude_two_node_loop
+assert_unsafe_layout claude-dangling 'Claude durable state must be a real directory' make_claude_dangling_link
+assert_unsafe_layout claude-external 'Claude durable state must be a real directory' make_claude_external_link
+test "$(cat "$TMP_DIR/claude-external-external/sentinel")" = external-parent
+test "$(stat -c %a "$TMP_DIR/claude-external-external/sentinel")" = 640
+
+# Read-only preflight performs no ownership, mode, creation, or migration work.
+preflight_home="$TMP_DIR/preflight-only"
+mkdir -p "$preflight_home/.claude"
+printf 'preflight-sentinel\n' > "$preflight_home/.claude/sentinel"
+chmod 0640 "$preflight_home/.claude/sentinel"
+run_preflight "$preflight_home"
+test "$(cat "$preflight_home/.claude/sentinel")" = preflight-sentinel
+test "$(stat -c %a "$preflight_home/.claude/sentinel")" = 640
+test ! -e "$preflight_home/.codex"
+test ! -e "$preflight_home/.gemini"
+test ! -e "$preflight_home/.cursor"
+test ! -e "$preflight_home/.gitconfig"
+
+make_durable_self_link() { mkdir -p "$1/.claude"; ln -s .codex "$1/.claude/.codex"; }
+make_durable_absolute_self_link() { mkdir -p "$1/.claude"; ln -s "$1/.claude/.codex" "$1/.claude/.codex"; }
+make_durable_two_node_loop() { mkdir -p "$1/.claude"; ln -s "$1/.claude/.codex-loop" "$1/.claude/.codex"; ln -s "$1/.claude/.codex" "$1/.claude/.codex-loop"; }
+make_durable_dangling_link() { mkdir -p "$1/.claude"; ln -s "$1/missing-codex" "$1/.claude/.codex"; }
+make_durable_external_link() { mkdir -p "$1/.claude" "$1-external"; printf 'external-cli\n' > "$1-external/sentinel"; chmod 0640 "$1-external/sentinel"; ln -s "$1-external" "$1/.claude/.codex"; }
+
+assert_unsafe_layout durable-self 'durable Codex CLI state must not be a symbolic link' make_durable_self_link
+assert_unsafe_layout durable-absolute-self 'durable Codex CLI state must not be a symbolic link' make_durable_absolute_self_link
+assert_unsafe_layout durable-two-node 'durable Codex CLI state must not be a symbolic link' make_durable_two_node_loop
+assert_unsafe_layout durable-dangling 'durable Codex CLI state must not be a symbolic link' make_durable_dangling_link
+assert_unsafe_layout durable-external 'durable Codex CLI state must not be a symbolic link' make_durable_external_link
+test "$(cat "$TMP_DIR/durable-external-external/sentinel")" = external-cli
+test "$(stat -c %a "$TMP_DIR/durable-external-external/sentinel")" = 640
+
+make_top_self_link() { mkdir -p "$1/.claude/.codex"; ln -s .codex "$1/.codex"; }
+make_top_absolute_self_link() { mkdir -p "$1/.claude/.codex"; ln -s "$1/.codex" "$1/.codex"; }
+make_top_two_node_loop() { mkdir -p "$1/.claude/.codex"; ln -s "$1/.codex-loop" "$1/.codex"; ln -s "$1/.codex" "$1/.codex-loop"; }
+make_top_dangling_link() { mkdir -p "$1/.claude/.codex"; ln -s "$1/missing-codex" "$1/.codex"; }
+
+assert_unsafe_layout top-self 'unexpected dangling symbolic link for Codex CLI' make_top_self_link
+assert_unsafe_layout top-absolute-self 'unexpected dangling symbolic link for Codex CLI' make_top_absolute_self_link
+assert_unsafe_layout top-two-node 'unexpected dangling symbolic link for Codex CLI' make_top_two_node_loop
+assert_unsafe_layout top-dangling 'unexpected dangling symbolic link for Codex CLI' make_top_dangling_link
+
+# Resolving user-managed top-level links remain intact for every CLI and do not
+# change metadata on their external state.
+for cli in codex gemini cursor; do
+  external_link_home="$TMP_DIR/$cli-external-link"
+  external_target="$TMP_DIR/$cli-external-state"
+  mkdir -p "$external_link_home/.claude" "$external_target"
+  printf '%s-external\n' "$cli" > "$external_target/sentinel"
+  chmod 0640 "$external_target/sentinel"
+  external_owner="$(stat -c %u:%g "$external_target/sentinel")"
+  ln -s "$external_target" "$external_link_home/.$cli"
+  run_prepare "$external_link_home"
+  assert_link "$external_link_home/.$cli" "$external_target"
+  test "$(cat "$external_target/sentinel")" = "$cli-external"
+  test "$(stat -c %a "$external_target/sentinel")" = 640
+  test "$(stat -c %u:%g "$external_target/sentinel")" = "$external_owner"
+done
+
+# A resolving user link is valid only when it resolves to a directory.
+external_file_home="$TMP_DIR/external-file-link"
+mkdir -p "$external_file_home/.claude"
+printf 'external-file\n' > "$TMP_DIR/external-file-target"
+chmod 0640 "$TMP_DIR/external-file-target"
+external_file_owner="$(stat -c %u:%g "$TMP_DIR/external-file-target")"
+ln -s "$TMP_DIR/external-file-target" "$external_file_home/.codex"
+if run_prepare "$external_file_home" >"$TMP_DIR/external-file-link.log" 2>&1; then
+  echo "expected a CLI link resolving to a non-directory to fail" >&2
+  exit 1
+fi
+grep -Fq 'user-managed Codex CLI link must resolve to a directory' "$TMP_DIR/external-file-link.log"
+test "$(cat "$TMP_DIR/external-file-target")" = external-file
+test "$(stat -c %a "$TMP_DIR/external-file-target")" = 640
+test "$(stat -c %u:%g "$TMP_DIR/external-file-target")" = "$external_file_owner"
+
+# The exact generated top-level alias is the only link repaired automatically.
+generated_alias_home="$TMP_DIR/generated-alias"
+mkdir -p "$generated_alias_home/.claude/.codex"
+ln -s "$generated_alias_home/.claude/.codex" "$generated_alias_home/.codex"
+run_prepare "$generated_alias_home"
+assert_link "$generated_alias_home/.codex" "$generated_alias_home/.claude/.codex"
+
+# Existing real directories remain user-managed and are never merged or replaced.
+separate_mount_home="$TMP_DIR/separate-mount"
+mkdir -p "$separate_mount_home/.claude" "$separate_mount_home/.codex"
+printf 'separate-state\n' > "$separate_mount_home/.codex/sentinel"
+run_prepare "$separate_mount_home"
+test ! -L "$separate_mount_home/.codex"
+test "$(cat "$separate_mount_home/.codex/sentinel")" = separate-state
+
+# Hard-linked files below CLI state are rejected without changing the external inode.
+cli_hardlink_home="$TMP_DIR/cli-hardlink"
+mkdir -p "$cli_hardlink_home/.claude/.codex"
+printf 'shared-cli-state\n' > "$cli_hardlink_home/external-config"
+chmod 0644 "$cli_hardlink_home/external-config"
+ln "$cli_hardlink_home/external-config" "$cli_hardlink_home/.claude/.codex/config.toml"
+if run_prepare "$cli_hardlink_home" >"$TMP_DIR/cli-hardlink.log" 2>&1; then
+  echo "expected a hard-linked CLI config to fail" >&2
+  exit 1
+fi
+test "$(cat "$cli_hardlink_home/external-config")" = shared-cli-state
+test "$(stat -c %a "$cli_hardlink_home/external-config")" = 644
+grep -Fq 'contains a hard-linked file' "$TMP_DIR/cli-hardlink.log"
+
+# Gemini and Cursor use the same runtime safety behavior as Codex.
+for cli in gemini cursor; do
+  cli_home="$TMP_DIR/$cli-symmetry"
+  mkdir -p "$cli_home/.claude/.$cli"
+  ln -s "$cli_home/.$cli" "$cli_home/.$cli"
+  if run_prepare "$cli_home" >"$TMP_DIR/$cli-symmetry.log" 2>&1; then
+    echo "expected unsafe $cli alias to fail" >&2
+    exit 1
+  fi
+  grep -Fq "unexpected dangling symbolic link for" "$TMP_DIR/$cli-symmetry.log"
+done
+
 # Fresh state is linked into the durable .claude tree and initialized once.
 fresh_home="$TMP_DIR/fresh"
 mkdir -p "$fresh_home/.claude"
@@ -42,6 +193,9 @@ run_prepare "$fresh_home"
 assert_link "$fresh_home/.gitconfig" "$fresh_home/.claude/.gitconfig"
 assert_link "$fresh_home/.config/git" "$fresh_home/.claude/.config/git"
 assert_link "$fresh_home/.config/gh" "$fresh_home/.claude/.config/gh"
+assert_link "$fresh_home/.codex" "$fresh_home/.claude/.codex"
+assert_link "$fresh_home/.gemini" "$fresh_home/.claude/.gemini"
+assert_link "$fresh_home/.cursor" "$fresh_home/.claude/.cursor"
 test "$(HOME="$fresh_home" git config --global user.name)" = "Initial User"
 test "$(HOME="$fresh_home" git config --global user.email)" = "initial@example.invalid"
 test "$(HOME="$fresh_home" git config --global --get-all safe.directory | grep -Fxc /workspace)" = 1
@@ -340,5 +494,16 @@ grep -Fq 'durable target must not be a symbolic link' "$TMP_DIR/durable-link.log
 test "$(stat -c %a "$fresh_home/.claude/.gitconfig")" = 600
 test "$(stat -c %a "$fresh_home/.claude/.config/gh")" = 700
 test "$(stat -c %a "$fresh_home/.claude/.config/gh/hosts.yml")" = 600
+
+aliases_home="$TMP_DIR/aliases"
+mkdir -p "$aliases_home/.claude"
+printf "alias ll='ls -la'\n" > "$aliases_home/.bash_aliases"
+run_prepare "$aliases_home"
+assert_link "$aliases_home/.bash_aliases" "$aliases_home/.claude/.bash_aliases"
+grep -Fxq "alias ll='ls -la'" "$aliases_home/.claude/.bash_aliases"
+rm "$aliases_home/.bash_aliases"
+run_prepare "$aliases_home"
+assert_link "$aliases_home/.bash_aliases" "$aliases_home/.claude/.bash_aliases"
+grep -Fxq "alias ll='ls -la'" "$aliases_home/.bash_aliases"
 
 echo "cli-persistence-unit: success"

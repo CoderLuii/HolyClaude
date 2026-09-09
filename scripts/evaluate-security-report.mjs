@@ -28,6 +28,7 @@ const ALLOWED_DISPOSITIONS = new Set([
 ]);
 const ALLOWED_VARIANTS = new Set(['full', 'slim']);
 const ALLOWED_ARCHITECTURES = new Set(['amd64', 'arm64']);
+const ALLOWED_PACKAGE_ARCHITECTURES = new Set(['all', ...ALLOWED_ARCHITECTURES]);
 const EXPECTED_GRYPE_VERSION = '0.118.0';
 const GRYPE_SEVERITIES = new Set(['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical']);
 const SEVERITY_ORDER = new Map([
@@ -58,7 +59,7 @@ const REVIEW_KEYS = new Set([
   'architectures',
   'authorityEvidence',
 ]);
-const COMPONENT_KEYS = new Set(['names', 'versions', 'types', 'locationPatterns']);
+const COMPONENT_KEYS = new Set(['names', 'versions', 'types', 'locationPatterns', 'packageArchitectures']);
 const AUTHORITY_KEYS = new Set(['name', 'url']);
 const AUTHORITY_EVIDENCE_KEYS = new Set(['schemaVersion', 'candidate', 'records']);
 const AUTHORITY_EVIDENCE_CANDIDATE_KEYS = new Set(['variant', 'architecture', 'reportSha256']);
@@ -131,6 +132,12 @@ function parseArgs(argv) {
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8').replace(/^\uFEFF/, ''));
+}
+
+const productFacts = readJson(fileURLToPath(new URL('../contracts/product-facts.json', import.meta.url)));
+const releaseDockerVersion = productFacts.release?.dockerVersion;
+if (typeof releaseDockerVersion !== 'string' || !/^\d+\.\d+\.\d+$/.test(releaseDockerVersion)) {
+  throw new Error('product facts release dockerVersion must be a semantic version');
 }
 
 function isRecord(value) {
@@ -319,12 +326,71 @@ function locationsFor(match) {
   return [...new Set((match.artifact?.locations ?? []).map((location) => location.path).filter(Boolean))].sort();
 }
 
-function matchesComponent(match, component) {
+function normalizedDebianArtifactPurl(artifact, distro) {
+  if (typeof artifact.purl !== 'string' || !artifact.purl) {
+    throw new Error(`${artifact.name}@${artifact.version}: packageArchitectures requires an exact Debian artifact purl`);
+  }
+  let parsed;
+  try {
+    parsed = new URL(artifact.purl);
+  } catch {
+    throw new Error(`${artifact.name}@${artifact.version}: invalid Debian artifact purl`);
+  }
+  const prefix = 'deb/debian/';
+  if (parsed.protocol !== 'pkg:' || !parsed.pathname.startsWith(prefix) || parsed.hash) {
+    throw new Error(`${artifact.name}@${artifact.version}: invalid Debian artifact purl`);
+  }
+  const coordinate = parsed.pathname.slice(prefix.length);
+  const separator = coordinate.lastIndexOf('@');
+  if (separator <= 0 || separator === coordinate.length - 1) {
+    throw new Error(`${artifact.name}@${artifact.version}: invalid Debian artifact purl`);
+  }
+  let name;
+  let version;
+  try {
+    name = decodeURIComponent(coordinate.slice(0, separator));
+    version = decodeURIComponent(coordinate.slice(separator + 1));
+  } catch {
+    throw new Error(`${artifact.name}@${artifact.version}: invalid Debian artifact purl`);
+  }
+  if (name !== artifact.name || version !== artifact.version) {
+    throw new Error(`${artifact.name}@${artifact.version}: Debian artifact purl does not match artifact name and version`);
+  }
+
+  const allowedQualifiers = new Set(['arch', 'distro', 'upstream']);
+  for (const qualifier of new Set(parsed.searchParams.keys())) {
+    if (!allowedQualifiers.has(qualifier)) {
+      throw new Error(`${artifact.name}@${artifact.version}: unsupported Debian artifact purl qualifier ${qualifier}`);
+    }
+    if (parsed.searchParams.getAll(qualifier).length !== 1) {
+      const label = qualifier === 'arch' ? 'exactly one arch qualifier' : `one ${qualifier} qualifier`;
+      throw new Error(`${artifact.name}@${artifact.version}: Debian artifact purl requires ${label}`);
+    }
+  }
+  const architectureValues = parsed.searchParams.getAll('arch');
+  if (architectureValues.length !== 1) {
+    throw new Error(`${artifact.name}@${artifact.version}: Debian artifact purl requires exactly one arch qualifier`);
+  }
+  const architecture = architectureValues[0];
+  if (!ALLOWED_PACKAGE_ARCHITECTURES.has(architecture)) {
+    throw new Error(`${artifact.name}@${artifact.version}: unsupported Debian package architecture ${architecture}`);
+  }
+  const distroValues = parsed.searchParams.getAll('distro');
+  if (distroValues.length === 1 && distroValues[0] !== `${distro.name}-${distro.version}`) {
+    throw new Error(`${artifact.name}@${artifact.version}: Debian artifact purl distro qualifier does not match the report`);
+  }
+  return {
+    architecture,
+    purl: `pkg:deb/debian/${encodeURIComponent(name)}@${encodeURIComponent(version)}?arch=${architecture}`,
+  };
+}
+
+function matchesComponent(match, component, platformArch, distro) {
   const artifact = match.artifact ?? {};
   const locations = locationsFor(match);
   const exact = (values, value) => !values || values.includes(value);
   const patterns = (values, value) => !values || values.some((pattern) => new RegExp(pattern).test(value ?? ''));
-  return (
+  const baseMatch = (
     exact(component.names, artifact.name) &&
     patterns(component.namePatterns, artifact.name) &&
     exact(component.versions, artifact.version) &&
@@ -334,6 +400,10 @@ function matchesComponent(match, component) {
     component.locationPatterns &&
     locations.every((location) => component.locationPatterns.some((pattern) => new RegExp(pattern).test(location)))
   );
+  if (!baseMatch || !component.packageArchitectures) return baseMatch;
+  const normalized = normalizedDebianArtifactPurl(artifact, distro);
+  return component.packageArchitectures.includes(normalized.architecture) &&
+    componentPurls({ component }, platformArch).includes(normalized.purl);
 }
 
 function validateTargetSelectors(review) {
@@ -362,9 +432,44 @@ function validateAuthority(review) {
   if (!review.authority?.name || !review.authority?.url) throw new Error(`${review.id}: authority is incomplete`);
   validateKeys(review.authority, AUTHORITY_KEYS, `${review.id}.authority`);
   const url = new URL(review.authority.url);
+  if (url.hostname === 'curl.se') {
+    validateCurlAuthority(review, url);
+    return;
+  }
   if (url.protocol !== 'https:' || !ALLOWED_AUTHORITY_HOSTS.has(url.hostname)) {
     throw new Error(`${review.id}: unsupported authority URL ${review.authority.url}`);
   }
+}
+
+function validateCurlAuthority(review, url) {
+  const vulnerability = review.vulnerabilities?.length === 1 ? review.vulnerabilities[0] : null;
+  if (
+    url.protocol !== 'https:' ||
+    review.authority.name !== 'curl Security Advisory' ||
+    !vulnerability ||
+    url.pathname !== `/docs/${vulnerability}.html` ||
+    url.search ||
+    url.hash
+  ) {
+    throw new Error(`${review.id}: curl authority requires an exact matching curl advisory URL`);
+  }
+  if (review.disposition !== 'vendor_severity' || !['Low', 'Medium'].includes(review.effectiveSeverity)) {
+    throw new Error(`${review.id}: curl authority permits only Low or Medium vendor severity`);
+  }
+  const curlPackages = new Set(['curl', 'libcurl3-gnutls', 'libcurl4', 'libcurl4-openssl-dev']);
+  if (
+    review.component?.types?.some((type) => type !== 'deb') ||
+    review.component?.names?.some((name) => !curlPackages.has(name))
+  ) {
+    throw new Error(`${review.id}: curl authority permits only curl-family Debian packages`);
+  }
+  if (review.variants?.length !== 1 || review.architectures?.length !== 1) {
+    throw new Error(`${review.id}: curl authority requires one exact variant and architecture`);
+  }
+  validateLiteralLocationSelectors(
+    review,
+    'curl authority requires fully anchored literal location selectors',
+  );
 }
 
 function validateComponent(review) {
@@ -373,6 +478,15 @@ function validateComponent(review) {
   validateKeys(component, COMPONENT_KEYS, `${review.id}.component`);
   for (const selector of ['names', 'versions', 'types', 'locationPatterns']) {
     validateUniqueStrings(component[selector], `${review.id}.component.${selector}`);
+  }
+  if (component.packageArchitectures !== undefined) {
+    validateUniqueStrings(component.packageArchitectures, `${review.id}.component.packageArchitectures`);
+    if (
+      component.types.some((type) => type !== 'deb') ||
+      component.packageArchitectures.some((architecture) => !ALLOWED_PACKAGE_ARCHITECTURES.has(architecture))
+    ) {
+      throw new Error(`${review.id}: invalid packageArchitectures selector`);
+    }
   }
   if (component.namePatterns || component.versionPatterns) {
     throw new Error(`${review.id}: component requires exact names and versions instead of pattern selectors`);
@@ -494,6 +608,14 @@ function validateReview(review, asOf) {
   validateAuthority(review);
   validateTargetSelectors(review);
   validateComponent(review);
+  if (
+    review.component.packageArchitectures &&
+    (review.component.packageArchitectures.length !== 1 ||
+      review.variants?.length !== 1 ||
+      review.architectures?.length !== 1)
+  ) {
+    throw new Error(`${review.id}: packageArchitectures requires one exact package architecture, variant, and target architecture`);
+  }
   validateOfficialVendorHigh(review);
 
   const reviewedAt = parseDate(review.reviewedAt, `${review.id}.reviewedAt`);
@@ -692,11 +814,26 @@ function validateAuthorityEvidence(authorityEvidence, reviews, asOf, expectedCan
 
 function componentPurls(review, arch) {
   const purls = [];
+  const packageArchitectures = review.component.packageArchitectures ?? [arch];
   for (const type of review.component.types) {
+    if (type === 'java-archive') {
+      if (
+        review.component.names.length !== 1 ||
+        review.component.names[0] !== 'netty-handler' ||
+        review.component.versions.length !== 1 ||
+        review.component.versions[0] !== '4.2.9.Final'
+      ) {
+        throw new Error(`${review.id}: unsupported OpenVEX Java component`);
+      }
+      purls.push(`pkg:maven/io.netty/netty-handler@${encodeURIComponent(review.component.versions[0])}`);
+      continue;
+    }
     if (type !== 'deb') throw new Error(`${review.id}: unsupported OpenVEX component type ${type}`);
     for (const name of review.component.names) {
       for (const version of review.component.versions) {
-        purls.push(`pkg:deb/debian/${encodeURIComponent(name)}@${encodeURIComponent(version)}?arch=${arch}`);
+        for (const packageArchitecture of packageArchitectures) {
+          purls.push(`pkg:deb/debian/${encodeURIComponent(name)}@${encodeURIComponent(version)}?arch=${packageArchitecture}`);
+        }
       }
     }
   }
@@ -777,12 +914,12 @@ function validateVex(vex, reviews, variant, arch, imageDigest) {
     const reviewVariants = review.variants ?? [...ALLOWED_VARIANTS];
     const reviewArchitectures = review.architectures ?? [...ALLOWED_ARCHITECTURES];
     const expectedProductIds = reviewVariants.flatMap((reviewVariant) => [
-      `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=${reviewVariant}`,
-      `pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=${reviewVariant}`,
+      `pkg:oci/ghcr.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`,
+      `pkg:oci/docker.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`,
     ]).sort();
     for (const reviewVariant of reviewVariants) {
-      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=${reviewVariant}`;
-      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=${reviewVariant}`;
+      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`;
+      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`;
       if (!productIds.includes(ghcrProduct)) {
         throw new Error(`${statement['@id']}: missing exact ${reviewVariant} product`);
       }
@@ -955,7 +1092,7 @@ function main() {
       (review) =>
         appliesToTarget(review, args.variant, args.arch) &&
         review.vulnerabilities.includes(vulnerability) &&
-        matchesComponent(match, review.component),
+        matchesComponent(match, review.component, args.arch, report.distro),
     );
     if (candidates.length !== 1) {
       errors.push(`${vulnerability} ${match.artifact?.name}@${match.artifact?.version}: matched ${candidates.length} reviews`);
@@ -1005,7 +1142,7 @@ function main() {
       (review) =>
         appliesToTarget(review, args.variant, args.arch) &&
         review.vulnerabilities.includes(vulnerability) &&
-        matchesComponent(match, review.component),
+        matchesComponent(match, review.component, args.arch, report.distro),
     );
     if (candidates.length !== 1) {
       errors.push(

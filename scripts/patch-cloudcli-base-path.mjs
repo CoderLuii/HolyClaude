@@ -297,8 +297,8 @@ function patchServerIndex(filePath) {
   );
   source = replaceRequired(
     source,
-    `// Make WebSocket server available to routes\napp.locals.wss = wss;\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));`,
-    `// Make WebSocket server available to routes\napp.locals.wss = wss;\napp.use((req, res, next) => {\n    const strippedUrl = stripHolyClaudeBasePathFromUrl(req.url);\n    if (strippedUrl !== req.url) {\n        req.url = strippedUrl;\n    }\n    next();\n});\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));`
+    `app.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));`,
+    `app.use((req, res, next) => {\n    const strippedUrl = stripHolyClaudeBasePathFromUrl(req.url);\n    if (strippedUrl !== req.url) {\n        req.url = strippedUrl;\n    }\n    next();\n});\napp.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));`
   );
   source = replaceRequired(
     source,
@@ -336,8 +336,8 @@ function patchWebSocketServer(filePath) {
   );
   source = replaceRequired(
     source,
-    `        const incomingRequest = request;\n        const url = incomingRequest.url ?? '/';\n        const pathname = new URL(url, 'http://localhost').pathname;`,
-    `        const incomingRequest = request;\n        const url = incomingRequest.url ?? '/';\n        const websocketUrl = new URL(url, 'http://localhost');\n        const pathname = stripHolyClaudeBasePathFromPathname(websocketUrl.pathname);\n        if (pathname !== websocketUrl.pathname) {\n            websocketUrl.pathname = pathname;\n            incomingRequest.url = websocketUrl.pathname + websocketUrl.search;\n        }`
+    `        const incomingRequest = request;\n        dependencies.registerAuthenticatedWebSocket(ws, incomingRequest.user);\n        const url = incomingRequest.url ?? '/';\n        const pathname = new URL(url, 'http://localhost').pathname;`,
+    `        const incomingRequest = request;\n        dependencies.registerAuthenticatedWebSocket(ws, incomingRequest.user);\n        const url = incomingRequest.url ?? '/';\n        const websocketUrl = new URL(url, 'http://localhost');\n        const pathname = stripHolyClaudeBasePathFromPathname(websocketUrl.pathname);\n        if (pathname !== websocketUrl.pathname) {\n            websocketUrl.pathname = pathname;\n            incomingRequest.url = websocketUrl.pathname + websocketUrl.search;\n        }`
   );
 
   assertWebSocketPatched(source);

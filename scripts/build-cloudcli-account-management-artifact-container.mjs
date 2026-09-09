@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const artifactDir = path.join(repoRoot, 'vendor/artifacts');
-const buildImage = 'node:26.8.1-bookworm-slim@sha256:367679cf9792759492a486e4aa4b421764d71a9546a6dae8aab81a99eb797b3e';
-const artifactFile = 'cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz';
+const buildImage = 'node:26.8.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae';
+const artifactFile = 'cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz';
 const buildPackages = {
   'build-essential': '12.9',
   'ca-certificates': '20250419~deb12u1',
@@ -39,6 +39,10 @@ function runBuild(outputDir) {
   const dockerArgs = [
       'run',
       '--rm',
+      '--cpus',
+      '2',
+      '--memory',
+      '6g',
       '--platform',
       'linux/amd64',
       '--mount',

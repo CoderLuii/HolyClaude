@@ -94,7 +94,9 @@ test('candidate matrix has exactly the four native full and slim targets', () =>
 test('every native candidate runs the complete smoke suite against its digest', () => {
   for (const script of [
     'browser_runtime_smoke.sh',
+    'cloudcli_auth_session_smoke.sh',
     'plugin_reproducibility_smoke.sh',
+    'developer_tools_smoke.sh',
     'docker_rootless_smoke.sh',
     'docker_cloudcli_volume_smoke.sh',
     'docker_cli_persistence_smoke.sh',
@@ -108,9 +110,31 @@ test('every native candidate runs the complete smoke suite against its digest', 
   assert.match(candidate, /ARCH: \$\{\{ matrix\.arch \}\}/);
 });
 
+test('published developer tools smoke uses the resolved image digest as the claude user', () => {
+  const step = workflow.slice(
+    workflow.indexOf('      - name: Smoke final developer tools'),
+    workflow.indexOf('      - name: Smoke final CloudCLI volume persistence'),
+  );
+  assert.match(step, /docker run --rm --user claude --entrypoint bash/);
+  assert.match(step, /steps\.image\.outputs\.ref.*@.*steps\.image\.outputs\.digest/);
+  assert.match(step, /\/tests\/developer_tools_smoke\.sh/);
+});
+
 test('CloudCLI volume smoke bounds SQLite lock waits', () => {
   const smoke = readFileSync('tests/docker_cloudcli_volume_smoke.sh', 'utf8');
   assert.match(smoke, /sqlite3 -cmd (?:\\?"\.timeout 10000\\?") \/home\/claude\/\.cloudcli\/auth\.db/g);
+});
+
+test('published auth-session smoke covers each resolved native image digest', () => {
+  const step = workflow.slice(
+    workflow.indexOf('      - name: Smoke final auth sessions'),
+    workflow.indexOf('      - name: Smoke final developer tools'),
+  );
+  assert.match(step, /timeout-minutes: 10/);
+  assert.match(step, /bash tests\/cloudcli_auth_session_smoke\.sh/);
+  assert.match(step, /steps\.image\.outputs\.ref.*@.*steps\.image\.outputs\.digest/);
+  assert.match(step, /--variant "\$\{\{ matrix\.variant \}\}"/);
+  assert.match(step, /--expected-arch "\$\{\{ matrix\.arch \}\}"/);
 });
 
 test('CloudCLI reproducibility uses the workflow token without embedding it', () => {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -130,6 +130,40 @@ class TerminalSession {
 }
 `;
 
+const currentServerFixture = `const ptyProc = pty.spawn(shell, [], {
+  encoding: 'utf8',
+});
+ptyProc.onData((text: string) => {
+  const chunk = Buffer.from(text, 'utf8');
+  sendData(session.ws, chunk, () => {});
+});
+if (isBinary) {
+  session.pty.write(Buffer.isBuffer(raw) ? raw : Buffer.from(String(raw), 'utf8'));
+}
+`;
+
+const currentPrefsFixture = `const LEGACY_WEBGL_KEY = 'web-terminal-disable-webgl';
+export const DEFAULT_FONT_FAMILY =
+  '"Cascadia Mono", "Noto Sans Mono CJK JP", monospace';
+export const DEFAULT_PREFS = {
+  fontFamily: DEFAULT_FONT_FAMILY,
+};
+const prefs = {
+  webgl: typeof stored.webgl === 'boolean' ? stored.webgl : readLegacyWebglFlag(),
+};
+`;
+
+const currentSessionFixture = `import { WebglAddon } from '@xterm/addon-webgl';
+const terminalOptions = {
+  fontFamily: options.prefs.fontFamily,
+};
+this.applyWebgl(options.prefs.webgl);
+addon.onContextLoss(() => {
+  addon.dispose();
+});
+// No WebGL (software rendering, blocked driver) — the DOM renderer stays.
+`;
+
 async function createPluginFixture({ driftIndex = false } = {}) {
   const pluginRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-web-terminal-'));
   const srcDir = path.join(pluginRoot, 'src');
@@ -190,6 +224,40 @@ test('CloudCLI web terminal rendering patch accepts upstream patched sources', a
 
   assert.equal(await readPluginSource(pluginRoot, 'src/server.ts'), upstreamPatchedServerFixture);
   assert.equal(await readPluginSource(pluginRoot, 'src/index.ts'), upstreamPatchedIndexFixture);
+});
+
+test('CloudCLI web terminal rendering patch accepts the current split upstream implementation', async (t) => {
+  const pluginRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-web-terminal-current-'));
+  t.after(() => rm(pluginRoot, { recursive: true, force: true }));
+  const srcDir = path.join(pluginRoot, 'src');
+  await mkdir(srcDir, { recursive: true });
+  await writeFile(path.join(srcDir, 'server.ts'), currentServerFixture);
+  await writeFile(path.join(srcDir, 'index.ts'), 'export function mount() {}\n');
+  await writeFile(path.join(srcDir, 'prefs.ts'), currentPrefsFixture);
+  await writeFile(path.join(srcDir, 'session.ts'), currentSessionFixture);
+
+  const result = await runPatch(pluginRoot);
+
+  assert.match(result.stdout, /rendering already satisfies policy/);
+  assert.equal(await readPluginSource(pluginRoot, 'src/server.ts'), currentServerFixture);
+  assert.equal(await readPluginSource(pluginRoot, 'src/prefs.ts'), currentPrefsFixture);
+  assert.equal(await readPluginSource(pluginRoot, 'src/session.ts'), currentSessionFixture);
+});
+
+test('CloudCLI web terminal rendering patch fails closed when a current upstream guard drifts', async (t) => {
+  const pluginRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-web-terminal-current-drift-'));
+  t.after(() => rm(pluginRoot, { recursive: true, force: true }));
+  const srcDir = path.join(pluginRoot, 'src');
+  await mkdir(srcDir, { recursive: true });
+  await writeFile(path.join(srcDir, 'server.ts'), currentServerFixture);
+  await writeFile(path.join(srcDir, 'index.ts'), 'export function mount() {}\n');
+  await writeFile(path.join(srcDir, 'prefs.ts'), currentPrefsFixture.replace('Noto Sans Mono CJK JP', 'sans-serif'));
+  await writeFile(path.join(srcDir, 'session.ts'), currentSessionFixture);
+
+  await assert.rejects(
+    () => runPatch(pluginRoot),
+    /CloudCLI web terminal rendering anchors not found/
+  );
 });
 
 test('CloudCLI web terminal rendering patch fails closed when anchors drift', async () => {

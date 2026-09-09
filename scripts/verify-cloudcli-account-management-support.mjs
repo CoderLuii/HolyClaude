@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 
 const DEFAULT_CLOUDCLI_ROOT = '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli';
 const inputPath = process.argv[2] || DEFAULT_CLOUDCLI_ROOT;
-const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2', '1.36.3', '1.37.2']);
+const knownUnsupportedVersions = new Set(['1.36.0', '1.36.1', '1.36.2', '1.36.3', '1.37.2', '1.37.3']);
 
 let cleanupPath = null;
 
@@ -60,16 +60,37 @@ const sourceAuthMiddleware = readOptional(path.join(root, 'server/modules/auth/a
 const runtimeAuthMiddleware = readOptional(path.join(root, 'dist-server/server/modules/auth/auth.middleware.js'));
 const sourceAuthService = readOptional(path.join(root, 'server/modules/auth/auth.service.ts'));
 const runtimeAuthService = readOptional(path.join(root, 'dist-server/server/modules/auth/auth.service.js'));
+const sourceAuthSessionRegistry = readOptional(path.join(root, 'server/modules/auth/auth-session-registry.ts'));
+const runtimeAuthSessionRegistry = readOptional(path.join(root, 'dist-server/server/modules/auth/auth-session-registry.js'));
 const sourceUsersRepo = readOptional(path.join(root, 'server/modules/database/repositories/users.ts'));
 const runtimeUsersRepo = readOptional(path.join(root, 'dist-server/server/modules/database/repositories/users.js'));
-const clientApi = readOptional(path.join(root, 'src/utils/api.js'));
+const clientApi = readOptional(path.join(root, 'src/shared/api.ts'));
 const clientAssets = readClientAssets(root);
 
 const routeMarkers = ["router.post('/change-password'", 'service.changePassword'];
-const middlewareMarkers = ['authTokenGeneration', 'authenticateWebSocket', 'Invalid token. Please sign in again.'];
-const serviceMarkers = ['changePassword', 'auth_token_generation', 'Current password is incorrect'];
+const middlewareMarkers = [
+  'authTokenGeneration',
+  'authenticateWebSocket',
+  'Invalid token. Please sign in again.',
+  "X-Auth-Error', 'invalid-token'",
+  'AUTH_TOKEN_INVALID',
+];
+const serviceMarkers = ['changePassword', 'auth_token_generation', 'Current password is incorrect', 'revokeWebSocketSessions'];
+const sessionRegistryMarkers = [
+  'registerAuthenticatedWebSocket',
+  'revokeAuthenticatedWebSockets',
+  'Authentication revoked',
+  "removeAllListeners('message')",
+  'terminate()',
+];
 const repositoryMarkers = ['getUserAuthById', 'updatePasswordHash'];
-const clientMarkers = ['/api/auth/change-password', 'Change Password', 'Logout removes the saved browser token'];
+const clientMarkers = [
+  '/api/auth/change-password',
+  'Change Password',
+  'Logout removes the saved browser token',
+  'auth-session-expired',
+  'auth-token',
+];
 
 const checks = {
   sourceRoute: includesAll(sourceAuthRoute, routeMarkers),
@@ -78,6 +99,8 @@ const checks = {
   runtimeMiddleware: includesAll(runtimeAuthMiddleware, middlewareMarkers),
   sourceService: includesAll(sourceAuthService, serviceMarkers),
   runtimeService: includesAll(runtimeAuthService, serviceMarkers),
+  sourceAuthSessionRegistry: includesAll(sourceAuthSessionRegistry, sessionRegistryMarkers),
+  runtimeAuthSessionRegistry: includesAll(runtimeAuthSessionRegistry, sessionRegistryMarkers),
   sourceUsersRepo: includesAll(sourceUsersRepo, repositoryMarkers),
   runtimeUsersRepo: includesAll(runtimeUsersRepo, repositoryMarkers),
   clientApi: clientApi === '' || clientApi.includes('/api/auth/change-password'),
@@ -92,6 +115,8 @@ const complete = checks.sourceRoute
   && checks.runtimeMiddleware
   && checks.sourceService
   && checks.runtimeService
+  && checks.sourceAuthSessionRegistry
+  && checks.runtimeAuthSessionRegistry
   && checks.sourceUsersRepo
   && checks.runtimeUsersRepo
   && checks.clientApi

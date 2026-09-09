@@ -215,6 +215,16 @@ EOF
     echo "[entrypoint] SSH enabled: key-only login as claude on container port 22"
 }
 
+# ---------- Verify image-owned executables ----------
+CLAUDE_EXECUTABLE="$CLAUDE_HOME/.local/bin/claude"
+if [ ! -x "$CLAUDE_EXECUTABLE" ]; then
+    echo "[entrypoint] ERROR: Claude Code is missing or not executable at $CLAUDE_EXECUTABLE."
+    echo "[entrypoint] The image installs Claude Code there; a bind mount over /home or /home/claude can hide it."
+    echo "[entrypoint] Remove the broad home mount, keep its host directory as a backup, and mount only /home/claude/.claude and /workspace."
+    echo "[entrypoint] HolyClaude does not download or reinstall Claude Code at startup. Recreate the container after fixing its mounts."
+    exit 1
+fi
+
 # ---------- UID/GID remapping ----------
 PUID="${PUID:-1000}"
 PGID="${PGID:-1000}"
@@ -228,6 +238,9 @@ if ! [[ "$PGID" =~ ^[0-9]+$ ]]; then
     echo "[entrypoint] WARNING: invalid PGID '$PGID' - using 1000"
     PGID=1000
 fi
+
+# Reject unsafe state before usermod can inspect or traverse the mapped home.
+CLI_PERSISTENCE_PREFLIGHT_ONLY=1 /usr/local/bin/prepare-cli-persistence.sh
 
 CURRENT_UID=$(id -u "$CLAUDE_USER")
 CURRENT_GID=$(id -g "$CLAUDE_USER")
@@ -251,6 +264,11 @@ fi
 
 # ---------- Fix home directory ownership ----------
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME"
+
+# Validate the durable root and CLI aliases before any operation can follow
+# user-controlled state below ~/.claude.
+/usr/local/bin/prepare-cli-persistence.sh
+
 chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude" 2>/dev/null || true
 
 # ---------- Prepare CloudCLI state ----------
@@ -343,18 +361,13 @@ else
     echo "[entrypoint] WARNING: /usr/bin/bwrap is missing or not executable; Codex sandbox may fail"
 fi
 
-# ---------- Codex CLI config symlink (every boot) ----------
-mkdir -p "$CLAUDE_HOME/.claude/.codex"
-chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude/.codex"
-[ -L "$CLAUDE_HOME/.codex" ] && [ ! -e "$CLAUDE_HOME/.codex" ] && rm -f "$CLAUDE_HOME/.codex"
-if [ ! -e "$CLAUDE_HOME/.codex" ]; then
-    ln -s "$CLAUDE_HOME/.claude/.codex" "$CLAUDE_HOME/.codex"
-    chown_if_root -h "$PUID:$PGID" "$CLAUDE_HOME/.codex"
-fi
-
 migrate_codex_hooks_feature() {
     config_file="$1"
     [ -f "$config_file" ] || return 0
+    if [ -L "$config_file" ] || [ "$(stat -c %h -- "$config_file")" != "1" ]; then
+        echo "[entrypoint] ERROR: refusing Codex feature migration through a linked config: $config_file"
+        exit 1
+    fi
     grep -Eq '^[[:space:]]*codex_hooks[[:space:]]*=' "$config_file" || return 0
 
     config_tmp="$(mktemp "${config_file}.tmp.XXXXXX")"
@@ -389,33 +402,20 @@ migrate_codex_hooks_feature() {
     echo "[entrypoint] Migrated Codex feature flag from codex_hooks to hooks"
 }
 
-migrate_codex_hooks_feature "$CLAUDE_HOME/.codex/config.toml"
-
-# ---------- Gemini CLI config symlink (every boot) ----------
-mkdir -p "$CLAUDE_HOME/.claude/.gemini"
-chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude/.gemini"
-[ -L "$CLAUDE_HOME/.gemini" ] && [ ! -e "$CLAUDE_HOME/.gemini" ] && rm -f "$CLAUDE_HOME/.gemini"
-if [ ! -e "$CLAUDE_HOME/.gemini" ]; then
-    ln -s "$CLAUDE_HOME/.claude/.gemini" "$CLAUDE_HOME/.gemini"
-    chown_if_root -h "$PUID:$PGID" "$CLAUDE_HOME/.gemini"
-fi
-
-# ---------- Cursor CLI config symlink (every boot) ----------
-mkdir -p "$CLAUDE_HOME/.claude/.cursor"
-chown_if_root "$PUID:$PGID" "$CLAUDE_HOME/.claude/.cursor"
-[ -L "$CLAUDE_HOME/.cursor" ] && [ ! -e "$CLAUDE_HOME/.cursor" ] && rm -f "$CLAUDE_HOME/.cursor"
-if [ ! -e "$CLAUDE_HOME/.cursor" ]; then
-    ln -s "$CLAUDE_HOME/.claude/.cursor" "$CLAUDE_HOME/.cursor"
-    chown_if_root -h "$PUID:$PGID" "$CLAUDE_HOME/.cursor"
+CODEX_LIVE_DIR="$CLAUDE_HOME/.codex"
+CODEX_DURABLE_DIR="$CLAUDE_HOME/.claude/.codex"
+if [ -L "$CODEX_LIVE_DIR" ] && [ "$(readlink "$CODEX_LIVE_DIR")" = "$CODEX_DURABLE_DIR" ]; then
+    migrate_codex_hooks_feature "$CODEX_DURABLE_DIR/config.toml"
+elif [ ! -L "$CODEX_LIVE_DIR" ] && [ -d "$CODEX_LIVE_DIR" ]; then
+    migrate_codex_hooks_feature "$CODEX_LIVE_DIR/config.toml"
+else
+    echo "[entrypoint] WARNING: skipping Codex feature migration for user-managed link: $CODEX_LIVE_DIR"
 fi
 
 # ---------- Persist ~/.claude.json (every boot) ----------
 # Claude Code rewrites ~/.claude.json directly, so keep the durable copy inside
 # the bind-mounted ~/.claude directory and restore it before bootstrap starts.
 node /usr/local/bin/persist-claude-json.mjs
-
-# ---------- Persist Git and GitHub CLI state (every boot) ----------
-/usr/local/bin/prepare-cli-persistence.sh
 
 # ---------- Ensure DISPLAY is set ----------
 export DISPLAY=:99

@@ -1,8 +1,8 @@
 diff --git a/package.json b/package.json
-index 7456fa8..b260b3d 100644
+index f496c03..480f9e1 100644
 --- a/package.json
 +++ b/package.json
-@@ -56,7 +56,6 @@
+@@ -58,7 +58,6 @@
      "release": "./release.sh",
      "prepublishOnly": "npm run build",
      "postinstall": "node scripts/fix-node-pty.js",
@@ -10,7 +10,7 @@ index 7456fa8..b260b3d 100644
      "update:platform": "./update-platform.sh"
    },
    "build": {
-@@ -167,8 +166,8 @@
+@@ -170,8 +169,8 @@
      "cmdk": "^1.1.1",
      "cors": "^2.8.5",
      "cross-spawn": "^7.0.3",
@@ -21,7 +21,7 @@ index 7456fa8..b260b3d 100644
      "fuse.js": "^7.0.0",
      "gray-matter": "^4.0.3",
      "i18next": "^25.7.4",
-@@ -180,7 +179,7 @@
+@@ -182,7 +181,7 @@
      "lucide-react": "^0.515.0",
      "mermaid": "^11.16.1",
      "mime-types": "^3.0.1",
@@ -30,7 +30,7 @@ index 7456fa8..b260b3d 100644
      "node-fetch": "^2.7.0",
      "node-pty": "^1.2.0-beta.12",
      "react": "^18.2.0",
-@@ -198,7 +197,7 @@
+@@ -201,7 +200,7 @@
      "remark-math": "^6.0.0",
      "tailwind-merge": "^3.3.1",
      "web-push": "^3.6.7",
@@ -39,8 +39,9 @@ index 7456fa8..b260b3d 100644
    },
    "devDependencies": {
      "@commitlint/cli": "^20.5.0",
-@@ -250,7 +249,21 @@
-     "server/**/*.{js,ts}": "eslint"
+@@ -252,8 +251,22 @@
+     "src/**/*.{ts,tsx,js,jsx}": "oxlint",
+     "server/**/*.{js,ts}": "oxlint"
    },
 +  "overrides": {
 +    "fast-uri": "3.1.6"

@@ -11,7 +11,7 @@ const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const patchScript = path.join(repoRoot, 'scripts/patch-cloudcli-base-path.mjs');
 const disableSelfUpdateScript = path.join(repoRoot, 'scripts/patch-cloudcli-disable-self-update.mjs');
-const cloudCliArtifact = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.2-holyclaude-account-management.tgz');
+const cloudCliArtifact = path.join(repoRoot, 'vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz');
 
 async function createPackageFixture() {
   const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'holyclaude-base-path-'));
@@ -91,6 +91,20 @@ test('CloudCLI base path patch applies after the Docker self-update patch order'
   assert.ok(runtimeSystemService.includes('HOLYCLAUDE_CLOUDCLI_SELF_UPDATE_DISABLED'));
   assert.ok(runtimeServer.includes('HolyClaude base path support (issue #64)'));
   assert.ok(runtimeServer.includes('sendHolyClaudeIndexHtml(req, res, indexPath)'));
+});
+
+test('CloudCLI base path patch supports the actual 1.37.3 server without app.locals.wss', async () => {
+  const packageRoot = await createPackageFixture();
+  const serverIndexPath = path.join(packageRoot, 'dist-server/server/index.js');
+  const server = await readFile(serverIndexPath, 'utf8');
+  assert.doesNotMatch(server, /app\.locals\.wss/, '1.37.3 should use its websocket module boundary');
+  assert.match(server, /createWebSocketServer\(server,/);
+
+  await runPatch(packageRoot);
+
+  const patched = await readFile(serverIndexPath, 'utf8');
+  assert.match(patched, /createWebSocketServer\(server,[\s\S]*?\);\napp\.use\(\(req, res, next\) => \{/);
+  assert.match(patched, /stripHolyClaudeBasePathFromUrl\(req\.url\)/);
 });
 
 test('CloudCLI base path normalizer accepts only safe absolute path prefixes', async () => {

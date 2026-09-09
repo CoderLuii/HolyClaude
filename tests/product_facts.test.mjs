@@ -36,14 +36,14 @@ function assertBuildCandidateDependsOnValidation(source) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.5.9'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.6.0'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
     () => validateExpectedRelease(facts, 'v1.5.4'),
-    /release v1\.5\.9 does not match expected v1\.5\.4/,
+    /release v1\.6\.0 does not match expected v1\.5\.4/,
   );
 });
 
@@ -177,10 +177,10 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="933682705791de71afb481bfbe161697197ed792"/);
+  assert.match(validationJob, /baseline="fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.5\.8\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.5\.9\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assertBuildCandidateDependsOnValidation(workflow);
 });
@@ -207,22 +207,34 @@ test('public documentation matches the product facts contract', () => {
   ].join('\n');
 
   assert.match(readme, /contracts\/product-facts\.json/);
-  assert.match(readme, /Python 1\.62\.0; Node 1\.62\.1 is also baked into both images/);
+  assert.match(readme, /Python 1\.62\.0; Node 1\.63\.0 is also baked into both images/);
   assert.doesNotMatch(readme, /Playwright 1\.61\.0, baked at build time/);
   assert.match(architecture, /contracts\/product-facts\.json/);
   assert.match(readme, /fallback.*request omits `permissionMode`/i);
   assert.match(configuration, /browser client sends an explicit `permissionMode`/i);
+  assert.doesNotMatch(configuration, /requires these Docker capabilities for Chromium/);
+  assert.match(configuration, /not universal Chromium requirements/);
   assert.match(security, /HolyClaude operates no credential relay/);
   assert.match(security, /single-user/);
   assert.doesNotMatch(dockerHubDescription, /everything stays local/i);
   assert.match(dockerHubDescription, /bundled tools contact configured providers directly/i);
   assert.match(dockerHubDescription, /file-based credentials stored there/i);
+  for (const content of [readme, dockerHubDescription]) {
+    assert.match(content, /Download size varies by release and architecture/);
+    assert.match(content, /https:\/\/hub\.docker\.com\/r\/coderluii\/holyclaude\/tags\?name=latest/);
+    assert.match(content, /https:\/\/hub\.docker\.com\/r\/coderluii\/holyclaude\/tags\?name=slim/);
+    assert.doesNotMatch(content, /~\d+[.,]\d+ GB/);
+  }
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 151\.0\.7922\.173/);
+  assert.match(memories, /Debian Chromium 152\.0\.7977\.82/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;
     const content = readFileSync(path, 'utf8');
+    const sizeNote = content.split('\n').find((line) => line.startsWith('> ') && line.includes('Docker Hub'));
+    assert.ok(sizeNote, `${file} is missing its image-size note`);
+    assert.match(sizeNote, /https:\/\/hub\.docker\.com\/r\/coderluii\/holyclaude\/tags/, `${file} is missing the registry-size link`);
+    assert.doesNotMatch(sizeNote, /\d+[.,]\d+ (?:GB|Gio)/, `${file} has a stale fixed image-size estimate`);
     assert.doesNotMatch(content, /1\.4\.1/, `${file} has a stale image tag`);
     assert.match(content, /^> \*\*.*HolyClaude.*\*\*/m, `${file} lost its free and open-source notice`);
     const persistedClaudeRow = content.split('\n').find((line) => line.includes('| `/home/claude/.claude` | `./data/claude` |'));

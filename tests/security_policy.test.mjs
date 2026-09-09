@@ -237,6 +237,38 @@ function runFixture(
   }
 }
 
+function configureArchitectureAllReview(data, {
+  reportPurl = 'pkg:deb/debian/example-package@1.0.0?arch=all&distro=debian-12.15&upstream=example-source',
+  vexPurl = 'pkg:deb/debian/example-package@1.0.0?arch=all',
+} = {}) {
+  data.report.distro.version = '12.15';
+  data.report.matches[0].artifact.purl = reportPurl;
+  const review = data.ledger.reviews[0];
+  review.disposition = 'not_affected';
+  review.effectiveSeverity = 'None';
+  review.vexStatement = 'urn:test:vex:example-architecture-all';
+  review.variants = ['slim'];
+  review.architectures = ['amd64'];
+  review.component.packageArchitectures = ['all'];
+  data.vex.statements.push({
+    '@id': review.vexStatement,
+    vulnerability: { name: 'CVE-2099-0001' },
+    products: [
+      {
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim',
+        subcomponents: [{ identifiers: { purl: vexPurl } }],
+      },
+      {
+        '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim',
+        subcomponents: [{ identifiers: { purl: vexPurl } }],
+      },
+    ],
+    status: 'not_affected',
+    justification: 'vulnerable_code_not_in_execute_path',
+    impact_statement: 'Fixture package is architecture-all.',
+  });
+}
+
 function sampleLocation(pattern) {
   if (pattern === '^/(usr/share/doc|var/lib/dpkg)/') return '/usr/share/doc/test/copyright';
   const location = pattern
@@ -744,7 +776,7 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
       arch: 'amd64',
       evidenceVariant: 'slim',
       evidenceArch: 'amd64',
-      asOf: '2026-09-02',
+      asOf: '2026-09-11',
     },
   );
   assert.equal(result.status, 0, result.stderr);
@@ -779,8 +811,8 @@ test('records the full-image TIFF tool absence as exact not-affected component e
   assert.deepEqual(
     statement.products.map((product) => product['@id']).sort(),
     [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
     ],
   );
   const expectedPurls = ['amd64', 'arm64'].flatMap((architecture) =>
@@ -796,47 +828,25 @@ test('records the full-image TIFF tool absence as exact not-affected component e
   }
 });
 
-test('commits only exact target-scoped temporary Critical mappings backed by structured authority evidence', () => {
+test('replaces obsolete ARM64 Critical mappings while retaining the approved Chromium authority evidence', () => {
   const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
   const evidence = JSON.parse(readFileSync('security/critical-exception-authority-evidence.json', 'utf8'));
   const expectedVulnerabilities = [
     'CVE-2026-52490',
     'CVE-2026-63382',
     'CVE-2026-63385',
-    'CVE-2026-78935',
-    'CVE-2026-79012',
-    'CVE-2026-79052',
-    'CVE-2026-79054',
-    'CVE-2026-79121',
-    'CVE-2026-79150',
-    'CVE-2026-79200',
-    'CVE-2026-79224',
-    'CVE-2026-79282',
-    'CVE-2026-79290',
   ];
-  const exceptions = ledger.reviews.filter(
-    (review) => review.disposition === 'critical_exception' &&
-      review.variants[0] === 'slim' && review.architectures[0] === 'arm64',
+  const exceptions = ledger.reviews.filter((review) =>
+    review.disposition === 'critical_exception' &&
+    review.architectures?.includes('arm64') &&
+    review.vulnerabilities.some((vulnerability) => expectedVulnerabilities.includes(vulnerability)),
   );
-  assert.equal(exceptions.length, 12);
+  assert.deepEqual(exceptions, []);
+  assert.equal(evidence.records.length, 15);
   assert.deepEqual(
-    exceptions.flatMap((review) => review.vulnerabilities).sort(),
-    expectedVulnerabilities.sort(),
+    new Set(evidence.records.map((record) => record.vulnerability)),
+    new Set(['CVE-2026-87438', 'CVE-2026-87464', 'CVE-2026-87488', 'CVE-2026-87527', 'CVE-2026-87628']),
   );
-  for (const review of exceptions) {
-    assert.equal(review.effectiveSeverity, 'Critical');
-    assert.equal(review.approvedBy, 'CoderLuii');
-    assert.equal(review.reviewedAt, '2026-09-01');
-    assert.equal(review.expiresAt, '2026-09-08');
-    assert.deepEqual(review.variants, ['slim']);
-    assert.deepEqual(review.architectures, ['arm64']);
-    assert.deepEqual(review.component.types, ['deb']);
-    assert.equal('vexStatement' in review, false);
-    assert.ok(review.component.locationPatterns.every((pattern) => pattern.startsWith('^/') && pattern.endsWith('$')));
-    assert.ok(review.authorityEvidence.length > 0);
-  }
-  assert.equal(exceptions.some((review) => review.component.names.includes('gh')), false);
-  assert.equal(evidence.records.length, 33);
   assert.deepEqual(evidence.candidate, {
     variant: 'slim',
     architecture: 'arm64',
@@ -855,6 +865,7 @@ test('documents the temporary Critical exception without weakening the permanent
   assert.match(policy, /cannot apply to npm, Go, or source-built components/i);
   assert.match(policy, /OpenVEX is not used for Critical exceptions/i);
   assert.match(policy, /High exceptions require `CoderLuii`, expire within 30 days/);
+  assert.match(policy, /curl\.se.*exact.*Low or Medium.*vendor-severity/i);
 });
 
 test('a stale full-only review blocks a slim policy evaluation', () => {
@@ -870,54 +881,60 @@ test('a stale full-only review blocks a slim policy evaluation', () => {
   assert.match(result.stderr, /example-review: review expired on 2026-07-14/);
 });
 
-test('tracks the carried scanner findings with exact current component reviews', () => {
+test('drops obsolete review artifacts while retaining the currently approved Chromium tuple', () => {
   const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
-  const chromiumIds = [
-    'CVE-2026-17652',
-    'CVE-2026-17768',
-    'CVE-2026-17784',
-    'CVE-2026-17801',
-    'CVE-2026-17803',
-    'CVE-2026-17804',
-    'CVE-2026-17811',
-    'CVE-2026-17832',
-    'CVE-2026-17834',
-    'CVE-2026-17837',
-    'CVE-2026-17847',
-    'CVE-2026-17848',
-    'CVE-2026-17855',
-    'CVE-2026-17856',
-    'CVE-2026-17865',
-    'CVE-2026-17869',
-  ];
+  const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
+  const chromiumNames = new Set(['chromium', 'chromium-common', 'chromium-sandbox']);
+  const retiredChromiumVersions = new Set([
+    '151.0.7922.173-1~deb12u1',
+  ]);
+  const obsoleteReviews = ledger.reviews.filter((review) =>
+    review.component.names.some((name) => chromiumNames.has(name)) &&
+    review.component.versions.some((version) => retiredChromiumVersions.has(version)));
+  assert.deepEqual(obsoleteReviews, []);
 
-  for (const vulnerability of chromiumIds) {
-    const reviews = ledger.reviews.filter((review) =>
-      review.vulnerabilities.includes(vulnerability) &&
-      review.component.names.includes('chromium') &&
-      review.component.versions.includes('151.0.7922.173-1~deb12u1'));
-    assert.equal(reviews.length, 1, `${vulnerability} must have one exact Chromium review`);
-    assert.equal(reviews[0].disposition, 'fixed');
-    assert.equal(reviews[0].effectiveSeverity, 'None');
-    assert.equal(reviews[0].authority.name, 'Debian Security Tracker');
+  for (const path of [
+    'security/critical-exception-authority-evidence.json',
+    'security/critical-exception-authority-evidence-full-amd64.json',
+    'security/critical-exception-authority-evidence-full-arm64.json',
+    'security/critical-exception-authority-evidence-slim-amd64.json',
+    'security/critical-exception-authority-evidence-slim-arm64.json',
+  ]) {
+    const evidence = JSON.parse(readFileSync(path, 'utf8'));
+    assert.equal(
+      evidence.records.some((record) => retiredChromiumVersions.has(record.component.version)),
+      false,
+      `${path} must not retain superseded Chromium authority evidence`,
+    );
+  }
+
+  assert.equal(ledger.reviews.some((review) => review.id === 'gh-fixed-upstream-version'), false);
+  assert.equal(ledger.reviews.some((review) => review.id === 'refresh-133'), false);
+  for (const id of [
+    'urn:holyclaude:vex:chromium-cve-2026-15899-macos-not-affected',
+    'urn:holyclaude:vex:chromium-cve-2026-15900-android-not-affected',
+    'urn:holyclaude:vex:chromium-cve-2026-16424-android-not-affected',
+  ]) {
+    assert.equal(vex.statements.some((statement) => statement['@id'] === id), false);
   }
 
   const netty = ledger.reviews.filter((review) =>
     review.vulnerabilities.includes('GHSA-93wv-jw9v-4972') &&
     review.component.names.includes('netty-codec-http2') &&
     review.component.versions.includes('4.2.9.Final'));
-  assert.equal(netty.length, 1);
-  assert.equal(netty[0].disposition, 'high_exception');
-  assert.equal(netty[0].approvedBy, 'CoderLuii');
+  assert.deepEqual(netty.map((review) => [review.id, review.variants, review.architectures]), [
+    ['v160-full-amd64-junie-netty-codec-http2-high-exception', ['full'], ['amd64']],
+    ['v160-full-arm64-junie-netty-codec-http2-high-exception', ['full'], ['arm64']],
+  ]);
+  assert.ok(netty.every((review) => review.disposition === 'high_exception'));
+  assert.ok(netty.every((review) => review.approvedBy === 'CoderLuii'));
 
   const libssh2 = ledger.reviews.filter((review) =>
     review.vulnerabilities.includes('CVE-2026-58050') &&
     review.vulnerabilities.includes('CVE-2026-58051') &&
     review.component.names.includes('libssh2-1') &&
     review.component.versions.includes('1.10.0-3+b1'));
-  assert.equal(libssh2.length, 1);
-  assert.equal(libssh2[0].disposition, 'high_exception');
-  assert.equal(libssh2[0].approvedBy, 'CoderLuii');
+  assert.deepEqual(libssh2, []);
 
   assert.equal(ledger.reviews.some((review) => review.id === 'v155-redis-high-exception'), false);
 
@@ -1087,6 +1104,130 @@ test('rejects a not-affected review without exact OpenVEX product scope', () => 
   assert.match(result.stderr, /missing exact full product/);
 });
 
+test('accepts exact curl advisory authority only for scoped Low and Medium vendor severity reviews', () => {
+  for (const [vulnerability, severity] of [
+    ['CVE-2026-18924', 'Low'],
+    ['CVE-2026-19931', 'Medium'],
+  ]) {
+    const result = runFixture(
+      ({ report, ledger }) => {
+        report.matches[0].vulnerability.id = vulnerability;
+        const review = ledger.reviews[0];
+        review.id = `curl-${vulnerability.toLowerCase()}`;
+        review.vulnerabilities = [vulnerability];
+        review.component.names = ['curl'];
+        review.component.versions = ['7.88.1-10+deb12u15'];
+        review.component.locationPatterns = ['^/usr/share/doc/curl/copyright$'];
+        review.disposition = 'vendor_severity';
+        review.effectiveSeverity = severity;
+        review.owner = 'Debian Bookworm curl';
+        review.authority = {
+          name: 'curl Security Advisory',
+          url: `https://curl.se/docs/${vulnerability}.html`,
+        };
+        review.variants = ['slim'];
+        review.architectures = ['amd64'];
+        report.matches[0].artifact = {
+          name: 'curl',
+          version: '7.88.1-10+deb12u15',
+          type: 'deb',
+          locations: [{ path: '/usr/share/doc/curl/copyright' }],
+        };
+      },
+      { variant: 'slim', arch: 'amd64' },
+    );
+    assert.equal(result.status, 0, result.stderr);
+  }
+});
+
+for (const [label, mutate, message] of [
+  [
+    'mismatched advisory CVE',
+    (review) => (review.authority.url = 'https://curl.se/docs/CVE-2026-19931.html'),
+    /exact matching curl advisory URL/,
+  ],
+  [
+    'non-advisory path',
+    (review) => (review.authority.url = 'https://curl.se/security.html'),
+    /exact matching curl advisory URL/,
+  ],
+  [
+    'effective High',
+    (review) => (review.effectiveSeverity = 'High'),
+    /curl authority permits only Low or Medium vendor severity/,
+  ],
+  [
+    'non-curl component',
+    (review) => (review.component.names = ['openssl']),
+    /curl authority permits only curl-family Debian packages/,
+  ],
+  [
+    'multiple targets',
+    (review) => (review.architectures = ['amd64', 'arm64']),
+    /curl authority requires one exact variant and architecture/,
+  ],
+]) {
+  test(`rejects curl authority with ${label}`, () => {
+    const result = runFixture(({ report, ledger }) => {
+      const review = ledger.reviews[0];
+      review.vulnerabilities = ['CVE-2026-18924'];
+      review.component.names = ['curl'];
+      review.component.versions = ['7.88.1-10+deb12u15'];
+      review.component.locationPatterns = ['^/usr/share/doc/curl/copyright$'];
+      review.disposition = 'vendor_severity';
+      review.effectiveSeverity = 'Low';
+      review.authority = {
+        name: 'curl Security Advisory',
+        url: 'https://curl.se/docs/CVE-2026-18924.html',
+      };
+      review.variants = ['slim'];
+      review.architectures = ['amd64'];
+      report.matches[0].vulnerability.id = 'CVE-2026-18924';
+      report.matches[0].artifact = {
+        name: 'curl',
+        version: '7.88.1-10+deb12u15',
+        type: 'deb',
+        locations: [{ path: '/usr/share/doc/curl/copyright' }],
+      };
+      mutate(review);
+    }, { variant: 'slim', arch: 'amd64' });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, message);
+  });
+}
+
+test('rejects OpenVEX product IDs bound to a different release version', () => {
+  const result = runFixture(({ ledger, vex }) => {
+    ledger.reviews[0].disposition = 'not_affected';
+    ledger.reviews[0].effectiveSeverity = 'None';
+    ledger.reviews[0].vexStatement = 'urn:test:vex:example';
+    ledger.reviews[0].variants = ['full'];
+    const subcomponents = [
+      { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64' } },
+      { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=arm64' } },
+    ];
+    vex.statements.push({
+      '@id': 'urn:test:vex:example',
+      vulnerability: { name: 'CVE-2099-0001' },
+      products: [
+        {
+          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full',
+          subcomponents,
+        },
+        {
+          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full',
+          subcomponents,
+        },
+      ],
+      status: 'not_affected',
+      justification: 'vulnerable_code_not_present',
+      impact_statement: 'Fixture impact.',
+    });
+  });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /missing exact full product/);
+});
+
 test('rejects a not-affected review without the Docker Hub product scope', () => {
   const result = runFixture(({ ledger, vex }) => {
     ledger.reviews[0].disposition = 'not_affected';
@@ -1097,7 +1238,7 @@ test('rejects a not-affected review without the Docker Hub product scope', () =>
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [{
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
         subcomponents: [
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64' } },
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=arm64' } },
@@ -1134,8 +1275,8 @@ test('rejects statement-level vulnerability aliases', () => {
       vulnerability: { name: 'CVE-2099-0001' },
       aliases: ['CVE-2099-0002'],
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -1155,8 +1296,8 @@ test('rejects a not-affected product without exact component subcomponents', () 
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -1183,11 +1324,11 @@ test('emits digest-bound OpenVEX with the exact component subcomponent', () => {
         vulnerability: { name: 'CVE-2099-0001' },
         products: [
           {
-            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full',
+            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
           {
-            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full',
+            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
         ],
@@ -1207,6 +1348,101 @@ test('emits digest-bound OpenVEX with the exact component subcomponent', () => {
     assert.deepEqual(product.subcomponents, [{ identifiers: { purl: componentPurl } }]);
   }
 });
+
+test('correlates a Debian architecture-all report PURL with a normalized OpenVEX subcomponent', () => {
+  const result = runFixture(
+    (data) => configureArchitectureAllReview(data),
+    { variant: 'slim', arch: 'amd64' },
+  );
+  assert.equal(result.status, 0, result.stderr);
+  for (const product of result.openvex.statements[0].products) {
+    assert.deepEqual(product.subcomponents, [{
+      identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=all' },
+    }]);
+  }
+});
+
+for (const [label, reportPurl, error] of [
+  ['missing', undefined, /requires an exact Debian artifact purl/],
+  ['wrong architecture', 'pkg:deb/debian/example-package@1.0.0?arch=amd64&distro=debian-12.15&upstream=example-source', /matched 0 reviews/],
+  ['wrong name', 'pkg:deb/debian/other-package@1.0.0?arch=all&distro=debian-12.15&upstream=example-source', /does not match artifact name and version/],
+  ['wrong version', 'pkg:deb/debian/example-package@2.0.0?arch=all&distro=debian-12.15&upstream=example-source', /does not match artifact name and version/],
+  ['duplicate architecture', 'pkg:deb/debian/example-package@1.0.0?arch=all&arch=amd64&distro=debian-12.15&upstream=example-source', /exactly one arch qualifier/],
+  ['wrong distro', 'pkg:deb/debian/example-package@1.0.0?arch=all&distro=debian-13&upstream=example-source', /distro qualifier/],
+  ['unexpected qualifier', 'pkg:deb/debian/example-package@1.0.0?arch=all&distro=debian-12.15&upstream=example-source&repository_url=https%3A%2F%2Fexample.invalid', /unsupported Debian artifact purl qualifier/],
+]) {
+  test(`rejects an architecture-all review with ${label} report PURL evidence`, () => {
+    const result = runFixture(
+      (data) => {
+        configureArchitectureAllReview(data);
+        if (reportPurl === undefined) delete data.report.matches[0].artifact.purl;
+        else data.report.matches[0].artifact.purl = reportPurl;
+      },
+      { variant: 'slim', arch: 'amd64' },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, error);
+  });
+}
+
+test('rejects an architecture-all review whose OpenVEX PURL uses the platform architecture', () => {
+  const result = runFixture(
+    (data) => configureArchitectureAllReview(data, {
+      vexPurl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64',
+    }),
+    { variant: 'slim', arch: 'amd64' },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /missing exact component subcomponent/);
+});
+
+for (const [field, values] of [
+  ['variants', ['full', 'slim']],
+  ['architectures', ['amd64', 'arm64']],
+]) {
+  test(`requires one exact ${field} selector with packageArchitectures`, () => {
+    const result = runFixture(
+      (data) => {
+        configureArchitectureAllReview(data);
+        data.ledger.reviews[0][field] = values;
+      },
+      { variant: 'slim', arch: 'amd64' },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /packageArchitectures requires one exact package architecture, variant, and target architecture/);
+  });
+}
+
+for (const [label, mutate, error] of [
+  ['an empty selector', (review) => { review.component.packageArchitectures = []; }, /must contain unique non-empty strings/],
+  ['a duplicate selector', (review) => { review.component.packageArchitectures = ['all', 'all']; }, /must contain unique non-empty strings/],
+  ['multiple selectors', (review) => { review.component.packageArchitectures = ['all', 'amd64']; }, /requires one exact package architecture, variant, and target architecture/],
+  ['an unsupported selector', (review) => { review.component.packageArchitectures = ['x86_64']; }, /invalid packageArchitectures selector/],
+  ['a non-Debian component', (review) => { review.component.types = ['npm']; }, /invalid packageArchitectures selector/],
+]) {
+  test(`rejects packageArchitectures with ${label}`, () => {
+    const result = runFixture(
+      (data) => {
+        configureArchitectureAllReview(data);
+        mutate(data.ledger.reviews[0]);
+      },
+      { variant: 'slim', arch: 'amd64' },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, error);
+  });
+}
+
+for (const [variant, arch] of [['full', 'amd64'], ['slim', 'arm64']]) {
+  test(`does not apply an architecture-all review to ${variant}/${arch}`, () => {
+    const result = runFixture(
+      (data) => configureArchitectureAllReview(data),
+      { variant, arch },
+    );
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /matched 0 reviews/);
+  });
+}
 
 test('rejects malformed digest binding inputs', () => {
   const badImage = runFixture(() => {}, { imageDigest: 'sha256:not-a-digest' });
@@ -1337,11 +1573,11 @@ test('rejects unexpected review fields and orphan OpenVEX statements', () => {
       vulnerability: { '@id': 'https://nvd.nist.gov/vuln/detail/CVE-2099-0002', name: 'CVE-2099-0002' },
       products: [
         {
-          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.5.9?variant=full',
+          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
         {
-          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.5.9?variant=full',
+          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
       ],

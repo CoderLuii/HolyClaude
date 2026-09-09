@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.5.9 keeps the v1.5.8 workstation stack and corrects two configuration details. Tracked Markdown files now stay on LF line endings, and new or persisted Codex configurations use the current `hooks` feature flag without overwriting an existing setting.
+v1.6.0 refreshes the workstation tools and adds nano, ShellCheck, yq, DNS utilities, MySQL-compatible clients, Python testing tools and Atuin. Your `.bash_aliases` now persists with the managed CLI state. If a broad home-directory mount hides Claude's executable, startup points you to recovery steps that preserve your existing files.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -235,8 +235,8 @@ Two flavors. Same quality. Pick your weight class.
 
 | Tag | What you get | Best for | Docker Hub compressed size |
 |-----|-------------|----------|----------------------------|
-| **`latest`** | Everything pre-installed — every tool, every library, every CLI | Most users. Zero wait time. Claude never has to stop and install something. | ~4.1 GB |
-| **`slim`** | Core tools only — Claude installs extras on-demand | Smaller VPS, limited disk, metered bandwidth | ~2.4 GB |
+| **`latest`** | Everything pre-installed — every tool, every library, every CLI | Most users. Zero wait time. Claude never has to stop and install something. | [Check by architecture](https://hub.docker.com/r/coderluii/holyclaude/tags?name=latest) |
+| **`slim`** | Core tools only — Claude installs extras on-demand | Smaller VPS, limited disk, metered bandwidth | [Check by architecture](https://hub.docker.com/r/coderluii/holyclaude/tags?name=slim) |
 | `X.Y.Z` | Full image, pinned version | Production stability — you control when to update | Same as `latest` for that release |
 | `X.Y.Z-slim` | Slim image, pinned version | Production + small footprint | Same as `slim` for that release |
 
@@ -250,7 +250,7 @@ docker pull coderluii/holyclaude:slim
 
 > **`latest` is always the full image.** Slim users: don't worry — when you ask Claude to do something that needs a missing tool, it installs it in seconds. You get the same capabilities, just with a smaller initial download.
 >
-> Docker Hub reports compressed transfer size. Docker, Synology Container Manager, and NAS filesystems can show a larger unpacked size after layers are extracted. That is expected; use `slim` when disk space or bandwidth matters more than having every tool ready on first boot.
+> Download size varies by release and architecture; check the matching tag on Docker Hub. It reports compressed transfer size. Docker, Synology Container Manager, and NAS filesystems can show a larger unpacked size after layers are extracted. Use `slim` when disk space or bandwidth matters more than having every tool ready on first boot.
 
 <p align="right">
   <a href="#top">↑ back to top</a>
@@ -580,7 +580,9 @@ This is not a minimal container. This is an entire development workstation.
 | `pyyaml`, `python-dotenv` | Config file parsing |
 | `rich`, `click`, `tqdm` | Beautiful CLIs and progress bars |
 | `desloppify`, `bandit`, `tree-sitter` | Code-quality scans, Python security checks, parser-backed code analysis |
-| `playwright` | Browser automation (Python 1.62.0; Node 1.62.1 is also baked into both images) |
+| `playwright` | Browser automation (Python 1.62.0; Node 1.63.0 is also baked into both images) |
+| `pytest`, `pytest-asyncio`, `flake8` | Python tests, async tests, and linting |
+| `aiomqtt`, `aiohttp` | Async MQTT and HTTP clients |
 
 </details>
 
@@ -593,11 +595,14 @@ This is not a minimal container. This is an entire development workstation.
 | `ripgrep` (`rg`), `fd`, `fzf` | Blazing-fast search — Claude uses these constantly |
 | `bat`, `tree`, `jq` | Better cat (syntax highlighting), directory trees, JSON processing |
 | `curl`, `wget` | HTTP downloads |
+| `nano`, `shellcheck` | Terminal editing and Bash linting |
+| `yq`, `dig` | Mike Farah's YAML processor and DNS queries |
+| `atuin` | Shell history client; installed without account setup or shell integration |
 | `tmux` | Terminal multiplexer — run things in the background |
 | `htop`, `lsof`, `strace` | Process monitoring and debugging |
 | `imagemagick` | Image conversion (`convert`, `identify`, `mogrify`) |
 | `chromium` | Headless browser — screenshots and Playwright; `/usr/bin/chromium` stays the supported wrapper |
-| `psql`, `redis-cli`, `sqlite3` | Talk to databases directly |
+| `psql`, `redis-cli`, `sqlite3`, `mysql`, `mysqldump` | Database clients; MySQL-compatible commands use Debian's MariaDB client |
 | `openssh-client`, `openssh-server`, `mosh` | SSH out, and optional key-only SSH/Mosh access into the container |
 
 </details>
@@ -855,6 +860,7 @@ holyclaude/
 | Claude Code session (OAuth, onboarding) | `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | **Yes** |
 | Git global and XDG configuration | `/home/claude/.gitconfig`, `/home/claude/.config/git` | `./data/claude/.gitconfig`, `./data/claude/.config/git` | **Yes** |
 | GitHub CLI configuration and authentication | `/home/claude/.config/gh` | `./data/claude/.config/gh` | **Yes** |
+| Bash aliases | `/home/claude/.bash_aliases` | `./data/claude/.bash_aliases` | **Yes** |
 | Your code and projects | `/workspace` | `./workspace` | **Yes** |
 | CloudCLI account | `/home/claude/.cloudcli` | *(container only by default — see below)* | No (opt-in available) |
 
@@ -866,7 +872,8 @@ HolyClaude restores the saved Claude Code session before startup can create a fr
 - All your code in `./workspace`
 - Git global configuration, aliases, and XDG Git settings
 - GitHub CLI configuration and authentication
-- Codex, Gemini, and Cursor file-based config and authentication stored below `/home/claude/.claude` (since v1.1.7). Environment-provided keys remain in your Compose or host environment.
+- Bash aliases saved in `~/.bash_aliases`
+- Codex and Gemini file-based config and authentication stored below `/home/claude/.claude` (since v1.1.7). Cursor uses `.claude/.cursor` only when HolyClaude creates the managed alias; an existing real directory or custom link remains user-managed, so inspect and migrate it before relying on `.claude` persistence. Environment-provided keys remain in your Compose or host environment.
 
 ### What you'll redo (10 seconds):
 - CloudCLI web account — quick signup, that's it (unless you opt into persistence below)
@@ -904,7 +911,7 @@ HolyClaude prepares this directory before CloudCLI starts. Fresh Docker volumes 
 
 For rootless Podman, use `docker-compose.podman-rootless.yaml`. Its `keep-id` mapping and `:Z` labels let the existing host user write the mounted state without a privileged ownership repair. `:Z` handles SELinux labeling; `:U` rewrites host ownership and is not the default.
 
-> **Do NOT bind-mount `./data/cloudcli` on a network share (NAS, SMB/CIFS, NFS).** CloudCLI stores its account in SQLite, and SQLite's file locking breaks on network mounts. You'll hit `database is locked` errors constantly. Named volumes live on the Docker engine's local filesystem, which is why this works — bind mounts pointing at a NAS will not.
+> **Keep CloudCLI's SQLite database off network shares (NAS, SMB/CIFS, NFS).** Network filesystem locking can cause `database is locked` errors. Use a named volume backed by the default local driver without remote mount options, or a local-disk bind mount. A volume name alone does not guarantee local storage; remote drivers and NFS/CIFS options still place the database on a network share.
 
 A bind mount to a local SSD path is fine too, just keep it off any network share.
 

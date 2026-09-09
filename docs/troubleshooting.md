@@ -89,8 +89,10 @@ Keep the UDP range behind localhost, VPN, Tailscale, or a firewall rule.
 
 **Fix:** Add the SSH state volume:
 ```yaml
-volumes:
-  - holyclaude-ssh:/var/lib/holyclaude-ssh
+services:
+  holyclaude:
+    volumes:
+      - holyclaude-ssh:/var/lib/holyclaude-ssh
 
 volumes:
   holyclaude-ssh:
@@ -157,7 +159,7 @@ Then close and reopen the Web Terminal tab. This keeps the Docker image the same
 
 **Fix:** Don't store SQLite databases on network mounts. HolyClaude keeps `.cloudcli` in container-local storage for this reason. If you're using your own SQLite databases in `/workspace` on a network mount, move them to a local path.
 
-> If you want the CloudCLI account to persist across rebuilds, use a **named Docker volume** for `/home/claude/.cloudcli` (see the README's Data & Persistence section). Named volumes live on the Docker engine's local filesystem, so SQLite file locking works. Never bind-mount `.cloudcli` to a NAS, SMB, or NFS path.
+> If you want the CloudCLI account to persist across rebuilds, use a **Docker-local named volume** for `/home/claude/.cloudcli` (see the README's Data & Persistence section). Use the default local storage, not an NFS/SMB volume driver or remote-storage options. A volume name alone does not guarantee local storage. Never bind-mount `.cloudcli` to a NAS, SMB, or NFS path.
 
 ---
 
@@ -282,6 +284,250 @@ rm ./data/claude/.holyclaude-bootstrapped
 ```
 
 Never delete the entire `./data/claude/` directory — this wipes your credentials.
+
+---
+
+### `claude: command not found` after mounting a home directory
+
+**Symptom:** CloudCLI reports that the Claude Code native binary is unavailable, or a terminal exits with `claude: command not found`.
+
+**Cause:** HolyClaude installs Claude Code at `/home/claude/.local/bin/claude`. A bind mount over `/home` or `/home/claude` hides `/home/claude/.local` and the other application files supplied by the image. An API key can authenticate an available CLI, but it cannot replace a hidden executable.
+
+**Fix:** Do not mount `/home` or `/home/claude`. `/home/claude/.local` is image-owned. Keep the original host directory as a backup, copy the supported persistent state into a fresh selective mount, and leave the backup in place until the recovered container and credentials have been checked.
+
+Run the command from the Compose project directory that owns the affected `holyclaude` service. Set `home_mount_target` to the container destination used by the old broad mount. The default `/home` matches the reported Compose configuration. Use `/home/claude` only when the old mount targeted that exact path. Before stopping anything, the command requires exactly one retained Compose container and verifies that its bind-mount source resolves to `old_home` at that exact destination. A wrong directory, missing or ambiguous container, named volume, or different source/destination exits without moving host data.
+
+Then verify and stop that exact container, and stage the old home without deleting it:
+
+```bash
+# HolyClaude host-side home recovery
+set -euo pipefail
+umask 077
+: "${old_home:=/mnt/docker/holyclaude/home}"
+: "${new_claude:=/mnt/docker/holyclaude/data/claude}"
+: "${home_mount_target:=/home}"
+
+case "$home_mount_target" in
+  /home) source_suffix=/claude ;;
+  /home/claude) source_suffix= ;;
+  *)
+    echo "Expected home_mount_target to be /home or /home/claude" >&2
+    exit 1
+    ;;
+esac
+
+[ -d "$old_home" ] && [ ! -L "$old_home" ] || {
+  echo "Expected a real directory: $old_home" >&2
+  exit 1
+}
+old_home="$(realpath -- "$old_home")"
+: "${backup:=${old_home}.backup-$(date +%Y%m%d-%H%M%S)}"
+source_home="$backup$source_suffix"
+
+compose_ids="$(docker compose ps -a -q holyclaude)" || {
+  echo "Could not resolve the holyclaude Compose service. Run this from its Compose project directory." >&2
+  exit 1
+}
+set -- $compose_ids
+if [ "$#" -ne 1 ]; then
+  echo "Expected exactly one holyclaude Compose container; found $#" >&2
+  exit 1
+fi
+compose_container="$1"
+
+mount_records="$(docker inspect --format '{{range .Mounts}}{{printf "%s\t%s\t%s\n" .Type .Source .Destination}}{{end}}' "$compose_container")" || {
+  echo "Could not inspect Compose container: $compose_container" >&2
+  exit 1
+}
+verified_mounts=0
+while IFS="$(printf '\t')" read -r mount_type mount_source mount_destination; do
+  [ "$mount_type" = bind ] || continue
+  [ "$mount_destination" = "$home_mount_target" ] || continue
+  resolved_mount_source="$(realpath -- "$mount_source" 2>/dev/null)" || continue
+  [ "$resolved_mount_source" = "$old_home" ] || continue
+  verified_mounts=$((verified_mounts + 1))
+done <<EOF
+$mount_records
+EOF
+if [ "$verified_mounts" -ne 1 ]; then
+  echo "Container $compose_container does not have exactly one verified bind mount from $old_home to $home_mount_target" >&2
+  exit 1
+fi
+
+if [ -e "$backup" ] || [ -L "$backup" ] || [ -e "$new_claude" ] || [ -L "$new_claude" ]; then
+  echo "Refusing an existing backup or durable target" >&2
+  exit 1
+fi
+docker stop "$compose_container" >/dev/null
+move_status=0
+mv -T -n -- "$old_home" "$backup" || move_status=$?
+if [ -e "$old_home" ] || [ -L "$old_home" ] || [ ! -d "$backup" ] || [ -L "$backup" ]; then
+  echo "Host paths changed while stopping the container; old home was not moved" >&2
+  exit 1
+fi
+if [ "$move_status" -ne 0 ]; then
+  echo "Moving the old home failed with status $move_status; inspect $backup and restore it before retrying" >&2
+  exit 1
+fi
+
+[ -d "$source_home" ] && [ ! -L "$source_home" ] || {
+  echo "Expected a real directory: $source_home" >&2
+  exit 1
+}
+
+new_parent="${new_claude%/*}"
+if [ -L "$new_parent" ] || { [ -e "$new_parent" ] && [ ! -d "$new_parent" ]; }; then
+  echo "Refusing unsafe durable parent: $new_parent" >&2
+  exit 1
+fi
+install -d -m 0700 "$new_parent"
+stage="$(mktemp -d "${new_claude}.recovery-stage.XXXXXX")"
+trap 'rm -rf -- "$stage"' EXIT HUP INT TERM
+
+migrate_state() {
+  source="$1"
+  relative_target="$2"
+  kind="$3"
+  target="$stage/$relative_target"
+  if [ -L "$target" ]; then
+    echo "Refusing symbolic link durable target: $target" >&2
+    return 1
+  fi
+  if [ -e "$target" ]; then
+    if [ "$kind" = file ] && [ ! -f "$target" ]; then
+      echo "Expected regular file durable target: $target" >&2
+      return 1
+    fi
+    if [ "$kind" = directory ] && [ ! -d "$target" ]; then
+      echo "Expected directory durable target: $target" >&2
+      return 1
+    fi
+  fi
+  if [ -L "$source" ]; then
+    if [ "$(readlink -- "$source")" = "/home/claude/.claude/$relative_target" ]; then
+      if { [ "$kind" = file ] && [ -f "$target" ]; } || { [ "$kind" = directory ] && [ -d "$target" ]; }; then
+        return 0
+      fi
+    fi
+    echo "Refusing symbolic link source: $source" >&2
+    return 1
+  fi
+  [ -e "$source" ] || return 0
+  if [ "$kind" = file ] && [ ! -f "$source" ]; then
+    echo "Expected regular file source: $source" >&2
+    return 1
+  fi
+  if [ "$kind" = directory ] && [ ! -d "$source" ]; then
+    echo "Expected directory source: $source" >&2
+    return 1
+  fi
+  if [ -e "$target" ] || [ -L "$target" ]; then
+    if [ "$relative_target" = .claude.json.persist ] && [ -f "$target" ] && [ ! -L "$target" ] && cmp -s -- "$source" "$target"; then
+      return 0
+    fi
+    echo "Refusing to replace existing durable state: $target" >&2
+    return 1
+  fi
+  cp -a -- "$source" "$target"
+}
+
+[ ! -L "$source_home/.claude" ] || {
+  echo "Refusing symbolic link source: $source_home/.claude" >&2
+  exit 1
+}
+if [ -e "$source_home/.claude" ] && [ ! -d "$source_home/.claude" ]; then
+  echo "Expected directory source: $source_home/.claude" >&2
+  exit 1
+fi
+if [ -d "$source_home/.claude" ]; then
+  cp -a -- "$source_home/.claude/." "$stage/"
+fi
+
+if [ -L "$stage/.config" ] || { [ -e "$stage/.config" ] && [ ! -d "$stage/.config" ]; }; then
+  echo "Refusing unsafe durable directory: $stage/.config" >&2
+  exit 1
+fi
+install -d -m 0700 "$stage/.config"
+
+migrate_state "$source_home/.bash_aliases" .bash_aliases file
+migrate_state "$source_home/.gitconfig" .gitconfig file
+migrate_state "$source_home/.config/git" .config/git directory
+migrate_state "$source_home/.config/gh" .config/gh directory
+migrate_state "$source_home/.codex" .codex directory
+migrate_state "$source_home/.gemini" .gemini directory
+migrate_state "$source_home/.cursor" .cursor directory
+migrate_state "$source_home/.claude.json" .claude.json.persist file
+
+move_status=0
+mv -T -n -- "$stage" "$new_claude" || move_status=$?
+if [ -e "$stage" ] || [ -L "$stage" ] || [ ! -d "$new_claude" ] || [ -L "$new_claude" ]; then
+  echo "Durable target changed before install: $new_claude" >&2
+  exit 1
+fi
+if [ "$move_status" -ne 0 ]; then
+  echo "Installing the durable target failed with status $move_status; inspect $new_claude before retrying" >&2
+  exit 1
+fi
+printf 'Original home retained at %s\n' "$backup"
+```
+
+This stages the complete recovery before installing `data/claude`. Exact HolyClaude-managed links are accepted only when their real durable targets were copied from `.claude`; other links and wrong source types are rejected. Identical live and saved Claude session files are accepted. Different copies stop recovery so you can choose which state to retain without losing either. Other target collisions also stop recovery. The backup remains unchanged after the move. If the command stops after that move, confirm that both `$old_home` and `$new_claude` are absent, move `$backup` back to `$old_home`, resolve the reported conflict without discarding either copy, and rerun the command. Never delete the backup to clear an error.
+
+Then replace the broad home mount with selective mounts and recreate the container:
+
+```yaml
+services:
+  holyclaude:
+    volumes:
+      - /mnt/docker/holyclaude/data/claude:/home/claude/.claude
+      - /mnt/docker/holyclaude/workspace:/workspace
+      # Optional: Docker-local persistence for the CloudCLI account database.
+      - cloudcli-data:/home/claude/.cloudcli
+
+volumes:
+  cloudcli-data:
+```
+
+```bash
+docker compose up -d --force-recreate
+docker compose logs holyclaude
+docker compose exec holyclaude claude --version
+```
+
+HolyClaude does not download or reinstall Claude Code at startup. If the executable is hidden, startup stops with the affected path and mount guidance.
+
+The persistent paths are deliberately narrower than the user home:
+
+| Live container path | Durable location | Persistence behavior |
+|---------------------|------------------|----------------------|
+| `/home/claude/.claude` | `./data/claude` | Primary bind mount for Claude settings, credentials, memory, hooks, and redirected CLI state |
+| `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | Restored from and synchronized into the `.claude` bind mount |
+| `/home/claude/.codex` | `./data/claude/.codex` | Symlinked to `.claude/.codex` on every boot |
+| `/home/claude/.gemini` | `./data/claude/.gemini` | Symlinked to `.claude/.gemini` on every boot |
+| `/home/claude/.cursor` | `./data/claude/.cursor` | Managed alias to `.claude/.cursor` only when the live path is absent; an existing real directory or custom link remains user-managed |
+| `/home/claude/.bash_aliases` | `./data/claude/.bash_aliases` | Migrated and symlinked to `.claude/.bash_aliases` for interactive shell aliases |
+| `/home/claude/.gitconfig` | `./data/claude/.gitconfig` | Migrated and symlinked unless explicitly overridden |
+| `/home/claude/.config/git` | `./data/claude/.config/git` | Migrated and symlinked unless explicitly overridden |
+| `/home/claude/.config/gh` | `./data/claude/.config/gh` | Migrated and symlinked unless explicitly overridden; may contain a token |
+| `/home/claude/.cloudcli` | `cloudcli-data` named volume | Optional CloudCLI account database persistence on Docker-local storage |
+| `/workspace` | `./workspace` | Projects and working files |
+| `/home/claude/.local` | None | Application files are image-owned and replaced by image upgrades |
+
+Inspect and migrate an existing `/home/claude/.cursor` before relying on `./data/claude/.cursor` for Cursor persistence.
+
+If startup reports that `.claude`, `.codex`, `.gemini`, or `.cursor` must be a real directory, keep the mounted data as your backup and inspect the paths without following links:
+
+```bash
+docker compose run --rm --no-deps --entrypoint sh holyclaude -lc '
+for path in /home/claude/.claude /home/claude/.claude/.codex /home/claude/.codex /home/claude/.claude/.gemini /home/claude/.gemini /home/claude/.claude/.cursor /home/claude/.cursor; do
+  if [ -L "$path" ]; then printf "%s -> %s\n" "$path" "$(readlink "$path")"; else ls -ld "$path" 2>/dev/null || true; fi
+done
+'
+```
+
+Do not delete or replace these paths until you have identified which copy contains your settings and credentials. HolyClaude only manages its exact generated top-level aliases, such as `/home/claude/.codex -> /home/claude/.claude/.codex`, and only when the durable directory chain is intact. Other dangling links, link loops, linked durable directories, and conflicting managed state stop startup with the affected paths shown so you can preserve and reconcile the state outside the container. A separate real directory mounted at a top-level CLI path remains user-managed.
+
+If the old broad mount contains CloudCLI account data under `$source_home/.cloudcli` (`$backup/claude/.cloudcli` for `/home`, or `$backup/.cloudcli` for `/home/claude`), keep the backup until that account has been migrated separately or you have confirmed that a fresh CloudCLI login is acceptable. Do not copy its SQLite database while CloudCLI is running, and do not place it on network storage.
 
 ---
 

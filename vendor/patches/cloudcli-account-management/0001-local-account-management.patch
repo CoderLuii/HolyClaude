@@ -1,5 +1,92 @@
+diff --git a/server/index.ts b/server/index.ts
+index 91762e8..aafffcf 100644
+--- a/server/index.ts
++++ b/server/index.ts
+@@ -24,6 +24,7 @@ import {
+     authenticateToken,
+     authenticateWebSocket,
+     authRoutes,
++    registerAuthenticatedWebSocket,
+     validateApiKey,
+ } from './modules/auth/index.js';
+ import { taskmasterRoutes } from './modules/taskmaster/index.js';
+@@ -118,6 +119,7 @@ createWebSocketServer(server, {
+         },
+     },
+     getPluginPort,
++    registerAuthenticatedWebSocket,
+ });
+ 
+ app.use(cors({ exposedHeaders: ['X-Refreshed-Token', 'X-Auth-Error'] }));
+diff --git a/server/modules/auth/auth-session-registry.ts b/server/modules/auth/auth-session-registry.ts
+new file mode 100644
+index 0000000..0c33f7c
+--- /dev/null
++++ b/server/modules/auth/auth-session-registry.ts
+@@ -0,0 +1,61 @@
++import type { AuthenticatedWebSocketUser } from '@/shared/types.js';
++
++type AuthenticatedSocket = {
++  readyState: number;
++  close(code?: number, reason?: string): void;
++  once(event: 'close', listener: () => void): void;
++  removeAllListeners(event: 'message'): unknown;
++  terminate(): void;
++};
++
++const socketsByUserId = new Map<string, Set<AuthenticatedSocket>>();
++const AUTHENTICATION_REVOKE_TERMINATE_DELAY_MS = 1_000;
++const WEBSOCKET_CLOSED_STATE = 3;
++
++const normalizeUserId = (user: AuthenticatedWebSocketUser): string | null => {
++  const userId = user.userId ?? user.id;
++  return userId == null ? null : String(userId);
++};
++
++export function registerAuthenticatedWebSocket(
++  socket: AuthenticatedSocket,
++  user: AuthenticatedWebSocketUser | undefined,
++): void {
++  if (!user) return;
++  const userId = normalizeUserId(user);
++  if (!userId) return;
++
++  const sockets = socketsByUserId.get(userId) ?? new Set<AuthenticatedSocket>();
++  sockets.add(socket);
++  socketsByUserId.set(userId, sockets);
++  socket.once('close', () => {
++    sockets.delete(socket);
++    if (sockets.size === 0 && socketsByUserId.get(userId) === sockets) {
++      socketsByUserId.delete(userId);
++    }
++  });
++}
++
++export function revokeAuthenticatedWebSockets(userId: number | bigint): void {
++  const normalizedUserId = String(userId);
++  const sockets = socketsByUserId.get(normalizedUserId);
++  if (!sockets) return;
++
++  socketsByUserId.delete(normalizedUserId);
++  for (const socket of sockets) {
++    socket.removeAllListeners('message');
++    const terminateTimer = setTimeout(() => {
++      if (socket.readyState !== WEBSOCKET_CLOSED_STATE) {
++        socket.terminate();
++      }
++    }, AUTHENTICATION_REVOKE_TERMINATE_DELAY_MS);
++    terminateTimer.unref();
++    socket.once('close', () => clearTimeout(terminateTimer));
++    try {
++      socket.close(4001, 'Authentication revoked');
++    } catch {
++      clearTimeout(terminateTimer);
++      socket.terminate();
++    }
++  }
++}
 diff --git a/server/modules/auth/auth.middleware.ts b/server/modules/auth/auth.middleware.ts
-index da45196..0cbc579 100644
+index da45196..349e0b7 100644
 --- a/server/modules/auth/auth.middleware.ts
 +++ b/server/modules/auth/auth.middleware.ts
 @@ -5,9 +5,18 @@ import { IS_PLATFORM } from '@/shared/utils.js';
@@ -21,18 +108,22 @@ index da45196..0cbc579 100644
  // Optional API key middleware
  const validateApiKey = (req, res, next) => {
    // Skip API key validation if not configured
-@@ -59,6 +68,10 @@ const authenticateToken = async (req, res, next) => {
+@@ -59,6 +68,14 @@ const authenticateToken = async (req, res, next) => {
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
  
 +    if (!isTokenGenerationValid(decoded)) {
-+      return res.status(401).json({ error: 'Invalid token. Please sign in again.' });
++      res.setHeader('X-Auth-Error', 'invalid-token');
++      return res.status(401).json({
++        error: 'Invalid token. Please sign in again.',
++        code: 'AUTH_TOKEN_INVALID',
++      });
 +    }
 +
      // Verify user still exists and is active
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
-@@ -104,14 +117,10 @@ const authenticateToken = async (req, res, next) => {
+@@ -104,14 +121,10 @@ const authenticateToken = async (req, res, next) => {
  
  // Generate JWT token
  const generateToken = (user) => {
@@ -51,7 +142,7 @@ index da45196..0cbc579 100644
  };
  
  // WebSocket authentication function
-@@ -137,6 +146,7 @@ const authenticateWebSocket = (token) => {
+@@ -137,6 +150,7 @@ const authenticateWebSocket = (token) => {
  
    try {
      const decoded = jwt.verify(token, JWT_SECRET);
@@ -60,10 +151,10 @@ index da45196..0cbc579 100644
      const user = userDb.getUserById(decoded.userId);
      if (!user) {
 diff --git a/server/modules/auth/auth.module.ts b/server/modules/auth/auth.module.ts
-index 33a4f43..77e0620 100644
+index 33a4f43..595577e 100644
 --- a/server/modules/auth/auth.module.ts
 +++ b/server/modules/auth/auth.module.ts
-@@ -1,6 +1,8 @@
+@@ -1,9 +1,12 @@
 +import { randomUUID } from 'node:crypto';
  import { createRequire } from 'node:module';
  
@@ -73,7 +164,11 @@ index 33a4f43..77e0620 100644
  
  import { authenticateToken, generateToken } from './auth.middleware.js';
  import { createAuthRouter } from './auth.routes.js';
-@@ -22,8 +24,11 @@ const authService = createAuthService({
++import { revokeAuthenticatedWebSockets } from './auth-session-registry.js';
+ import { createAuthService } from './auth.service.js';
+ 
+ type BcryptAdapter = {
+@@ -22,8 +25,11 @@ const authService = createAuthService({
      hasUsers: () => userDb.hasUsers(),
      createUser: (username, passwordHash) => userDb.createUser(username, passwordHash),
      getUserByUsername: (username) => userDb.getUserByUsername(username),
@@ -85,26 +180,29 @@ index 33a4f43..77e0620 100644
    transaction: {
      begin: () => databaseConnection.prepare('BEGIN').run(),
      commit: () => databaseConnection.prepare('COMMIT').run(),
-@@ -32,6 +37,8 @@ const authService = createAuthService({
+@@ -32,6 +38,9 @@ const authService = createAuthService({
    hashPassword: (password) => bcrypt.hash(password, 12),
    comparePassword: (password, passwordHash) => bcrypt.compare(password, passwordHash),
    generateToken,
 +  randomUUID,
 +  isPlatform: IS_PLATFORM,
++  revokeWebSocketSessions: revokeAuthenticatedWebSockets,
  });
  
  /** Auth router assembled for the server entrypoint. */
 diff --git a/server/modules/auth/auth.routes.ts b/server/modules/auth/auth.routes.ts
-index 99342fe..2d99084 100644
+index 99342fe..bfb1882 100644
 --- a/server/modules/auth/auth.routes.ts
 +++ b/server/modules/auth/auth.routes.ts
-@@ -53,5 +53,18 @@ export function createAuthRouter(
+@@ -53,5 +53,20 @@ export function createAuthRouter(
      res.json(service.logout());
    });
  
 +  router.post('/change-password', authenticateToken, async (req, res, next) => {
 +    try {
-+      const body = req.body as { currentPassword?: unknown; newPassword?: unknown };
++      const body = (
++        typeof req.body === 'object' && req.body !== null ? req.body : {}
++      ) as { currentPassword?: unknown; newPassword?: unknown };
 +      res.json(await service.changePassword(
 +        (req as AuthenticatedRequest).user,
 +        body.currentPassword,
@@ -118,7 +216,7 @@ index 99342fe..2d99084 100644
    return router;
  }
 diff --git a/server/modules/auth/auth.service.ts b/server/modules/auth/auth.service.ts
-index 91d61f0..4a4606c 100644
+index 91d61f0..f39f44c 100644
 --- a/server/modules/auth/auth.service.ts
 +++ b/server/modules/auth/auth.service.ts
 @@ -12,8 +12,11 @@ type AuthDependencies = {
@@ -133,16 +231,17 @@ index 91d61f0..4a4606c 100644
    transaction: {
      begin(): void;
      commit(): void;
-@@ -22,6 +25,8 @@ type AuthDependencies = {
+@@ -22,6 +25,9 @@ type AuthDependencies = {
    hashPassword(password: string): Promise<string>;
    comparePassword(password: string, passwordHash: string): Promise<boolean>;
    generateToken(user: AuthUser): string;
 +  randomUUID(): string;
 +  isPlatform: boolean;
++  revokeWebSocketSessions(userId: number | bigint): void;
  };
  
  function numericUserId(userId: number | bigint): number {
-@@ -151,5 +156,47 @@ export function createAuthService(dependencies: AuthDependencies) {
+@@ -151,5 +157,48 @@ export function createAuthService(dependencies: AuthDependencies) {
      logout() {
        return { success: true, message: 'Logged out successfully' };
      },
@@ -186,10 +285,307 @@ index 91d61f0..4a4606c 100644
 +        dependencies.transaction.rollback();
 +        throw error;
 +      }
++      dependencies.revokeWebSocketSessions(user.id);
 +      return { success: true, message: 'Password updated. Please sign in again.' };
 +    },
    };
  }
+diff --git a/server/modules/auth/index.ts b/server/modules/auth/index.ts
+index dbce0ea..d619426 100644
+--- a/server/modules/auth/index.ts
++++ b/server/modules/auth/index.ts
+@@ -5,5 +5,6 @@ export { authRoutes } from './auth.module.js';
+ export { authenticateToken } from './auth.middleware.js';
+ // authenticateWebSocket: used by WebSocket setup to verify connection tokens.
+ export { authenticateWebSocket } from './auth.middleware.js';
++export { registerAuthenticatedWebSocket } from './auth-session-registry.js';
+ // validateApiKey: used by the server entrypoint for optional API-wide key validation.
+ export { validateApiKey } from './auth.middleware.js';
+diff --git a/server/modules/auth/tests/auth-session-registry.test.ts b/server/modules/auth/tests/auth-session-registry.test.ts
+new file mode 100644
+index 0000000..c8c774f
+--- /dev/null
++++ b/server/modules/auth/tests/auth-session-registry.test.ts
+@@ -0,0 +1,108 @@
++import assert from 'node:assert/strict';
++import { once } from 'node:events';
++import type { AddressInfo } from 'node:net';
++import test from 'node:test';
++
++import { WebSocket, WebSocketServer } from 'ws';
++
++import {
++  registerAuthenticatedWebSocket,
++  revokeAuthenticatedWebSockets,
++} from '@/modules/auth/auth-session-registry.js';
++
++class FakeSocket {
++  readyState = 1;
++  closeCalls: Array<{ code?: number; reason?: string }> = [];
++  closeListeners: Array<() => void> = [];
++
++  close(code?: number, reason?: string) {
++    this.closeCalls.push({ code, reason });
++  }
++
++  once(_event: 'close', listener: () => void) {
++    this.closeListeners.push(listener);
++  }
++
++  removeAllListeners(_event: 'message') {
++    return this;
++  }
++
++  terminate() {
++    this.readyState = 3;
++  }
++
++  emitClose() {
++    for (const listener of this.closeListeners.splice(0)) {
++      listener();
++    }
++  }
++}
++
++test('password rotation closes every authenticated socket for that account only', () => {
++  const first = new FakeSocket();
++  const second = new FakeSocket();
++  const otherUser = new FakeSocket();
++  registerAuthenticatedWebSocket(first, { userId: 7 });
++  registerAuthenticatedWebSocket(second, { id: 7 });
++  registerAuthenticatedWebSocket(otherUser, { userId: 8 });
++
++  revokeAuthenticatedWebSockets(7);
++
++  assert.deepEqual(first.closeCalls, [{ code: 4001, reason: 'Authentication revoked' }]);
++  assert.deepEqual(second.closeCalls, [{ code: 4001, reason: 'Authentication revoked' }]);
++  assert.deepEqual(otherUser.closeCalls, []);
++});
++
++test('a delayed old close cannot remove sockets registered after rotation', () => {
++  const oldSocket = new FakeSocket();
++  registerAuthenticatedWebSocket(oldSocket, { userId: 9 });
++  revokeAuthenticatedWebSockets(9);
++
++  const replacementSocket = new FakeSocket();
++  registerAuthenticatedWebSocket(replacementSocket, { userId: 9 });
++  oldSocket.emitClose();
++  revokeAuthenticatedWebSockets(9);
++
++  assert.deepEqual(replacementSocket.closeCalls, [{ code: 4001, reason: 'Authentication revoked' }]);
++});
++
++test('revocation disables live inbound dispatch before a delayed close and terminates the socket', async () => {
++  const server = new WebSocketServer({ port: 0, host: '127.0.0.1' });
++  await once(server, 'listening');
++  const address = server.address() as AddressInfo;
++  const client = new WebSocket(`ws://127.0.0.1:${address.port}`);
++  const [socket] = await once(server, 'connection') as [WebSocket];
++  await once(client, 'open');
++  try {
++    let privilegedDispatches = 0;
++    socket.on('message', () => {
++      privilegedDispatches += 1;
++    });
++    const firstMessage = once(socket, 'message');
++    client.send('before-rotation');
++    await Promise.race([
++      firstMessage,
++      new Promise((_, reject) => setTimeout(() => reject(new Error('initial message timed out')), 1_000)),
++    ]);
++
++    const closeCalls: Array<{ code?: number; reason?: string }> = [];
++    socket.close = ((code?: number, reason?: string | Buffer) => {
++      closeCalls.push({ code, reason: reason?.toString() });
++    }) as typeof socket.close;
++    registerAuthenticatedWebSocket(socket, { userId: 11 });
++
++    revokeAuthenticatedWebSockets(11);
++    client.send('after-rotation');
++    await new Promise((resolve) => setTimeout(resolve, 25));
++
++    assert.equal(privilegedDispatches, 1, 'no inbound frame may dispatch after revocation starts');
++    assert.deepEqual(closeCalls, [{ code: 4001, reason: 'Authentication revoked' }]);
++
++    await once(client, 'close');
++    assert.equal(client.readyState, WebSocket.CLOSED, 'a close that stalls must be terminated');
++  } finally {
++    if (client.readyState !== WebSocket.CLOSED) client.terminate();
++    for (const openSocket of server.clients) openSocket.terminate();
++    await new Promise<void>((resolve) => server.close(() => resolve()));
++  }
++});
+diff --git a/server/modules/auth/tests/auth.routes.test.ts b/server/modules/auth/tests/auth.routes.test.ts
+new file mode 100644
+index 0000000..5bc9c14
+--- /dev/null
++++ b/server/modules/auth/tests/auth.routes.test.ts
+@@ -0,0 +1,55 @@
++import assert from 'node:assert/strict';
++import { once } from 'node:events';
++import type { AddressInfo } from 'node:net';
++import test from 'node:test';
++
++import express, { type NextFunction, type Request, type Response } from 'express';
++
++import { createAuthRouter } from '@/modules/auth/auth.routes.js';
++import { createAuthService } from '@/modules/auth/auth.service.js';
++import { AppError } from '@/shared/utils.js';
++
++type AuthDependencies = Parameters<typeof createAuthService>[0];
++
++test('change-password returns 400 for an absent request body', async () => {
++  const dependencies = {
++    isPlatform: false,
++  } as AuthDependencies;
++  const service = createAuthService(dependencies);
++  const app = express();
++  app.use(express.json());
++  app.use('/api/auth', createAuthRouter(service, (req, _res, next) => {
++    (req as Request & { user?: unknown }).user = { id: 1, username: 'alice' };
++    next();
++  }));
++  app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
++    if (error instanceof AppError) {
++      res.status(error.statusCode).json({ error: error.code });
++      return;
++    }
++    res.status(500).json({ error: 'INTERNAL_ERROR' });
++  });
++
++  const server = app.listen(0, '127.0.0.1');
++  await once(server, 'listening');
++  try {
++    const address = server.address() as AddressInfo;
++    for (const request of [
++      { method: 'POST' },
++      { method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'not-json' },
++    ]) {
++      const response = await fetch(
++        `http://127.0.0.1:${address.port}/api/auth/change-password`,
++        request,
++      );
++      const payload = await response.json() as { error: string };
++
++      assert.equal(response.status, 400);
++      assert.equal(payload.error, 'AUTH_PASSWORDS_REQUIRED');
++    }
++  } finally {
++    await new Promise<void>((resolve, reject) => {
++      server.close((error) => error ? reject(error) : resolve());
++    });
++  }
++});
+diff --git a/server/modules/auth/tests/auth.service.test.ts b/server/modules/auth/tests/auth.service.test.ts
+index e5f89c1..32038fc 100644
+--- a/server/modules/auth/tests/auth.service.test.ts
++++ b/server/modules/auth/tests/auth.service.test.ts
+@@ -13,8 +13,11 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
+       hasUsers: () => false,
+       createUser: (username, passwordHash) => ({ id: 1, username, password_hash: passwordHash }),
+       getUserByUsername: () => undefined,
++      getUserAuthById: () => undefined,
++      updatePasswordHash: () => undefined,
+       updateLastLogin: () => undefined,
+     },
++    appConfig: { set: () => undefined },
+     transaction: {
+       begin: () => undefined,
+       commit: () => undefined,
+@@ -23,6 +26,9 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
+     hashPassword: async () => 'hashed-password',
+     comparePassword: async () => false,
+     generateToken: () => 'signed-token',
++    randomUUID: () => 'token-generation',
++    isPlatform: false,
++    revokeWebSocketSessions: () => undefined,
+     ...overrides,
+   };
+ }
+@@ -46,6 +52,8 @@ test('register hashes credentials and commits through injected dependencies', as
+         return { id: 1, username, password_hash: passwordHash };
+       },
+       getUserByUsername: () => undefined,
++      getUserAuthById: () => undefined,
++      updatePasswordHash: () => undefined,
+       updateLastLogin: (userId) => operations.push(`login:${userId}`),
+     },
+   }));
+@@ -63,6 +71,8 @@ test('login rejects an invalid password without issuing a token', async () => {
+       hasUsers: () => true,
+       createUser: () => { throw new Error('unused'); },
+       getUserByUsername: () => ({ id: 1, username: 'alice', password_hash: 'hash' }),
++      getUserAuthById: () => undefined,
++      updatePasswordHash: () => undefined,
+       updateLastLogin: () => undefined,
+     },
+     comparePassword: async () => false,
+@@ -93,3 +103,65 @@ test('refreshSession issues a replacement token for the authenticated user', ()
+   assert.deepEqual(result, { token: 'replacement-token' });
+   assert.deepEqual(tokenUser, { id: 7, username: 'alice' });
+ });
++
++test('changePassword rotates credentials then revokes live WebSocket sessions after commit', async () => {
++  const operations: string[] = [];
++  const service = createAuthService(createDependencies({
++    users: {
++      hasUsers: () => true,
++      createUser: () => { throw new Error('unused'); },
++      getUserByUsername: () => undefined,
++      getUserAuthById: () => ({ id: 7, username: 'alice', password_hash: 'old-hash' }),
++      updatePasswordHash: (userId, passwordHash) => operations.push(`password:${userId}:${passwordHash}`),
++      updateLastLogin: () => undefined,
++    },
++    appConfig: { set: (key, value) => operations.push(`config:${key}:${value}`) },
++    transaction: {
++      begin: () => operations.push('begin'),
++      commit: () => operations.push('commit'),
++      rollback: () => operations.push('rollback'),
++    },
++    comparePassword: async () => true,
++    hashPassword: async () => 'new-hash',
++    revokeWebSocketSessions: (userId) => operations.push(`revoke:${userId}`),
++  }));
++
++  await service.changePassword({ id: 7, username: 'alice' }, 'old-password', 'new-password');
++
++  assert.deepEqual(operations, [
++    'begin',
++    'password:7:new-hash',
++    'config:auth_token_generation:token-generation',
++    'commit',
++    'revoke:7',
++  ]);
++});
++
++test('changePassword rolls back and does not revoke sockets when credential rotation fails', async () => {
++  const operations: string[] = [];
++  const service = createAuthService(createDependencies({
++    users: {
++      hasUsers: () => true,
++      createUser: () => { throw new Error('unused'); },
++      getUserByUsername: () => undefined,
++      getUserAuthById: () => ({ id: 7, username: 'alice', password_hash: 'old-hash' }),
++      updatePasswordHash: () => operations.push('password'),
++      updateLastLogin: () => undefined,
++    },
++    appConfig: { set: () => { throw new Error('write failed'); } },
++    transaction: {
++      begin: () => operations.push('begin'),
++      commit: () => operations.push('commit'),
++      rollback: () => operations.push('rollback'),
++    },
++    comparePassword: async () => true,
++    hashPassword: async () => 'new-hash',
++    revokeWebSocketSessions: () => operations.push('revoke'),
++  }));
++
++  await assert.rejects(
++    service.changePassword({ id: 7, username: 'alice' }, 'old-password', 'new-password'),
++    /write failed/,
++  );
++  assert.deepEqual(operations, ['begin', 'password', 'rollback']);
++});
 diff --git a/server/modules/database/repositories/app-config.ts b/server/modules/database/repositories/app-config.ts
 index 691a1b4..e929b35 100644
 --- a/server/modules/database/repositories/app-config.ts
@@ -237,19 +633,102 @@ index 25bb57b..adfa0a6 100644
    /** Updates the last_login timestamp. Non-fatal — logs but does not throw. */
    updateLastLogin(userId: number): void {
      try {
-diff --git a/src/components/auth/context/AuthContext.tsx b/src/components/auth/context/AuthContext.tsx
-index 65d3e4a..84ea9d3 100644
---- a/src/components/auth/context/AuthContext.tsx
-+++ b/src/components/auth/context/AuthContext.tsx
-@@ -11,6 +11,7 @@ import {
- } from '../../../utils/api';
- import { AUTH_ERROR_MESSAGES, AUTH_TOKEN_STORAGE_KEY } from '../constants';
- import type {
-+  ApiErrorPayload,
-   AuthContextValue,
-   AuthProviderProps,
-   AuthSessionPayload,
-@@ -271,6 +272,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
+diff --git a/server/modules/websocket/services/websocket-server.service.ts b/server/modules/websocket/services/websocket-server.service.ts
+index dc44df1..a4597ef 100644
+--- a/server/modules/websocket/services/websocket-server.service.ts
++++ b/server/modules/websocket/services/websocket-server.service.ts
+@@ -14,6 +14,10 @@ type WebSocketServerDependencies = {
+   chat: Parameters<typeof handleChatConnection>[2];
+   shell: Parameters<typeof handleShellConnection>[1];
+   getPluginPort: Parameters<typeof handlePluginWsProxy>[2];
++  registerAuthenticatedWebSocket(
++    socket: WebSocket,
++    user: AuthenticatedWebSocketRequest['user'],
++  ): void;
+ };
+ 
+ /**
+@@ -95,6 +99,7 @@ export function createWebSocketServer(
+     attachWebSocketHeartbeat(ws);
+ 
+     const incomingRequest = request as AuthenticatedWebSocketRequest;
++    dependencies.registerAuthenticatedWebSocket(ws, incomingRequest.user);
+     const url = incomingRequest.url ?? '/';
+     const pathname = new URL(url, 'http://localhost').pathname;
+ 
+diff --git a/src/modules/auth/context/AuthContext.tsx b/src/modules/auth/context/AuthContext.tsx
+index 9c7a76b..9594a28 100644
+--- a/src/modules/auth/context/AuthContext.tsx
++++ b/src/modules/auth/context/AuthContext.tsx
+@@ -4,9 +4,11 @@ import type { ReactNode } from 'react';
+ 
+ import { IS_PLATFORM } from '@/shared/utils';
+ import { api } from '@/shared/api';
+-import { AUTH_SESSION_EXPIRED_EVENT, AUTH_TOKEN_REFRESHED_EVENT, getAuthTokenRefreshDelay, isValidRefreshedToken, storeAuthToken } from '@/shared/authToken';
++import { AUTH_SESSION_EXPIRED_EVENT, AUTH_TOKEN_REFRESHED_EVENT, getAuthTokenRefreshDelay, isAuthTokenRemovalStorageEvent, isValidRefreshedToken, storeAuthToken } from '@/shared/authToken';
+ import { hydrateChatDrafts, resetChatDrafts } from '@/shared/chatDrafts';
+ import { hydrateUserPreferences, resetUserPreferences } from '@/shared/userSettings';
++
++import { resolveApiErrorMessage, type ApiErrorPayload } from '@/modules/auth/context/authErrorMessage';
+ /** The signed-in account held by AuthContext - a required `username` plus an optional id and any additional fields the auth API returns - and should be read through `useAuth()` rather than re-derived from raw auth responses. */
+ type AuthUser = {
+   id?: number | string;
+@@ -45,11 +47,6 @@ type OnboardingStatusPayload = {
+   hasCompletedOnboarding?: boolean;
+ };
+ 
+-type ApiErrorPayload = {
+-  error?: string;
+-  message?: string;
+-};
+-
+ type AuthContextValue = {
+   user: AuthUser | null;
+   token: string | null;
+@@ -60,6 +57,7 @@ type AuthContextValue = {
+   login: (username: string, password: string) => Promise<AuthActionResult>;
+   register: (username: string, password: string) => Promise<AuthActionResult>;
+   logout: () => void;
++  changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
+   refreshOnboardingStatus: () => Promise<void>;
+ };
+ 
+@@ -75,14 +73,6 @@ async function parseJsonSafely<T>(response: Response): Promise<T | null> {
+   }
+ }
+ 
+-function resolveApiErrorMessage(payload: ApiErrorPayload | null, fallback: string): string {
+-  if (!payload) {
+-    return fallback;
+-  }
+-
+-  return payload.error ?? payload.message ?? fallback;
+-}
+-
+ const AuthContext = createContext<AuthContextValue | null>(null);
+ 
+ const readStoredToken = (): string | null => localStorage.getItem(AUTH_TOKEN_STORAGE_KEY);
+@@ -196,12 +186,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
+       clearSession();
+       setError(t(AUTH_ERROR_MESSAGES.sessionExpired));
+     };
++    const handleStorage = (event: StorageEvent) => {
++      if (isAuthTokenRemovalStorageEvent(event)) {
++        handleSessionExpired();
++      }
++    };
+ 
+     window.addEventListener(AUTH_TOKEN_REFRESHED_EVENT, handleTokenRefreshed);
+     window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
++    window.addEventListener('storage', handleStorage);
+     return () => {
+       window.removeEventListener(AUTH_TOKEN_REFRESHED_EVENT, handleTokenRefreshed);
+       window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
++      window.removeEventListener('storage', handleStorage);
+     };
+   }, [clearSession, t]);
+ 
+@@ -351,6 +348,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
      clearSession();
    }, [clearSession]);
  
@@ -266,16 +745,16 @@ index 65d3e4a..84ea9d3 100644
 +        return { success: true };
 +      } catch (caughtError) {
 +        console.error('Change password error:', caughtError);
-+        return { success: false, error: AUTH_ERROR_MESSAGES.networkError };
++        return { success: false, error: t(AUTH_ERROR_MESSAGES.networkError) };
 +      }
 +    },
-+    [clearSession],
++    [clearSession, t],
 +  );
 +
    const contextValue = useMemo<AuthContextValue>(
      () => ({
        user,
-@@ -282,12 +302,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
+@@ -362,12 +378,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
        login,
        register,
        logout,
@@ -290,112 +769,67 @@ index 65d3e4a..84ea9d3 100644
        login,
        logout,
        needsSetup,
-diff --git a/src/components/auth/types.ts b/src/components/auth/types.ts
-index e745a37..a9b1515 100644
---- a/src/components/auth/types.ts
-+++ b/src/components/auth/types.ts
-@@ -42,6 +42,7 @@ export type AuthContextValue = {
-   login: (username: string, password: string) => Promise<AuthActionResult>;
-   register: (username: string, password: string) => Promise<AuthActionResult>;
-   logout: () => void;
-+  changePassword: (currentPassword: string, newPassword: string) => Promise<AuthActionResult>;
-   refreshOnboardingStatus: () => Promise<void>;
- };
- 
-diff --git a/src/components/settings/constants/constants.ts b/src/components/settings/constants/constants.ts
-index 8c42908..cb4bbc4 100644
---- a/src/components/settings/constants/constants.ts
-+++ b/src/components/settings/constants/constants.ts
-@@ -2,6 +2,7 @@ import type { ComponentType } from 'react';
- import {
-   Bell,
-   Bot,
-+  CircleUserRound,
-   GitBranch,
-   Info,
-   KeyRound,
-@@ -28,6 +29,7 @@ export type SettingsMainTabMeta = {
- };
- 
- export const SETTINGS_MAIN_TABS: SettingsMainTabMeta[] = [
-+  { id: 'account', label: 'Account', keywords: 'account password logout sign out local user', icon: CircleUserRound },
-   { id: 'agents', label: 'Agents', keywords: 'agents subagents claude code', icon: Bot },
-   { id: 'appearance', label: 'Appearance', keywords: 'appearance theme dark light language', icon: Palette },
-   { id: 'git', label: 'Git', keywords: 'git github commits', icon: GitBranch },
-diff --git a/src/components/settings/hooks/normalizeMainTab.ts b/src/components/settings/hooks/normalizeMainTab.ts
+diff --git a/src/modules/auth/context/authErrorMessage.test.ts b/src/modules/auth/context/authErrorMessage.test.ts
 new file mode 100644
-index 0000000..44ef3d1
+index 0000000..b3cb3c1
 --- /dev/null
-+++ b/src/components/settings/hooks/normalizeMainTab.ts
-@@ -0,0 +1,12 @@
-+import type { SettingsMainTab } from '../types/types';
++++ b/src/modules/auth/context/authErrorMessage.test.ts
+@@ -0,0 +1,15 @@
++import { expect, test } from 'vitest';
 +
-+const KNOWN_MAIN_TABS: SettingsMainTab[] = ['agents', 'appearance', 'git', 'api', 'tasks', 'browser', 'notifications', 'plugins', 'account', 'voice', 'about'];
++import { resolveApiErrorMessage } from '@/modules/auth/context/authErrorMessage';
 +
-+export const normalizeMainTab = (tab: string): SettingsMainTab => {
-+  // Keep backwards compatibility with older callers that still pass "tools".
-+  if (tab === 'tools') {
-+    return 'agents';
-+  }
++test('returns the message nested in an AppError response', () => {
++  expect(resolveApiErrorMessage(
++    { error: { code: 'AUTH_PASSWORD_TOO_SHORT', message: 'New password must be at least 6 characters' } },
++    'Password change failed',
++  )).toBe('New password must be at least 6 characters');
++});
 +
-+  return KNOWN_MAIN_TABS.includes(tab as SettingsMainTab) ? (tab as SettingsMainTab) : 'agents';
++test('keeps legacy string errors and rejects malformed values', () => {
++  expect(resolveApiErrorMessage({ error: 'Legacy error' }, 'Password change failed')).toBe('Legacy error');
++  expect(resolveApiErrorMessage({ error: {} }, 'Password change failed')).toBe('Password change failed');
++});
+diff --git a/src/modules/auth/context/authErrorMessage.ts b/src/modules/auth/context/authErrorMessage.ts
+new file mode 100644
+index 0000000..24d321a
+--- /dev/null
++++ b/src/modules/auth/context/authErrorMessage.ts
+@@ -0,0 +1,21 @@
++export type ApiErrorPayload = {
++  error?: string | { message?: unknown; [key: string]: unknown };
++  message?: unknown;
 +};
-diff --git a/src/components/settings/hooks/useSettingsController.ts b/src/components/settings/hooks/useSettingsController.ts
-index cc57d37..ac312b9 100644
---- a/src/components/settings/hooks/useSettingsController.ts
-+++ b/src/components/settings/hooks/useSettingsController.ts
-@@ -8,6 +8,7 @@ import {
-   DEFAULT_CODE_EDITOR_SETTINGS,
-   DEFAULT_CURSOR_PERMISSIONS,
- } from '../constants/constants';
-+import { normalizeMainTab } from './normalizeMainTab';
- import type {
-   AgentProvider,
-   ClaudePermissionsState,
-@@ -53,17 +54,6 @@ type NotificationPreferencesResponse = {
- 
- type ActiveLoginProvider = AgentProvider | '';
- 
--const KNOWN_MAIN_TABS: SettingsMainTab[] = ['agents', 'appearance', 'git', 'api', 'tasks', 'browser', 'notifications', 'plugins', 'about'];
--
--const normalizeMainTab = (tab: string): SettingsMainTab => {
--  // Keep backwards compatibility with older callers that still pass "tools".
--  if (tab === 'tools') {
--    return 'agents';
--  }
--
--  return KNOWN_MAIN_TABS.includes(tab as SettingsMainTab) ? (tab as SettingsMainTab) : 'agents';
--};
--
- const parseJson = <T>(value: string | null, fallback: T): T => {
-   if (!value) {
-     return fallback;
-diff --git a/src/components/settings/types/types.ts b/src/components/settings/types/types.ts
-index 514de2f..2318ce6 100644
---- a/src/components/settings/types/types.ts
-+++ b/src/components/settings/types/types.ts
-@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
- import type { LLMProvider } from '../../../types/app';
- import type { ProviderAuthStatus } from '../../provider-auth/types';
- 
--export type SettingsMainTab = 'agents' | 'appearance' | 'git' | 'api' | 'voice' | 'tasks' | 'browser' | 'notifications' | 'plugins' | 'about';
-+export type SettingsMainTab = 'account' | 'agents' | 'appearance' | 'git' | 'api' | 'voice' | 'tasks' | 'browser' | 'notifications' | 'plugins' | 'about';
- export type AgentProvider = LLMProvider;
- export type AgentCategory = 'account' | 'permissions' | 'mcp' | 'skills';
- export type ProjectSortOrder = 'name' | 'date';
-diff --git a/src/components/settings/view/Settings.tsx b/src/components/settings/view/Settings.tsx
-index 37f40bc..d49b47e 100644
---- a/src/components/settings/view/Settings.tsx
-+++ b/src/components/settings/view/Settings.tsx
-@@ -6,6 +6,7 @@ import ProviderLoginModal from '../../provider-auth/view/ProviderLoginModal';
- import { Button } from '../../../shared/view/ui';
- import SettingsSidebar from '../view/SettingsSidebar';
- import AgentsSettingsTab from '../view/tabs/agents-settings/AgentsSettingsTab';
-+import AccountSettingsTab from '../view/tabs/AccountSettingsTab';
- import AppearanceSettingsTab from '../view/tabs/AppearanceSettingsTab';
- import CredentialsSettingsTab from '../view/tabs/api-settings/CredentialsSettingsTab';
- import VoiceSettingsTab from '../view/tabs/VoiceSettingsTab';
-@@ -161,6 +162,8 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
++
++export function resolveApiErrorMessage(payload: ApiErrorPayload | null, fallback: string): string {
++  if (!payload) {
++    return fallback;
++  }
++  if (typeof payload.error === 'string') {
++    return payload.error;
++  }
++  if (
++    typeof payload.error === 'object'
++    && payload.error !== null
++    && typeof payload.error.message === 'string'
++  ) {
++    return payload.error.message;
++  }
++  return typeof payload.message === 'string' ? payload.message : fallback;
++}
+diff --git a/src/modules/settings/Settings.tsx b/src/modules/settings/Settings.tsx
+index 2dfcd0e..07c00d5 100644
+--- a/src/modules/settings/Settings.tsx
++++ b/src/modules/settings/Settings.tsx
+@@ -6,6 +6,7 @@ import { ProviderLoginModal } from '@/modules/provider-auth';
+ import { Button } from '@/shared/ui';
+ import SettingsSidebar from '@/modules/settings/SettingsSidebar';
+ import AgentsSettingsTab from '@/modules/settings/tabs/agents-settings/AgentsSettingsTab';
++import AccountSettingsTab from '@/modules/settings/tabs/AccountSettingsTab';
+ import AppearanceSettingsTab from '@/modules/settings/tabs/AppearanceSettingsTab';
+ import CredentialsSettingsTab from '@/modules/settings/tabs/api-settings/CredentialsSettingsTab';
+ import VoiceSettingsTab from '@/modules/settings/tabs/VoiceSettingsTab';
+@@ -169,6 +170,8 @@ function Settings({ isOpen, onClose, projects = [], initialTab = 'agents' }: Set
            {/* Content */}
            <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
              <div key={activeTab} className="settings-content-enter min-w-0 space-y-6 overflow-x-hidden p-4 pb-safe-area-inset-bottom md:space-y-8 md:p-6">
@@ -404,34 +838,16 @@ index 37f40bc..d49b47e 100644
                {activeTab === 'appearance' && (
                  <AppearanceSettingsTab
                    projectSortOrder={projectSortOrder}
-diff --git a/src/components/settings/view/SettingsMainTabs.tsx b/src/components/settings/view/SettingsMainTabs.tsx
-index 5c15f6d..269a5d8 100644
---- a/src/components/settings/view/SettingsMainTabs.tsx
-+++ b/src/components/settings/view/SettingsMainTabs.tsx
-@@ -1,4 +1,4 @@
--import { GitBranch, Info, Key, Puzzle } from 'lucide-react';
-+import { CircleUserRound, GitBranch, Info, Key, Puzzle } from 'lucide-react';
- import { useTranslation } from 'react-i18next';
- import type { SettingsMainTab } from '../types/types';
- 
-@@ -15,6 +15,7 @@ type MainTabConfig = {
- };
- 
- const TAB_CONFIG: MainTabConfig[] = [
-+  { id: 'account', label: 'Account', icon: CircleUserRound },
-   { id: 'agents', labelKey: 'mainTabs.agents' },
-   { id: 'appearance', labelKey: 'mainTabs.appearance' },
-   { id: 'git', labelKey: 'mainTabs.git', icon: GitBranch },
-diff --git a/src/components/settings/view/SettingsSidebar.tsx b/src/components/settings/view/SettingsSidebar.tsx
-index 3b76976..edf35c2 100644
---- a/src/components/settings/view/SettingsSidebar.tsx
-+++ b/src/components/settings/view/SettingsSidebar.tsx
+diff --git a/src/modules/settings/SettingsSidebar.tsx b/src/modules/settings/SettingsSidebar.tsx
+index 682b829..997df43 100644
+--- a/src/modules/settings/SettingsSidebar.tsx
++++ b/src/modules/settings/SettingsSidebar.tsx
 @@ -1,4 +1,4 @@
 -import { Bell, Bot, GitBranch, Info, Key, ListChecks, Mic, MonitorPlay, Palette, Puzzle } from 'lucide-react';
 +import { Bell, Bot, CircleUserRound, GitBranch, Info, Key, ListChecks, Mic, MonitorPlay, Palette, Puzzle } from 'lucide-react';
  import { useTranslation } from 'react-i18next';
  
- import { cn } from '../../../lib/utils';
+ import { cn } from '@/shared/utils';
 @@ -12,11 +12,13 @@ type SettingsSidebarProps = {
  
  type NavItem = {
@@ -447,7 +863,7 @@ index 3b76976..edf35c2 100644
    { id: 'agents', labelKey: 'mainTabs.agents', icon: Bot },
    { id: 'appearance', labelKey: 'mainTabs.appearance', icon: Palette },
    { id: 'git', labelKey: 'mainTabs.git', icon: GitBranch },
-@@ -53,7 +55,7 @@ export default function SettingsSidebar({ activeTab, onChange }: SettingsSidebar
+@@ -54,7 +56,7 @@ export default function SettingsSidebar({ activeTab, onChange }: SettingsSidebar
                  )}
                >
                  <Icon className="h-4 w-4 flex-shrink-0" />
@@ -456,7 +872,7 @@ index 3b76976..edf35c2 100644
                </button>
              );
            })}
-@@ -74,7 +76,7 @@ export default function SettingsSidebar({ activeTab, onChange }: SettingsSidebar
+@@ -75,7 +77,7 @@ export default function SettingsSidebar({ activeTab, onChange }: SettingsSidebar
                  className="flex-shrink-0"
                >
                  <Icon className="h-3.5 w-3.5" />
@@ -465,23 +881,36 @@ index 3b76976..edf35c2 100644
                </Pill>
              );
            })}
-diff --git a/src/components/settings/view/tabs/AccountSettingsTab.tsx b/src/components/settings/view/tabs/AccountSettingsTab.tsx
+diff --git a/src/modules/settings/hooks/useSettingsController.ts b/src/modules/settings/hooks/useSettingsController.ts
+index fe43d39..5efe412 100644
+--- a/src/modules/settings/hooks/useSettingsController.ts
++++ b/src/modules/settings/hooks/useSettingsController.ts
+@@ -54,7 +54,7 @@ type NotificationPreferencesResponse = {
+ 
+ type ActiveLoginProvider = AgentProvider | '';
+ 
+-const KNOWN_MAIN_TABS: SettingsMainTab[] = ['agents', 'appearance', 'git', 'api', 'tasks', 'browser', 'notifications', 'plugins', 'about'];
++const KNOWN_MAIN_TABS: SettingsMainTab[] = ['account', 'agents', 'appearance', 'git', 'api', 'tasks', 'browser', 'notifications', 'plugins', 'voice', 'about'];
+ 
+ const normalizeMainTab = (tab: string): SettingsMainTab => {
+   // Keep backwards compatibility with older callers that still pass "tools".
+diff --git a/src/modules/settings/tabs/AccountSettingsTab.tsx b/src/modules/settings/tabs/AccountSettingsTab.tsx
 new file mode 100644
-index 0000000..f75c828
+index 0000000..07ae225
 --- /dev/null
-+++ b/src/components/settings/view/tabs/AccountSettingsTab.tsx
-@@ -0,0 +1,155 @@
++++ b/src/modules/settings/tabs/AccountSettingsTab.tsx
+@@ -0,0 +1,121 @@
 +import { useCallback, useState } from 'react';
 +import type { FormEvent } from 'react';
 +import { Loader2, LogOut } from 'lucide-react';
 +
-+import { IS_PLATFORM } from '../../../../shared/utils';
-+import { useAuth } from '../../../auth/context/AuthContext';
-+import { Button, Input } from '../../../../shared/view/ui';
-+import SettingsCard from '../SettingsCard';
-+import SettingsSection from '../SettingsSection';
-+import { validatePasswordForm } from './accountSettings';
-+import type { PasswordFormState } from './accountSettings';
++import { useAuth } from '@/modules/auth';
++import SettingsCard from '@/modules/settings/SettingsCard';
++import SettingsSection from '@/modules/settings/SettingsSection';
++import { validatePasswordForm } from '@/modules/settings/tabs/accountSettings';
++import type { PasswordFormState } from '@/modules/settings/tabs/accountSettings';
++import { Button, Input } from '@/shared/ui';
++import { IS_PLATFORM } from '@/shared/utils';
 +
 +const initialPasswordFormState: PasswordFormState = {
 +  currentPassword: '',
@@ -517,7 +946,6 @@ index 0000000..f75c828
 +          setError(result.error);
 +          return;
 +        }
-+
 +        setPasswordForm(initialPasswordFormState);
 +      } catch {
 +        setError('Unable to change password. Please try again.');
@@ -565,53 +993,20 @@ index 0000000..f75c828
 +
 +                  <div className="grid gap-4 sm:grid-cols-3">
 +                    <div>
-+                      <label htmlFor="account-current-password" className="mb-2 block text-sm font-medium text-foreground">
-+                        Current password
-+                      </label>
-+                      <Input
-+                        id="account-current-password"
-+                        type="password"
-+                        autoComplete="current-password"
-+                        value={passwordForm.currentPassword}
-+                        onChange={(event) => updatePasswordField('currentPassword', event.target.value)}
-+                        disabled={isSaving}
-+                      />
++                      <label htmlFor="account-current-password" className="mb-2 block text-sm font-medium text-foreground">Current password</label>
++                      <Input id="account-current-password" type="password" autoComplete="current-password" value={passwordForm.currentPassword} onChange={(event) => updatePasswordField('currentPassword', event.target.value)} disabled={isSaving} />
 +                    </div>
-+
 +                    <div>
-+                      <label htmlFor="account-new-password" className="mb-2 block text-sm font-medium text-foreground">
-+                        New password
-+                      </label>
-+                      <Input
-+                        id="account-new-password"
-+                        type="password"
-+                        autoComplete="new-password"
-+                        value={passwordForm.newPassword}
-+                        onChange={(event) => updatePasswordField('newPassword', event.target.value)}
-+                        disabled={isSaving}
-+                      />
++                      <label htmlFor="account-new-password" className="mb-2 block text-sm font-medium text-foreground">New password</label>
++                      <Input id="account-new-password" type="password" autoComplete="new-password" value={passwordForm.newPassword} onChange={(event) => updatePasswordField('newPassword', event.target.value)} disabled={isSaving} />
 +                    </div>
-+
 +                    <div>
-+                      <label htmlFor="account-confirm-password" className="mb-2 block text-sm font-medium text-foreground">
-+                        Confirm password
-+                      </label>
-+                      <Input
-+                        id="account-confirm-password"
-+                        type="password"
-+                        autoComplete="new-password"
-+                        value={passwordForm.confirmPassword}
-+                        onChange={(event) => updatePasswordField('confirmPassword', event.target.value)}
-+                        disabled={isSaving}
-+                      />
++                      <label htmlFor="account-confirm-password" className="mb-2 block text-sm font-medium text-foreground">Confirm password</label>
++                      <Input id="account-confirm-password" type="password" autoComplete="new-password" value={passwordForm.confirmPassword} onChange={(event) => updatePasswordField('confirmPassword', event.target.value)} disabled={isSaving} />
 +                    </div>
 +                  </div>
 +
-+                  {error && (
-+                    <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">
-+                      {error}
-+                    </div>
-+                  )}
++                  {error && <div role="alert" className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200">{error}</div>}
 +
 +                  <Button type="submit" disabled={isSaving}>
 +                    {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -626,11 +1021,11 @@ index 0000000..f75c828
 +    </div>
 +  );
 +}
-diff --git a/src/components/settings/view/tabs/accountSettings.ts b/src/components/settings/view/tabs/accountSettings.ts
+diff --git a/src/modules/settings/tabs/accountSettings.ts b/src/modules/settings/tabs/accountSettings.ts
 new file mode 100644
 index 0000000..6344e96
 --- /dev/null
-+++ b/src/components/settings/view/tabs/accountSettings.ts
++++ b/src/modules/settings/tabs/accountSettings.ts
 @@ -0,0 +1,23 @@
 +export type PasswordFormState = {
 +  currentPassword: string;
@@ -655,58 +1050,323 @@ index 0000000..6344e96
 +
 +  return null;
 +}
-diff --git a/src/utils/api.js b/src/utils/api.js
-index 3bffd89..9767dca 100644
---- a/src/utils/api.js
-+++ b/src/utils/api.js
-@@ -142,6 +142,10 @@ export const api = {
-     refresh: () => authenticatedFetch('/api/auth/refresh', { method: 'POST' }),
-     user: () => authenticatedFetch('/api/auth/user'),
-     logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
-+    changePassword: (currentPassword, newPassword) => authenticatedFetch('/api/auth/change-password', {
-+      method: 'POST',
-+      body: JSON.stringify({ currentPassword, newPassword }),
-+    }),
+diff --git a/src/modules/shell/hooks/useShellConnection.ts b/src/modules/shell/hooks/useShellConnection.ts
+index 4c9a34c..04d5fd2 100644
+--- a/src/modules/shell/hooks/useShellConnection.ts
++++ b/src/modules/shell/hooks/useShellConnection.ts
+@@ -7,6 +7,7 @@ import type { Project, ProjectSession } from '@/shared/types';
+ import { TERMINAL_INIT_DELAY_MS } from '@/shared/constants';
+ import { getShellWebSocketUrl, parseShellMessage, sendSocketMessage } from '@/modules/shell/utils/socket';
+ import { readSelectedProvider } from '@/shared/selectedProvider';
++import { handleAuthenticationRevokedWebSocketClose } from '@/shared/authToken';
+ 
+ const ANSI_ESCAPE_REGEX =
+   /(?:\u001B\[[0-?]*[ -/]*[@-~]|\u009B[0-?]*[ -/]*[@-~]|\u001B\][^\u0007\u001B]*(?:\u0007|\u001B\\)|\u009D[^\u0007\u009C]*(?:\u0007|\u009C)|\u001B[PX^_][^\u001B]*\u001B\\|[\u0090\u0098\u009E\u009F][^\u009C]*\u009C|\u001B[@-Z\\-_])/g;
+@@ -176,7 +177,10 @@ export function useShellConnection({
+           handleSocketMessage(rawPayload);
+         };
+ 
+-        socket.onclose = () => {
++        socket.onclose = (event) => {
++          if (handleAuthenticationRevokedWebSocketClose(event)) {
++            suppressAutoConnectRef.current = true;
++          }
+           setIsConnected(false);
+           setIsConnecting(false);
+           connectingRef.current = false;
+diff --git a/src/modules/shell/tests/shellErrorFrame.test.ts b/src/modules/shell/tests/shellErrorFrame.test.ts
+index b1cb180..cbfd82d 100644
+--- a/src/modules/shell/tests/shellErrorFrame.test.ts
++++ b/src/modules/shell/tests/shellErrorFrame.test.ts
+@@ -21,7 +21,7 @@ class FakeSocket {
+   readyState = 1;
+   onopen: (() => void) | null = null;
+   onmessage: ((event: { data: string }) => void) | null = null;
+-  onclose: (() => void) | null = null;
++  onclose: ((event: { code: number }) => void) | null = null;
+   onerror: (() => void) | null = null;
+   sent: string[] = [];
+ 
+@@ -40,7 +40,7 @@ class FakeSocket {
+ 
+ const ref = <T,>(value: T): MutableRefObject<T> => ({ current: value });
+ 
+-function renderConnection() {
++function renderConnection(autoConnect = false) {
+   const write = vi.fn();
+   const clearTerminalScreen = vi.fn();
+   const closeSocket = vi.fn();
+@@ -61,15 +61,17 @@ function renderConnection() {
+       bypassPermissionsRef: ref(false),
+       onProcessCompleteRef: ref<((exitCode: number) => void) | null | undefined>(null),
+       isInitialized: true,
+-      autoConnect: false,
++      autoConnect,
+       closeSocket,
+       clearTerminalScreen,
+     }),
+   );
+ 
+-  act(() => {
+-    view.result.current.connectToShell();
+-  });
++  if (!autoConnect) {
++    act(() => {
++      view.result.current.connectToShell();
++    });
++  }
+   act(() => {
+     FakeSocket.last?.onopen?.();
+   });
+@@ -133,4 +135,16 @@ describe('shell socket error frames', () => {
+ 
+     expect(write).toHaveBeenCalledWith('hello');
+   });
++
++  it('expires a revoked session and does not auto-connect the shell again', () => {
++    localStorage.setItem('auth-token', 'stale-token');
++    const { socket } = renderConnection(true);
++
++    act(() => {
++      socket.onclose?.({ code: 4001 });
++    });
++
++    expect(localStorage.getItem('auth-token')).toBeNull();
++    expect(FakeSocket.last).toBe(socket);
++  });
+ });
+diff --git a/src/shared/api.ts b/src/shared/api.ts
+index d8d65ee..32f5439 100644
+--- a/src/shared/api.ts
++++ b/src/shared/api.ts
+@@ -172,6 +172,8 @@ export const api = {
+     }),
+     refresh: () => post('/api/auth/refresh'),
+     user: () => get('/api/auth/user'),
++    changePassword: (currentPassword: string, newPassword: string) =>
++      post('/api/auth/change-password', { currentPassword, newPassword }),
    },
  
    // Protected endpoints
-diff --git a/server/modules/auth/tests/auth.service.test.ts b/server/modules/auth/tests/auth.service.test.ts
-index 492db34..b5ef6f4 100644
---- a/server/modules/auth/tests/auth.service.test.ts
-+++ b/server/modules/auth/tests/auth.service.test.ts
-@@ -12,6 +12,9 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
-       hasUsers: () => false,
-       createUser: (username, passwordHash) => ({ id: 1, username, password_hash: passwordHash }),
-       getUserByUsername: () => undefined,
-+      getUserAuthById: () => undefined,
-+      updatePasswordHash: () => undefined,
-       updateLastLogin: () => undefined,
-     },
-+    appConfig: { set: () => undefined },
-     transaction: {
-@@ -28,5 +31,7 @@ function createDependencies(overrides: Partial<AuthDependencies> = {}): AuthDepe
-     comparePassword: async () => false,
-     generateToken: () => 'signed-token',
-+    randomUUID: () => 'token-generation',
-+    isPlatform: false,
-     ...overrides,
-   };
- }
-@@ -43,6 +48,8 @@ test('register hashes credentials and commits through injected dependencies', as
-         return { id: 1, username, password_hash: passwordHash };
-       },
-       getUserByUsername: () => undefined,
-+      getUserAuthById: () => undefined,
-+      updatePasswordHash: () => undefined,
-       updateLastLogin: (userId) => operations.push(`login:${userId}`),
-     },
-   }));
-@@ -63,6 +70,8 @@ test('login rejects an invalid password without issuing a token', async () => {
-       hasUsers: () => true,
-       createUser: () => { throw new Error('unused'); },
-       getUserByUsername: () => ({ id: 1, username: 'alice', password_hash: 'hash' }),
-+      getUserAuthById: () => undefined,
-+      updatePasswordHash: () => undefined,
-       updateLastLogin: () => undefined,
-     },
-     comparePassword: async () => false,
+diff --git a/src/shared/authToken.ts b/src/shared/authToken.ts
+index 1b701c8..e515bda 100644
+--- a/src/shared/authToken.ts
++++ b/src/shared/authToken.ts
+@@ -78,6 +78,21 @@ export const expireAuthSession = (): void => {
+   }
+ };
+ 
++export const handleAuthenticationRevokedWebSocketClose = (
++  event: Pick<CloseEvent, 'code'>,
++): boolean => {
++  if (event.code !== 4001) {
++    return false;
++  }
++
++  expireAuthSession();
++  return true;
++};
++
++export const isAuthTokenRemovalStorageEvent = (
++  event: Pick<StorageEvent, 'key' | 'newValue' | 'oldValue'>,
++): boolean => event.key === 'auth-token' && event.oldValue !== null && event.newValue === null;
++
+ export const getStoredAuthToken = (): string | null => {
+   const token = localStorage.getItem('auth-token');
+   if (token && isAuthTokenExpired(token)) {
+diff --git a/src/shared/constants.ts b/src/shared/constants.ts
+index 7c485fa..caa623f 100644
+--- a/src/shared/constants.ts
++++ b/src/shared/constants.ts
+@@ -1,6 +1,7 @@
+ import {
+   Bell,
+   Bot,
++  CircleUserRound,
+   GitBranch,
+   Info,
+   KeyRound,
+@@ -55,6 +56,7 @@ type SettingsMainTabMeta = {
+  * the command palette turns each entry into an "open settings" command, so both stay in sync.
+  */
+ export const SETTINGS_MAIN_TABS: SettingsMainTabMeta[] = [
++  { id: 'account', label: 'Account', keywords: 'account password logout sign out local user', icon: CircleUserRound },
+   { id: 'agents', label: 'Agents', keywords: 'agents subagents claude code', icon: Bot },
+   { id: 'appearance', label: 'Appearance', keywords: 'appearance theme dark light language', icon: Palette },
+   { id: 'git', label: 'Git', keywords: 'git github commits', icon: GitBranch },
+diff --git a/src/shared/context/WebSocketContext.test.tsx b/src/shared/context/WebSocketContext.test.tsx
+new file mode 100644
+index 0000000..cda5935
+--- /dev/null
++++ b/src/shared/context/WebSocketContext.test.tsx
+@@ -0,0 +1,69 @@
++import { act, renderHook } from '@testing-library/react';
++import type { ReactNode } from 'react';
++import { afterEach, beforeEach, expect, test, vi } from 'vitest';
++
++import { WebSocketProvider, useWebSocket } from '@/shared/context/WebSocketContext';
++
++vi.mock('@/modules/auth', () => ({
++  useAuth: () => ({
++    isLoading: false,
++    token: 'stale-token',
++    user: { id: 1, username: 'alice' },
++  }),
++}));
++
++vi.mock('@/shared/utils', () => ({ IS_PLATFORM: false }));
++
++class FakeWebSocket {
++  static OPEN = 1;
++  static instances: FakeWebSocket[] = [];
++
++  readyState = 0;
++  onopen: (() => void) | null = null;
++  onmessage: ((event: MessageEvent) => void) | null = null;
++  onclose: ((event: Pick<CloseEvent, 'code'>) => void) | null = null;
++  onerror: ((event: Event) => void) | null = null;
++
++  constructor(_url: string) {
++    FakeWebSocket.instances.push(this);
++  }
++
++  close() {
++    this.readyState = 3;
++  }
++
++  send(_payload: string) {}
++}
++
++const wrapper = ({ children }: { children: ReactNode }) => (
++  <WebSocketProvider>{children}</WebSocketProvider>
++);
++
++beforeEach(() => {
++  FakeWebSocket.instances = [];
++  localStorage.clear();
++  localStorage.setItem('auth-token', 'stale-token');
++  vi.useFakeTimers();
++  vi.stubGlobal('WebSocket', FakeWebSocket);
++});
++
++afterEach(() => {
++  vi.useRealTimers();
++  vi.unstubAllGlobals();
++});
++
++test('a 4001 global websocket close expires auth and never schedules a reconnect', () => {
++  const view = renderHook(() => useWebSocket(), { wrapper });
++  const socket = FakeWebSocket.instances[0];
++
++  act(() => {
++    socket.readyState = FakeWebSocket.OPEN;
++    socket.onopen?.();
++    socket.onclose?.({ code: 4001 });
++    vi.advanceTimersByTime(3_000);
++  });
++
++  expect(localStorage.getItem('auth-token')).toBeNull();
++  expect(FakeWebSocket.instances).toHaveLength(1);
++  expect(view.result.current.isConnected).toBe(false);
++});
+diff --git a/src/shared/context/WebSocketContext.tsx b/src/shared/context/WebSocketContext.tsx
+index 50f00e1..2dd4930 100644
+--- a/src/shared/context/WebSocketContext.tsx
++++ b/src/shared/context/WebSocketContext.tsx
+@@ -2,7 +2,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
+ 
+ import { useAuth } from '@/modules/auth';
+ import { IS_PLATFORM } from '@/shared/utils';
+-import { expireAuthSession, isAuthTokenExpired } from '@/shared/authToken';
++import {
++  expireAuthSession,
++  handleAuthenticationRevokedWebSocketClose,
++  isAuthTokenExpired,
++} from '@/shared/authToken';
+ import type { ServerEvent } from '@/shared/types';
+ 
+ 
+@@ -102,13 +106,17 @@ const useWebSocketProviderState = (): WebSocketContextType => {
+         }
+       };
+ 
+-      websocket.onclose = () => {
++      websocket.onclose = (event) => {
+         if (wsRef.current !== websocket) {
+           return;
+         }
+         setIsConnected(false);
+         wsRef.current = null;
+ 
++        if (handleAuthenticationRevokedWebSocketClose(event)) {
++          return;
++        }
++
+         // Attempt to reconnect after 3 seconds
+         reconnectTimeoutRef.current = setTimeout(() => {
+           if (unmountedRef.current) return; // Prevent reconnection if unmounted
+diff --git a/src/shared/tests/authToken.test.ts b/src/shared/tests/authToken.test.ts
+index 2c64fab..0493822 100644
+--- a/src/shared/tests/authToken.test.ts
++++ b/src/shared/tests/authToken.test.ts
+@@ -7,6 +7,8 @@ import {
+   AUTH_TOKEN_REFRESHED_EVENT,
+   getAuthTokenRefreshDelay,
+   getStoredAuthToken,
++  handleAuthenticationRevokedWebSocketClose,
++  isAuthTokenRemovalStorageEvent,
+   isAuthTokenExpired,
+   storeAuthToken,
+   TOKEN_EXPIRY_SKEW_MS,
+@@ -132,3 +134,38 @@ test('getAuthTokenRefreshDelay: an unreadable token schedules nothing', () => {
+   assert.equal(getAuthTokenRefreshDelay('not-a-jwt'), null);
+   assert.equal(getAuthTokenRefreshDelay(null), null);
+ });
++
++test('a 4001 websocket close expires the stored session and suppresses reconnect', () => {
++  localStorage.setItem('auth-token', 'stale-token');
++  let expiries = 0;
++  const onExpired = () => {
++    expiries += 1;
++  };
++  window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, onExpired);
++
++  const suppressReconnect = handleAuthenticationRevokedWebSocketClose({ code: 4001 });
++
++  window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, onExpired);
++  assert.equal(suppressReconnect, true);
++  assert.equal(localStorage.getItem('auth-token'), null);
++  assert.equal(expiries, 1);
++});
++
++test('an ordinary websocket close leaves the session available for reconnect', () => {
++  localStorage.setItem('auth-token', 'live-token');
++
++  assert.equal(handleAuthenticationRevokedWebSocketClose({ code: 1006 }), false);
++  assert.equal(localStorage.getItem('auth-token'), 'live-token');
++});
++
++test('only removal of the auth token is treated as cross-tab session expiry', () => {
++  assert.equal(isAuthTokenRemovalStorageEvent({
++    key: 'auth-token', oldValue: 'stale-token', newValue: null,
++  }), true);
++  assert.equal(isAuthTokenRemovalStorageEvent({
++    key: 'theme', oldValue: 'dark', newValue: null,
++  }), false);
++  assert.equal(isAuthTokenRemovalStorageEvent({
++    key: 'auth-token', oldValue: null, newValue: 'new-token',
++  }), false);
++});
+diff --git a/src/shared/types.ts b/src/shared/types.ts
+index 8a667d7..2a1662f 100644
+--- a/src/shared/types.ts
++++ b/src/shared/types.ts
+@@ -1128,7 +1128,7 @@ export type AgentContext = {
+ };
+ 
+ /** Identifier of a top-level section in the settings dialog; use it whenever a tab is stored, compared or requested so deep links, the sidebar and the command palette all agree on the same set of names. */
+-export type SettingsMainTab = 'agents' | 'appearance' | 'git' | 'api' | 'voice' | 'tasks' | 'browser' | 'notifications' | 'plugins' | 'about';
++export type SettingsMainTab = 'account' | 'agents' | 'appearance' | 'git' | 'api' | 'voice' | 'tasks' | 'browser' | 'notifications' | 'plugins' | 'about';
+ 
+ /** The coding-agent CLI a settings screen is configuring, aliasing LLMProvider so agent-scoped settings read as being about an agent rather than a chat model. */
+ export type AgentProvider = LLMProvider;

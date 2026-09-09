@@ -217,6 +217,27 @@ Manual upstream-supported setup targets are available through Desloppify itself:
 
 ## Volumes
 
+Do not mount `/home` or `/home/claude`. `/home/claude/.local` is image-owned and contains the installed Claude Code executable. A broad home mount hides that executable and other tools shipped by the image. Persist only the state you need:
+
+| Live container path | Durable location | Persistence behavior |
+|---------------------|------------------|----------------------|
+| `/home/claude/.claude` | `./data/claude` | Primary bind mount for Claude settings, credentials, memory, hooks, and the other redirected CLI state below |
+| `/home/claude/.claude.json` | `./data/claude/.claude.json.persist` | Restored from and synchronized into the existing `.claude` bind mount; do not add a separate file mount |
+| `/home/claude/.codex` | `./data/claude/.codex` | Symlinked to `.claude/.codex` on every boot |
+| `/home/claude/.gemini` | `./data/claude/.gemini` | Symlinked to `.claude/.gemini` on every boot |
+| `/home/claude/.cursor` | `./data/claude/.cursor` | Managed alias to `.claude/.cursor` only when the live path is absent; an existing real directory or custom link remains user-managed |
+| `/home/claude/.bash_aliases` | `./data/claude/.bash_aliases` | Migrated and symlinked to `.claude/.bash_aliases` for interactive shell aliases |
+| `/home/claude/.gitconfig` | `./data/claude/.gitconfig` | Migrated and symlinked unless `GIT_CONFIG_GLOBAL` overrides it |
+| `/home/claude/.config/git` | `./data/claude/.config/git` | Migrated and symlinked unless Git or XDG overrides it |
+| `/home/claude/.config/gh` | `./data/claude/.config/gh` | Migrated and symlinked unless `GH_CONFIG_DIR` or XDG overrides it; may contain a token |
+| `/home/claude/.cloudcli` | `cloudcli-data` named volume | Optional CloudCLI account database persistence on Docker-local storage; do not place SQLite state on SMB, NFS, or a NAS share |
+| `/workspace` | `./workspace` | Bind mount for projects and working files |
+| `/home/claude/.local` | None | Application files are image-owned and replaced by image upgrades |
+
+Inspect and migrate an existing `/home/claude/.cursor` before relying on `./data/claude/.cursor` for Cursor persistence.
+
+Environment variables and secrets configured in Compose remain host/Compose configuration. They are not copied into `./data/claude` automatically.
+
 | Host Path | Container Path | Purpose |
 |-----------|---------------|---------|
 | `./data/claude` | `/home/claude/.claude` | Settings, credentials, memory, API tokens |
@@ -228,6 +249,20 @@ Manual upstream-supported setup targets are available through Desloppify itself:
 Fresh `cloudcli-data` volumes inherit ownership from the image. During root-starting Docker startup, HolyClaude repairs existing local volumes to `PUID`/`PGID` and verifies write access as the runtime user. Rootless Podman does not perform privileged repair; use `docker-compose.podman-rootless.yaml` with `keep-id` and `:Z`.
 
 Keep CloudCLI's SQLite state on local storage. `:Z` supplies SELinux labeling. Podman's `:U` changes host ownership recursively, so it is not part of the supported default.
+
+### Bundled plugins and container replacement
+
+Project Stats and Web Terminal are bundled in both image variants. Plugin code and `plugins.json` under `/home/claude/.claude-code-ui` are container-local, outside the default persistent mounts. Recreating the container restores the bundled copies; mounting that directory over the image can hide them.
+
+Web Terminal keeps its tab and renderer preferences in your browser's local storage. Use the same browser profile and site address to retain those preferences. Running terminal processes end when the container stops; reopening a terminal starts a new process.
+
+Project Stats recalculates metrics from your workspace. Keep the `/workspace` mount to preserve the project files it reads.
+
+### Atuin is opt-in
+
+Atuin is installed, but HolyClaude does not enable its shell hook, sign in, or turn on sync. Installing it does not make its default configuration and data directories persistent.
+
+If you opt in, put its configuration and data beneath a persistent directory, such as `/home/claude/.claude/atuin`, and point Atuin at that location. Keep sync and update checks disabled if you want local-only use. Changing only the config directory does not move the history database.
 
 ### What's inside `./data/claude`:
 
@@ -261,7 +296,7 @@ Uncomment additional ports in `docker-compose.full.yaml` as needed. Keep them bo
 
 ## Docker Capabilities
 
-HolyClaude requires these Docker capabilities for Chromium to work:
+HolyClaude's Compose files retain this browser and debugging profile:
 
 ```yaml
 cap_add:
@@ -271,7 +306,7 @@ security_opt:
   - seccomp=unconfined  # Current browser profile; hardening is a separate pass
 ```
 
-This is HolyClaude's retained browser profile for v1.5.5. `SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads in this release and test any hardening change separately.
+`SYS_ADMIN` and `seccomp=unconfined` broaden process privileges and reduce isolation; `SYS_PTRACE` is debugging-related. They are not universal Chromium requirements. Keep the profile for trusted workloads and test any hardening change separately.
 
 ---
 

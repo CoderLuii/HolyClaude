@@ -4,6 +4,34 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 09/11/2026
+
+### Added
+
+- Bundled nano, ShellCheck, Mike Farah's yq, DNS utilities, MariaDB's MySQL-compatible clients, pytest, pytest-asyncio, flake8, aiomqtt and aiohttp in both image variants.
+- Added Atuin without enabling its shell hook, signing in, or turning on sync.
+- Made `.bash_aliases` persist through the existing `.claude` mount.
+
+### Changed
+
+- Updated Claude Code to 2.1.268, Gemini CLI to 0.59.0, Codex to 0.154.0, Cursor Agent to `2026.09.08-6caf4ff`, Junie to 3220.1, OpenCode to 1.18.30 and Pi Coding Agent to 0.85.1.
+- Updated Node to 26.8.2, the Go builder to 1.27.1, GitHub CLI to 2.100.0, Debian Chromium to 152.0.7977.82 and Node Playwright to 1.63.0. Python Playwright remains 1.62.0 and uses the same packaged browser.
+- Updated pnpm to 12.3.4, ESLint to 10.10.0, Vite to 8.3.0, Wrangler to 4.131.0, Vercel CLI to 59.15.1, Netlify CLI to 27.5.2 and EAS CLI to 24.0.0.
+- Updated WeasyPrint to 70.0, CairoSVG to 2.9.1, lxml to 6.1.3 and NumPy to 2.5.3.
+- Updated Web Terminal to 1.1.0 with its pinned dependency lock.
+- Updated HolyClaude's bundled CloudCLI to 1.37.3.
+- Retained official packages with affected, unfixed upstream vulnerabilities, including Critical Chromium findings. The newly accepted risks are approved only through September 17, 2026; exact scope and deadlines are recorded in the [security reviews](https://github.com/CoderLuii/HolyClaude/blob/v1.6.0/security/advisory-reviews.json).
+
+### Fixed
+
+- Applied Bookworm package updates during the build, including the PCRE2 security update to `10.42-1+deb12u1`.
+- Updated PM2/Vercel js-yaml to 4.3.2, CloudCLI js-yaml to 3.15.2, Vercel smol-toml to 1.7.1, and Wrangler/Netlify Sharp to 0.35.4 with matching native bindings.
+- Updated Marp's nested xmldom package to 0.9.12 to fix XML serialization and parsing vulnerabilities.
+- Fixed password-change session cleanup so active authenticated WebSocket sessions close and open browser tabs sign out without reconnect loops.
+- Added a specific startup error when a broad home-directory mount hides Claude's executable, with recovery instructions that keep the original files as a backup.
+- Added persistence-path checks before UID/GID remapping to stop on unsafe link layouts without deleting configuration. Valid user-managed CLI directory links remain untouched.
+- Clarified the supported persistence paths for CLI state, workspaces, Bash aliases and the separate CloudCLI account database.
+
 ## [1.5.9] - 09/02/2026
 
 ### Fixed

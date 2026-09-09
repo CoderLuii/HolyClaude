@@ -6,17 +6,23 @@ const ERROR_MESSAGE = '[patch] ERROR: CloudCLI Codex permission mode anchors not
 const PATCH_MARKER = 'const HOLYCLAUDE_CODEX_CHAT_PERMISSION_PATCH = true;';
 const ENV_NAME = 'HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE';
 const ENV_CONSTANT = 'HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE_ENV';
-const MAP_ANCHOR = 'function mapPermissionModeToCodexOptions(permissionMode)';
-const QUERY_ANCHOR = 'export async function queryCodex(command, options = {}, ws, context)';
+const MAP_FUNCTION_PATTERN = /function mapPermissionModeToCodexOptions\(permissionMode(?:\s*:\s*string)?\)/;
+const QUERY_PATTERN = /(?:export\s+)?async function queryCodex\s*\(/;
 const WORKING_DIRECTORY_PATTERN = /^(\s*)const workingDirectory = cwd \|\| projectPath \|\| process\.cwd\(\);/m;
 const MAP_CALL_PATTERN = /const \{ sandboxMode, approvalPolicy \} = mapPermissionModeToCodexOptions\(permissionMode\);/;
 
-const helperCode = `
+function createHelperCode(isTypeScript) {
+  const configuredReturnType = isTypeScript ? ': string' : '';
+  const resolveParameters = isTypeScript
+    ? 'permissionMode: unknown, hasExplicitPermissionMode: boolean'
+    : 'permissionMode, hasExplicitPermissionMode';
+
+  return `
 const HOLYCLAUDE_CODEX_CHAT_PERMISSION_PATCH = true;
 const HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE_ENV = 'HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE';
 const HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODES = new Set(['default', 'acceptEdits', 'bypassPermissions']);
 
-function getConfiguredCodexChatPermissionMode() {
+function getConfiguredCodexChatPermissionMode()${configuredReturnType} {
   const configuredPermissionMode = process.env[HOLYCLAUDE_CODEX_CHAT_PERMISSION_MODE_ENV];
   if (configuredPermissionMode == null || String(configuredPermissionMode).trim() === '') {
     return 'acceptEdits';
@@ -31,7 +37,7 @@ function getConfiguredCodexChatPermissionMode() {
   return 'default';
 }
 
-function resolveCodexChatPermissionMode(permissionMode, hasExplicitPermissionMode) {
+function resolveCodexChatPermissionMode(${resolveParameters})${configuredReturnType} {
   if (!hasExplicitPermissionMode) {
     return getConfiguredCodexChatPermissionMode();
   }
@@ -45,6 +51,7 @@ function resolveCodexChatPermissionMode(permissionMode, hasExplicitPermissionMod
   return 'default';
 }
 `;
+}
 
 function resolveTargets() {
   if (cliTarget && existsSync(cliTarget) && statSync(cliTarget).isFile()) {
@@ -53,7 +60,7 @@ function resolveTargets() {
 
   const root = cliTarget || DEFAULT_CLOUDCLI_ROOT;
   return [
-    { label: 'source', path: `${root}/server/modules/providers/list/codex/codex-runtime.provider.js` },
+    { label: 'source', path: `${root}/server/modules/providers/list/codex/codex-runtime.provider.ts` },
     { label: 'runtime', path: `${root}/dist-server/server/modules/providers/list/codex/codex-runtime.provider.js` }
   ].filter((target) => existsSync(target.path));
 }
@@ -80,7 +87,7 @@ function hasFullHolyClaudeRuntimeContract(source) {
   const hasCodexMappings = source.includes("sandboxMode: 'workspace-write'")
     && source.includes("sandboxMode: 'danger-full-access'")
     && source.includes("approvalPolicy: 'never'")
-    && source.includes("approvalPolicy: 'untrusted'");
+    && (source.includes("approvalPolicy: 'on-request'") || source.includes("approvalPolicy: 'untrusted'"));
   const hasResolvedMapCall = !MAP_CALL_PATTERN.test(source)
     && /mapPermissionModeToCodexOptions\(\s*(?:effective|resolved)\w*PermissionMode\s*\)/.test(source);
 
@@ -92,8 +99,8 @@ function hasFullHolyClaudeRuntimeContract(source) {
     && hasResolvedMapCall;
 }
 
-function findFunctionEnd(source, functionAnchor) {
-  const functionIndex = source.indexOf(functionAnchor);
+function findFunctionEnd(source, functionPattern) {
+  const functionIndex = source.search(functionPattern);
   if (functionIndex === -1) {
     return -1;
   }
@@ -127,9 +134,9 @@ function patchTarget(target) {
     return;
   }
 
-  const mapFunctionEndIndex = findFunctionEnd(source, MAP_ANCHOR);
-  const requiredAnchorsPresent = source.includes(MAP_ANCHOR)
-    && source.includes(QUERY_ANCHOR)
+  const mapFunctionEndIndex = findFunctionEnd(source, MAP_FUNCTION_PATTERN);
+  const requiredAnchorsPresent = MAP_FUNCTION_PATTERN.test(source)
+    && QUERY_PATTERN.test(source)
     && /permissionMode\s*=\s*'default'/.test(source)
     && WORKING_DIRECTORY_PATTERN.test(source)
     && MAP_CALL_PATTERN.test(source)
@@ -141,6 +148,7 @@ function patchTarget(target) {
   }
 
   if (!source.includes(PATCH_MARKER)) {
+    const helperCode = createHelperCode(target.path.endsWith('.ts'));
     source = `${source.slice(0, mapFunctionEndIndex)}${helperCode}${source.slice(mapFunctionEndIndex)}`;
   }
 

@@ -103,22 +103,24 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
   for (const expected of dockerfileTemplates) {
     assert.ok(dockerfile.includes(expected), `missing retry policy on ${expected}`);
   }
-  assert.equal(dockerfile.split(`${productionCurlPrefix} "$archive"`).length - 1, 2);
+  assert.equal(dockerfile.split(`${productionCurlPrefix} "$archive"`).length - 1, 3);
   const dockerfileTemplateCount = dockerfile.split(productionCurlPrefix).length - 1;
   const ffmpegTemplateCount = ffmpegBuilder.split(productionCurlPrefix).length - 1;
-  assert.equal(dockerfileTemplateCount, 14);
+  assert.equal(dockerfileTemplateCount, 15);
   assert.equal(ffmpegTemplateCount, 1);
-  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 15);
+  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 16);
 
   const replaceNodeDownloads = (dockerfile.match(/^\s+replace_node_module \S+/gm) ?? []).length;
+  const replaceScopedDownloads = (dockerfile.match(/^\s+replace_scoped_node_module \S+/gm) ?? []).length;
   const replaceNestedDownloads = (dockerfile.match(/^\s+replace_nested_node_module \S+/gm) ?? []).length;
   const ffmpegDownloads = (ffmpegBuilder.match(/^download '/gm) ?? []).length;
-  assert.equal(replaceNodeDownloads, 10);
+  assert.equal(replaceNodeDownloads, 12);
+  assert.equal(replaceScopedDownloads, 3);
   assert.equal(replaceNestedDownloads, 4);
   assert.equal(ffmpegDownloads, 4);
   const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 8
-    + replaceNodeDownloads + replaceNestedDownloads + ffmpegDownloads;
-  assert.equal(logicalDownloads, 32);
+    + replaceNodeDownloads + replaceScopedDownloads + replaceNestedDownloads + ffmpegDownloads;
+  assert.equal(logicalDownloads, 37);
 
   const checksumDownloadSources = `${dockerfile}\n${ffmpegBuilder}`;
   assert.doesNotMatch(checksumDownloadSources, /--retry-delay/);

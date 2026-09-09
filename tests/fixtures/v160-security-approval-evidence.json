@@ -1,0 +1,531 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "sanitizedAt": "2026-09-11",
+    "description": "Minimal facts independently extracted from saved upstream authority research and fresh preflight reports.",
+    "sources": [
+      "https://chromereleases.googleblog.com/2026/09/stable-channel-update-for-desktop_0808145027.html",
+      "https://curl.se/docs/CVE-2026-13608.html",
+      "https://curl.se/docs/CVE-2026-18924.html",
+      "https://curl.se/docs/CVE-2026-19931.html",
+      "https://curl.se/docs/CVE-2026-80230.html",
+      "https://curl.se/docs/CVE-2026-82209.html",
+      "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-4mwf-mggw-29vp",
+      "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-4jv7-q6xw-6f4x"
+    ]
+  },
+  "chromium": {
+    "idCount": 86,
+    "newFindingRawSeverityGroups": {
+      "Critical": [
+        "CVE-2026-87534",
+        "CVE-2026-87544"
+      ],
+      "High": [
+        "CVE-2026-87431",
+        "CVE-2026-87433",
+        "CVE-2026-87450",
+        "CVE-2026-87471",
+        "CVE-2026-87499",
+        "CVE-2026-87505",
+        "CVE-2026-87606"
+      ]
+    },
+    "vendorSeverityGroups": {
+      "Critical": [
+        "CVE-2026-87438",
+        "CVE-2026-87464",
+        "CVE-2026-87488",
+        "CVE-2026-87527",
+        "CVE-2026-87628"
+      ],
+      "High": [
+        "CVE-2026-87440",
+        "CVE-2026-87444",
+        "CVE-2026-87460",
+        "CVE-2026-87467",
+        "CVE-2026-87474",
+        "CVE-2026-87480",
+        "CVE-2026-87492",
+        "CVE-2026-87499",
+        "CVE-2026-87500",
+        "CVE-2026-87512",
+        "CVE-2026-87514",
+        "CVE-2026-87520",
+        "CVE-2026-87524",
+        "CVE-2026-87536",
+        "CVE-2026-87542",
+        "CVE-2026-87554",
+        "CVE-2026-87558",
+        "CVE-2026-87569",
+        "CVE-2026-87572",
+        "CVE-2026-87578",
+        "CVE-2026-87581",
+        "CVE-2026-87585",
+        "CVE-2026-87587",
+        "CVE-2026-87604",
+        "CVE-2026-87607",
+        "CVE-2026-87612",
+        "CVE-2026-87621",
+        "CVE-2026-87633",
+        "CVE-2026-87639",
+        "CVE-2026-87646",
+        "CVE-2026-87650",
+        "CVE-2026-87654"
+      ],
+      "Medium": [
+        "CVE-2026-87431",
+        "CVE-2026-87433",
+        "CVE-2026-87450",
+        "CVE-2026-87455",
+        "CVE-2026-87457",
+        "CVE-2026-87470",
+        "CVE-2026-87471",
+        "CVE-2026-87479",
+        "CVE-2026-87481",
+        "CVE-2026-87487",
+        "CVE-2026-87491",
+        "CVE-2026-87494",
+        "CVE-2026-87504",
+        "CVE-2026-87505",
+        "CVE-2026-87506",
+        "CVE-2026-87510",
+        "CVE-2026-87526",
+        "CVE-2026-87528",
+        "CVE-2026-87529",
+        "CVE-2026-87530",
+        "CVE-2026-87533",
+        "CVE-2026-87534",
+        "CVE-2026-87537",
+        "CVE-2026-87547",
+        "CVE-2026-87553",
+        "CVE-2026-87570",
+        "CVE-2026-87579",
+        "CVE-2026-87582",
+        "CVE-2026-87588",
+        "CVE-2026-87606",
+        "CVE-2026-87609",
+        "CVE-2026-87613",
+        "CVE-2026-87616",
+        "CVE-2026-87625",
+        "CVE-2026-87636",
+        "CVE-2026-87637",
+        "CVE-2026-87638",
+        "CVE-2026-87643",
+        "CVE-2026-87644",
+        "CVE-2026-87648"
+      ],
+      "Low": [
+        "CVE-2026-87430",
+        "CVE-2026-87448",
+        "CVE-2026-87489",
+        "CVE-2026-87509",
+        "CVE-2026-87544",
+        "CVE-2026-87601",
+        "CVE-2026-87617",
+        "CVE-2026-87618",
+        "CVE-2026-87634"
+      ]
+    }
+  },
+  "curl": [
+    {
+      "id": "CVE-2026-13608",
+      "sourcePackage": "curl",
+      "rawGrypeSeverity": "High",
+      "upstreamSeverity": "Low",
+      "authority": {
+        "name": "curl Security Advisory",
+        "url": "https://curl.se/docs/CVE-2026-13608.html"
+      }
+    },
+    {
+      "id": "CVE-2026-18924",
+      "sourcePackage": "curl",
+      "rawGrypeSeverity": "Critical",
+      "upstreamSeverity": "Low",
+      "authority": {
+        "name": "curl Security Advisory",
+        "url": "https://curl.se/docs/CVE-2026-18924.html"
+      }
+    },
+    {
+      "id": "CVE-2026-19931",
+      "sourcePackage": "curl",
+      "rawGrypeSeverity": "Critical",
+      "upstreamSeverity": "Medium",
+      "authority": {
+        "name": "curl Security Advisory",
+        "url": "https://curl.se/docs/CVE-2026-19931.html"
+      }
+    },
+    {
+      "id": "CVE-2026-80230",
+      "sourcePackage": "curl",
+      "rawGrypeSeverity": "High",
+      "upstreamSeverity": "Low",
+      "authority": {
+        "name": "curl Security Advisory",
+        "url": "https://curl.se/docs/CVE-2026-80230.html"
+      }
+    },
+    {
+      "id": "CVE-2026-82209",
+      "sourcePackage": "curl",
+      "rawGrypeSeverity": "High",
+      "upstreamSeverity": "Low",
+      "authority": {
+        "name": "curl Security Advisory",
+        "url": "https://curl.se/docs/CVE-2026-82209.html"
+      }
+    }
+  ],
+  "imagemagick": [
+    {
+      "id": "CVE-2026-86420",
+      "sourcePackage": "imagemagick",
+      "rawGrypeSeverity": "High",
+      "upstreamSeverity": "Low",
+      "authority": {
+        "name": "ImageMagick upstream advisory",
+        "url": "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-4mwf-mggw-29vp"
+      }
+    },
+    {
+      "id": "CVE-2026-86421",
+      "sourcePackage": "imagemagick",
+      "rawGrypeSeverity": "High",
+      "upstreamSeverity": "Low",
+      "authority": {
+        "name": "ImageMagick upstream advisory",
+        "url": "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-4jv7-q6xw-6f4x"
+      }
+    }
+  ],
+  "targets": {
+    "full-amd64": {
+      "sourceReportSha256": "0d037d912a5caae268c781608254e317b24a8fa3398f1c9f3d49c77675712df9",
+      "chromium87628": [
+        {
+          "name": "chromium",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-common",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-sandbox",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        }
+      ],
+      "imagemagick": {
+        "names": [
+          "imagemagick",
+          "imagemagick-6-common",
+          "imagemagick-6.q16",
+          "libmagickcore-6-arch-config",
+          "libmagickcore-6-headers",
+          "libmagickcore-6.q16-6",
+          "libmagickcore-6.q16-6-extra",
+          "libmagickcore-6.q16-dev",
+          "libmagickcore-dev",
+          "libmagickwand-6-headers",
+          "libmagickwand-6.q16-6",
+          "libmagickwand-6.q16-dev",
+          "libmagickwand-dev"
+        ],
+        "versions": [
+          "8:6.9.11.60+dfsg-1.6+deb12u13"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locations": [
+          "/usr/share/doc/imagemagick-6-common/copyright",
+          "/usr/share/doc/imagemagick-6.q16/copyright",
+          "/usr/share/doc/imagemagick/copyright",
+          "/usr/share/doc/libmagickcore-6-arch-config/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-6-extra/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-6/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-dev/copyright",
+          "/usr/share/doc/libmagickwand-6.q16-6/copyright",
+          "/usr/share/doc/libmagickwand-6.q16-dev/copyright",
+          "/var/lib/dpkg/info/imagemagick-6-common.conffiles",
+          "/var/lib/dpkg/info/imagemagick-6-common.list",
+          "/var/lib/dpkg/info/imagemagick-6-common.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.list",
+          "/var/lib/dpkg/info/imagemagick-6.q16.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.postinst",
+          "/var/lib/dpkg/info/imagemagick-6.q16.prerm",
+          "/var/lib/dpkg/info/imagemagick.list",
+          "/var/lib/dpkg/info/imagemagick.md5sums",
+          "/var/lib/dpkg/info/imagemagick.postinst",
+          "/var/lib/dpkg/info/imagemagick.postrm",
+          "/var/lib/dpkg/info/imagemagick.preinst",
+          "/var/lib/dpkg/info/imagemagick.prerm",
+          "/var/lib/dpkg/info/libmagickcore-6-arch-config:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.list",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.postinst",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.postrm",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.preinst",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.prerm",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-6-extra:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-6:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-dev:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-dev.list",
+          "/var/lib/dpkg/info/libmagickcore-dev.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-dev.postinst",
+          "/var/lib/dpkg/info/libmagickcore-dev.postrm",
+          "/var/lib/dpkg/info/libmagickcore-dev.preinst",
+          "/var/lib/dpkg/info/libmagickcore-dev.prerm",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.list",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.postinst",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.postrm",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.preinst",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.prerm",
+          "/var/lib/dpkg/info/libmagickwand-6.q16-6:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-6.q16-dev:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-dev.list",
+          "/var/lib/dpkg/info/libmagickwand-dev.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-dev.postinst",
+          "/var/lib/dpkg/info/libmagickwand-dev.postrm",
+          "/var/lib/dpkg/info/libmagickwand-dev.preinst",
+          "/var/lib/dpkg/info/libmagickwand-dev.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      }
+    },
+    "full-arm64": {
+      "sourceReportSha256": "a97f09a956657f16fbdbab97c9a152ec79ed8a1ee3b86fe9ffda95ac2e12b47a",
+      "chromium87628": [
+        {
+          "name": "chromium",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-common",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-sandbox",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        }
+      ],
+      "imagemagick": {
+        "names": [
+          "imagemagick",
+          "imagemagick-6-common",
+          "imagemagick-6.q16",
+          "libmagickcore-6-arch-config",
+          "libmagickcore-6-headers",
+          "libmagickcore-6.q16-6",
+          "libmagickcore-6.q16-6-extra",
+          "libmagickcore-6.q16-dev",
+          "libmagickcore-dev",
+          "libmagickwand-6-headers",
+          "libmagickwand-6.q16-6",
+          "libmagickwand-6.q16-dev",
+          "libmagickwand-dev"
+        ],
+        "versions": [
+          "8:6.9.11.60+dfsg-1.6+deb12u13"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locations": [
+          "/usr/share/doc/imagemagick-6-common/copyright",
+          "/usr/share/doc/imagemagick-6.q16/copyright",
+          "/usr/share/doc/imagemagick/copyright",
+          "/usr/share/doc/libmagickcore-6-arch-config/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-6-extra/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-6/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-dev/copyright",
+          "/usr/share/doc/libmagickwand-6.q16-6/copyright",
+          "/usr/share/doc/libmagickwand-6.q16-dev/copyright",
+          "/var/lib/dpkg/info/imagemagick-6-common.conffiles",
+          "/var/lib/dpkg/info/imagemagick-6-common.list",
+          "/var/lib/dpkg/info/imagemagick-6-common.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.list",
+          "/var/lib/dpkg/info/imagemagick-6.q16.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.postinst",
+          "/var/lib/dpkg/info/imagemagick-6.q16.prerm",
+          "/var/lib/dpkg/info/imagemagick.list",
+          "/var/lib/dpkg/info/imagemagick.md5sums",
+          "/var/lib/dpkg/info/imagemagick.postinst",
+          "/var/lib/dpkg/info/imagemagick.postrm",
+          "/var/lib/dpkg/info/imagemagick.preinst",
+          "/var/lib/dpkg/info/imagemagick.prerm",
+          "/var/lib/dpkg/info/libmagickcore-6-arch-config:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.list",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.postinst",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.postrm",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.preinst",
+          "/var/lib/dpkg/info/libmagickcore-6-headers.prerm",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-6-extra:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-6:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-dev:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-dev.list",
+          "/var/lib/dpkg/info/libmagickcore-dev.md5sums",
+          "/var/lib/dpkg/info/libmagickcore-dev.postinst",
+          "/var/lib/dpkg/info/libmagickcore-dev.postrm",
+          "/var/lib/dpkg/info/libmagickcore-dev.preinst",
+          "/var/lib/dpkg/info/libmagickcore-dev.prerm",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.list",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.postinst",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.postrm",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.preinst",
+          "/var/lib/dpkg/info/libmagickwand-6-headers.prerm",
+          "/var/lib/dpkg/info/libmagickwand-6.q16-6:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-6.q16-dev:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-dev.list",
+          "/var/lib/dpkg/info/libmagickwand-dev.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-dev.postinst",
+          "/var/lib/dpkg/info/libmagickwand-dev.postrm",
+          "/var/lib/dpkg/info/libmagickwand-dev.preinst",
+          "/var/lib/dpkg/info/libmagickwand-dev.prerm",
+          "/var/lib/dpkg/status"
+        ]
+      }
+    },
+    "slim-amd64": {
+      "sourceReportSha256": "d7c9a07fb6e37e9f2db0d33cb729a3324af65b8d8ac06be8459e25ab629e072a",
+      "chromium87628": [
+        {
+          "name": "chromium",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-common",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-sandbox",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        }
+      ],
+      "imagemagick": {
+        "names": [
+          "imagemagick",
+          "imagemagick-6-common",
+          "imagemagick-6.q16",
+          "libmagickcore-6.q16-6",
+          "libmagickwand-6.q16-6"
+        ],
+        "versions": [
+          "8:6.9.11.60+dfsg-1.6+deb12u13"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locations": [
+          "/usr/share/doc/imagemagick-6-common/copyright",
+          "/usr/share/doc/imagemagick-6.q16/copyright",
+          "/usr/share/doc/imagemagick/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-6/copyright",
+          "/usr/share/doc/libmagickwand-6.q16-6/copyright",
+          "/var/lib/dpkg/info/imagemagick-6-common.conffiles",
+          "/var/lib/dpkg/info/imagemagick-6-common.list",
+          "/var/lib/dpkg/info/imagemagick-6-common.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.list",
+          "/var/lib/dpkg/info/imagemagick-6.q16.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.postinst",
+          "/var/lib/dpkg/info/imagemagick-6.q16.prerm",
+          "/var/lib/dpkg/info/imagemagick.list",
+          "/var/lib/dpkg/info/imagemagick.md5sums",
+          "/var/lib/dpkg/info/imagemagick.postinst",
+          "/var/lib/dpkg/info/imagemagick.postrm",
+          "/var/lib/dpkg/info/imagemagick.preinst",
+          "/var/lib/dpkg/info/imagemagick.prerm",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-6:amd64.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-6.q16-6:amd64.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      }
+    },
+    "slim-arm64": {
+      "sourceReportSha256": "3b86967d81b7d6d14fdc04390b8d35ce19f476831e75c5d7ebb56733ce82fa84",
+      "chromium87628": [
+        {
+          "name": "chromium",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-common",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        },
+        {
+          "name": "chromium-sandbox",
+          "version": "152.0.7977.82-1~deb12u1",
+          "type": "deb",
+          "rawSeverity": "High"
+        }
+      ],
+      "imagemagick": {
+        "names": [
+          "imagemagick",
+          "imagemagick-6-common",
+          "imagemagick-6.q16",
+          "libmagickcore-6.q16-6",
+          "libmagickwand-6.q16-6"
+        ],
+        "versions": [
+          "8:6.9.11.60+dfsg-1.6+deb12u13"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locations": [
+          "/usr/share/doc/imagemagick-6-common/copyright",
+          "/usr/share/doc/imagemagick-6.q16/copyright",
+          "/usr/share/doc/imagemagick/copyright",
+          "/usr/share/doc/libmagickcore-6.q16-6/copyright",
+          "/usr/share/doc/libmagickwand-6.q16-6/copyright",
+          "/var/lib/dpkg/info/imagemagick-6-common.conffiles",
+          "/var/lib/dpkg/info/imagemagick-6-common.list",
+          "/var/lib/dpkg/info/imagemagick-6-common.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.list",
+          "/var/lib/dpkg/info/imagemagick-6.q16.md5sums",
+          "/var/lib/dpkg/info/imagemagick-6.q16.postinst",
+          "/var/lib/dpkg/info/imagemagick-6.q16.prerm",
+          "/var/lib/dpkg/info/imagemagick.list",
+          "/var/lib/dpkg/info/imagemagick.md5sums",
+          "/var/lib/dpkg/info/imagemagick.postinst",
+          "/var/lib/dpkg/info/imagemagick.postrm",
+          "/var/lib/dpkg/info/imagemagick.preinst",
+          "/var/lib/dpkg/info/imagemagick.prerm",
+          "/var/lib/dpkg/info/libmagickcore-6.q16-6:arm64.md5sums",
+          "/var/lib/dpkg/info/libmagickwand-6.q16-6:arm64.md5sums",
+          "/var/lib/dpkg/status"
+        ]
+      }
+    }
+  }
+}

@@ -3,8 +3,8 @@
 HolyClaude carries this source overlay until CloudCLI publishes local-account controls and the required dependency fixes upstream.
 
 Upstream source: https://github.com/siteboon/claudecodeui
-Pinned source commit: `677b7ba43695d5624d1a981c62f87fa086187991`
-Package version: `@cloudcli-ai/cloudcli@1.37.2`
+Pinned source commit: `70e57859b6224ff0eb0539fcde7d13a3186c9c93`
+Package version: `@cloudcli-ai/cloudcli@1.37.3`
 Related upstream work:
 
 - https://github.com/siteboon/claudecodeui/issues/797

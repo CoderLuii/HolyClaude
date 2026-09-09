@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, linkSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -8,6 +8,14 @@ import test from 'node:test';
 const bootstrap = readFileSync('scripts/bootstrap.sh', 'utf8');
 const entrypoint = readFileSync('scripts/entrypoint.sh', 'utf8');
 const migrationFunction = entrypoint.match(/migrate_codex_hooks_feature\(\) \{[\s\S]*?^\}/m)?.[0];
+const toBashPath = (path) => path.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replaceAll('\\', '/');
+
+function migratePath(configPath) {
+  const directory = mkdtempSync(join(tmpdir(), 'holyclaude-codex-feature-harness-'));
+  const harnessPath = join(directory, 'migrate.sh');
+  writeFileSync(harnessPath, `#!/bin/bash\nset -e\nchown_if_root() { :; }\n${migrationFunction}\nmigrate_codex_hooks_feature "$1"\n`);
+  return spawnSync('bash', [toBashPath(harnessPath), toBashPath(configPath)], { encoding: 'utf8' });
+}
 
 function migrate(config) {
   assert.ok(migrationFunction, 'entrypoint migration function should exist');
@@ -17,7 +25,6 @@ function migrate(config) {
   writeFileSync(configPath, config);
   writeFileSync(harnessPath, `#!/bin/bash\nset -e\nchown_if_root() { :; }\n${migrationFunction}\nmigrate_codex_hooks_feature "$1"\n`);
 
-  const toBashPath = (path) => path.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replaceAll('\\', '/');
   const result = spawnSync('bash', [toBashPath(harnessPath), toBashPath(configPath)], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   return readFileSync(configPath, 'utf8');
@@ -48,4 +55,40 @@ test('a commented features header is migrated without removing the comment', () 
 test('current Codex configuration remains byte-identical', () => {
   const before = '# keep this comment\n[features]\nhooks = false\n\n[other]\nvalue = "unchanged"\n';
   assert.equal(migrate(before), before);
+});
+
+test('Codex feature migration refuses a symlinked config without changing its target', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'holyclaude-codex-feature-link-'));
+  try {
+    const external = join(directory, 'external.toml');
+    const config = join(directory, 'config.toml');
+    const before = '[features]\ncodex_hooks = true\n';
+    writeFileSync(external, before);
+    chmodSync(external, 0o640);
+    symlinkSync(external, config);
+    const result = migratePath(config);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stdout, /refusing Codex feature migration through a linked config/);
+    assert.equal(readFileSync(external, 'utf8'), before);
+  } finally {
+    rmSync(directory, { force: true, recursive: true });
+  }
+});
+
+test('Codex feature migration refuses a hard-linked config without changing its peer', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'holyclaude-codex-feature-hardlink-'));
+  try {
+    const external = join(directory, 'external.toml');
+    const config = join(directory, 'config.toml');
+    const before = '[features]\ncodex_hooks = true\n';
+    writeFileSync(external, before);
+    chmodSync(external, 0o640);
+    linkSync(external, config);
+    const result = migratePath(config);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stdout, /refusing Codex feature migration through a linked config/);
+    assert.equal(readFileSync(external, 'utf8'), before);
+  } finally {
+    rmSync(directory, { force: true, recursive: true });
+  }
 });
