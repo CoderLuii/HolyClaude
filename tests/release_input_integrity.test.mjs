@@ -27,6 +27,22 @@ test('security documentation names the current release and bundled CloudCLI arti
   assert.ok(securityDocs.includes(`HolyClaude ${productFacts.release.tag} vendors CloudCLI \`${cloudcliManifest.upstream.version}\``));
 });
 
+test('security documentation matches the guarded Full-image tar parent baselines', () => {
+  const securityDocs = readFileSync('.github/SECURITY.md', 'utf8');
+  const tarPatcher = readFileSync('scripts/patch-global-node-tar.mjs', 'utf8');
+  const easVersion = tarPatcher.match(/easManifest,[\s\S]{0,80}'eas-cli',\s*'([^']+)'/)?.[1];
+  const vercelVersion = tarPatcher.match(/loadPackage\(vercelManifest, 'vercel', '([^']+)'\)/)?.[1];
+  const vercelFunVersion = tarPatcher.match(/vercelFunManifest,[\s\S]{0,80}'@vercel\/fun',\s*'([^']+)'/)?.[1];
+  const easTarVersion = tarPatcher.match(/const EAS_BASELINE_TAR_VERSION = '([^']+)'/)?.[1];
+  const vercelTarVersion = tarPatcher.match(/const VERCEL_BASELINE_TAR_VERSION = '([^']+)'/)?.[1];
+  const targetTarVersion = tarPatcher.match(/const TARGET_TAR_VERSION = '([^']+)'/)?.[1];
+
+  assert.ok(easVersion && vercelVersion && vercelFunVersion && easTarVersion && vercelTarVersion && targetTarVersion);
+  assert.ok(securityDocs.includes(
+    `The full image includes EAS CLI ${easVersion} and Vercel CLI ${vercelVersion}. EAS CLI bundles \`tar\` ${easTarVersion}, while Vercel's \`@vercel/fun\` ${vercelFunVersion} package bundles \`tar\` ${vercelTarVersion}. The Docker build replaces only those two installed copies with checksum-verified \`tar\` ${targetTarVersion}`,
+  ));
+});
+
 test('runtime CloudCLI and Netlify version checks match the selected release inputs', () => {
   const cloudcliVersion = productFacts.cloudcli.version;
   assert.equal(dockerfile.match(/^ARG CLOUDCLI_VERSION=(\S+)$/m)?.[1], cloudcliVersion);
@@ -42,6 +58,23 @@ test('runtime CloudCLI and Netlify version checks match the selected release inp
   const netlifyCheck = browserRuntimeChecks.split('\n').find((line) => line.includes('require_eq "Netlify CLI package version"'));
   assert.ok(netlifyCheck);
   assert.equal(netlifyCheck.trim().match(/"([^"]+)"$/)?.[1], netlifyVersion);
+});
+
+test('verified direct dependency pins match build, runtime, product, and immutable assertions', () => {
+  for (const version of ['12.4.1', '4.131.2', '4.70.1', '1.19.1', '3.11.2', '0.53.0', '0.74.4', '2.1.270']) {
+    assert.ok(browserRuntimeChecks.includes(version), `runtime checks should contain ${version}`);
+  }
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.270');
+  for (const expected of [
+    'version: 12.4.1',
+    'version: 4.131.2',
+    'version: 4.70.1',
+    'version: 1.19.1',
+    'version: 3.11.2',
+    'version: 0.53.0',
+    'version: 0.74.4',
+    'version: 2.1.270',
+  ]) assert.ok(immutableInputs.includes(expected), `immutable input inventory should contain ${expected}`);
 });
 
 test('CloudCLI ripgrep postinstall is supplied from exact immutable release assets', () => {
@@ -167,8 +200,9 @@ test('release base and archive inputs are versioned and checksum-verified', () =
   assert.match(dockerfile, /echo "\$S6_EXPECTED_SHA256  \/tmp\/s6-overlay-\$\{S6_ASSET\}\.tar\.xz" \| sha256sum -c -/);
   assert.match(dockerfile, /\/etc\/s6-overlay\/user-bundles\.d\/user\/contents\.d\/cloudcli/);
   assert.doesNotMatch(dockerfile, /\/etc\/s6-overlay\/s6-rc\.d\/user\/contents\.d/);
-  assert.match(dockerfile, /ARG FZF_VERSION=0\.74\.3/);
-  assert.match(dockerfile, /ARG FZF_ARCHIVE_SHA256_(AMD64|ARM64)=[0-9a-f]{64}/);
+  assert.match(dockerfile, /ARG FZF_VERSION=0\.74\.4/);
+  assert.match(dockerfile, /ARG FZF_ARCHIVE_SHA256_AMD64=05e6813a337cc722c3ed07e54a764b75cc5d671e2e60459db0ba696ee5fa7504/);
+  assert.match(dockerfile, /ARG FZF_ARCHIVE_SHA256_ARM64=5d673b849f494f0d64ec471d8640b153ca8849e3846a31da17abdcfce8df6b46/);
   assert.match(dockerfile, /fzf_\$\{FZF_VERSION\}_checksums\.txt/);
   assert.match(dockerfile, /test "\$\(grep -F "  \$\{FZF_ASSET\}" \/tmp\/fzf-checksums\.txt \| cut -d' ' -f1\)" = "\$FZF_ARCHIVE_SHA256"/);
   assert.match(dockerfile, /echo "\$FZF_ARCHIVE_SHA256  \/tmp\/\$\{FZF_ASSET\}" \| sha256sum -c -/);
@@ -212,26 +246,28 @@ test('release base and archive inputs are versioned and checksum-verified', () =
 });
 
 test('native installers and their outputs are pinned without unsupported flags', () => {
-  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.268/);
+  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.270/);
   assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=9691a2b7bd796712ca8cffb8e32e54ff7fc45b662540233171a16a94a0425653/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=116fd031f939ef1e09edf170d62c489e1cc28ed6bfbda49f948773ba168c8f62/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=3a624a5a7cd79bbad4d32bd7db36f1197ecf458bc5bf1e2aed81834a01ad3ef0/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=7bf9f33acc124df9abccf6f2366397a82a740378d535fa12d426fa77fdbc9946/);
   assert.match(dockerfile, /bash \/tmp\/claude-install\.sh "\$CLAUDE_CODE_VERSION"/);
   assert.match(dockerfile, /\/home\/claude\/\.local\/bin\/claude --version/);
 
-  assert.match(dockerfile, /ARG JUNIE_VERSION=3220\.1/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=4939fdaa16f39ebe3850b39c59d206bc7fc1cf652f971544729f37d7c4893c27/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=616a1a54abaf1ce8e517ec82928d6b6bba153662ab679af7f6d8939789c534ca/);
+  assert.match(dockerfile, /ARG JUNIE_VERSION=3196\.4/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=92b43a45b213a94d91a995a1c9c039cdcfe1c4e2f963d43cf9d4ad9b1298b05c/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=04834c6c5d43b418c338030f9dd0823dcf2bc3a1c9d175ec292a0dcf5573b285/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE="junie-release-\$\{JUNIE_VERSION\}-linux-\$\{JUNIE_PLATFORM\}\.zip"/);
   assert.match(dockerfile, /unzip -Z1 "\/tmp\/\$\{JUNIE_ARCHIVE\}"/);
   assert.match(dockerfile, /test "\$JUNIE_TOP_LEVEL" = "channel junie junie-app shim "/);
   assert.match(dockerfile, /unzip -q "\/tmp\/\$\{JUNIE_ARCHIVE\}" 'junie-app\/\*' -d "\$JUNIE_STAGING"/);
   assert.match(dockerfile, /test -x "\$JUNIE_STAGING\/junie-app\/bin\/junie"/);
-  assert.match(dockerfile, /test -f "\$JUNIE_STAGING\/junie-app\/lib\/app\/junie-nightly-\$\{JUNIE_VERSION\}\.jar"/);
+  assert.match(dockerfile, /test -f "\$JUNIE_STAGING\/junie-app\/lib\/app\/junie-release-\$\{JUNIE_VERSION\}\.jar"/);
+  assert.doesNotMatch(dockerfile, /junie-nightly|JUNIE_VERSION=3220\.1/);
   assert.doesNotMatch(dockerfile, /junie\.jetbrains\.com\/install\.sh/);
 
-  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.09\.08-6caf4ff/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=0d7a11dd01b652b8b92d05cc14f769fbc5a3442b786cd8b636041f189ab81f1e/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=153ae182db90814748d544f2a26abc073e4e4e5df0b867abfd69def0ff77aa71/);
+  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.09\.10-fd3934a/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=27997c8391ad853a5a732b1845db8ef82a8ba6afb0f7829cc739464f8966e96e/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=e0494438b01c37bc34848491d1f3478ef469494c56caf020de11796d146db64a/);
   assert.match(dockerfile, /downloads\.cursor\.com\/lab\/\$\{CURSOR_BUILD_ID\}\/linux\/\$\{CURSOR_ASSET_ARCH\}\/agent-cli-package\.tar\.gz/);
   assert.match(dockerfile, /tar --strip-components=1 -xzf \/tmp\/cursor-agent\.tar\.gz -C "\$CURSOR_DIR"/);
   assert.doesNotMatch(dockerfile, /cursor\.com\/install/);
@@ -264,8 +300,8 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.6\.0$/m);
-  assert.match(immutableInputs, /^expires-at: 2026-09-29$/m);
+  assert.match(immutableInputs, /^release: v1\.6\.1$/m);
+  assert.match(immutableInputs, /^expires-at: 2026-10-12$/m);
   for (const value of [
     'sha256:648f440f42a0958804efb24df176f806f9d353b41f1c0627f666428e40310f6b',
     'sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae',
@@ -281,14 +317,29 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d',
     '391c7a29fd4a2136e5eb09b9f34fc9ec1e680da9e7b850a8cd1148d94c61e5b7',
     'b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6',
-    '9691a2b7bd796712ca8cffb8e32e54ff7fc45b662540233171a16a94a0425653',
-    '116fd031f939ef1e09edf170d62c489e1cc28ed6bfbda49f948773ba168c8f62',
-    '4939fdaa16f39ebe3850b39c59d206bc7fc1cf652f971544729f37d7c4893c27',
-    '616a1a54abaf1ce8e517ec82928d6b6bba153662ab679af7f6d8939789c534ca',
+    '3a624a5a7cd79bbad4d32bd7db36f1197ecf458bc5bf1e2aed81834a01ad3ef0',
+    '7bf9f33acc124df9abccf6f2366397a82a740378d535fa12d426fa77fdbc9946',
+    '05e6813a337cc722c3ed07e54a764b75cc5d671e2e60459db0ba696ee5fa7504',
+    '5d673b849f494f0d64ec471d8640b153ca8849e3846a31da17abdcfce8df6b46',
+    '93b9cb6e68b97601268cc7afe17d89ce9364f6277f30b4193c725aa7dc3ededf',
+    '6276298e9af576b7a7f5e9044bfafbe2678209250cd10b1705ea5d3aa64d4882',
+    '860de8935336155ef7ac5ee91aeec78701edca4adb6987d4af6c41c1ea5c72b0',
+    'c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73',
+    'cefd0eca11b2a37a3aee776544d4f4ae913f02688135b5556b8788dfa474afc4',
+    '6d5187ee6b783614874d3fd7990edb51aa67703fa6ae2c05a2fd3a6cab08ddc1',
+    '86889d8409bea81276590f9f05d289c08e9921e041d9ea6c240786d4798b76ee',
+    '38364e9883febbf868b3737654bc93a813e44433a973f08be049930ce1b19b5f',
+    'bf3fe71fbfb8ec0e310e0bc8537c3405a01f38f25f9394ed2135e6202fed542b',
+    '8c8255de28f986d935a64c9ca71c0ec2d2f41d355691f5ea684725dc91413f71',
+    'cec596316640f2b394b8f0daa0ea61a8eae82d017b620b9f202befb972a59ea4',
+    'e8dca71ec86dce5f04e333f0d56cdedf942446e6643b9cea1af0d6d3a02cb03e',
+    'a9356f0cb89b3b8621529c5d5eebd69bfe154f4c3f68b4cf2de47e45fa855c2e',
+    '92b43a45b213a94d91a995a1c9c039cdcfe1c4e2f963d43cf9d4ad9b1298b05c',
+    '04834c6c5d43b418c338030f9dd0823dcf2bc3a1c9d175ec292a0dcf5573b285',
     '698c8d88cc19cc92bfe96bad58d10b2a5b274c52433d6dc57799c81f6139d5fc',
     '33ccd2ad7ce639c927e1cb209e36555b0e1fbb89f7a38239c0568040ec758612',
-    '0d7a11dd01b652b8b92d05cc14f769fbc5a3442b786cd8b636041f189ab81f1e',
-    '153ae182db90814748d544f2a26abc073e4e4e5df0b867abfd69def0ff77aa71',
+    '27997c8391ad853a5a732b1845db8ef82a8ba6afb0f7829cc739464f8966e96e',
+    'e0494438b01c37bc34848491d1f3478ef469494c56caf020de11796d146db64a',
     '59dc2cdb098b3000d36e34a185fc873932df4fd9d00900e817f2b19cd349d98b',
     '870663d4e65042dd358305e96a22af58708a28317cd4e74a85aa867c69f5859b',
     'e27c83a49e6031685ee7f956c12aad5f16484d3a80181dd3fea930fb96b3832b',
@@ -296,9 +347,11 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '3a97a99230d07fcbe6fd1ea2a001556297225d57f55d7880d3c9e6e29960ae90',
     'aa31a7e68ce5c73cba302c6a4f31c2e308398db125e49d3dbea32f61862fe6de',
     '1e20b66e76afbb7c1e5cd9be7515d2744cb4ea3476ff57add1f7e9ad6fb3a32d',
-    '561e35c01ba48ec04b680b59e06575cf9aa454b8d7c867d2d3708a2326c834e6',
-    '6e5d7b002c8b8720cf8790634605af44064f26d453a4e3672cce9d3f4ce40718',
-    '19f77102b2b9743b9c0fdf16aa1a72dbf1a1d854354b8a406c7c11154c2fd2fc',
+    '58497b83da58f12722d8d5bbe4cd6b3965b918507899e459feea4af4a5717771',
+    '9e45622981fe3d7d004bd9ed357675b3acb25b44cfd112e32d224c7ddf5eeba1',
+    '4cd9c00c103bc3e5cffb0bc225a1088475bcfdfbafb22ad33d3b0046ac414919',
+    'df7dcd2bd917f6d6a23d006fd21e7b1eefb94048791ec4c904a7cb57a999e3bc',
+    'ab2c8f48015f15b6a6595901cd2ababd54e985f9dd792a5d5bedcc325743200c',
     'c5f056448f973ae7d39b5401949648a78f2dc1947d6a8eb65be60d5c504b9385',
     '88a1016bc1d657375a35864e4f44b6f333df8ff97b559f51bba0adcb2169df09',
     'b3c123df1887cf27c6480a87d148c86831cd83da478e0a8ab773ca188f3f3222',
@@ -312,15 +365,15 @@ test('immutable input inventory binds the release-critical inputs', () => {
 test('compatible package updates and plugin locks are exact', () => {
   for (const expected of [
     'npm@12.0.2',
-    'pnpm@12.3.4',
+    'pnpm@12.4.1',
     'vite@8.3.0',
     'prettier@3.9.6',
     'eslint@10.10.0',
     'concurrently@10.0.5',
-    'wrangler@4.131.0',
-    'vercel@59.15.1',
-    'netlify-cli@27.5.2',
-    'eas-cli@24.0.0',
+    'wrangler@4.131.2',
+    'vercel@59.16.0',
+    'netlify-cli@27.6.0',
+    'eas-cli@24.3.0',
     'prisma@7.10.0',
     'lighthouse@13.4.1',
     '@marp-team/marp-cli@4.5.1',
@@ -329,13 +382,13 @@ test('compatible package updates and plugin locks are exact', () => {
     'opencode-ai@1.18.30',
     '@earendil-works/pi-coding-agent@0.85.1',
     'pandas==3.0.5',
-    'tqdm==4.70.0',
-    'matplotlib==3.11.1',
+    'tqdm==4.70.1',
+    'matplotlib==3.11.2',
     'fastapi==0.141.1',
-    'uvicorn==0.52.4',
+    'uvicorn==0.53.0',
     'lxml==6.1.3',
     'numpy==2.5.3',
-    'tree-sitter-language-pack==1.17.0',
+    'tree-sitter-language-pack==1.19.1',
     'weasyprint==70.0',
     'cairosvg==2.9.1',
     'CLOUDCLI_VERSION=1.37.3',
@@ -376,12 +429,12 @@ test('compatible package updates and plugin locks are exact', () => {
     /npm i -g --allow-scripts=opencode-ai opencode-ai@1\.18\.30; \\\n+    test "\$\(opencode --version\)" = "1\.18\.30"/,
   );
   for (const expected of [
-    'ARG CLOUDCLI_NANOID_VERSION=3.3.18',
-    'ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009',
+    'ARG CLOUDCLI_NANOID_VERSION=3.3.19',
+    'ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849',
     'ARG NESTED_IP_ADDRESS_VERSION=10.7.0',
     'ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=25a406ee4388fa3d47380ad57b816087fa82a681cc710cccbfe9162cffa8a57a',
-    'ARG CLOUDCLI_FAST_URI_VERSION=3.1.6',
-    'ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=264af0e32c4b7b7bcb9ce5b4623c82469ee3e69ba5d171920f1762d626db1064',
+    'ARG CLOUDCLI_FAST_URI_VERSION=3.1.7',
+    'ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92',
     'ARG CLOUDCLI_JS_YAML_VERSION=3.15.2',
     'ARG CLOUDCLI_JS_YAML_ARCHIVE_SHA256=7f005cf0b8ee639b4557e0e321dc067c1f2aa0a442d096e03f2ab53353738794',
   ]) {
@@ -389,10 +442,10 @@ test('compatible package updates and plugin locks are exact', () => {
   }
   for (const expected of [
     'ARG UNDICI_8_VERSION=8.10.2', 'ARG UNDICI_8_ARCHIVE_SHA256=740638ae32d78d2646a6727950e365fa26b6fa87913fa096e60ed4afeb4634aa',
-    'ARG FULL_NANOID_VERSION=3.3.18', 'ARG FULL_NANOID_ARCHIVE_SHA256=b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009',
+    'ARG FULL_NANOID_VERSION=3.3.19', 'ARG FULL_NANOID_ARCHIVE_SHA256=4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849',
     'ARG FULL_JS_YAML_VERSION=4.3.2', 'ARG FULL_JS_YAML_ARCHIVE_SHA256=c7b241d2224cf9253ff53854aa4cee87da91bd889c4d0fa3a3ffd1041ecee5b1',
     'ARG FULL_XMLDOM_VERSION=0.9.12', 'ARG FULL_XMLDOM_ARCHIVE_SHA256=08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee',
-    'ARG VERCEL_SMOL_TOML_VERSION=1.7.1', 'ARG VERCEL_SMOL_TOML_ARCHIVE_SHA256=0a5a44e4a1189c7c36d5a516fa169591ce5de56a5d495d07a7847e1a1afaeccb',
+    'ARG VERCEL_SMOL_TOML_VERSION=1.8.0', 'ARG VERCEL_SMOL_TOML_ARCHIVE_SHA256=1fc995be91cdb777fc13e20c2edfebaaf60ef4e4d2d5331caef2837b04d37892',
     'ARG WRANGLER_SHARP_VERSION=0.35.4', 'ARG WRANGLER_SHARP_ARCHIVE_SHA256=6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a',
     'ARG WRANGLER_SHARP_LIBVIPS_VERSION=1.3.3',
     'ARG WRANGLER_SHARP_LINUX_X64_ARCHIVE_SHA256=9fe2de0bf57643eb603f16d5ed237dceb1c1229ea76f5094aacab1e99162bf3b',
@@ -480,12 +533,12 @@ test('CloudCLI js-yaml overlay guard accepts only the reviewed baseline or pinne
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /^run-name: v1\.6\.0$/m);
-  assert.match(workflow, /default: "1\.6\.0"/);
-  assert.match(workflow, /baseline="fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"/);
+  assert.match(workflow, /^run-name: v1\.6\.1$/m);
+  assert.match(workflow, /default: "1\.6\.1"/);
+  assert.match(workflow, /baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"/);
   assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
   assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(workflow, /git rev-parse 'v1\.5\.9\^\{commit\}'\)" = "fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"/);
+  assert.match(workflow, /git rev-parse 'v1\.6\.0\^\{commit\}'\)" = "651c48fc01a963acd605aa565bb9da8f9db9b340"/);
   assert.match(workflow, /SYFT_VERSION: 1\.51\.1/);
   assert.match(workflow, /GRYPE_VERSION: 0\.118\.0/);
   assert.match(workflow, /SYFT_SHA256_AMD64: 8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3/);
@@ -645,7 +698,7 @@ test('runtime smoke rotates CloudCLI credentials and rejects the old token', () 
   assert.match(runtimeChecks, /npm --prefix \/usr\/local\/lib\/node_modules\/npm ls tar --all/);
   assert.match(runtimeChecks, /Node tar security overlay/);
   assert.match(runtimeChecks, /typeof require\(path\)\.list !== 'function'/);
-  assert.match(runtimeChecks, /Vercel vc-native package version[\s\S]{0,320}"59\.15\.1"/);
+  assert.match(runtimeChecks, /Vercel vc-native package version[\s\S]{0,320}"59\.16\.0"/);
   assert.match(runtimeChecks, /@vercel\/vc-native-linux-\$\{vercel_native_arch\}\/package\.json/);
   for (const expected of [
     'npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all',
@@ -688,7 +741,7 @@ test('runtime smoke rotates CloudCLI credentials and rejects the old token', () 
   assert.match(runtimeChecks, /sharp_transform=ok/);
   assert.match(runtimeChecks, /Netlify CLI TOML dependency[\s\S]{0,180}"\^4\.0\.0"/);
   assert.match(runtimeChecks, /Netlify CLI TOML package version[\s\S]{0,180}"4\.3\.0"/);
-  assert.match(runtimeChecks, /Netlify CLI cron-parser package version[\s\S]{0,180}"5\.10\.0"/);
+  assert.match(runtimeChecks, /Netlify CLI cron-parser package version[\s\S]{0,180}"5\.10\.1"/);
   assert.match(runtimeChecks, /Netlify CLI raw-body package version[\s\S]{0,180}"4\.0\.0"/);
   assert.match(runtimeChecks, /netlify_toml_prototype_pollution=blocked/);
   assert.match(runtimeChecks, /netlify_toml_depth_limit=ok/);
@@ -789,10 +842,10 @@ test('libssh findings use exact backend, version, and vendor-severity evidence',
   assert.match(browserRuntimeChecks, /libssh_backend=gcrypt openssl=absent/);
 });
 
-test('release OpenVEX identity uses the v1.6.0 publication date', () => {
+test('release OpenVEX identity uses the v1.6.1 publication date', () => {
   const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
-  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.6.0');
-  assert.equal(vex.timestamp, '2026-09-11T00:00:00Z');
+  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.6.1');
+  assert.equal(vex.timestamp, '2026-09-14T00:00:00Z');
 });
 
 test('json-server smoke tolerates only wait cleanup failure', () => {
@@ -852,10 +905,10 @@ test('Prisma nested mysql2 is replaced with the checksum-bound fixed release', (
   assert.match(dockerfile, /typeof require\('\$MYSQL2_ROOT'\)\.createConnection/);
   assert.match(immutableInputs, /name: Prisma mysql2 nested package[\s\S]*version: 3\.24\.4[\s\S]*archive-sha256: ae44923fa285bb1a089101331603ab0d89b766e73038987a79449c79f8017a27[\s\S]*npm-integrity: "sha512-A2olluVlj0mvgyIRRISMEzXc51m\+21mRtcMVjJyIpt2GG98\+XrC9m9HzsqcMsX2LcnfccJvY5NB22g8fENBnOA=="/);
   assert.match(immutableInputs, /name: Full-image undici 8 nested package[\s\S]*version: 8\.10\.2[\s\S]*archive-sha256: 740638ae32d78d2646a6727950e365fa26b6fa87913fa096e60ed4afeb4634aa[\s\S]*npm-integrity: "sha512-\/y4\/bH9YNU5hi9NIrpOuvGXFcxrj3CMrV\+\/AYpowAYTpHn8gX\/XPFjNy766FPoYY0miQhdW977JFWKGNhBdwyQ=="/);
-  assert.match(immutableInputs, /name: Full-image nanoid nested package[\s\S]*version: 3\.3\.18[\s\S]*archive-sha256: b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009[\s\S]*npm-integrity: "sha512-DTg4MJbGMWkfi6VZFdNt2\/caMbQy4Ou\+Op\/hJQvGEWcnVfoA1QA\+xzRKAzw9jD6\+GVOOeYr\/mIcuDSdug6F6\+w=="/);
+  assert.match(immutableInputs, /name: Full-image nanoid nested package[\s\S]*version: 3\.3\.19[\s\S]*archive-sha256: 4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849[\s\S]*npm-integrity: "sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV\/02KC\+6kd9eDGqdZd\+\+mjMiIDilrBYvjEnCYvVtsuHCuP\+okSfug=="/);
   assert.match(immutableInputs, /name: Full-image js-yaml nested package[\s\S]*version: 4\.3\.2[\s\S]*archive-sha256: c7b241d2224cf9253ff53854aa4cee87da91bd889c4d0fa3a3ffd1041ecee5b1[\s\S]*npm-integrity: "sha512-SFNOvSJ\+Dgf\/9An904Yx\+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3\/TP3O\+wzWuiTFl4sqbltzA=="/);
   assert.match(immutableInputs, /name: CloudCLI js-yaml nested package[\s\S]*version: 3\.15\.2[\s\S]*archive-sha256: 7f005cf0b8ee639b4557e0e321dc067c1f2aa0a442d096e03f2ab53353738794[\s\S]*npm-integrity: "sha512-6EuL879VkRA\+1Cz578mKMiKvjPNEuk6\+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P\+w=="/);
-  assert.match(immutableInputs, /name: Vercel smol-toml nested package[\s\S]*version: 1\.7\.1[\s\S]*archive-sha256: 0a5a44e4a1189c7c36d5a516fa169591ce5de56a5d495d07a7847e1a1afaeccb[\s\S]*npm-integrity: "sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu\/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ\+UyVFoQ=="/);
+  assert.match(immutableInputs, /name: Vercel smol-toml nested package[\s\S]*version: 1\.8\.0[\s\S]*archive-sha256: 1fc995be91cdb777fc13e20c2edfebaaf60ef4e4d2d5331caef2837b04d37892[\s\S]*npm-integrity: "sha512-kCZr2V3ch9i00x8zXRhjUNVcjG9ijES5dDudkXvUVCT5QlJNQWElSJdZqyPemffHoLNUYwOcou0Fy\+ojN0uHSQ=="/);
   assert.match(immutableInputs, /name: Full-image xmldom nested package[\s\S]*version: 0\.9\.12[\s\S]*archive-sha256: 08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee[\s\S]*npm-integrity: "sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0\+W\+AHaVKAVyHanafK86iPSvG5xHVSp\/jC\+VH1UXu0TAEmY279xH7A=="/);
   assert.match(immutableInputs, /name: Wrangler sharp nested package[\s\S]*version: 0\.35\.4[\s\S]*archive-sha256: 6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a/);
   assert.match(immutableInputs, /name: Wrangler sharp Linux x64 payload[\s\S]*version: 0\.35\.4[\s\S]*archive-sha256: 9fe2de0bf57643eb603f16d5ed237dceb1c1229ea76f5094aacab1e99162bf3b/);
@@ -869,8 +922,10 @@ test('CloudCLI runtime dependency expectations match the reproduced artifact man
   const block = browserRuntimeChecks.match(/for \(const \[dependency, version\] of Object\.entries\(\{([\s\S]*?)\}\)\)/);
   assert.ok(block, 'CloudCLI runtime dependency assertions must exist');
   const expected = Object.fromEntries([...block[1].matchAll(/['"]?([\w-]+)['"]?:\s*'([^']+)'/g)].map((match) => [match[1], match[2]]));
+  const overlays = { 'fast-uri': '3.1.7', nanoid: '3.3.19' };
   for (const [path, version] of Object.entries(cloudcliManifest.verification.requiredRuntimeDependencies)) {
-    assert.equal(expected[path.replace(/^node_modules\//, '')], version, path);
+    const dependency = path.replace(/^node_modules\//, '');
+    assert.equal(expected[dependency], overlays[dependency] ?? version, path);
   }
 });
 

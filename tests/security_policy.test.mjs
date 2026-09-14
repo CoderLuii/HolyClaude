@@ -255,11 +255,11 @@ function configureArchitectureAllReview(data, {
     vulnerability: { name: 'CVE-2099-0001' },
     products: [
       {
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=slim',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=slim',
         subcomponents: [{ identifiers: { purl: vexPurl } }],
       },
       {
-        '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=slim',
+        '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=slim',
         subcomponents: [{ identifiers: { purl: vexPurl } }],
       },
     ],
@@ -776,7 +776,7 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
       arch: 'amd64',
       evidenceVariant: 'slim',
       evidenceArch: 'amd64',
-      asOf: '2026-09-11',
+      asOf: '2026-09-14',
     },
   );
   assert.equal(result.status, 0, result.stderr);
@@ -811,8 +811,8 @@ test('records the full-image TIFF tool absence as exact not-affected component e
   assert.deepEqual(
     statement.products.map((product) => product['@id']).sort(),
     [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
     ],
   );
   const expectedPurls = ['amd64', 'arm64'].flatMap((architecture) =>
@@ -944,7 +944,7 @@ test('drops obsolete review artifacts while retaining the currently approved Chr
   );
 });
 
-test('maps both downstream FFmpeg fixes across every rebuilt runtime package', () => {
+test('maps both downstream FFmpeg fixes across every rebuilt runtime package and architecture', () => {
   const packageNames = [
     'ffmpeg',
     'libavcodec59',
@@ -957,40 +957,42 @@ test('maps both downstream FFmpeg fixes across every rebuilt runtime package', (
     'libswscale6',
   ];
   const vulnerabilities = ['CVE-2026-70628', 'CVE-2026-70632'];
-  const result = runFixture(
-    ({ report, ledger, vex }) => {
-      const committed = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
-      ledger.reviews = committed.reviews.filter((review) =>
-        vulnerabilities.some((vulnerability) => review.vulnerabilities.includes(vulnerability)) &&
-        review.component.versions.includes('7:5.1.9-0+deb12u1+holyclaude2'));
-      vex.statements = [];
-      report.matches = vulnerabilities.flatMap((vulnerability) =>
-        packageNames.map((name) => ({
-          vulnerability: { id: vulnerability, severity: 'High', fix: { versions: [] } },
-          artifact: {
-            name,
-            version: '7:5.1.9-0+deb12u1+holyclaude2',
-            type: 'deb',
-            locations: name === 'ffmpeg'
-              ? [
-                  { path: '/usr/share/doc/ffmpeg/copyright' },
-                  { path: '/var/lib/dpkg/info/ffmpeg.list' },
-                  { path: '/var/lib/dpkg/info/ffmpeg.md5sums' },
-                  { path: '/var/lib/dpkg/status' },
-                ]
-              : [
-                  { path: `/usr/share/doc/${name}/copyright` },
-                  { path: `/var/lib/dpkg/info/${name}:amd64.md5sums` },
-                  { path: '/var/lib/dpkg/status' },
-                ],
-          },
-        })));
-    },
-    { variant: 'full', arch: 'amd64', asOf: '2026-08-12' },
-  );
-  assert.equal(result.status, 0, result.stderr);
-  assert.equal(result.policy.rawHighCount, 18);
-  assert.equal(result.policy.mappedHighCount, 18);
+  for (const arch of ['amd64', 'arm64']) {
+    const result = runFixture(
+      ({ report, ledger, vex }) => {
+        const committed = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
+        ledger.reviews = committed.reviews.filter((review) =>
+          vulnerabilities.some((vulnerability) => review.vulnerabilities.includes(vulnerability)) &&
+          review.component.versions.includes('7:5.1.9-0+deb12u1+holyclaude2'));
+        vex.statements = [];
+        report.matches = vulnerabilities.flatMap((vulnerability) =>
+          packageNames.map((name) => ({
+            vulnerability: { id: vulnerability, severity: 'High', fix: { versions: [] } },
+            artifact: {
+              name,
+              version: '7:5.1.9-0+deb12u1+holyclaude2',
+              type: 'deb',
+              locations: name === 'ffmpeg'
+                ? [
+                    { path: '/usr/share/doc/ffmpeg/copyright' },
+                    { path: '/var/lib/dpkg/info/ffmpeg.list' },
+                    { path: '/var/lib/dpkg/info/ffmpeg.md5sums' },
+                    { path: '/var/lib/dpkg/status' },
+                  ]
+                : [
+                    { path: `/usr/share/doc/${name}/copyright` },
+                    { path: `/var/lib/dpkg/info/${name}:${arch}.md5sums` },
+                    { path: '/var/lib/dpkg/status' },
+                  ],
+            },
+          })));
+      },
+      { variant: 'full', arch, asOf: '2026-09-14' },
+    );
+    assert.equal(result.status, 0, `${arch}: ${result.stderr}`);
+    assert.equal(result.policy.rawHighCount, 18);
+    assert.equal(result.policy.mappedHighCount, 18);
+  }
 });
 
 test('audits Grype built-in linux-libc-dev indirect kernel suppressions', () => {
@@ -1238,7 +1240,7 @@ test('rejects a not-affected review without the Docker Hub product scope', () =>
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [{
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
         subcomponents: [
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64' } },
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=arm64' } },
@@ -1275,8 +1277,8 @@ test('rejects statement-level vulnerability aliases', () => {
       vulnerability: { name: 'CVE-2099-0001' },
       aliases: ['CVE-2099-0002'],
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -1296,8 +1298,8 @@ test('rejects a not-affected product without exact component subcomponents', () 
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -1324,11 +1326,11 @@ test('emits digest-bound OpenVEX with the exact component subcomponent', () => {
         vulnerability: { name: 'CVE-2099-0001' },
         products: [
           {
-            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
+            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
           {
-            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
+            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
         ],
@@ -1573,11 +1575,11 @@ test('rejects unexpected review fields and orphan OpenVEX statements', () => {
       vulnerability: { '@id': 'https://nvd.nist.gov/vuln/detail/CVE-2099-0002', name: 'CVE-2099-0002' },
       products: [
         {
-          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
+          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
         {
-          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
+          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
       ],

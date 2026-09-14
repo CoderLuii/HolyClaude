@@ -135,6 +135,50 @@ podman compose -f docker-compose.podman-rootless.yaml up -d
 
 That profile uses `userns_mode: "keep-id:uid=1000,gid=1000"` and `:Z` volume labels. `PUID` and `PGID` still document the intended container user, but they do not control Podman's host-visible subordinate UID mapping by themselves. Do not add `:U` to `/workspace` when you want to edit the same files from both the host and the container.
 
+### Optional Docker client
+
+The stock Full and Slim images do not include Docker CLI or Docker Compose. If your agent needs to manage a separate Docker host, build the opt-in Full-derived recipe at [`examples/docker-client/Dockerfile`](../examples/docker-client/Dockerfile). It installs Docker CLI 29.8.0 and Compose 5.5.1 without Docker Engine, containerd, Buildx, or recommended packages.
+
+Pull the released Full image, resolve its immutable `RepoDigests` value, then pass that digest to the recipe:
+
+```bash
+FULL_IMAGE=coderluii/holyclaude:1.6.1
+docker pull "$FULL_IMAGE"
+BASE_IMAGE=$(docker image inspect "$FULL_IMAGE" --format '{{index .RepoDigests 0}}')
+docker build \
+  --build-arg "BASE_IMAGE=$BASE_IMAGE" \
+  --tag holyclaude:1.6.1-docker-client \
+  --file examples/docker-client/Dockerfile \
+  examples/docker-client
+```
+
+Set `image: holyclaude:1.6.1-docker-client` on your existing Full Compose service, keep its current mounts, credentials, ports, and other settings, then recreate that service. Add `DOCKER_CONFIG=/home/claude/.claude/docker-client` to the same service's environment so a saved Docker context is still selected after a fresh container or terminal session.
+
+Docker daemon access is host-level authority. Adding the client does not make a host socket safe, so do not mount `/var/run/docker.sock` into HolyClaude. For one shell session, point the client at an authenticated SSH endpoint:
+
+Run the client and context commands below in that container's terminal.
+
+```bash
+mkdir -p "$DOCKER_CONFIG"
+export DOCKER_HOST=ssh://operator@docker-host.example
+docker version
+```
+
+For a persistent SSH-backed Docker context, clear the one-session override first:
+
+```bash
+unset DOCKER_HOST
+docker context create private-engine --docker 'host=ssh://operator@docker-host.example'
+docker context use private-engine
+docker version
+```
+
+The existing `/home/claude/.claude` mount keeps that context under `./data/claude/docker-client` across container replacement. Docker configuration can contain registry credentials and endpoint details. Keep that directory private, do not commit it, and do not put login secrets in Compose examples.
+
+For a TLS-authenticated engine, set `DOCKER_HOST=tcp://docker-host.example:2376`, `DOCKER_TLS_VERIFY=1`, and `DOCKER_CERT_PATH` to an operator-managed certificate directory. Never expose an unauthenticated Docker API on public port 2375.
+
+The native release workflow builds the derived Full image on amd64 and arm64, checks its exact Docker CLI and Compose package versions, verifies the base-image architecture and default user stay unchanged, and exercises Docker and Compose against the isolated GitHub-hosted runner engine. NAS compatibility has not been verified, and authenticated SSH/TLS remote-engine success still depends on the operator's engine, API version, network, and access policy. The default product remains an agent workstation; the Docker client is an opt-in maintenance and access surface.
+
 ### Notifications (Apprise)
 
 HolyClaude uses [Apprise](https://github.com/caronc/apprise) for notifications, supporting 100+ services including Discord, Telegram, Slack, Email, Pushover, Gotify, and more.

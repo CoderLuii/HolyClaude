@@ -52,7 +52,7 @@ timeout --foreground 90s env \
 import importlib.metadata
 
 assert importlib.metadata.version('tree-sitter') == '0.26.0'
-assert importlib.metadata.version('tree-sitter-language-pack') == '1.17.0'
+assert importlib.metadata.version('tree-sitter-language-pack') == '1.19.1'
 
 from tree_sitter_language_pack import downloaded_languages, get_parser
 
@@ -69,13 +69,82 @@ PY
 if [ "$(cat /etc/holyclaude-variant)" = full ]; then
   node <<'NODE'
 const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
   EasJsonAccessor,
   EasJsonUtils,
   Platform,
 } = require('/usr/local/lib/node_modules/eas-cli/node_modules/@expo/eas-json');
 
+const vercelRoot = '/usr/local/lib/node_modules/vercel';
+const moduleRoot = path.join(vercelRoot, 'node_modules');
+const readPackage = name => JSON.parse(fs.readFileSync(path.join(moduleRoot, name, 'package.json'), 'utf8'));
+const vercelPackage = JSON.parse(fs.readFileSync(path.join(vercelRoot, 'package.json'), 'utf8'));
+const pythonAnalysisPackage = readPackage('@vercel/python-analysis');
+const pep440Package = readPackage('@renovatebot/pep440');
+const pythonAnalysis = require(path.join(moduleRoot, '@vercel/python-analysis'));
+const pep440 = require(path.join(moduleRoot, '@renovatebot/pep440'));
+const pep440Version = require(path.join(moduleRoot, '@renovatebot/pep440/lib/version'));
+const pep440Specifier = require(path.join(moduleRoot, '@renovatebot/pep440/lib/specifier'));
+
+function pythonBuild(major, minor, patch, prerelease) {
+  return {
+    version: { major, minor, patch, ...(prerelease ? { prerelease } : {}) },
+    implementation: 'cpython',
+    variant: 'default',
+    os: 'linux',
+    architecture: process.arch,
+    libc: 'glibc',
+  };
+}
+
 async function main() {
+  const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
+  assert.equal(process.version, 'v26.8.2', 'unexpected Node version');
+  assert.equal(installedNpmVersion, '12.0.2', 'unexpected npm version');
+  assert.equal(vercelPackage.version, '59.16.0', 'unexpected Vercel version');
+  assert.equal(pythonAnalysisPackage.version, '0.14.0', 'unexpected @vercel/python-analysis version');
+  assert.equal(pythonAnalysisPackage.dependencies['@renovatebot/pep440'], '4.2.1', 'unexpected published pep440 pin');
+  assert.equal(pep440Package.version, '4.2.1', 'unexpected installed pep440 version');
+
+  const parsedPrerelease = pep440.parse('3.12.0rc1');
+  assert.ok(parsedPrerelease);
+  assert.equal(pep440Version.stringify(parsedPrerelease), '3.12.0rc1');
+  const parsedRange = pep440Specifier.parse('>=3.12,<3.13');
+  assert.ok(parsedRange);
+  const builds = [pythonBuild(3, 13, 2), pythonBuild(3, 12, 9), pythonBuild(3, 13, 0, 'a1')];
+  const selected = pythonAnalysis.selectPythonVersion({
+    constraints: [{
+      source: 'pyproject.toml',
+      prettySource: 'project.requires-python',
+      specifier: '>=3.12,<3.13',
+      request: [{ version: { constraint: parsedRange } }],
+    }],
+    availableBuilds: builds,
+    allBuilds: builds,
+    defaultBuild: builds[0],
+  });
+  assert.equal(pythonAnalysis.PythonVersion.toString(selected.build.version), '3.12.9');
+  assert.equal(pep440Specifier.satisfies('3.12.9', '>=3.12,<3.13'), true);
+  assert.equal(pep440Specifier.satisfies('3.13.0a1', '>=3.13'), false);
+
+  const impossibleRange = pep440Specifier.parse('>=4');
+  assert.ok(impossibleRange);
+  const impossible = pythonAnalysis.selectPythonVersion({
+    constraints: [{
+      source: '.python-version',
+      prettySource: '.python-version',
+      specifier: '>=4',
+      request: [{ version: { constraint: impossibleRange } }],
+    }],
+    availableBuilds: builds,
+    allBuilds: builds,
+    defaultBuild: builds[0],
+  });
+  assert.deepEqual(impossible.invalidConstraint, { versionString: '>=4' });
+
   await assert.rejects(
     EasJsonUtils.getBuildProfileAsync(
       EasJsonAccessor.fromRawString('{"build":{"smoke":{"node":"not-a-semver"}}}'),
@@ -113,7 +182,7 @@ main().catch(error => {
 NODE
 fi
 
-test "$(pnpm --version)" = 12.3.4
+test "$(pnpm --version)" = 12.4.1
 mkdir "$test_dir/dep" "$test_dir/project"
 printf '%s\n' '{"name":"local-smoke-dep","version":"1.0.0","main":"index.js"}' > "$test_dir/dep/package.json"
 printf '%s\n' 'module.exports = 42;' > "$test_dir/dep/index.js"

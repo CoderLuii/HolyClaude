@@ -93,7 +93,7 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 
 - License: MIT
 - Source: https://github.com/junegunn/fzf
-- Version: 0.74.3, installed from checksum-verified upstream archives
+- Version: 0.74.4, installed from checksum-verified upstream archives
 
 ## esbuild
 

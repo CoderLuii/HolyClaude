@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
 
+import ctypes
 import hashlib
-import http.client
 import ipaddress
 import json
 import os
 import re
-import socket
-import ssl
+import signal
 import subprocess
 import sys
+import tempfile
 import time
 import zipfile
 
-VERSION = "3220.1"
+VERSION = "3196.4"
 ARCHITECTURES = {"amd64", "arm64"}
-JAR_PATH = f"/home/claude/.local/share/junie/versions/{VERSION}/lib/app/junie-nightly-{VERSION}.jar"
-JAR_SHA256 = "86c6899a7478c5a5884c1ddaf50f7c8e794b51d92a41c597512989e162886ec1"
+JAR_PATH = f"/home/claude/.local/share/junie/versions/{VERSION}/lib/app/junie-release-{VERSION}.jar"
+JAR_SHA256 = "24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f"
 NETTY_VERSION = "4.2.9.Final"
 NETTY_PROPERTIES = "META-INF/maven/io.netty/netty-handler/pom.properties"
+MANIFEST_PATH = "META-INF/MANIFEST.MF"
+MAIN_CLASS = "com.intellij.ml.llm.matterhorn.ej.app.cli.standalone.MainKt"
+LAUNCHER_PATH = f"/home/claude/.local/share/junie/versions/{VERSION}/bin/junie"
+GATEWAY_DISABLED_MESSAGE = "The --gateway option is not available in this version. Please use the Nightly build."
+DIAGNOSTIC_LIMIT = 4096
+PROCESS_ACCESS_RETRY_SECONDS = 0.1
+PR_SET_CHILD_SUBREAPER = 36
+PR_GET_CHILD_SUBREAPER = 37
 SNI_NAMES = (
     b"io/netty/handler/ssl/SniHandler",
     b"io/netty/handler/ssl/AbstractSniHandler",
@@ -29,9 +37,11 @@ SSL_CONNECTOR_BASELINE = {
     "io/ktor/server/engine/EnvironmentUtilsJvmKt.class",
 }
 GATEWAY_CLASSES = {
-    "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/http/GatewayServerKt.class": "fcc58ed411567c0e03f1968e42472ed085a3f2b76fa2181c773a409de90b8aea",
+    "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/http/GatewayServerKt.class": "6a1da55c9a946f73d5d5795c1f51a641c712d75fdd5421e852f2ab7a239c5221",
     "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/MainKt.class": "0447ad9e5f7c4e8ebd96bafafa4a2eac81340396e3d03f2692c099b710a55642",
     "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/MainKt.class": "bb30e63ba85ace4a353ed4e5036e89232aa7508308f7d690ac002a9731b63869",
+    "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/cli/JunieCli.class": "ae45398e83a1c4401a13899bf88000478861030ef26c53cebdfe05a2fe6e19d0",
+    "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/cli/options/SystemOptionsGroup.class": "5a953748e13fcd3b0006b007c77616651358522fa4f38a86d7a31ec18c14cf4d",
 }
 TLS_CONFIG_NAMES = (b"sslConnector", b"clientAuth", b"keyStore", b"trustStore")
 APPLICATION_PREFIXES = (
@@ -44,10 +54,6 @@ APPLICATION_TLS_BASELINE = {
     "keyStore": ["com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/trust/ProjectTrustStore.class"],
     "trustStore": [],
 }
-STATUS_PATTERN = re.compile(r"PID:\s*(\d+).*?Host:\s*(\S+).*?Port:\s*(\d+)", re.DOTALL)
-STATUS_LINE_PATTERN = re.compile(r"^Gateway status:\s*(.+?)\s*$", re.MULTILINE)
-
-
 def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -109,6 +115,12 @@ def inspect_jar(path, expected_sha256=JAR_SHA256, expected_gateway_hashes=GATEWA
         if netty_version != NETTY_VERSION:
             raise RuntimeError(f"embedded netty-handler version mismatch: {netty_version}")
 
+        manifest = archive.read(MANIFEST_PATH).decode("utf-8")
+        main_class_match = re.search(r"^Main-Class:\s*(.+)$", manifest, re.MULTILINE)
+        main_class = main_class_match.group(1).strip() if main_class_match else None
+        if main_class != MAIN_CLASS:
+            raise RuntimeError(f"Junie manifest Main-Class mismatch: {main_class}")
+
     return {
         "jar_path": path,
         "jar_sha256": jar_hash,
@@ -118,6 +130,7 @@ def inspect_jar(path, expected_sha256=JAR_SHA256, expected_gateway_hashes=GATEWA
         "ssl_connector_matches": ssl_connector_matches,
         "application_tls_marker_matches": application_tls_matches,
         "gateway_class_sha256": gateway_hashes,
+        "manifest_main_class": main_class,
     }
 
 
@@ -149,87 +162,168 @@ def socket_rows():
     return rows
 
 
-def owned_listeners(pid):
-    inodes = set()
-    for fd in os.listdir(f"/proc/{pid}/fd"):
+def process_metadata(pid):
+    try:
+        with open(f"/proc/{pid}/stat", encoding="utf-8") as source:
+            fields = source.read().rpartition(") ")[2].split()
+        return {
+            "pid": pid,
+            "state": fields[0],
+            "ppid": int(fields[1]),
+            "process_group": int(fields[2]),
+            "session": int(fields[3]),
+            "start_time": int(fields[19]),
+        }
+    except FileNotFoundError:
+        return None
+    except PermissionError as error:
+        raise RuntimeError(f"cannot inspect live process {pid}") from error
+    except (ValueError, IndexError) as error:
+        raise RuntimeError(f"malformed process metadata for {pid}") from error
+
+
+def process_table():
+    processes = {}
+    for entry in os.listdir("/proc"):
+        if not entry.isdigit():
+            continue
+        process = process_metadata(int(entry))
+        if process is not None:
+            processes[process["pid"]] = process
+    return processes
+
+
+def child_subreaper_state():
+    state = ctypes.c_int()
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(PR_GET_CHILD_SUBREAPER, ctypes.byref(state), 0, 0, 0) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+    return bool(state.value)
+
+
+def set_child_subreaper(enabled):
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.prctl(PR_SET_CHILD_SUBREAPER, int(enabled), 0, 0, 0) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+
+
+def direct_child_identities(parent_pid, processes):
+    return {
+        (pid, process["start_time"])
+        for pid, process in processes.items()
+        if process["ppid"] == parent_pid
+    }
+
+
+def observe_owned_processes(root_pid, identities, adopter_pid, baseline_children):
+    processes = process_table()
+    discovered = {pid for pid, process in processes.items() if process["session"] == root_pid}
+    discovered.update(pid for pid, start_time in identities.items() if processes.get(pid, {}).get("start_time") == start_time)
+    discovered.update(
+        pid
+        for pid, process in processes.items()
+        if process["ppid"] == adopter_pid and (pid, process["start_time"]) not in baseline_children
+    )
+    changed = True
+    while changed:
+        expanded = {pid for pid, process in processes.items() if process["ppid"] in discovered}
+        changed = not expanded.issubset(discovered)
+        discovered.update(expanded)
+    for pid in discovered:
+        identities.setdefault(pid, processes[pid]["start_time"])
+    live = {
+        pid: processes[pid]
+        for pid, start_time in identities.items()
+        if pid in processes and processes[pid]["start_time"] == start_time and processes[pid]["state"] != "Z"
+    }
+    return live
+
+
+def process_identity_ended(pid, expected_start_time):
+    process = process_metadata(pid)
+    return process is None or process["state"] == "Z" or process["start_time"] != expected_start_time
+
+
+def retry_process_access(operation, pid, expected_start_time, message):
+    deadline = time.monotonic() + PROCESS_ACCESS_RETRY_SECONDS
+    while True:
+        if process_identity_ended(pid, expected_start_time):
+            return None
         try:
-            target = os.readlink(f"/proc/{pid}/fd/{fd}")
+            return operation()
+        except FileNotFoundError:
+            return None
+        except PermissionError as error:
+            if time.monotonic() >= deadline:
+                if process_identity_ended(pid, expected_start_time):
+                    return None
+                raise RuntimeError(message) from error
+            time.sleep(0.005)
+
+
+def owned_listeners(pids):
+    inodes = set()
+    for pid in pids:
+        try:
+            descriptors = os.listdir(f"/proc/{pid}/fd")
         except FileNotFoundError:
             continue
-        match = re.fullmatch(r"socket:\[(\d+)\]", target)
-        if match:
-            inodes.add(match.group(1))
-    return sorted((row for row in socket_rows() if row["inode"] in inodes), key=lambda row: (row["port"], row["table"]))
+        except PermissionError:
+            descriptors = retry_process_access(
+                lambda: os.listdir(f"/proc/{pid}/fd"),
+                pid,
+                pids[pid]["start_time"],
+                f"cannot inspect file descriptors for live process {pid}",
+            )
+            if descriptors is None:
+                continue
+        for descriptor in descriptors:
+            try:
+                target = os.readlink(f"/proc/{pid}/fd/{descriptor}")
+            except FileNotFoundError:
+                continue
+            except PermissionError:
+                target = retry_process_access(
+                    lambda: os.readlink(f"/proc/{pid}/fd/{descriptor}"),
+                    pid,
+                    pids[pid]["start_time"],
+                    f"cannot inspect file descriptor {descriptor} for live process {pid}",
+                )
+                if target is None:
+                    continue
+            match = re.fullmatch(r"socket:\[(\d+)\]", target)
+            if match:
+                inodes.add(match.group(1))
+    return sorted(
+        (row for row in socket_rows() if row["inode"] in inodes),
+        key=lambda row: (row["table"], row["address"], row["port"], row["inode"]),
+    )
 
 
-def capture_client_hello():
-    context = ssl.create_default_context()
-    incoming = ssl.MemoryBIO()
-    outgoing = ssl.MemoryBIO()
-    wrapped = context.wrap_bio(incoming, outgoing, server_side=False, server_hostname="protected.example")
-    try:
-        wrapped.do_handshake()
-    except ssl.SSLWantReadError:
-        pass
-    hello = outgoing.read()
-    if len(hello) < 9 or hello[0] != 22 or hello[5] != 1:
-        raise RuntimeError("could not generate a TLS ClientHello")
-    record_length = int.from_bytes(hello[3:5], "big")
-    return hello[:5 + record_length]
+def bounded_diagnostics(stdout, stderr):
+    output = f"{stdout}\n{stderr}".strip()
+    if len(output) > DIAGNOSTIC_LIMIT:
+        raise RuntimeError(f"Junie gateway diagnostics exceeded {DIAGNOSTIC_LIMIT} characters")
+    return output
 
 
-def recv_bounded(connection):
-    connection.settimeout(3)
-    chunks = []
-    try:
-        while sum(map(len, chunks)) < 512:
-            chunk = connection.recv(512)
-            if not chunk:
-                break
-            chunks.append(chunk)
-    except (ConnectionResetError, socket.timeout):
-        pass
-    return b"".join(chunks)
+def validate_gateway_rejection(returncode, output):
+    if returncode != 1:
+        raise RuntimeError(f"Junie disabled gateway expected status 1, got {returncode}: {output}")
+    if output != GATEWAY_DISABLED_MESSAGE:
+        raise RuntimeError(f"unexpected disabled-gateway output: {output}")
+    return output
 
 
-def validate_listener_set(listeners, port):
-    if len(listeners) != 1 or listeners[0]["address"] != "127.0.0.1" or listeners[0]["port"] != port:
-        raise RuntimeError(f"Junie gateway listener is not exactly loopback-only: {listeners}")
-    return listeners
-
-
-def validate_tls_parser_rejection(response):
-    if not response.startswith(b"HTTP/1.0 400 Bad Request") or b"Line Feed must be preceded by Carriage Return" not in response:
-        raise RuntimeError(f"TLS ClientHello rejection was ambiguous: {response[:80]!r}")
-
-
-def validate_cleanup(pid_alive, listeners):
-    if pid_alive or listeners:
-        raise RuntimeError(f"Junie gateway remained after stop: pid={pid_alive} listeners={listeners}")
-
-
-def validate_post_stop_status(
-    returncode, output, match, pid, reported_host, port, pid_alive, listeners,
-):
-    validate_cleanup(pid_alive, listeners)
-    if returncode != 0:
-        raise RuntimeError(f"Junie gateway status command failed with status {returncode}: {output}")
-
-    status_lines = STATUS_LINE_PATTERN.findall(output)
-    if not match and not status_lines and "No gateway is currently running." in output:
-        return "no_config"
-    if not match or len(status_lines) != 1:
-        raise RuntimeError(f"Junie gateway post-stop status is invalid: {output}")
-
-    observed = int(match.group(1)), match.group(2), int(match.group(3))
-    expected = pid, reported_host, port
-    if observed != expected:
-        raise RuntimeError(f"Junie gateway post-stop status changed gateway tuple: {observed} != {expected}")
-    if status_lines[0] == "not running (stale config)":
-        return "stale_config"
-    if status_lines[0] == "running":
-        raise RuntimeError(f"Junie gateway post-stop status has unexplained running status: {output}")
-    raise RuntimeError(f"Junie gateway post-stop status is invalid: {output}")
+def validate_runtime_residue(launcher_alive, descendants, listeners):
+    if launcher_alive:
+        raise RuntimeError("Junie disabled gateway launcher survived its rejection")
+    if descendants:
+        raise RuntimeError(f"Junie disabled gateway descendants survived: {descendants}")
+    if listeners:
+        raise RuntimeError(f"Junie disabled gateway listener appeared: {listeners}")
 
 
 def validate_architecture(architecture):
@@ -238,143 +332,102 @@ def validate_architecture(architecture):
     return architecture
 
 
-def run_probes(port):
-    connection = http.client.HTTPConnection("127.0.0.1", port, timeout=3)
-    connection.request("GET", "/")
-    response = connection.getresponse()
-    http_result = {"status": response.status, "content_length": response.getheader("Content-Length"), "body_hex": response.read(64).hex()}
-    connection.close()
-    if http_result != {"status": 404, "content_length": "0", "body_hex": ""}:
-        raise RuntimeError(f"unexpected gateway HTTP response: {http_result}")
-
-    hello = capture_client_hello()
-    with socket.create_connection(("127.0.0.1", port), timeout=3) as normal:
-        normal.sendall(hello)
-        normal_response = recv_bounded(normal)
-    validate_tls_parser_rejection(normal_response)
-
-    payload = hello[5:]
-    first = hello[:3] + (1).to_bytes(2, "big") + payload[:1]
-    second = hello[:3] + (len(payload) - 1).to_bytes(2, "big") + payload[1:]
-    with socket.create_connection(("127.0.0.1", port), timeout=3) as fragmented:
-        fragmented.sendall(first)
-        time.sleep(0.05)
-        fragmented.sendall(second)
-        fragmented_response = recv_bounded(fragmented)
-    validate_tls_parser_rejection(fragmented_response)
-
-    return {
-        "http": http_result,
-        "normal_tls_client_hello": {"handshake_completed": False, "response_hex": normal_response[:160].hex()},
-        "fragmented_tls_client_hello": {
-            "handshake_completed": False,
-            "handshake_header_spans_records": True,
-            "first_record_payload_bytes": 1,
-            "second_record_payload_bytes": len(payload) - 1,
-            "response_hex": fragmented_response[:160].hex(),
-        },
-    }
-
-
-def status(launcher, environment):
-    process = subprocess.Popen(
-        [launcher, "--gateway-status"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=environment,
-    )
-    try:
-        stdout, stderr = process.communicate(timeout=15)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        stdout, stderr = process.communicate()
-        output = f"{stdout}\n{stderr}".strip()
-        raise RuntimeError(f"Junie gateway status command timed out: {output}")
-    output = f"{stdout}\n{stderr}".strip()
-    return process.returncode, output, STATUS_PATTERN.search(output), process.pid
-
-
-def stop_gateway(supervisor, launcher, environment, pid):
-    supervisor_terminated = supervisor.poll() is None
-    if supervisor_terminated:
-        supervisor.terminate()
+def signal_owned_processes(root_pid, identities, adopter_pid, baseline_children, signum):
+    live = observe_owned_processes(root_pid, identities, adopter_pid, baseline_children)
+    for pid in sorted(live, reverse=True):
         try:
-            supervisor.wait(timeout=5)
-        except subprocess.TimeoutExpired as error:
-            raise RuntimeError(
-                f"Junie gateway supervisor could not be terminated: supervisor pid {supervisor.pid}, gateway pid {pid}"
-            ) from error
-
-    stopped = subprocess.run(
-        [launcher, "--gateway-stop"], check=False, text=True, capture_output=True, timeout=15, env=environment,
-    )
-    if stopped.returncode != 0:
-        raise RuntimeError(f"Junie gateway stop failed: {stopped.stdout} {stopped.stderr}")
-    return stopped, supervisor_terminated
+            os.kill(pid, signum)
+        except ProcessLookupError:
+            continue
+        except PermissionError as error:
+            raise RuntimeError(f"cannot signal test-owned process {pid}") from error
 
 
-def run_runtime(launcher):
+def reap_owned_children(identities, exclude_pid):
+    for pid in identities:
+        if pid == exclude_pid:
+            continue
+        try:
+            os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            continue
+
+
+def terminate_owned_processes(root_pid, identities, adopter_pid, baseline_children):
+    signal_owned_processes(root_pid, identities, adopter_pid, baseline_children, signal.SIGTERM)
+    deadline = time.monotonic() + 5
+    while observe_owned_processes(root_pid, identities, adopter_pid, baseline_children) and time.monotonic() < deadline:
+        reap_owned_children(identities, root_pid)
+        time.sleep(0.05)
+    if observe_owned_processes(root_pid, identities, adopter_pid, baseline_children):
+        signal_owned_processes(root_pid, identities, adopter_pid, baseline_children, signal.SIGKILL)
+    deadline = time.monotonic() + 5
+    while observe_owned_processes(root_pid, identities, adopter_pid, baseline_children) and time.monotonic() < deadline:
+        reap_owned_children(identities, root_pid)
+        time.sleep(0.05)
+    reap_owned_children(identities, root_pid)
+    survivors = observe_owned_processes(root_pid, identities, adopter_pid, baseline_children)
+    if survivors:
+        raise RuntimeError(f"could not clean up test-owned Junie processes: {sorted(survivors)}")
+
+
+def run_runtime(launcher, timeout_seconds=30):
     environment = os.environ.copy()
     environment.update({"HOME": "/tmp/junie-guard-home", "NO_PROXY": "127.0.0.1,localhost"})
     os.makedirs(environment["HOME"], mode=0o700, exist_ok=True)
-    start = subprocess.Popen(
-        [launcher, "--gateway", "--skip-update-check", "--config-default-locations=false"],
-        text=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=environment,
-    )
-    match = None
-    status_output = ""
-    for _ in range(120):
-        if start.poll() not in (None, 0):
-            raise RuntimeError(f"Junie gateway launcher exited with status {start.returncode}")
-        _, status_output, match, _ = status(launcher, environment)
-        if match:
-            break
-        time.sleep(0.5)
-    if not match:
-        raise RuntimeError(f"Junie gateway status unavailable: {status_output}")
-    pid, reported_host, port = int(match.group(1)), match.group(2), int(match.group(3))
-    listeners_before = owned_listeners(pid)
-    validate_listener_set(listeners_before, port)
-    probes = run_probes(port)
-    listeners_after = owned_listeners(pid)
-    if listeners_after != listeners_before:
-        raise RuntimeError(f"Junie gateway listener set changed during probes: {listeners_after}")
+    observed_listeners = {}
+    surviving_descendants = []
+    timed_out = False
+    identities = {}
+    adopter_pid = os.getpid()
+    previous_subreaper = child_subreaper_state()
+    set_child_subreaper(True)
+    try:
+        baseline_children = direct_child_identities(adopter_pid, process_table())
+        with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stdout, tempfile.TemporaryFile(
+            mode="w+", encoding="utf-8",
+        ) as stderr:
+            start = subprocess.Popen(
+                [launcher, "--gateway", "--skip-update-check", "--config-default-locations=false"],
+                text=True, stdout=stdout, stderr=stderr, env=environment, start_new_session=True,
+            )
+            deadline = time.monotonic() + timeout_seconds
+            try:
+                while start.poll() is None:
+                    if time.monotonic() >= deadline:
+                        timed_out = True
+                        break
+                    live = observe_owned_processes(start.pid, identities, adopter_pid, baseline_children)
+                    for row in owned_listeners(live):
+                        observed_listeners[(row["table"], row["address"], row["port"], row["inode"])] = row
+                    time.sleep(0.02)
+                live = observe_owned_processes(start.pid, identities, adopter_pid, baseline_children)
+                for row in owned_listeners(live):
+                    observed_listeners[(row["table"], row["address"], row["port"], row["inode"])] = row
+                surviving_descendants = sorted(pid for pid in live if pid != start.pid)
+            finally:
+                terminate_owned_processes(start.pid, identities, adopter_pid, baseline_children)
+                if start.poll() is None:
+                    start.wait(timeout=5)
+                reap_owned_children(identities, start.pid)
+            stdout.seek(0)
+            stderr.seek(0)
+            output = bounded_diagnostics(stdout.read(DIAGNOSTIC_LIMIT + 1), stderr.read(DIAGNOSTIC_LIMIT + 1))
+    finally:
+        set_child_subreaper(previous_subreaper)
 
-    stopped, supervisor_terminated_before_stop = stop_gateway(start, launcher, environment, pid)
-    for _ in range(30):
-        if not os.path.exists(f"/proc/{pid}") and not any(row["port"] == port for row in socket_rows()):
-            break
-        time.sleep(0.2)
-    pid_alive_after_stop = os.path.exists(f"/proc/{pid}")
-    listeners_after_stop = [row for row in socket_rows() if row["port"] == port]
-    validate_cleanup(pid_alive_after_stop, listeners_after_stop)
-    post_stop_returncode, post_stop_status, post_stop_match, status_command_pid = status(launcher, environment)
-    pid_alive_after_status = os.path.exists(f"/proc/{pid}")
-    listeners_after_status = [row for row in socket_rows() if row["port"] == port]
-    post_stop_status_validation = validate_post_stop_status(
-        post_stop_returncode,
-        post_stop_status,
-        post_stop_match,
-        pid,
-        reported_host,
-        port,
-        pid_alive_after_status,
-        listeners_after_status,
-    )
+    if timed_out:
+        raise RuntimeError(f"Junie disabled gateway command timed out: {output}")
+    listeners = list(observed_listeners.values())
+    validate_runtime_residue(start.poll() is None, surviving_descendants, listeners)
+    rejection = validate_gateway_rejection(start.returncode, output)
 
     return {
-        "pid": pid,
-        "reported_host": reported_host,
-        "port": port,
-        "listeners_before": listeners_before,
-        "listeners_after": listeners_after,
-        **probes,
-        "stop_output": f"{stopped.stdout}\n{stopped.stderr}".strip(),
-        "post_stop_status": post_stop_status,
-        "post_stop_status_validation": post_stop_status_validation,
-        "status_command_pid": status_command_pid,
-        "supervisor_terminated_before_stop": supervisor_terminated_before_stop,
-        "pid_alive_after_stop": pid_alive_after_stop,
-        "listeners_after_stop": listeners_after_stop,
-        "pid_alive_after_status": pid_alive_after_status,
-        "listeners_after_status": listeners_after_status,
+        "command": ["--gateway", "--skip-update-check", "--config-default-locations=false"],
+        "exit_status": start.returncode,
+        "diagnostics": rejection,
+        "surviving_descendants": surviving_descendants,
+        "observed_listeners": listeners,
     }
 
 
@@ -382,7 +435,7 @@ def main():
     architecture = subprocess.run(["dpkg", "--print-architecture"], check=True, text=True, capture_output=True).stdout.strip()
     validate_architecture(architecture)
     static = inspect_jar(JAR_PATH)
-    runtime = run_runtime(f"/home/claude/.local/share/junie/versions/{VERSION}/bin/junie")
+    runtime = run_runtime(LAUNCHER_PATH)
     print(json.dumps({"schema_version": 1, "version": VERSION, "architecture": architecture, "static": static, "runtime": runtime}, sort_keys=True))
 
 

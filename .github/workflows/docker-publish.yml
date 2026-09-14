@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.6.0
+run-name: v1.6.1
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.6.0"
+        default: "1.6.1"
         type: string
   push:
     branches:
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"
+          baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.5.9^{commit}')" = "fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"
+          test "$(git rev-parse 'v1.6.0^{commit}')" = "651c48fc01a963acd605aa565bb9da8f9db9b340"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -213,7 +213,7 @@ jobs:
         timeout-minutes: 180
         run: |
           set -euo pipefail
-          baseline="fafac07dfbd7cf6f0c067eb4665ce639de3b7a03"
+          baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"
           if git diff --quiet "${baseline}" -- \
             Dockerfile \
             scripts/build-ffmpeg-security-backport.sh \
@@ -448,11 +448,15 @@ jobs:
           const output = process.env.VERSION_OUTPUT.trim();
           const patterns = {
             cursor: /(?:^|[^0-9A-Za-z])(\d{4}\.\d{2}\.\d{2}-[0-9a-f]+)(?=$|[^0-9A-Za-z])/g,
-            junie: /(?:^|[^0-9A-Za-z])(\d+\.\d+)(?=$|[^0-9A-Za-z])/g,
           };
-          const pattern = patterns[command]
-            ?? /(?:^|[^0-9A-Za-z])(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?=$|[^0-9A-Za-z])/g;
-          const matches = [...output.matchAll(pattern)].map((match) => match[1]);
+          const junieMatch = command === 'junie'
+            ? output.match(/^(?:Junie version: \d+\.\d+\.\d+ \((\d+\.\d+)\)|Junie (\d+\.\d+))$/)
+            : null;
+          const matches = command === 'junie'
+            ? (junieMatch ? [junieMatch[1] ?? junieMatch[2]] : [])
+            : [...output.matchAll(patterns[command]
+              ?? /(?:^|[^0-9A-Za-z])(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?=$|[^0-9A-Za-z])/g)]
+              .map((match) => match[1]);
           if (matches.length !== 1) {
             console.error(`${command} --version returned ${matches.length} normalized version tokens: ${output}`);
             process.exit(1);
@@ -525,6 +529,19 @@ jobs:
           bash tests/docker_cli_persistence_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
           bash tests/docker_persistence_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
           bash tests/docker_ssh_mosh_smoke.sh "$IMAGE" "${VARIANT}-${ARCH}"
+
+      - name: Validate optional Docker client
+        if: matrix.variant == 'full'
+        shell: bash
+        timeout-minutes: 45
+        env:
+          IMAGE: ${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}
+          NAME_PREFIX: optional-client-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.arch }}
+          RUN_SOCKET_COMPOSE: '1'
+          REQUIRE_SOCKET_COMPOSE: '1'
+        run: |
+          set -euo pipefail
+          bash tests/validate_optional_docker_client.sh "$IMAGE" "$NAME_PREFIX"
 
       - name: Reclaim candidate scanner disk
         shell: bash

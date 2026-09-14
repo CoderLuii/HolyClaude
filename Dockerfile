@@ -55,7 +55,7 @@ COPY --from=python-runtime /usr/local/ /usr/local/
 RUN test "$(python3 --version)" = "Python 3.14.7" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.6.0
+ARG HOLYCLAUDE_VERSION=1.6.1
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -64,9 +64,9 @@ ARG S6_OVERLAY_VERSION=3.2.3.2
 ARG S6_NOARCH_SHA256=5379750ed30a84bbd2e2dd74847ba6b5bd29cd0b2e3ea2ec58049b57eb2eda12
 ARG S6_ARCHIVE_SHA256_AMD64=e6befcc96a437a3831386ecfc51808c5d3e939dc5fe3c02ae9284599e8aa2408
 ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd712115693a2f8b4c
-ARG FZF_VERSION=0.74.3
-ARG FZF_ARCHIVE_SHA256_AMD64=3501a595e4b5c40a6b047340a0e8f805c46fd4e61ef95ef8a136ba8c61cf6f22
-ARG FZF_ARCHIVE_SHA256_ARM64=4a17a17b46bd0c4873e995533de508995c11572c0be0664a5dbcf13f60463046
+ARG FZF_VERSION=0.74.4
+ARG FZF_ARCHIVE_SHA256_AMD64=05e6813a337cc722c3ed07e54a764b75cc5d671e2e60459db0ba696ee5fa7504
+ARG FZF_ARCHIVE_SHA256_ARM64=5d673b849f494f0d64ec471d8640b153ca8849e3846a31da17abdcfce8df6b46
 ARG CHROMIUM_DEBIAN_VERSION=152.0.7977.82-1~deb12u1
 ARG CHROMIUM_PACKAGE_SHA256_AMD64=a95a8ff7db26ab9ddc69354dd99e89ba006f40b694f7cf643b82a0dcb38c0cb1
 ARG CHROMIUM_PACKAGE_SHA256_ARM64=6c6152158a919619dd2fd7707dfaf1a5f14c46bc6414b912d2654a2c1b511629
@@ -74,23 +74,23 @@ ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=aeef827a71b85e9379f7d65f612545d2f589b13
 ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=9b565f0f02713f9df011b5728cad9b72561a6b7b4096270529221825ffe92ee5
 ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=bb8e7023f138cbbfe0d451e10f8f6aceda799d28e51ded090203f140bac7b778
 ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=e8fa69b075194cafd4f0c26aec9d447015abe9aadaeb1a41f7776e22d3029e4c
-ARG CLAUDE_CODE_VERSION=2.1.268
+ARG CLAUDE_CODE_VERSION=2.1.270
 ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-ARG CLAUDE_BINARY_SHA256_AMD64=9691a2b7bd796712ca8cffb8e32e54ff7fc45b662540233171a16a94a0425653
-ARG CLAUDE_BINARY_SHA256_ARM64=116fd031f939ef1e09edf170d62c489e1cc28ed6bfbda49f948773ba168c8f62
-ARG JUNIE_VERSION=3220.1
-ARG JUNIE_ARCHIVE_SHA256_AMD64=4939fdaa16f39ebe3850b39c59d206bc7fc1cf652f971544729f37d7c4893c27
-ARG JUNIE_ARCHIVE_SHA256_ARM64=616a1a54abaf1ce8e517ec82928d6b6bba153662ab679af7f6d8939789c534ca
-ARG CURSOR_BUILD_ID=2026.09.08-6caf4ff
-ARG CURSOR_ARCHIVE_SHA256_AMD64=0d7a11dd01b652b8b92d05cc14f769fbc5a3442b786cd8b636041f189ab81f1e
-ARG CURSOR_ARCHIVE_SHA256_ARM64=153ae182db90814748d544f2a26abc073e4e4e5df0b867abfd69def0ff77aa71
+ARG CLAUDE_BINARY_SHA256_AMD64=3a624a5a7cd79bbad4d32bd7db36f1197ecf458bc5bf1e2aed81834a01ad3ef0
+ARG CLAUDE_BINARY_SHA256_ARM64=7bf9f33acc124df9abccf6f2366397a82a740378d535fa12d426fa77fdbc9946
+ARG JUNIE_VERSION=3196.4
+ARG JUNIE_ARCHIVE_SHA256_AMD64=92b43a45b213a94d91a995a1c9c039cdcfe1c4e2f963d43cf9d4ad9b1298b05c
+ARG JUNIE_ARCHIVE_SHA256_ARM64=04834c6c5d43b418c338030f9dd0823dcf2bc3a1c9d175ec292a0dcf5573b285
+ARG CURSOR_BUILD_ID=2026.09.10-fd3934a
+ARG CURSOR_ARCHIVE_SHA256_AMD64=27997c8391ad853a5a732b1845db8ef82a8ba6afb0f7829cc739464f8966e96e
+ARG CURSOR_ARCHIVE_SHA256_ARM64=e0494438b01c37bc34848491d1f3478ef469494c56caf020de11796d146db64a
 ARG CURSOR_LAUNCHER_SHA256=2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
 ARG SETUPTOOLS_VERSION=84.0.0
 ARG SETUPTOOLS_WHEEL_SHA256=51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670
-ARG PISCINA_VERSION=4.9.3
-ARG PISCINA_ARCHIVE_SHA256=5207b79c42ff172230529f5aa355f17d855b1481836bc841db19c6081fc5ec1e
+ARG PISCINA_VERSION=4.9.4
+ARG PISCINA_ARCHIVE_SHA256=9ea03459396e46c626b8e1b8d73e827ecfbe48ac1e94fb9ba7235e6b25f9fc2f
 ARG BRACE_EXPANSION_VERSION=5.0.9
 ARG BRACE_EXPANSION_ARCHIVE_SHA256=5d06001fddd25cbee90c96db4dc5b7b57711b984c3141e28d10f143deb52dbaf
 ARG MINIMATCH_5_VERSION=5.1.9
@@ -103,12 +103,12 @@ ARG PATH_TO_REGEXP_8_VERSION=8.4.2
 ARG PATH_TO_REGEXP_8_ARCHIVE_SHA256=e8712a9c53b0a2a27cfecc7b80c54df92afb4643c01351e2b2ebb7784bcabd78
 ARG WS_VERSION=8.21.3
 ARG WS_ARCHIVE_SHA256=df3454ef205791ce50b5b9241762dcf9bfe1aa9f7f01d3057229be7dac0c2dc3
-ARG CLOUDCLI_NANOID_VERSION=3.3.18
-ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009
+ARG CLOUDCLI_NANOID_VERSION=3.3.19
+ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849
 ARG NESTED_IP_ADDRESS_VERSION=10.7.0
 ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=25a406ee4388fa3d47380ad57b816087fa82a681cc710cccbfe9162cffa8a57a
-ARG CLOUDCLI_FAST_URI_VERSION=3.1.6
-ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=264af0e32c4b7b7bcb9ce5b4623c82469ee3e69ba5d171920f1762d626db1064
+ARG CLOUDCLI_FAST_URI_VERSION=3.1.7
+ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92
 ARG CLOUDCLI_JS_YAML_VERSION=3.15.2
 ARG CLOUDCLI_JS_YAML_ARCHIVE_SHA256=7f005cf0b8ee639b4557e0e321dc067c1f2aa0a442d096e03f2ab53353738794
 ARG CLOUDCLI_VSCODE_RIPGREP_PACKAGE_VERSION=1.17.1
@@ -119,14 +119,14 @@ ARG CLOUDCLI_RIPGREP_ARCHIVE_SHA256_AMD64=4499958bfd5252df3d9e7504127fd448e4a14f
 ARG CLOUDCLI_RIPGREP_ARCHIVE_SHA256_ARM64=dd3738a4b6e8df0fb3bc3edc5af352c4c39e0d97ad118a23e5176bdc5d48ba08
 ARG UNDICI_8_VERSION=8.10.2
 ARG UNDICI_8_ARCHIVE_SHA256=740638ae32d78d2646a6727950e365fa26b6fa87913fa096e60ed4afeb4634aa
-ARG FULL_NANOID_VERSION=3.3.18
-ARG FULL_NANOID_ARCHIVE_SHA256=b9dc81cb403ea2510314dd2d1ad8d71934f325db90c1b43805e781b87e3fb009
+ARG FULL_NANOID_VERSION=3.3.19
+ARG FULL_NANOID_ARCHIVE_SHA256=4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849
 ARG FULL_JS_YAML_VERSION=4.3.2
 ARG FULL_JS_YAML_ARCHIVE_SHA256=c7b241d2224cf9253ff53854aa4cee87da91bd889c4d0fa3a3ffd1041ecee5b1
 ARG FULL_XMLDOM_VERSION=0.9.12
 ARG FULL_XMLDOM_ARCHIVE_SHA256=08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee
-ARG VERCEL_SMOL_TOML_VERSION=1.7.1
-ARG VERCEL_SMOL_TOML_ARCHIVE_SHA256=0a5a44e4a1189c7c36d5a516fa169591ce5de56a5d495d07a7847e1a1afaeccb
+ARG VERCEL_SMOL_TOML_VERSION=1.8.0
+ARG VERCEL_SMOL_TOML_ARCHIVE_SHA256=1fc995be91cdb777fc13e20c2edfebaaf60ef4e4d2d5331caef2837b04d37892
 ARG WRANGLER_SHARP_VERSION=0.35.4
 ARG WRANGLER_SHARP_ARCHIVE_SHA256=6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a
 ARG WRANGLER_SHARP_LIBVIPS_VERSION=1.3.3
@@ -354,7 +354,7 @@ RUN npm install -g npm@12.0.2 && \
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.63.0 \
     typescript@7.0.2 tsx@4.23.13 \
-    pnpm@12.3.4 \
+    pnpm@12.4.1 \
     vite@8.3.0 esbuild@0.28.2 \
     eslint@10.10.0 prettier@3.9.6 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.5 \
@@ -364,10 +364,10 @@ RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
 RUN if [ "$VARIANT" = "full" ]; then \
     set -e; \
     npm i -g \
-      wrangler@4.131.0 vercel@59.15.1 netlify-cli@27.5.2 \
+      wrangler@4.131.2 vercel@59.16.0 netlify-cli@27.6.0 \
       pm2@7.0.4 \
       prisma@7.10.0 drizzle-kit@0.31.10 \
-      eas-cli@24.0.0 \
+      eas-cli@24.3.0 \
       lighthouse@13.4.1 @lhci/cli@0.15.1 \
       sharp-cli@6.1.0 json-server@0.17.4 http-server@14.1.1 \
       @marp-team/marp-cli@4.5.1 && \
@@ -439,7 +439,7 @@ RUN node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" --check-ba
     fi && \
     rm -f /tmp/node-tar.tgz
 
-# Netlify CLI 27.5.2 bundles an optional local Go/Rust functions proxy built
+# Netlify CLI 27.6.0 bundles an optional local Go/Rust functions proxy built
 # with Go 1.16.7. Keep the deployment CLI, but remove that stale executable.
 RUN if [ "$VARIANT" = "full" ]; then \
       NETLIFY_PROXY_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -448,12 +448,12 @@ RUN if [ "$VARIANT" = "full" ]; then \
       test -x "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
       rm -f "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
       test ! -e "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
-      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.5.2" && \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.6.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').dependencies.toml")" = "^4.0.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').dependencies['cron-parser']")" = "^5.0.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').dependencies['raw-body']")" = "^4.0.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/toml/package.json').version")" = "4.3.0" && \
-      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/cron-parser/package.json').version")" = "5.10.0" && \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/cron-parser/package.json').version")" = "5.10.1" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/raw-body/package.json').version")" = "4.0.0" && \
       npm --prefix /usr/local/lib/node_modules/netlify-cli ls toml cron-parser raw-body --all >/dev/null && \
       netlify --version >/dev/null && \
@@ -495,9 +495,9 @@ RUN pip install --no-cache-dir --break-system-packages \
     pandas==3.0.5 numpy==2.5.3 \
     openpyxl==3.1.5 python-docx==1.2.0 \
     jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.3 markdown==3.10.3 \
-    rich==15.0.0 click==8.5.0 tqdm==4.70.0 \
+    rich==15.0.0 click==8.5.0 tqdm==4.70.1 \
     desloppify==1.0 bandit==1.9.4 defusedxml==0.7.1 \
-    tree-sitter==0.26.0 tree-sitter-language-pack==1.17.0 stevedore==5.9.1 \
+    tree-sitter==0.26.0 tree-sitter-language-pack==1.19.1 stevedore==5.9.1 \
     playwright==1.62.0 \
     apprise==1.13.1 \
     pytest==9.1.1 pytest-asyncio==1.4.0 flake8==7.3.0 \
@@ -522,9 +522,9 @@ RUN if [ "$VARIANT" = "full" ]; then \
     pip install --no-cache-dir --break-system-packages \
       reportlab==5.0.1 weasyprint==70.0 cairosvg==2.9.1 fpdf2==2.8.8 PyMuPDF==1.28.2 img2pdf==0.6.3 \
       xlsxwriter==3.2.9 xlrd==2.0.2 \
-      matplotlib==3.11.1 seaborn==0.13.2 \
+      matplotlib==3.11.2 seaborn==0.13.2 \
       python-pptx==1.0.2 \
-      fastapi==0.141.1 uvicorn==0.52.4; \
+      fastapi==0.141.1 uvicorn==0.53.0; \
     fi
 
 # Replace Bookworm's runtime setuptools copy after all image packages are built.
@@ -577,7 +577,7 @@ USER claude
 RUN if [ "$VARIANT" = "full" ]; then \
     JUNIE_PLATFORM=$(case "$TARGETARCH" in amd64) echo "amd64";; arm64) echo "aarch64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     JUNIE_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$JUNIE_ARCHIVE_SHA256_AMD64";; arm64) echo "$JUNIE_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
-    JUNIE_ARCHIVE="junie-nightly-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.zip" && \
+    JUNIE_ARCHIVE="junie-release-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.zip" && \
     curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o "/tmp/${JUNIE_ARCHIVE}" "https://github.com/jetbrains-junie/junie/releases/download/${JUNIE_VERSION}/${JUNIE_ARCHIVE}" && \
     echo "$JUNIE_ARCHIVE_SHA256  /tmp/${JUNIE_ARCHIVE}" | sha256sum -c - && \
     JUNIE_TARGET="/home/claude/.local/share/junie/versions/$JUNIE_VERSION" && \
@@ -588,7 +588,7 @@ RUN if [ "$VARIANT" = "full" ]; then \
     test "$JUNIE_TOP_LEVEL" = "channel junie junie-app shim " && \
     unzip -q "/tmp/${JUNIE_ARCHIVE}" 'junie-app/*' -d "$JUNIE_STAGING" && \
     test -x "$JUNIE_STAGING/junie-app/bin/junie" && \
-    test -f "$JUNIE_STAGING/junie-app/lib/app/junie-nightly-${JUNIE_VERSION}.jar" && \
+    test -f "$JUNIE_STAGING/junie-app/lib/app/junie-release-${JUNIE_VERSION}.jar" && \
     mv "$JUNIE_STAGING/junie-app" "$JUNIE_TARGET" && \
     rmdir "$JUNIE_STAGING" && \
     ln -sfn "$JUNIE_TARGET" /home/claude/.local/share/junie/current && \

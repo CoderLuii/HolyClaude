@@ -335,7 +335,7 @@ export function verifyProductSources(facts, root) {
     throw new Error('claude-code is not installed before the variant-specific CLI region');
   }
   const fullOnlyInstallAnchors = new Map([
-    ['junie', 'JUNIE_ARCHIVE="junie-nightly-${JUNIE_VERSION}'],
+    ['junie', 'JUNIE_ARCHIVE="junie-release-${JUNIE_VERSION}'],
     ['opencode', versionAnchors.get('opencode')],
     ['pi-coding-agent', versionAnchors.get('pi-coding-agent')],
   ]);

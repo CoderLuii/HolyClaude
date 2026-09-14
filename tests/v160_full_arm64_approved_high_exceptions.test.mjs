@@ -48,7 +48,7 @@ function arm64Counterpart(review) {
   return counterpart;
 }
 
-test('binds all 37 approved full arm64 findings to exact 3220.1 and Debian tuples', () => {
+test('binds all 37 approved full arm64 findings to exact stable Junie and Debian tuples', () => {
   const expected = amd64Ids.map((id) => arm64Counterpart(reviews.find((review) => review.id === id)));
   assert.equal(expected.length, 14);
   assert.equal(expected.reduce((count, review) => count + review.vulnerabilities.length * review.component.names.length, 0), 37);
@@ -57,7 +57,7 @@ test('binds all 37 approved full arm64 findings to exact 3220.1 and Debian tuple
     const actual = reviews.filter((candidate) => candidate.id === review.id);
     assert.equal(actual.length, 1, `${review.id} must exist exactly once`);
     assert.deepEqual(actual[0], review);
-    assert.equal(actual[0].reviewedAt, '2026-09-09');
+    assert.equal(actual[0].reviewedAt, review.id.includes('-junie-') ? '2026-09-14' : '2026-09-09');
     assert.equal(actual[0].expiresAt, '2026-09-16');
     assert.equal(actual[0].approvedBy, 'CoderLuii');
     assert.equal('vexStatement' in actual[0], false);
@@ -77,7 +77,10 @@ test('keeps the approved full arm64 risk effective High through the fixed expiry
   const arm64 = reviews.filter((review) => arm64Ids.includes(review.id));
   assert.equal(arm64.length, 14);
   assert.ok(arm64.every((review) => review.effectiveSeverity === 'High'));
-  assert.ok(arm64.every((review) => review.reviewedAt === '2026-09-09' && review.expiresAt === '2026-09-16'));
+  assert.ok(arm64.every((review) =>
+    review.reviewedAt === (review.id.includes('-junie-') ? '2026-09-14' : '2026-09-09') &&
+    review.expiresAt === '2026-09-16',
+  ));
   assert.ok(arm64.every((review) => JSON.stringify(review.variants) === '["full"]'));
   assert.ok(arm64.every((review) => JSON.stringify(review.architectures) === '["arm64"]'));
 });

@@ -8,6 +8,7 @@ const unitPath = 'tests/libxml2_python_binding_guard_unit.py';
 const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
 const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
+const python = process.platform === 'win32' ? 'python' : 'python3';
 
 test('the fail-closed libxml2 Python-binding guard is wired into every Linux advisory gate', () => {
   assert.equal(existsSync(guardPath), true, `${guardPath} must exist`);
@@ -25,7 +26,7 @@ test('the fail-closed libxml2 Python-binding guard is wired into every Linux adv
 });
 
 test('unit coverage exercises the guard implementation', () => {
-  const result = spawnSync('python', ['-m', 'unittest', unitPath], { encoding: 'utf8' });
+  const result = spawnSync(python, ['-m', 'unittest', unitPath], { encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr || result.stdout);
 });
 
@@ -75,8 +76,8 @@ test('binds four exact libxml2 Python-binding reviews and OpenVEX statements', (
         assert.deepEqual(product.subcomponents.map((item) => item.identifiers.purl), expectedPurls);
       }
       assert.deepEqual(statement.products.map((product) => product['@id']), [
-        `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=${variant}`,
-        `pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=${variant}`,
+        `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
+        `pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
       ]);
     }
   }

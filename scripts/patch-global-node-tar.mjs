@@ -89,11 +89,11 @@ function main() {
     verifyBaselineDependency(npmManifest, 'npm', '12.0.2', NPM_BASELINE_TAR_SPEC);
     loadPackage(npmTarManifest, 'tar', EAS_BASELINE_TAR_VERSION);
     if (variant === 'slim') return;
-    loadPackage(vercelManifest, 'vercel', '59.15.1');
+    loadPackage(vercelManifest, 'vercel', '59.16.0');
     verifyBaselineDependency(
       easManifest,
       'eas-cli',
-      '24.0.0',
+      '24.3.0',
       EAS_BASELINE_TAR_VERSION,
     );
     verifyBaselineDependency(
@@ -110,13 +110,13 @@ function main() {
   verifyReplacement(npmTarManifest);
   patchDependency(npmManifest, 'npm', '12.0.2', NPM_BASELINE_TAR_SPEC);
   if (variant === 'slim') return;
-  loadPackage(vercelManifest, 'vercel', '59.15.1');
+  loadPackage(vercelManifest, 'vercel', '59.16.0');
   verifyReplacement(easTarManifest);
   verifyReplacement(vercelTarManifest);
   patchDependency(
     easManifest,
     'eas-cli',
-    '24.0.0',
+    '24.3.0',
     EAS_BASELINE_TAR_VERSION,
   );
   patchDependency(

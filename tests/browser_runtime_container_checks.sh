@@ -178,7 +178,7 @@ const common = {
   nodemon: '3.1.14',
   npm: '12.0.2',
   playwright: '1.63.0',
-  pnpm: '12.3.4',
+  pnpm: '12.4.1',
   prettier: '3.9.6',
   serve: '14.2.6',
   'task-master-ai': '0.43.1',
@@ -192,17 +192,17 @@ const full = {
   '@lhci/cli': '0.15.1',
   '@marp-team/marp-cli': '4.5.1',
   'drizzle-kit': '0.31.10',
-  'eas-cli': '24.0.0',
+  'eas-cli': '24.3.0',
   'http-server': '14.1.1',
   'json-server': '0.17.4',
   lighthouse: '13.4.1',
-  'netlify-cli': '27.5.2',
+  'netlify-cli': '27.6.0',
   'opencode-ai': '1.18.30',
   pm2: '7.0.4',
   prisma: '7.10.0',
   'sharp-cli': '6.1.0',
-  vercel: '59.15.1',
-  wrangler: '4.131.0',
+  vercel: '59.16.0',
+  wrangler: '4.131.2',
 };
 const expected = variant === 'full' ? { ...common, ...full } : common;
 const actual = Object.fromEntries(
@@ -247,21 +247,21 @@ common = {
     'rich': '15.0.0',
     'setuptools': '84.0.0',
     'stevedore': '5.9.1',
-    'tqdm': '4.70.0',
+    'tqdm': '4.70.1',
     'tree-sitter': '0.26.0',
-    'tree-sitter-language-pack': '1.17.0',
+    'tree-sitter-language-pack': '1.19.1',
 }
 full = {
     'cairosvg': '2.9.1',
     'fastapi': '0.141.1',
     'fpdf2': '2.8.8',
     'img2pdf': '0.6.3',
-    'matplotlib': '3.11.1',
+    'matplotlib': '3.11.2',
     'pymupdf': '1.28.2',
     'python-pptx': '1.0.2',
     'reportlab': '5.0.1',
     'seaborn': '0.13.2',
-    'uvicorn': '0.52.4',
+    'uvicorn': '0.53.0',
     'weasyprint': '70.0',
     'xlrd': '2.0.2',
     'xlsxwriter': '3.2.9',
@@ -302,17 +302,17 @@ assert_runtime_identity() {
   require_eq "npm tar dependency" "$(node -p "require('/usr/local/lib/node_modules/npm/package.json').dependencies.tar")" "7.5.22"
   node -e "if (typeof require('/usr/local/lib/node_modules/npm/node_modules/tar').list !== 'function') throw new Error('invalid npm tar module')"
   npm --prefix /usr/local/lib/node_modules/npm ls tar --all >/dev/null
-  require_eq "pnpm version" "$(pnpm --version)" "12.3.4"
+  require_eq "pnpm version" "$(pnpm --version)" "12.4.1"
   require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.3.0"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.6"
   require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.154.0"
   require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.59.0"
-  require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.17.0"
-  require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.0"
-  require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.3"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.268"
+  require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.19.1"
+  require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.1"
+  require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.4"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.270"
   require_eq "GitHub CLI version" "$(gh --version | awk 'NR == 1 {print $3}')" "2.100.0"
-  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.09.08-6caf4ff"
+  require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.09.10-fd3934a"
   local web_terminal_esbuild_arch
   local web_terminal_esbuild_root=/home/claude/.claude-code-ui/plugins/web-terminal/node_modules
   local web_terminal_esbuild_sha256
@@ -346,17 +346,17 @@ assert_runtime_identity() {
       arm64) vercel_native_arch=arm64 ;;
       *) echo "Unsupported architecture for Vercel vc-native" >&2; exit 1 ;;
     esac
-    require_eq "Vercel vc-native package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/vc-native-linux-${vercel_native_arch}/package.json').version")" "59.15.1"
+    require_eq "Vercel vc-native package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/vc-native-linux-${vercel_native_arch}/package.json').version")" "59.16.0"
     node -e "for (const path of ['/usr/local/lib/node_modules/eas-cli/node_modules/tar', '/usr/local/lib/node_modules/vercel/node_modules/tar']) { if (typeof require(path).list !== 'function') throw new Error('invalid tar module at ' + path); }"
     eas --version >/dev/null
     vercel --version >/dev/null
-    require_eq "Vercel smol-toml dependency" "$(node -p "require('/usr/local/lib/node_modules/vercel/package.json').dependencies['smol-toml']")" "1.7.1"
-    require_eq "Vercel smol-toml package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml/package.json').version")" "1.7.1"
+    require_eq "Vercel smol-toml dependency" "$(node -p "require('/usr/local/lib/node_modules/vercel/package.json').dependencies['smol-toml']")" "1.8.0"
+    require_eq "Vercel smol-toml package version" "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml/package.json').version")" "1.8.0"
     npm --prefix /usr/local/lib/node_modules/vercel ls smol-toml --all >/dev/null
     timeout 5s node -e "const { parse, TomlError } = require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml'); const value = parse('project = \\\"holyclaude\\\"\\n[build]\\ncommand = \\\"npm run build\\\"'); if (value.project !== 'holyclaude' || value.build.command !== 'npm run build') throw new Error('representative TOML parsing failed'); try { parse('a=[1 #'); throw new Error('malformed TOML was accepted'); } catch (error) { if (!(error instanceof TomlError)) throw error; } console.log('vercel_smol_toml=ok')"
     timeout 5s node -e "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require('node:fs'); const { tmpdir } = require('node:os'); const { join } = require('node:path'); (async () => { const root = mkdtempSync(join(tmpdir(), 'vercel-smol-toml-')); try { const python = join(root, 'python'); mkdirSync(python); writeFileSync(join(python, 'pyproject.toml'), '[project]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n'); const { discoverPythonPackage } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis'); const discovered = await discoverPythonPackage({ entrypointDir: python, rootDir: root }); if (discovered.manifest?.data?.project?.name !== 'smoke') throw new Error('python-analysis failed to parse pyproject.toml'); const rust = join(root, 'rust'); mkdirSync(join(rust, 'src'), { recursive: true }); writeFileSync(join(rust, 'Cargo.toml'), '[package]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n[dependencies]\\nvercel_runtime = \\\"1\\\"\\n'); writeFileSync(join(rust, 'src/main.rs'), 'fn main() {}\\n'); const { shouldServe } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/rust'); if (await shouldServe({ workPath: rust, entrypoint: 'src/main.rs', requestPath: 'different' })) throw new Error('rust failed to parse Cargo.toml runtime dependency'); console.log('vercel_smol_toml_consumers=ok'); } finally { rmSync(root, { recursive: true, force: true }); } })().catch((error) => { console.error(error); process.exit(1); })"
     evidence "Node tar security overlay=7.5.22 eas=ok vercel=ok"
-    require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "27.5.2"
+    require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "27.6.0"
     netlify --version >/dev/null
     local ffmpeg_backport_version='7:5.1.9-0+deb12u1+holyclaude2'
     for package_name in ffmpeg libavcodec59 libavdevice59 libavfilter8 libavformat59 libavutil57 libpostproc56 libswresample4 libswscale6; do
@@ -390,9 +390,10 @@ assert_runtime_identity() {
     AZURE_CONFIG_DIR="$azure_config_dir" AZURE_CORE_COLLECT_TELEMETRY=false az config get core.collect_telemetry >/dev/null
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-x64/bin/local-functions-proxy"
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-arm64/bin/local-functions-proxy"
-    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.131.0"
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.131.2"
     require_eq "Wrangler undici development dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').devDependencies.undici")" "7.29.0"
-    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20260910.0-alpha"
+    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20260911.1-alpha"
+    require_eq "Wrangler workerd package version" "$(node -p "require(require.resolve('workerd/package.json', { paths: ['/usr/local/lib/node_modules/wrangler'] })).version")" "1.20260911.1"
     require_eq "Wrangler Miniflare undici dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.undici")" "7.29.0"
     require_eq "Wrangler undici package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json').version")" "7.29.0"
     npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null
@@ -422,18 +423,18 @@ assert_runtime_identity() {
     require_eq "Pi undici package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json').version")" "8.10.2"
     npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all >/dev/null
     pi --version >/dev/null
-    require_eq "EAS nanoid dependency" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/package.json').dependencies.nanoid")" "3.3.18"
-    require_eq "EAS nanoid package version" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json').version")" "3.3.18"
+    require_eq "EAS nanoid dependency" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/package.json').dependencies.nanoid")" "3.3.19"
+    require_eq "EAS nanoid package version" "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json').version")" "3.3.19"
     npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all >/dev/null
     require_eq "PM2 js-yaml dependency" "$(node -p "require('/usr/local/lib/node_modules/pm2/package.json').dependencies['js-yaml']")" "4.3.2"
     require_eq "PM2 js-yaml package version" "$(node -p "require('/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json').version")" "4.3.2"
     npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all >/dev/null
     PM2_HOME="$SENTINEL_ROOT/pm2" pm2 --version | grep -Fx "7.0.4"
     PM2_HOME="$SENTINEL_ROOT/pm2" pm2 kill >/dev/null
-    require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.1"
+    require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.2"
     require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.141.1"
-    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3220.1"
-    test -f /home/claude/.local/share/junie/current/lib/app/junie-nightly-3220.1.jar
+    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3196.4"
+    test -f /home/claude/.local/share/junie/current/lib/app/junie-release-3196.4.jar
   else
     ! dpkg-query -W libssh-gcrypt-4 >/dev/null 2>&1
     test ! -e /usr/local/lib/node_modules/wrangler
@@ -495,10 +496,10 @@ for (const [dependency, version] of Object.entries({
   'better-sqlite3': '12.11.1',
   dompurify: '3.4.15',
   express: '4.22.2',
-  'fast-uri': '3.1.6',
+  'fast-uri': '3.1.7',
   'ip-address': '10.7.0',
   'js-yaml': '3.15.2',
-  nanoid: '3.3.18',
+  nanoid: '3.3.19',
   hono: '4.13.7',
   jws: '3.2.3',
   multer: '2.3.0',
@@ -537,7 +538,7 @@ if (process.env.EXPECT_FULL === '1') {
   for (const [path, version] of Object.entries({
     '/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json': '7.29.0',
     '/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json': '8.10.2',
-    '/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json': '3.3.18',
+    '/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json': '3.3.19',
     '/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json': '4.3.2',
     '/usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json': '4.3.2',
     '/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json': '0.9.12',
@@ -674,7 +675,7 @@ assert_netlify_security_dependencies() {
   require_eq "Netlify CLI cron-parser dependency" "$(node -p "require('$netlify_root/package.json').dependencies['cron-parser']")" "^5.0.0"
   require_eq "Netlify CLI raw-body dependency" "$(node -p "require('$netlify_root/package.json').dependencies['raw-body']")" "^4.0.0"
   require_eq "Netlify CLI TOML package version" "$(node -p "require('$netlify_root/node_modules/toml/package.json').version")" "4.3.0"
-  require_eq "Netlify CLI cron-parser package version" "$(node -p "require('$netlify_root/node_modules/cron-parser/package.json').version")" "5.10.0"
+  require_eq "Netlify CLI cron-parser package version" "$(node -p "require('$netlify_root/node_modules/cron-parser/package.json').version")" "5.10.1"
   require_eq "Netlify CLI raw-body package version" "$(node -p "require('$netlify_root/node_modules/raw-body/package.json').version")" "4.0.0"
   npm --prefix /usr/local/lib/node_modules/netlify-cli ls toml cron-parser raw-body --all >/dev/null
   require_eq "Netlify ipx sharp dependency" "$(node -p "require('$netlify_root/node_modules/ipx/package.json').dependencies.sharp")" "0.35.4"

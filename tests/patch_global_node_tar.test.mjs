@@ -26,7 +26,7 @@ function fixture() {
   });
   writeJson(join(lib, 'eas-cli', 'package.json'), {
     name: 'eas-cli',
-    version: '24.0.0',
+    version: '24.3.0',
     dependencies: { tar: '7.5.19' },
   });
   writeJson(join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'), {
@@ -35,7 +35,7 @@ function fixture() {
   });
   writeJson(join(lib, 'vercel', 'package.json'), {
     name: 'vercel',
-    version: '59.15.1',
+    version: '59.16.0',
   });
   writeJson(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json'), {
     name: '@vercel/fun',

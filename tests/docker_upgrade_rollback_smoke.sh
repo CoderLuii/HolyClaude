@@ -6,10 +6,10 @@ VARIANT="${2:?missing variant}"
 ARCH="${3:?missing arch}"
 LABEL="${4:-local}"; LABEL="${LABEL//[^a-zA-Z0-9_.-]/-}"
 case "$VARIANT-$ARCH" in
-  full-amd64) OLD_TAG=1.5.9; OLD_INDEX=sha256:e21505a3f286101e0ea704bdbbec29eedee7c3b7490e224a4e781ac3e702250a; OLD_DIGEST=sha256:b797a832983c4f78e73ffdc9e673d384137f7c7e9836d71cf1672a2a10285ebd ;;
-  full-arm64) OLD_TAG=1.5.9; OLD_INDEX=sha256:e21505a3f286101e0ea704bdbbec29eedee7c3b7490e224a4e781ac3e702250a; OLD_DIGEST=sha256:30e2c9af3f85fd56ea515123532ee4f941c7154f66ad41bfdd07b02e0f541356 ;;
-  slim-amd64) OLD_TAG=1.5.9-slim; OLD_INDEX=sha256:424a931d1a9be32fb00669b4ea2d489c7bd3879d8cfc0b5ff77b20b8bbb056f3; OLD_DIGEST=sha256:24aa28d1a801f02d560c0fb7406cdd33092b9776eaf563e78167840cbe384fc3 ;;
-  slim-arm64) OLD_TAG=1.5.9-slim; OLD_INDEX=sha256:424a931d1a9be32fb00669b4ea2d489c7bd3879d8cfc0b5ff77b20b8bbb056f3; OLD_DIGEST=sha256:c69dbd24af1d4fb88fb00b71f931fc7824ece3e019d856b55abf5a3253955d74 ;;
+  full-amd64) OLD_TAG=1.6.0; OLD_INDEX=sha256:2b74a8523d73bcfc888325417b408e2189f87b1212cd85186773330f9fa98775; OLD_DIGEST=sha256:b8f058f8c82cd3b4896188535a13b244994aec0ce4f21a3225d4851750b79162 ;;
+  full-arm64) OLD_TAG=1.6.0; OLD_INDEX=sha256:2b74a8523d73bcfc888325417b408e2189f87b1212cd85186773330f9fa98775; OLD_DIGEST=sha256:caab18df125676f36b61b38875530544a0334326d01e30d0a045a6432c36a17c ;;
+  slim-amd64) OLD_TAG=1.6.0-slim; OLD_INDEX=sha256:8b0899509b06d2c57f46a26df30e0e4cf21fbfeaf04f80b379d31ec70224b6da; OLD_DIGEST=sha256:42fb0117f98e43a4e98f7efaa2a769a1a81ec38e8fdbe2f361fd4ea6c604aeee ;;
+  slim-arm64) OLD_TAG=1.6.0-slim; OLD_INDEX=sha256:8b0899509b06d2c57f46a26df30e0e4cf21fbfeaf04f80b379d31ec70224b6da; OLD_DIGEST=sha256:e40a907546a70a9c9b84283c924d92a22d5d9cfb8ed36559252ed0ce97ba2982 ;;
   *) echo "unsupported target: $VARIANT-$ARCH" >&2; exit 1 ;;
 esac
 OLD_REPO="coderluii/holyclaude:$OLD_TAG"
@@ -57,7 +57,7 @@ clone_volume() {
     --mount "type=volume,source=$target,target=/to" "$OLD_IMAGE" -lc 'cp -a /from/. /to/'
 }
 assert_payloads() {
-  local c="$1" expect_new_persistence="$2"
+  local c="$1"
   docker_cmd exec --user 1000:1000 "$c" sh -lc '
     set -eu
     test ! -L /home/claude/.claude.json
@@ -129,10 +129,13 @@ assert_payloads() {
     esac
     # cursor-contract-end
   '
-  grep -Fq fixture-alias < <(docker_cmd run --rm --user 0:0 --entrypoint sh --mount "type=volume,source=$3,target=/state,readonly" "$OLD_IMAGE" -lc 'cat /state/.bash_aliases')
-  if [ "$expect_new_persistence" = yes ]; then
-    docker_cmd exec --user 1000:1000 "$c" grep -Fq fixture-alias /home/claude/.bash_aliases
-  fi
+  grep -Fq fixture-alias < <(docker_cmd run --rm --user 0:0 --entrypoint sh --mount "type=volume,source=$2,target=/state,readonly" "$OLD_IMAGE" -lc 'cat /state/.bash_aliases')
+  docker_cmd exec --user 1000:1000 "$c" sh -lc '
+    set -eu
+    test -L /home/claude/.bash_aliases
+    test "$(readlink /home/claude/.bash_aliases)" = /home/claude/.claude/.bash_aliases
+    grep -Fq fixture-alias /home/claude/.bash_aliases
+  '
 }
 run_stage() {
   local image="$1" stage="$2" cv="$3" wv="$4" dv="$5"
@@ -167,8 +170,7 @@ run_stage() {
     response="$(docker_cmd exec "$c" curl -fsS -X POST -H 'Content-Type: application/json' --data '{"username":"upgrade-fixture","password":"synthetic-password-160"}' http://127.0.0.1:3001/api/auth/register)"
     printf '%s' "$response" | grep -Fq '"success":true'
   fi
-  case "$stage" in candidate) expect_new_persistence=yes ;; *) expect_new_persistence=no ;; esac
-  assert_payloads "$c" "$expect_new_persistence" "$cv"
+  assert_payloads "$c" "$cv"
   docker_cmd stop --time 20 "$c" >/dev/null
 }
 

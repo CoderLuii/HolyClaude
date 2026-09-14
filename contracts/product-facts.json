@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.6.0",
-    "dockerVersion": "1.6.0"
+    "tag": "v1.6.1",
+    "dockerVersion": "1.6.1"
   },
   "registries": {
     "dockerHub": {
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.268",
+      "version": "2.1.270",
       "variants": [
         "full",
         "slim"
@@ -67,7 +67,7 @@
       "id": "cursor-agent",
       "name": "Cursor Agent",
       "command": "cursor",
-      "version": "2026.09.08-6caf4ff",
+      "version": "2026.09.10-fd3934a",
       "variants": [
         "full",
         "slim"
@@ -87,7 +87,7 @@
       "id": "junie",
       "name": "Junie",
       "command": "junie",
-      "version": "3220.1",
+      "version": "3196.4",
       "variants": [
         "full"
       ]

@@ -131,13 +131,19 @@ run_stage fixture-image candidate fixture-claude fixture-workspace fixture-cloud
   assert.equal(result.status, 0, result.stderr || result.stdout);
 });
 
-test('upgrade baseline requires only persistence behavior present in v1.5.9', () => {
+test('upgrade baseline binds v1.6.0 native images and checks current persistence in every stage', () => {
   const payloads = upgrade.match(/assert_payloads\(\) \{[\s\S]*?\n\}\nrun_stage/)?.[0].replace(/\nrun_stage$/, '');
   assert.ok(payloads, 'missing assert_payloads function');
+  assert.match(upgrade, /full-amd64\) OLD_TAG=1\.6\.0; OLD_INDEX=sha256:2b74a8523d73bcfc888325417b408e2189f87b1212cd85186773330f9fa98775; OLD_DIGEST=sha256:b8f058f8c82cd3b4896188535a13b244994aec0ce4f21a3225d4851750b79162/);
+  assert.match(upgrade, /full-arm64\) OLD_TAG=1\.6\.0; OLD_INDEX=sha256:2b74a8523d73bcfc888325417b408e2189f87b1212cd85186773330f9fa98775; OLD_DIGEST=sha256:caab18df125676f36b61b38875530544a0334326d01e30d0a045a6432c36a17c/);
+  assert.match(upgrade, /slim-amd64\) OLD_TAG=1\.6\.0-slim; OLD_INDEX=sha256:8b0899509b06d2c57f46a26df30e0e4cf21fbfeaf04f80b379d31ec70224b6da; OLD_DIGEST=sha256:42fb0117f98e43a4e98f7efaa2a769a1a81ec38e8fdbe2f361fd4ea6c604aeee/);
+  assert.match(upgrade, /slim-arm64\) OLD_TAG=1\.6\.0-slim; OLD_INDEX=sha256:8b0899509b06d2c57f46a26df30e0e4cf21fbfeaf04f80b379d31ec70224b6da; OLD_DIGEST=sha256:e40a907546a70a9c9b84283c924d92a22d5d9cfb8ed36559252ed0ce97ba2982/);
   assert.match(payloads, /grep -Fq cursor-fixture \/home\/claude\/\.claude\/\.cursor\/runtime-marker/);
   assert.match(payloads, /# cursor-contract-start[\s\S]*# cursor-contract-end/);
-  assert.match(payloads, /if \[ "\$expect_new_persistence" = yes \]; then[\s\S]*grep -Fq fixture-alias \/home\/claude\/\.bash_aliases/);
-  assert.match(upgrade, /case "\$stage" in candidate\) expect_new_persistence=yes ;; \*\) expect_new_persistence=no ;; esac/);
+  assert.match(payloads, /test -L \/home\/claude\/\.bash_aliases/);
+  assert.match(payloads, /test "\$\(readlink \/home\/claude\/\.bash_aliases\)" = \/home\/claude\/\.claude\/\.bash_aliases/);
+  assert.match(payloads, /grep -Fq fixture-alias \/home\/claude\/\.bash_aliases/);
+  assert.doesNotMatch(upgrade, /expect_new_persistence/);
   assert.match(upgrade, /# cursor-snapshot-start[\s\S]*exec \/usr\/local\/bin\/entrypoint\.sh/);
 });
 
@@ -154,6 +160,7 @@ test('Cursor topology assertions survive their outer Docker shell transport', ()
   const snapshot = join(fixture, 'cursor-prestart.snapshot');
   const typeFile = join(fixture, 'cursor-prestart.type');
   const workspace = join(fixture, 'workspace');
+  const aliasPath = join(home, '.bash_aliases');
   const transportStub = String.raw`
 docker_cmd() {
   local operation="$1"
@@ -163,16 +170,18 @@ docker_cmd() {
     return 0
   fi
   test "$operation" = exec
-  local previous="" payload="" argument
+  local previous="" shell="" payload="" argument
   for argument in "$@"; do
     if [ "$previous" = -lc ]; then payload="$argument"; fi
+    if [ "$argument" = -lc ]; then shell="$previous"; fi
     previous="$argument"
   done
   if [ -n "$payload" ]; then
     payload="${'${'}payload//\/home\/claude/$TRANSPORT_HOME}"
+    payload="${'${'}payload//$TRANSPORT_HOME\/.claude\/.bash_aliases/$TRANSPORT_ALIAS_TARGET}"
     payload="${'${'}payload//\/workspace/$TRANSPORT_WORKSPACE}"
     payload='sqlite3() { case "$*" in *integrity_check*) printf "ok\\n" ;; *) printf "1\\n" ;; esac; }; '"$payload"
-    bash -eu -c "$payload"
+    "$shell" -lc "$payload"
     return
   fi
   local path="${'${'}!#}"
@@ -199,29 +208,51 @@ docker_cmd() {
     writeFileSync(join(durable, '.cursor', 'runtime-marker'), 'cursor-fixture\n');
     writeFileSync(join(home, '.gitconfig'), 'Upgrade Fixture\n');
     writeFileSync(join(home, '.config', 'gh', 'hosts.yml'), 'fixture\n');
-    writeFileSync(join(home, '.bash_aliases'), 'fixture-alias\n');
+    writeFileSync(join(durable, '.bash_aliases'), 'fixture-alias\n');
+    symlinkSync(join(durable, '.bash_aliases'), aliasPath, 'file');
     writeFileSync(join(workspace, 'project', 'marker.txt'), 'workspace-fixture\n');
     writeFileSync(join(live, 'original.json'), '{"preserve":true}\n');
     cpSync(live, snapshot, { recursive: true, verbatimSymlinks: true });
     writeFileSync(typeFile, 'directory\n');
+    const aliasLinkResult = spawnSync(bash, ['-c', 'readlink "$1"', 'read-alias', toBashPath(aliasPath)], {
+      encoding: 'utf8', timeout: 10_000, stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(aliasLinkResult.status, 0, aliasLinkResult.stderr || aliasLinkResult.stdout);
 
     const env = {
       ...process.env,
       OLD_IMAGE: 'fixture-old-image',
       TRANSPORT_HOME: toBashPath(home),
       TRANSPORT_WORKSPACE: toBashPath(workspace),
+      TRANSPORT_ALIAS_TARGET: aliasLinkResult.stdout.trim(),
       CURSOR_CONTRACT_LIVE: toBashPath(live),
       CURSOR_CONTRACT_DURABLE: toBashPath(join(durable, '.cursor')),
       CURSOR_CONTRACT_SNAPSHOT: toBashPath(snapshot),
       CURSOR_CONTRACT_TYPE_FILE: toBashPath(typeFile),
     };
-    let result = spawnSync(bash, ['-eu', '-c', `${transportStub}\n${assertPayloads}\nassert_payloads fixture yes fixture-volume`], {
-      encoding: 'utf8', timeout: 10_000, env,
+    const runUpgradePayloads = () => spawnSync(bash, ['-eu', '-c', `${transportStub}\n${assertPayloads}\nassert_payloads fixture fixture-volume`], {
+      encoding: 'utf8', timeout: 10_000, env, stdio: ['ignore', 'pipe', 'pipe'],
     });
+    let result = runUpgradePayloads();
     assert.equal(result.status, 0, result.stderr || result.stdout);
 
+    rmSync(aliasPath);
+    writeFileSync(aliasPath, 'fixture-alias\n');
+    const regularAliasResult = runUpgradePayloads();
+
+    rmSync(aliasPath);
+    const wrongAliasTarget = join(home, '.wrong-bash-aliases');
+    writeFileSync(wrongAliasTarget, 'fixture-alias\n');
+    symlinkSync(wrongAliasTarget, aliasPath, 'file');
+    const wrongAliasResult = runUpgradePayloads();
+    assert.deepEqual(
+      [regularAliasResult.status !== 0, wrongAliasResult.status !== 0],
+      [true, true],
+      'matching alias payload must not mask regular-file or wrong-target topology failures',
+    );
+
     result = spawnSync(bash, ['-eu', '-c', `${transportStub}\ncandidate=fixture\n${recoveryExec}`], {
-      encoding: 'utf8', timeout: 10_000, env,
+      encoding: 'utf8', timeout: 10_000, env, stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(result.status, 0, result.stderr || result.stdout);
   } finally {
@@ -248,6 +279,7 @@ test('Cursor topology contracts preserve real state and require an exact generat
     const runContract = (extraEnv = {}) => spawnSync(bash, ['-eu', '-c', cursorContract], {
       encoding: 'utf8',
       timeout: 10_000,
+      stdio: ['ignore', 'pipe', 'pipe'],
       env: {
         ...process.env,
         CURSOR_CONTRACT_LIVE: toBashPath(live),
@@ -316,6 +348,16 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.8\.2'/);
+  assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.0\.2'/);
+  assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '59\.16\.0'/);
+  assert.match(developerTools, /assert\.equal\(pythonAnalysisPackage\.version, '0\.14\.0'/);
+  assert.match(developerTools, /assert\.equal\(pythonAnalysisPackage\.dependencies\['@renovatebot\/pep440'\], '4\.2\.1'/);
+  assert.match(developerTools, /assert\.equal\(pep440Package\.version, '4\.2\.1'/);
+  assert.match(developerTools, /architecture: process\.arch/);
+  assert.match(developerTools, /selectPythonVersion/);
+  assert.match(developerTools, /3\.13\.0a1/);
+  assert.match(developerTools, /invalidConstraint/);
   assert.match(developerTools, /TREE_SITTER_LANGUAGE_PACK_MANIFEST_URL/);
   assert.match(developerTools, /a78386c99e08bc1c88e2fcd3c036a48b2c4c62088628a3aab3a3aad1ed3715a9/);
   assert.match(developerTools, /get_parser\(['"]python['"]\)/);

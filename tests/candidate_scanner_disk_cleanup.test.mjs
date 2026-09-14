@@ -11,12 +11,13 @@ const workflowPath = '.github/workflows/docker-publish.yml';
 const workflow = readFileSync(workflowPath, 'utf8');
 const upgrade = readFileSync('tests/docker_upgrade_rollback_smoke.sh', 'utf8');
 const sha = 'a'.repeat(40);
+const python = process.platform === 'win32' ? 'python' : 'python3';
 
 const targets = {
-  'full-amd64': 'coderluii/holyclaude:1.5.9@sha256:b797a832983c4f78e73ffdc9e673d384137f7c7e9836d71cf1672a2a10285ebd',
-  'full-arm64': 'coderluii/holyclaude:1.5.9@sha256:30e2c9af3f85fd56ea515123532ee4f941c7154f66ad41bfdd07b02e0f541356',
-  'slim-amd64': 'coderluii/holyclaude:1.5.9-slim@sha256:24aa28d1a801f02d560c0fb7406cdd33092b9776eaf563e78167840cbe384fc3',
-  'slim-arm64': 'coderluii/holyclaude:1.5.9-slim@sha256:c69dbd24af1d4fb88fb00b71f931fc7824ece3e019d856b55abf5a3253955d74',
+  'full-amd64': 'coderluii/holyclaude:1.6.0@sha256:b8f058f8c82cd3b4896188535a13b244994aec0ce4f21a3225d4851750b79162',
+  'full-arm64': 'coderluii/holyclaude:1.6.0@sha256:caab18df125676f36b61b38875530544a0334326d01e30d0a045a6432c36a17c',
+  'slim-amd64': 'coderluii/holyclaude:1.6.0-slim@sha256:42fb0117f98e43a4e98f7efaa2a769a1a81ec38e8fdbe2f361fd4ea6c604aeee',
+  'slim-arm64': 'coderluii/holyclaude:1.6.0-slim@sha256:e40a907546a70a9c9b84283c924d92a22d5d9cfb8ed36559252ed0ce97ba2982',
 };
 
 function fixture() {
@@ -121,7 +122,7 @@ test('rejects non-hosted, unnamed-builder, SHA, and target drift before cleanup'
 });
 
 test('workflow parses and binds the job-owned Buildx builder between smoke and scanner installation', () => {
-  const parsed = spawnSync('python', ['-c', 'import sys,yaml; yaml.safe_load(open(sys.argv[1], encoding="utf-8"))', workflowPath], {
+  const parsed = spawnSync(python, ['-c', 'import sys,yaml; yaml.safe_load(open(sys.argv[1], encoding="utf-8"))', workflowPath], {
     encoding: 'utf8', timeout: 10_000,
   });
   assert.equal(parsed.status, 0, parsed.stderr);

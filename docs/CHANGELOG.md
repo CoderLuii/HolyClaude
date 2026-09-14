@@ -4,6 +4,24 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.1] - 09/14/2026
+
+### Added
+
+- Added an opt-in Full-derived recipe for Docker CLI 29.8.0 and Compose 5.5.1. The stock Full and Slim images still omit Docker Engine and the Docker client.
+- Added a read-only Synology diagnostic for `Too many levels of symbolic links`. It inspects the stopped container's actual bind source without changing saved state; existing link loops still need a separate recovery step.
+
+### Changed
+
+- Updated Claude Code to 2.1.270 and Cursor Agent to `2026.09.10-fd3934a`. Switched Junie to the official stable 3196.4 release.
+- Updated pnpm to 12.4.1, Wrangler to 4.131.2, Vercel CLI to 59.16.0, Netlify CLI to 27.6.0 and EAS CLI to 24.3.0.
+- Updated fzf to 0.74.4, tqdm to 4.70.1, tree-sitter-language-pack to 1.19.1, matplotlib to 3.11.2 and Uvicorn to 0.53.0.
+- Updated the pinned dependency overlays for Cursor Agent's Piscina, CloudCLI's nanoid and fast-uri, and Vercel's smol-toml.
+
+### Security
+
+- The affected Bookworm `libde265` packages remain unfixed and are temporarily accepted through September 17, 2026. The exact package, path, variant and architecture scope is in the [security reviews](https://github.com/CoderLuii/HolyClaude/blob/v1.6.1/security/advisory-reviews.json).
+
 ## [1.6.0] - 09/11/2026
 
 ### Added

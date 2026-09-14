@@ -1,0 +1,11 @@
+services:
+  probe:
+    image: ${OPTIONAL_DOCKER_CLIENT_IMAGE:?set OPTIONAL_DOCKER_CLIENT_IMAGE}
+    pull_policy: never
+    entrypoint: /bin/sh
+    command: ["-c", "printf 'optional-docker-client-compose-ok\\n'; sleep 300"]
+    healthcheck:
+      disable: true
+    labels:
+      com.coderluii.validation: optional-docker-client
+      com.coderluii.validation.prefix: ${OPTIONAL_DOCKER_CLIENT_PREFIX:?set OPTIONAL_DOCKER_CLIENT_PREFIX}

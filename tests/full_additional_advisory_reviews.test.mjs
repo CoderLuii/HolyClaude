@@ -77,8 +77,8 @@ test('binds every full not-affected record to exact full products and subcompone
       vulnerability === 'CVE-2025-40777' ? 'vulnerable_code_not_in_execute_path' : 'vulnerable_code_not_present',
     );
     assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
     ]);
     const expectedPurls = names.map((name) => {
       const arch = name === 'dnsutils' ? 'all' : 'amd64';

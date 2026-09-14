@@ -1434,8 +1434,8 @@
         "name": "FFmpeg upstream fix",
         "url": "https://github.com/FFmpeg/FFmpeg/commit/02fc47e13f903768b75f7985a2706a6223ab4506"
       },
-      "reviewedAt": "2026-08-12",
-      "expiresAt": "2026-09-11",
+      "reviewedAt": "2026-09-14",
+      "expiresAt": "2026-10-14",
       "rationale": "The exact 7:5.1.9-0+deb12u1+holyclaude2 package set is rebuilt from Debian's checksum-bound source with upstream commit 02fc47e13f903768b75f7985a2706a6223ab4506. The committed pure patch is bound by SHA-256 d68cd830fb5f5dd2f597918def2efcdbf15306a9c8697cdae44636d1dd76c179.",
       "variants": [
         "full"
@@ -1506,8 +1506,8 @@
         "name": "FFmpeg upstream fix",
         "url": "https://github.com/FFmpeg/FFmpeg/commit/16b2049d4d5222db6cd7c031409058571c94f6a9"
       },
-      "reviewedAt": "2026-08-12",
-      "expiresAt": "2026-09-11",
+      "reviewedAt": "2026-09-14",
+      "expiresAt": "2026-10-14",
       "rationale": "The exact 7:5.1.9-0+deb12u1+holyclaude2 package set is rebuilt from Debian's checksum-bound source with upstream commit 16b2049d4d5222db6cd7c031409058571c94f6a9. The committed pure patch is bound by SHA-256 a45eaa63baad988a38aacdd4c58470e3b80ef49ecd19f3e53c68b954317594a7.",
       "variants": [
         "full"
@@ -17175,15 +17175,15 @@
         "names": ["json-smart"],
         "versions": ["2.5.1"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory", "url": "https://github.com/advisories/GHSA-pq2g-wx69-c263"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17195,15 +17195,15 @@
         "names": ["netty-codec"],
         "versions": ["4.1.118.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17215,15 +17215,15 @@
         "names": ["netty-codec-compression"],
         "versions": ["4.2.9.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17235,15 +17235,15 @@
         "names": ["netty-codec-dns"],
         "versions": ["4.1.118.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory", "url": "https://github.com/advisories/GHSA-cm33-6792-r9fm"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17255,15 +17255,15 @@
         "names": ["netty-codec-http"],
         "versions": ["4.2.9.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17275,15 +17275,15 @@
         "names": ["netty-codec-http2"],
         "versions": ["4.2.9.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17295,15 +17295,15 @@
         "names": ["netty-handler"],
         "versions": ["4.2.9.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17315,15 +17315,15 @@
         "names": ["netty-resolver-dns"],
         "versions": ["4.1.118.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17335,15 +17335,15 @@
         "names": ["netty-transport-classes-epoll"],
         "versions": ["4.2.9.Final"],
         "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "GitHub Security Advisory", "url": "https://github.com/advisories/GHSA-rwm7-x88c-3g2p"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17355,15 +17355,15 @@
         "names": ["openjdk"],
         "versions": ["21.0.11+10-b1163.116"],
         "types": ["binary"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/runtime/release$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/runtime/release$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "NVD", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41254"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17375,15 +17375,15 @@
         "names": ["openjdk"],
         "versions": ["21.0.11+10-b1163.116"],
         "types": ["binary"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/runtime/release$"]
+        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/runtime/release$"]
       },
       "disposition": "high_exception",
       "effectiveSeverity": "High",
       "owner": "Junie CLI",
       "authority": {"name": "NVD", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47063"},
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": ["full"],
       "architectures": ["amd64"]
@@ -17780,7 +17780,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -17790,9 +17790,9 @@
         "name": "GitHub Security Advisory",
         "url": "https://github.com/advisories/GHSA-pq2g-wx69-c263"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -17818,7 +17818,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -17828,9 +17828,9 @@
         "name": "GitHub Security Advisory database",
         "url": "https://github.com/advisories"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -17856,7 +17856,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -17866,9 +17866,9 @@
         "name": "GitHub Security Advisory database",
         "url": "https://github.com/advisories"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -17893,7 +17893,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -17903,9 +17903,9 @@
         "name": "GitHub Security Advisory",
         "url": "https://github.com/advisories/GHSA-cm33-6792-r9fm"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -17935,7 +17935,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -17945,9 +17945,9 @@
         "name": "GitHub Security Advisory database",
         "url": "https://github.com/advisories"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -17974,7 +17974,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -17984,9 +17984,9 @@
         "name": "GitHub Security Advisory database",
         "url": "https://github.com/advisories"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -18013,7 +18013,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -18023,9 +18023,9 @@
         "name": "GitHub Security Advisory database",
         "url": "https://github.com/advisories"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -18051,7 +18051,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -18061,9 +18061,9 @@
         "name": "GitHub Security Advisory database",
         "url": "https://github.com/advisories"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the findings remain effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the findings remain effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -18088,7 +18088,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "high_exception",
@@ -18098,9 +18098,9 @@
         "name": "GitHub Security Advisory",
         "url": "https://github.com/advisories/GHSA-rwm7-x88c-3g2p"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -18125,7 +18125,7 @@
           "binary"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/runtime/release$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/runtime/release$"
         ]
       },
       "disposition": "high_exception",
@@ -18135,9 +18135,9 @@
         "name": "NVD",
         "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41254"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -18162,7 +18162,7 @@
           "binary"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/runtime/release$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/runtime/release$"
         ]
       },
       "disposition": "high_exception",
@@ -18172,9 +18172,9 @@
         "name": "NVD",
         "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47063"
       },
-      "reviewedAt": "2026-09-09",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-09-16",
-      "rationale": "Junie CLI 3220.1 ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior for seven days while the finding remains effective High.",
+      "rationale": "The official stable Junie CLI 3196.4 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-16 while the finding remains effective High.",
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
@@ -19011,7 +19011,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "not_affected",
@@ -19021,9 +19021,9 @@
         "name": "Netty Security Advisory",
         "url": "https://github.com/netty/netty/security/advisories/GHSA-c4c3-7fpv-j4q5"
       },
-      "reviewedAt": "2026-09-10",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-10-10",
-      "rationale": "GHSA-c4c3-7fpv-j4q5, also tracked as CVE-2026-75595, requires a Netty SNI TLS route with a permissive fallback context. The exact Junie 3220.1 JAR SHA-256 86c6899a7478c5a5884c1ddaf50f7c8e794b51d92a41c597512989e162886ec1 contains netty-handler 4.2.9.Final, but the native full amd64 guard requires the reviewed static identities, no non-Netty SNI references, the two-class Ktor sslConnector baseline, one loopback-only plain HTTP gateway listener, rejection of normal and fragmented TLS ClientHello input, and direct post-stop PID and listener absence.",
+      "rationale": "GHSA-c4c3-7fpv-j4q5, also tracked as CVE-2026-75595, requires a Netty SNI TLS route with a permissive fallback context. The exact Junie 3196.4 JAR SHA-256 24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f contains netty-handler 4.2.9.Final and is bound to the sole manifest-supported standalone Main-Class, exact gateway command-surface class hashes, no non-Netty SNI references, and the two-class Ktor sslConnector baseline. Acceptance requires the native full amd64 guard to prove stable gateway mode is runtime-disabled with status 1 and the exact stable-channel diagnostic, and that no launcher descendant or listener survives. Embedded private gateway classes are not treated as supported entrypoints and remain covered by the static TLS and SNI checks.",
       "vexStatement": "urn:holyclaude:vex:full-amd64-junie-netty-handler-ghsa-c4c3-7fpv-j4q5",
       "variants": [
         "full"
@@ -19048,7 +19048,7 @@
           "java-archive"
         ],
         "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3220\\.1/lib/app/junie-nightly-3220\\.1\\.jar$"
+          "^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$"
         ]
       },
       "disposition": "not_affected",
@@ -19058,9 +19058,9 @@
         "name": "Netty Security Advisory",
         "url": "https://github.com/netty/netty/security/advisories/GHSA-c4c3-7fpv-j4q5"
       },
-      "reviewedAt": "2026-09-10",
+      "reviewedAt": "2026-09-14",
       "expiresAt": "2026-10-10",
-      "rationale": "GHSA-c4c3-7fpv-j4q5, also tracked as CVE-2026-75595, requires a Netty SNI TLS route with a permissive fallback context. The exact Junie 3220.1 JAR SHA-256 86c6899a7478c5a5884c1ddaf50f7c8e794b51d92a41c597512989e162886ec1 contains netty-handler 4.2.9.Final, but the native full arm64 guard requires the reviewed static identities, no non-Netty SNI references, the two-class Ktor sslConnector baseline, one loopback-only plain HTTP gateway listener, rejection of normal and fragmented TLS ClientHello input, and direct post-stop PID and listener absence.",
+      "rationale": "GHSA-c4c3-7fpv-j4q5, also tracked as CVE-2026-75595, requires a Netty SNI TLS route with a permissive fallback context. The exact Junie 3196.4 JAR SHA-256 24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f contains netty-handler 4.2.9.Final and is bound to the sole manifest-supported standalone Main-Class, exact gateway command-surface class hashes, no non-Netty SNI references, and the two-class Ktor sslConnector baseline. Acceptance requires the native full arm64 guard to prove stable gateway mode is runtime-disabled with status 1 and the exact stable-channel diagnostic, and that no launcher descendant or listener survives. Embedded private gateway classes are not treated as supported entrypoints and remain covered by the static TLS and SNI checks.",
       "vexStatement": "urn:holyclaude:vex:full-arm64-junie-netty-handler-ghsa-c4c3-7fpv-j4q5",
       "variants": [
         "full"
@@ -22139,6 +22139,306 @@
     "variants": ["slim"],
     "architectures": ["arm64"],
     "vexStatement": "urn:holyclaude:vex:slim-arm64-libxml2-cve-2026-74860-python-binding"
+  },
+  {
+    "id": "v161-full-amd64-libde265-0-cve-2026-54240-high-exception",
+    "vulnerabilities": ["CVE-2026-54240"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:amd64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54240"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["amd64"]
+  },
+  {
+    "id": "v161-full-amd64-libde265-dev-cve-2026-54240-high-exception",
+    "vulnerabilities": ["CVE-2026-54240"],
+    "component": {
+      "names": ["libde265-dev"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-dev/copyright$",
+        "^/var/lib/dpkg/info/libde265-dev:amd64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54240"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["amd64"]
+  },
+  {
+    "id": "v161-full-amd64-libde265-0-cve-2026-54241-high-exception",
+    "vulnerabilities": ["CVE-2026-54241"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:amd64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54241"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["amd64"]
+  },
+  {
+    "id": "v161-full-amd64-libde265-dev-cve-2026-54241-high-exception",
+    "vulnerabilities": ["CVE-2026-54241"],
+    "component": {
+      "names": ["libde265-dev"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-dev/copyright$",
+        "^/var/lib/dpkg/info/libde265-dev:amd64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54241"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["amd64"]
+  },
+  {
+    "id": "v161-full-arm64-libde265-0-cve-2026-54240-high-exception",
+    "vulnerabilities": ["CVE-2026-54240"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:arm64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54240"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["arm64"]
+  },
+  {
+    "id": "v161-full-arm64-libde265-dev-cve-2026-54240-high-exception",
+    "vulnerabilities": ["CVE-2026-54240"],
+    "component": {
+      "names": ["libde265-dev"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-dev/copyright$",
+        "^/var/lib/dpkg/info/libde265-dev:arm64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54240"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["arm64"]
+  },
+  {
+    "id": "v161-full-arm64-libde265-0-cve-2026-54241-high-exception",
+    "vulnerabilities": ["CVE-2026-54241"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:arm64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54241"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["arm64"]
+  },
+  {
+    "id": "v161-full-arm64-libde265-dev-cve-2026-54241-high-exception",
+    "vulnerabilities": ["CVE-2026-54241"],
+    "component": {
+      "names": ["libde265-dev"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-dev/copyright$",
+        "^/var/lib/dpkg/info/libde265-dev:arm64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54241"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["full"],
+    "architectures": ["arm64"]
+  },
+  {
+    "id": "v161-slim-amd64-libde265-cve-2026-54240-high-exception",
+    "vulnerabilities": ["CVE-2026-54240"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:amd64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54240"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["slim"],
+    "architectures": ["amd64"]
+  },
+  {
+    "id": "v161-slim-amd64-libde265-cve-2026-54241-high-exception",
+    "vulnerabilities": ["CVE-2026-54241"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:amd64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54241"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["slim"],
+    "architectures": ["amd64"]
+  },
+  {
+    "id": "v161-slim-arm64-libde265-cve-2026-54240-high-exception",
+    "vulnerabilities": ["CVE-2026-54240"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:arm64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54240"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["slim"],
+    "architectures": ["arm64"]
+  },
+  {
+    "id": "v161-slim-arm64-libde265-cve-2026-54241-high-exception",
+    "vulnerabilities": ["CVE-2026-54241"],
+    "component": {
+      "names": ["libde265-0"],
+      "versions": ["1.0.11-1+deb12u2"],
+      "types": ["deb"],
+      "locationPatterns": [
+        "^/usr/share/doc/libde265-0/copyright$",
+        "^/var/lib/dpkg/info/libde265-0:arm64\\.md5sums$",
+        "^/var/lib/dpkg/status$"
+      ]
+    },
+    "sourcePackage": "libde265",
+    "disposition": "high_exception",
+    "effectiveSeverity": "High",
+    "owner": "Debian Bookworm libde265",
+    "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-54241"},
+    "reviewedAt": "2026-09-14",
+    "expiresAt": "2026-09-17",
+    "rationale": "Crafted HEVC input can cause out-of-bounds memory access, memory corruption, or a crash. Debian Bookworm libde265 1.0.11-1+deb12u2 remains vulnerable with no fixed Bookworm package, and no product exploit has been demonstrated; this exact temporary High exception does not assume non-reachability.",
+    "approvedBy": "CoderLuii",
+    "variants": ["slim"],
+    "architectures": ["arm64"]
   }
   ]
 }

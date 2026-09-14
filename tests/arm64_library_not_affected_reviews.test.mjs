@@ -65,8 +65,8 @@ test('binds six exact ARM64 component records to not-affected OpenVEX statements
         assert.equal(statement.status, 'not_affected');
         assert.equal(statement.justification, 'vulnerable_code_not_present');
         assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-          `pkg:oci/docker.io/coderluii/holyclaude@1.6.0?variant=${variant}`,
-          `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.0?variant=${variant}`,
+          `pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
+          `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
         ]);
         for (const product of statement.products) {
           assert.deepEqual(product.subcomponents, [{

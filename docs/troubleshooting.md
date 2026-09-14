@@ -531,6 +531,114 @@ If the old broad mount contains CloudCLI account data under `$source_home/.cloud
 
 ---
 
+### `Too many levels of symbolic links` on Synology
+
+**Symptom:** Startup stops while checking `.claude` or `.codex` and reports `Too many levels of symbolic links`.
+
+**Cause:** A bind-mounted state path contains a self-referencing link, a multi-link loop, a dangling link, or a linked directory where HolyClaude requires a real directory. HolyClaude v1.6.0 and later detects unsafe CLI state before UID/GID changes. It does not repair existing link loops. The exact layout and origin reported in issue #97 are not yet known, so do not assume that the reporter mounted `./data/claude` or that the container's top-level `.codex` has a separate host mapping.
+
+Stop the affected container first. Keep the current bind directory and every backup unchanged. This read-only diagnostic requires the container to be stopped, derives the actual bind source for `/home/claude/.claude`, and refuses missing, duplicate, or non-bind mount metadata before it examines the host path.
+
+```bash
+# HolyClaude stopped-container link-loop diagnostic
+set -euo pipefail
+container=holyclaude
+destination=/home/claude/.claude
+
+running="$(docker inspect --format '{{.State.Running}}' "$container")" || {
+  echo "Could not inspect container: $container" >&2
+  exit 1
+}
+[ "$running" = false ] || {
+  echo "Stop $container before running this diagnostic" >&2
+  exit 1
+}
+
+mount_records="$(docker inspect --format '{{range .Mounts}}{{printf "%s\t%s\t%s\n" .Type .Source .Destination}}{{end}}' "$container")" || {
+  echo "Could not inspect mounts for container: $container" >&2
+  exit 1
+}
+mount_count=0
+mount_type=
+mount_source=
+while IFS="$(printf '\t')" read -r candidate_type candidate_source candidate_destination; do
+  [ "$candidate_destination" = "$destination" ] || continue
+  mount_count=$((mount_count + 1))
+  mount_type="$candidate_type"
+  mount_source="$candidate_source"
+done <<EOF
+$mount_records
+EOF
+[ "$mount_count" -eq 1 ] || {
+  echo "Expected exactly one mount at $destination; found $mount_count" >&2
+  exit 1
+}
+[ "$mount_type" = bind ] || {
+  echo "Expected a bind mount at $destination; found $mount_type" >&2
+  exit 1
+}
+case "$mount_source" in
+  /*) ;;
+  *)
+    echo "Expected an absolute bind source: $mount_source" >&2
+    exit 1
+    ;;
+esac
+
+path_cursor=
+path_remainder="${mount_source#/}"
+while [ -n "$path_remainder" ]; do
+  case "$path_remainder" in
+    */*) path_component="${path_remainder%%/*}"; path_remainder="${path_remainder#*/}" ;;
+    *) path_component="$path_remainder"; path_remainder= ;;
+  esac
+  [ -n "$path_component" ] || continue
+  case "$path_component" in
+    .|..)
+      echo "Refusing non-canonical bind source: $mount_source" >&2
+      exit 1
+      ;;
+  esac
+  path_cursor="$path_cursor/$path_component"
+  ls -ld -- "$path_cursor" || {
+    echo "Bind source does not exist: $mount_source" >&2
+    exit 1
+  }
+  [ ! -L "$path_cursor" ] || {
+    echo "Refusing symbolic link in bind source path: $path_cursor" >&2
+    exit 1
+  }
+done
+[ -d "$mount_source" ] || {
+  echo "Expected a real directory bind source: $mount_source" >&2
+  exit 1
+}
+printf 'Verified bind source: %s\n' "$mount_source"
+
+codex_path="$mount_source/.codex"
+if [ -e "$codex_path" ] || [ -L "$codex_path" ]; then
+  ls -ld -- "$codex_path"
+  if [ -L "$codex_path" ]; then
+    printf '%s -> %s\n' "$codex_path" "$(readlink -- "$codex_path")"
+  fi
+else
+  printf 'No .codex entry at %s\n' "$codex_path"
+fi
+```
+
+This host-side check does not inspect the container's top-level `.codex`. Mount metadata cannot prove that path's filesystem type or give it a separate host mapping. Do not use `docker cp` here because even an archive-listing pipeline streams the credential tree. If any prerequisite fails, stop there. Do not recurse through the source, inspect credential contents, delete or relink anything, run `chown`, restart the container, or update the image as part of diagnosis.
+
+Include the deployed image digest and the sanitized startup diagnostic when reporting the result. Get the digest from the stopped container's image identity:
+
+```bash
+image_id="$(docker inspect --format '{{.Image}}' holyclaude)"
+docker image inspect --format '{{json .RepoDigests}}' "$image_id"
+```
+
+Sanitize the startup diagnostic before sharing it. Keep the exact error and affected container paths, but remove tokens, account names, NAS share names, and unrelated environment values. The diagnostic identifies the current topology; it does not prove the cause of issue #97 or confirm a fix. Preserve the bind source and backups for a separate recovery decision.
+
+---
+
 ### Docker creates `.claude.json` as a directory
 
 **Symptom:** Claude Code CLI crashes on startup with cryptic errors.

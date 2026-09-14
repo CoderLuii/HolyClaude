@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.6.0 refreshes the workstation tools and adds nano, ShellCheck, yq, DNS utilities, MySQL-compatible clients, Python testing tools and Atuin. Your `.bash_aliases` now persists with the managed CLI state. If a broad home-directory mount hides Claude's executable, startup points you to recovery steps that preserve your existing files.
+v1.6.1 refreshes Claude Code, Cursor Agent, deployment tools, Python utilities and the pinned security overlays. It also adds an opt-in Full-derived Docker client recipe and a read-only Synology link-loop diagnostic. The stock images still ship without Docker CLI, and existing link loops still need a separate recovery step.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 

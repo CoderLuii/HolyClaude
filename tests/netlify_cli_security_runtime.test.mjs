@@ -9,18 +9,18 @@ const releaseInputs = readFileSync('tests/release_input_integrity.test.mjs', 'ut
 const securityPatch = readFileSync('scripts/patch-global-node-security-dependencies.mjs', 'utf8');
 
 test('Netlify CLI uses the checksum-bound upstream TOML security release', () => {
-  assert.match(dockerfile, /netlify-cli@27\.5\.2/);
-  assert.doesNotMatch(dockerfile, /netlify-cli@27\.5\.1/);
+  assert.match(dockerfile, /netlify-cli@27\.6\.0/);
+  assert.doesNotMatch(dockerfile, /netlify-cli@27\.5\.2/);
   assert.match(
     immutableInputs,
-    /name: Netlify CLI[\s\S]*?version: 27\.5\.2[\s\S]*?archive-sha256: 32b5995cea50988ff2a9df8c239548f77d250f5126ea01b26685732f15af5a17[\s\S]*?npm-integrity: "sha512-adtFWbLFN0HXHf6oOpqFiP9w4jl334xojHyd\+uOU0Y0WtW6pdX0pkS0ljvnX\/TdYeDrBUiCQ\/22Q14wu5ud6rA=="/,
+    /name: Netlify CLI[\s\S]*?version: 27\.6\.0[\s\S]*?archive-sha256: df7dcd2bd917f6d6a23d006fd21e7b1eefb94048791ec4c904a7cb57a999e3bc[\s\S]*?npm-integrity: "sha512-WW4NpAWUcoi9cX\/CEpqu5sm4e6Q\/ueJRpJEhzpWd92T6wrTk5QrGT1V0gqDJohYsNxa\+q1YrDS6sTQELqDWduQ=="/,
   );
-  assert.match(releaseInputs, /'netlify-cli@27\.5\.2'/);
+  assert.match(releaseInputs, /'netlify-cli@27\.6\.0'/);
 });
 
 test('full-image runtime validates Netlify parser upgrades and real Rust TOML reachability', () => {
   for (const expected of [
-    "'netlify-cli': '27.5.2'",
+    "'netlify-cli': '27.6.0'",
     'Netlify CLI TOML dependency',
     'Netlify CLI cron-parser dependency',
     'Netlify CLI raw-body dependency',
@@ -41,7 +41,7 @@ test('full-image runtime validates Netlify parser upgrades and real Rust TOML re
   assert.match(runtimeChecks, /dependencies\['cron-parser'\][\s\S]{0,180}"\^5\.0\.0"/);
   assert.match(runtimeChecks, /dependencies\['raw-body'\][\s\S]{0,180}"\^4\.0\.0"/);
   assert.match(runtimeChecks, /toml\/package\.json'[\s\S]{0,180}"4\.3\.0"/);
-  assert.match(runtimeChecks, /cron-parser\/package\.json'[\s\S]{0,180}"5\.10\.0"/);
+  assert.match(runtimeChecks, /cron-parser\/package\.json'[\s\S]{0,180}"5\.10\.1"/);
   assert.match(runtimeChecks, /raw-body\/package\.json'[\s\S]{0,180}"4\.0\.0"/);
   assert.match(runtimeChecks, /dist\/lib\/functions\/runtimes\/rust\/index\.js/);
   assert.match(runtimeChecks, /\[package\]\\nname = "secure_function"/);

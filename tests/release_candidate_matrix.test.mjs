@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
@@ -8,16 +9,16 @@ const candidate = workflow.slice(
   workflow.indexOf('  resolve-candidate-run:'),
 );
 
-function extractNormalizedVersion(command, output) {
-  const patterns = {
-    cursor: /(?:^|[^0-9A-Za-z])(\d{4}\.\d{2}\.\d{2}-[0-9a-f]+)(?=$|[^0-9A-Za-z])/g,
-    junie: /(?:^|[^0-9A-Za-z])(\d+\.\d+)(?=$|[^0-9A-Za-z])/g,
-  };
-  const pattern = patterns[command]
-    ?? /(?:^|[^0-9A-Za-z])(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?=$|[^0-9A-Za-z])/g;
-  const matches = [...output.trim().matchAll(pattern)].map((match) => match[1]);
-  if (matches.length !== 1) throw new Error(`expected one normalized version, got ${matches.length}`);
-  return matches[0];
+function runWorkflowVersionParser(command, output) {
+  const marker = '          const command = process.env.VERSION_COMMAND;';
+  const start = candidate.indexOf(marker);
+  const end = candidate.indexOf('\n          NODE', start);
+  assert.ok(start >= 0 && end > start, 'workflow version parser must exist');
+  const parser = candidate.slice(start, end).replace(/^ {10}/gm, '');
+  return spawnSync(process.execPath, ['-e', parser], {
+    encoding: 'utf8',
+    env: { ...process.env, VERSION_COMMAND: command, VERSION_OUTPUT: output },
+  });
 }
 
 function validateCandidateAttempts({ records, candidateRunAttempt }) {
@@ -158,23 +159,44 @@ test('candidate runtime contract probes versions, architecture, variants, browse
   assert.match(candidate, /chromium.*product-facts\.json/s);
   assert.match(candidate, /project-stats web-terminal/);
   assert.match(candidate, /test -x \/usr\/local\/bin\/entrypoint\.sh/);
-  assert.match(candidate, /const matches = \[\.\.\.output\.matchAll\(pattern\)\]\.map/);
+  assert.match(candidate, /output\.match\(\/\^\(\?:Junie version:/);
+  assert.match(candidate, /output\.matchAll\(patterns\[command\]/);
   assert.match(candidate, /require_eq "\$command version" "\$reported" "\$expected"/);
   assert.doesNotMatch(candidate, /grep -F "\$expected"/);
 });
 
 test('version normalization rejects substring, boundary, and ambiguous-version false positives', () => {
-  assert.equal(extractNormalizedVersion('cloudcli', 'CloudCLI 1.37.2'), '1.37.2');
-  assert.equal(extractNormalizedVersion('claude', '2.1.258 (Claude Code)'), '2.1.258');
-  assert.equal(extractNormalizedVersion('codex', 'codex-cli 0.152.1'), '0.152.1');
-  assert.equal(extractNormalizedVersion('cursor', '2026.08.31-4057e58'), '2026.08.31-4057e58');
-  assert.equal(extractNormalizedVersion('junie', 'Junie 3126.1'), '3126.1');
-  assert.notEqual(extractNormalizedVersion('cloudcli', 'CloudCLI 11.37.20'), '1.37.2');
-  assert.throws(() => extractNormalizedVersion('cloudcli', 'CloudCLI x1.37.2y'), /expected one normalized version/);
-  assert.throws(
-    () => extractNormalizedVersion('cloudcli', 'CloudCLI 1.37.2; updater 11.37.20'),
-    /expected one normalized version/,
-  );
+  for (const [command, output, expected] of [
+    ['cloudcli', 'CloudCLI 1.37.2', '1.37.2'],
+    ['claude', '2.1.258 (Claude Code)', '2.1.258'],
+    ['codex', 'codex-cli 0.152.1', '0.152.1'],
+    ['cursor', '2026.08.31-4057e58', '2026.08.31-4057e58'],
+    ['junie', 'Junie 3126.1', '3126.1'],
+    ['junie', 'Junie version: 26.9.14 (3196.4)', '3196.4'],
+  ]) {
+    const result = runWorkflowVersionParser(command, output);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, expected);
+  }
+
+  assert.notEqual(runWorkflowVersionParser('cloudcli', 'CloudCLI 11.37.20').stdout, '1.37.2');
+  for (const output of [
+    'CloudCLI x1.37.2y',
+    'CloudCLI 1.37.2; updater 11.37.20',
+  ]) assert.notEqual(runWorkflowVersionParser('cloudcli', output).status, 0);
+});
+
+test('Junie normalization fails closed on malformed, extra, ambiguous, and wrong-build output', () => {
+  for (const output of [
+    'Junie version: 26.9.14 3196.4',
+    'Junie version: 26.9.14 (3196.4) extra',
+    'Junie version: 26.9.14 (3196.4)\nJunie 3126.1',
+    'Junie version: 26.9.14 (3196.4) (3126.1)',
+  ]) assert.notEqual(runWorkflowVersionParser('junie', output).status, 0);
+
+  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.9.14 (3196.3)');
+  assert.equal(wrongBuild.status, 0, wrongBuild.stderr);
+  assert.notEqual(wrongBuild.stdout, '3196.4');
 });
 
 test('candidate attempt validation treats promotion workflow attempts as independent', () => {
