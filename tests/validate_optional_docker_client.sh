@@ -149,7 +149,7 @@ docker run --rm --entrypoint /bin/sh "${derived_image}" -lc \
   'dpkg-query -W -f="\${Package}|\${Version}\n"' | sort -u > "${derived_packages}"
 comm -13 "${base_packages}" "${derived_packages}" > "${added_packages}"
 expected_packages=$(cat <<'PACKAGES'
-docker-ce-cli|5:29.8.0-1~debian.12~bookworm
+docker-ce-cli|5:29.8.1-1~debian.12~bookworm
 docker-compose-plugin|5.5.1-1~debian.12~bookworm
 PACKAGES
 )
@@ -162,7 +162,7 @@ fi
 docker run --rm --entrypoint /bin/sh "${derived_image}" -lc '
   set -eu
   expected_arch=$1
-  test "$(docker version --format "{{.Client.Version}}")" = 29.8.0
+  test "$(docker version --format "{{.Client.Version}}")" = 29.8.1
   test "$(docker compose version --short)" = 5.5.1
   test "$(dpkg-query -W -f="\${Architecture}" docker-ce-cli)" = "$expected_arch"
   test "$(dpkg-query -W -f="\${Architecture}" docker-compose-plugin)" = "$expected_arch"

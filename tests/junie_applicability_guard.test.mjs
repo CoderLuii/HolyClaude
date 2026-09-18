@@ -19,9 +19,9 @@ test('runs the exact Junie guard at every native full-image advisory gate', () =
   assert.match(harness, /python3 \/tests\/junie_applicability_guard\.py/);
   assert.equal((workflow.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
   assert.equal((workflow.match(/--init --network none --entrypoint bash[\s\S]*?full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
-  assert.match(guard, /3196\.4/);
+  assert.match(guard, /3196\.5/);
   assert.match(guard, /junie-release-\{VERSION\}\.jar/);
-  assert.match(guard, /24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f/);
+  assert.match(guard, /f82726298a4e12ee3798bcda516fbaf0d9d6b85da89110b7bd62801af64997f7/);
   assert.match(guard, /6a1da55c9a946f73d5d5795c1f51a641c712d75fdd5421e852f2ab7a239c5221/);
   assert.doesNotMatch(guard, /3220\.1|junie-nightly|86c6899a7478c5a5884c1ddaf50f7c8e794b51d92a41c597512989e162886ec1/);
   assert.match(guard, /io\/netty\/handler\/ssl\/SniHandler/);
@@ -33,7 +33,7 @@ test('runs the exact Junie guard at every native full-image advisory gate', () =
   assert.match(guard, /validate_gateway_rejection/);
   assert.match(guard, /validate_runtime_residue/);
   assert.match(guard, /com\.intellij\.ml\.llm\.matterhorn\.ej\.app\.cli\.standalone\.MainKt/);
-  assert.match(guard, /ae45398e83a1c4401a13899bf88000478861030ef26c53cebdfe05a2fe6e19d0/);
+  assert.match(guard, /f4e40d610438ff9f553ccc6529d943d5272eb8fa26e3c92ae51812623bfee438/);
   assert.match(guard, /5a953748e13fcd3b0006b007c77616651358522fa4f38a86d7a31ec18c14cf4d/);
   assert.doesNotMatch(guard, /--help/);
   assert.doesNotMatch(guard, /--gateway-status/);
@@ -76,16 +76,17 @@ test('binds one exact review per native architecture to the Junie Maven componen
       names: ['netty-handler'],
       versions: ['4.2.9.Final'],
       types: ['java-archive'],
-      locationPatterns: ['^/home/claude/\\.local/share/junie/versions/3196\\.4/lib/app/junie-release-3196\\.4\\.jar$'],
+      locationPatterns: ['^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$'],
     });
     assert.deepEqual(review.variants, ['full']);
     assert.deepEqual(review.architectures, [architecture]);
     assert.equal(review.disposition, 'not_affected');
     assert.equal(review.effectiveSeverity, 'None');
     assert.equal('approvedBy' in review, false);
-    assert.match(review.rationale, /24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f/);
+    assert.match(review.rationale, /f82726298a4e12ee3798bcda516fbaf0d9d6b85da89110b7bd62801af64997f7/);
+    assert.match(review.rationale, /f4e40d610438ff9f553ccc6529d943d5272eb8fa26e3c92ae51812623bfee438/);
     assert.match(review.rationale, /stable gateway mode is runtime-disabled/);
-    assert.match(review.rationale, /no launcher descendant or listener survives/);
+    assert.match(review.rationale, /no surviving launcher descendant or listener/);
     assert.doesNotMatch(review.rationale, /Acceptance still requires.*gateway listener/);
 
     const statement = vex.statements.find((item) => item['@id'] === review.vexStatement);
@@ -93,10 +94,11 @@ test('binds one exact review per native architecture to the Junie Maven componen
     assert.equal(statement.vulnerability.name, 'GHSA-c4c3-7fpv-j4q5');
     assert.equal(statement.status, 'not_affected');
     assert.equal(statement.justification, 'vulnerable_code_not_in_execute_path');
-    assert.match(statement.impact_statement, /Junie 3196\.4/);
-    assert.match(statement.impact_statement, /24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f/);
+    assert.match(statement.impact_statement, /Junie 3196\.5/);
+    assert.match(statement.impact_statement, /f82726298a4e12ee3798bcda516fbaf0d9d6b85da89110b7bd62801af64997f7/);
+    assert.match(statement.impact_statement, /f4e40d610438ff9f553ccc6529d943d5272eb8fa26e3c92ae51812623bfee438/);
     assert.match(statement.impact_statement, /stable gateway mode is runtime-disabled/);
-    assert.match(statement.impact_statement, /no launcher descendant or listener survives/);
+    assert.match(statement.impact_statement, /no surviving launcher descendant or listener/);
     assert.doesNotMatch(statement.impact_statement, /Acceptance still requires.*gateway listener/);
     for (const product of statement.products) {
       assert.deepEqual(product.subcomponents, [{
@@ -112,15 +114,30 @@ test('keeps Java OpenVEX support limited to the reviewed Netty component tuple',
     'utf8',
   ));
   const validate = (mutate) => {
-    const candidateLedger = structuredClone(ledger);
-    const review = candidateLedger.reviews.find((item) =>
-      item.id === 'v160-full-amd64-junie-netty-handler-ghsa-c4c3-7fpv-j4q5-not-affected');
+    const review = structuredClone(ledger.reviews.find((item) =>
+      item.id === 'v160-full-amd64-junie-netty-handler-ghsa-c4c3-7fpv-j4q5-not-affected'));
+    const candidateLedger = {
+      schemaVersion: ledger.schemaVersion,
+      policy: ledger.policy,
+      reviews: [review],
+    };
+    const candidateVex = structuredClone(vex);
+    candidateVex.statements = candidateVex.statements.filter((statement) =>
+      statement['@id'] === review.vexStatement);
+    const releaseVersion = JSON.parse(readFileSync('contracts/product-facts.json', 'utf8')).release.dockerVersion;
+    for (const product of candidateVex.statements[0].products) {
+      product['@id'] = product['@id'].replace(/@\d+\.\d+\.\d+\?/, `@${releaseVersion}?`);
+    }
     mutate(review.component);
     validateSecurityPolicy({
       ledger: candidateLedger,
-      authorityEvidence,
-      vex,
-      asOfText: '2026-09-14',
+      authorityEvidence: {
+        ...authorityEvidence,
+        candidate: { variant: 'full', architecture: 'amd64', reportSha256: null },
+        records: [],
+      },
+      vex: candidateVex,
+      asOfText: '2026-09-18',
       variant: 'full',
       arch: 'amd64',
     });

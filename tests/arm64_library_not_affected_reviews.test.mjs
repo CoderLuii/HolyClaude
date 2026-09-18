@@ -15,13 +15,6 @@ function workflowStep(workflow, name) {
 
 const components = [
   {
-    slug: 'libevent-core',
-    name: 'libevent-core-2.1-7',
-    version: '2.1.12-stable-8',
-    vulnerabilities: ['CVE-2026-63382', 'CVE-2026-63385'],
-    rationale: /http\.c.*EXTRAS_SRC and libevent_extra, not CORE_SRC or libevent_core/,
-  },
-  {
     slug: 'libtiff6',
     name: 'libtiff6',
     version: '4.5.0-6+deb12u4',
@@ -30,7 +23,7 @@ const components = [
   },
 ];
 
-test('binds six exact ARM64 component records to not-affected OpenVEX statements', () => {
+test('binds two exact ARM64 component records to not-affected OpenVEX statements', () => {
   let count = 0;
   for (const variant of ['full', 'slim']) {
     for (const component of components) {
@@ -65,8 +58,8 @@ test('binds six exact ARM64 component records to not-affected OpenVEX statements
         assert.equal(statement.status, 'not_affected');
         assert.equal(statement.justification, 'vulnerable_code_not_present');
         assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-          `pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
-          `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
+          `pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=${variant}`,
+          `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=${variant}`,
         ]);
         for (const product of statement.products) {
           assert.deepEqual(product.subcomponents, [{
@@ -79,10 +72,10 @@ test('binds six exact ARM64 component records to not-affected OpenVEX statements
       }
     }
   }
-  assert.equal(count, 6);
+  assert.equal(count, 2);
 });
 
-test('removes all four replaced ARM64 exceptions and their authority records', () => {
+test('removes all replaced ARM64 exceptions and retired Chromium authority records', () => {
   const removedIds = [
     'v158-libtiff-cve-2026-52490-critical-exception-full-arm64',
     'v158-libtiff-cve-2026-52490-critical-exception-slim-arm64',
@@ -98,27 +91,17 @@ test('removes all four replaced ARM64 exceptions and their authority records', (
   ]) {
     const evidence = JSON.parse(readFileSync(file, 'utf8'));
     assert.deepEqual(evidence.candidate, candidate);
-    const target = `${candidate.variant}-${candidate.architecture}`;
-    const expectedIds = new Set(
-      ['CVE-2026-87438', 'CVE-2026-87464', 'CVE-2026-87488', 'CVE-2026-87527', 'CVE-2026-87628']
-        .flatMap((vulnerability) => ['chromium', 'chromium-common', 'chromium-sandbox']
-          .map((name) => `${target}-chromium-${vulnerability.toLowerCase()}-${name}`)),
-    );
-    assert.equal(evidence.records.length, 15);
-    assert.deepEqual(new Set(evidence.records.map((record) => record.id)), expectedIds);
-    assert.ok(evidence.records.every((record) =>
-      record.review === `v160-${target}-chromium-upstream-critical-exception` &&
-      record.component.version === '152.0.7977.82-1~deb12u1'));
-    assert.ok(evidence.records.every((record) => !removedIds.includes(record.review)));
+    assert.deepEqual(evidence.records, []);
   }
 });
 
 test('guards both architectures and binds exact ARM64 library payloads', () => {
   const expectedChecks = [
-    /amd64\) library_dir=\/usr\/lib\/x86_64-linux-gnu/,
-    /arm64\) library_dir=\/usr\/lib\/aarch64-linux-gnu/,
+    /amd64\)[\s\S]*?library_dir=\/usr\/lib\/x86_64-linux-gnu/,
+    /arm64\)[\s\S]*?library_dir=\/usr\/lib\/aarch64-linux-gnu/,
     /libevent_core-2\.1\.so\.7\.0\.1/,
-    /c07184da97048cd7bdea88dede0b0ef26cf11c0bb16baeb48885839cc12086d0/,
+    /62ef2b9108270573f45b92c84b59ab897e29b71e2c22b2e3e5dcef07fb141430/,
+    /9331ae738c166e786f2bae7e28777f680e8582a42139f48921c0ae47b1f3efa0/,
     /libtiff\.so\.6\.0\.0/,
     /c56e31d69b7ad5fe570edf3ee145b0fa67bffa9b1e99aa6ca14798ec2ea1cddf/,
     /Machine:\[\[:space:\]\]\+AArch64\$/,

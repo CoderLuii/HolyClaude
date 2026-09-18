@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.6.1",
-    "dockerVersion": "1.6.1"
+    "tag": "v1.6.2",
+    "dockerVersion": "1.6.2"
   },
   "registries": {
     "dockerHub": {
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.270",
+      "version": "2.1.276",
       "variants": [
         "full",
         "slim"
@@ -47,7 +47,7 @@
       "id": "gemini-cli",
       "name": "Gemini CLI",
       "command": "gemini",
-      "version": "0.59.0",
+      "version": "0.60.0",
       "variants": [
         "full",
         "slim"
@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.154.0",
+      "version": "0.155.0",
       "variants": [
         "full",
         "slim"
@@ -67,7 +67,7 @@
       "id": "cursor-agent",
       "name": "Cursor Agent",
       "command": "cursor",
-      "version": "2026.09.10-fd3934a",
+      "version": "2026.09.15-d2fe57e",
       "variants": [
         "full",
         "slim"
@@ -87,7 +87,7 @@
       "id": "junie",
       "name": "Junie",
       "command": "junie",
-      "version": "3196.4",
+      "version": "3196.5",
       "variants": [
         "full"
       ]
@@ -96,7 +96,7 @@
       "id": "opencode",
       "name": "OpenCode",
       "command": "opencode",
-      "version": "1.18.30",
+      "version": "1.18.31",
       "variants": [
         "full"
       ]
@@ -156,12 +156,12 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "152.0.7977.82",
+      "version": "153.0.8010.47",
       "executable": "/usr/bin/chromium"
     },
     "playwright": {
       "nodeVersion": "1.63.0",
-      "pythonVersion": "1.62.0",
+      "pythonVersion": "1.63.0",
       "browserDownload": false,
       "executable": "/usr/bin/chromium"
     }

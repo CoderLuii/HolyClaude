@@ -9,7 +9,7 @@ const expectedReviews = [
     id: 'v160-slim-amd64-gh-fixed-cve-2024-52308',
     vulnerability: 'CVE-2024-52308',
     name: 'gh',
-    version: '2.100.0',
+    version: '2.101.0',
     disposition: 'fixed',
     effectiveSeverity: 'None',
     authority: 'https://github.com/cli/cli/security/advisories/GHSA-p2h2-3vg9-4p87',
@@ -23,7 +23,7 @@ const expectedReviews = [
     id: 'v160-slim-amd64-gh-fixed-cve-2026-48501',
     vulnerability: 'CVE-2026-48501',
     name: 'gh',
-    version: '2.100.0',
+    version: '2.101.0',
     disposition: 'fixed',
     effectiveSeverity: 'None',
     authority: 'https://github.com/cli/cli/security/advisories/GHSA-8xvp-7hj6-mcj9',
@@ -77,8 +77,9 @@ test('binds the four interim Linux findings to exact researched reviews', () => 
     assert.equal(review.disposition, expected.disposition);
     assert.equal(review.effectiveSeverity, expected.effectiveSeverity);
     assert.equal(review.authority.url, expected.authority);
-    assert.equal(review.reviewedAt, '2026-09-08');
-    assert.equal(review.expiresAt, '2026-10-08');
+    const isGitHubCli = expected.name === 'gh';
+    assert.equal(review.reviewedAt, isGitHubCli ? '2026-09-18' : '2026-09-08');
+    assert.equal(review.expiresAt, isGitHubCli ? '2026-10-18' : '2026-10-08');
     assert.deepEqual(review.variants, ['slim']);
     assert.deepEqual(review.architectures, ['amd64']);
     assert.equal('approvedBy' in review, false);

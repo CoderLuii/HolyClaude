@@ -8,8 +8,8 @@ import test from 'node:test';
 
 const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
 const evaluator = resolve('scripts/evaluate-security-report.mjs');
-const appPath = '/home/claude/.local/share/junie/versions/3196.4/lib/app/junie-release-3196.4.jar';
-const runtimePath = '/home/claude/.local/share/junie/versions/3196.4/lib/runtime/release';
+const appPath = '/home/claude/.local/share/junie/versions/3196.5/lib/app/junie-release-3196.5.jar';
+const runtimePath = '/home/claude/.local/share/junie/versions/3196.5/lib/runtime/release';
 const oldAppPath = '/home/claude/.local/share/junie/versions/3220.1/lib/app/junie-nightly-3220.1.jar';
 const oldRuntimePath = '/home/claude/.local/share/junie/versions/3220.1/lib/runtime/release';
 
@@ -97,7 +97,7 @@ function reportForApprovedFindings() {
   return {
     source: { type: 'sbom', target: 'v160-approved-high-fixture.cdx.json' },
     distro: { name: 'debian', version: '12.15', idLike: ['debian'] },
-    descriptor: { name: 'grype', version: '0.118.0', configuration: {} },
+    descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
     ignoredMatches: [],
     matches,
   };
@@ -155,15 +155,15 @@ test('binds the 37 approved full amd64 High findings to 14 exact temporary excep
     assert.equal(review.disposition, 'high_exception');
     assert.equal(review.effectiveSeverity, 'High');
     assert.equal(review.approvedBy, 'CoderLuii');
-    assert.equal(review.reviewedAt, id.includes('-junie-') ? '2026-09-14' : '2026-09-09');
-    assert.equal(review.expiresAt, '2026-09-16');
+    assert.equal(review.reviewedAt, '2026-09-18');
+    assert.equal(review.expiresAt, '2026-09-25');
     assert.deepEqual(review.variants, ['full']);
     assert.deepEqual(review.architectures, ['amd64']);
     assert.equal('vexStatement' in review, false);
   }
 });
 
-test('carries exactly 22 Junie High exceptions to official stable 3196.4 without widening scope', () => {
+test('carries exactly 22 Junie High exceptions to official stable 3196.5 without widening scope', () => {
   const amd64Specs = reviewSpecs.filter(([id]) => id.includes('-junie-'));
   const expectedIds = amd64Specs.flatMap(([id]) => [id, id.replace('full-amd64', 'full-arm64')]);
   const expectedIdSet = new Set(expectedIds);
@@ -184,12 +184,12 @@ test('carries exactly 22 Junie High exceptions to official stable 3196.4 without
     assert.deepEqual(review.component.versions, versions);
     assert.deepEqual(review.component.types, [type]);
     assert.deepEqual(review.component.locationPatterns, [escapePattern(expectedPath)]);
-    assert.equal(review.reviewedAt, '2026-09-14');
-    assert.equal(review.expiresAt, '2026-09-16');
+    assert.equal(review.reviewedAt, '2026-09-18');
+    assert.equal(review.expiresAt, '2026-09-25');
     assert.equal(review.approvedBy, 'CoderLuii');
     assert.deepEqual(review.variants, ['full']);
     assert.deepEqual(review.architectures, [architecture]);
-    assert.match(review.rationale, /official stable Junie CLI 3196\.4/);
+    assert.match(review.rationale, /official stable Junie CLI 3196\.5/);
     assert.doesNotMatch(review.rationale, /3220\.1|nightly/i);
     assert.ok(!review.component.locationPatterns.includes(escapePattern(oldAppPath)));
     assert.ok(!review.component.locationPatterns.includes(escapePattern(oldRuntimePath)));
@@ -198,7 +198,7 @@ test('carries exactly 22 Junie High exceptions to official stable 3196.4 without
   const stableJunieExceptions = ledger.reviews.filter((review) =>
     review.disposition === 'high_exception' &&
     review.owner === 'Junie CLI' &&
-    review.component.locationPatterns.some((pattern) => pattern.includes('3196\\.4')),
+    review.component.locationPatterns.some((pattern) => pattern.includes('3196\\.5')),
   );
   assert.deepEqual(stableJunieExceptions.map((review) => review.id).sort(), expectedIds.sort());
 });
@@ -219,14 +219,14 @@ test('removes the legacy full arm64 selectors after native replacement verificat
 
 test('accepts the approved findings through the expiry date and rejects them after it', () => {
   const report = reportForApprovedFindings();
-  const valid = evaluate(report, '2026-09-16');
+  const valid = evaluate(report, '2026-09-25');
   assert.equal(valid.status, 0, valid.stderr);
   assert.equal(valid.policy.rawHighCount, 37);
   assert.equal(valid.policy.mappedHighCount, 37);
 
-  const expired = evaluate(report, '2026-09-17');
+  const expired = evaluate(report, '2026-09-26');
   assert.notEqual(expired.status, 0);
-  assert.match(expired.stderr, /expired on 2026-09-16/);
+  assert.match(expired.stderr, /expired on 2026-09-25/);
 });
 
 test('rejects nightly paths, wrong Junie tuples, and Slim applicability', () => {
@@ -237,17 +237,17 @@ test('rejects nightly paths, wrong Junie tuples, and Slim applicability', () => 
       if (location.path === runtimePath) location.path = oldRuntimePath;
     }
   }
-  const nightly = evaluate(nightlyReport, '2026-09-14');
+  const nightly = evaluate(nightlyReport, '2026-09-18');
   assert.notEqual(nightly.status, 0);
   assert.match(nightly.stderr, /matched 0 reviews for raw High finding/);
 
   const wrongTupleReport = reportForApprovedFindings();
   wrongTupleReport.matches.find((match) => match.artifact.name === 'json-smart').artifact.version = '2.5.2';
-  const wrongTuple = evaluate(wrongTupleReport, '2026-09-14');
+  const wrongTuple = evaluate(wrongTupleReport, '2026-09-18');
   assert.notEqual(wrongTuple.status, 0);
   assert.match(wrongTuple.stderr, /GHSA-pq2g-wx69-c263 json-smart@2\.5\.2: matched 0 reviews/);
 
-  const slim = evaluate(reportForApprovedFindings(), '2026-09-14', { variant: 'slim' });
+  const slim = evaluate(reportForApprovedFindings(), '2026-09-18', { variant: 'slim' });
   assert.notEqual(slim.status, 0);
   assert.match(slim.stderr, /matched 0 reviews for raw High finding/);
 });
@@ -264,7 +264,7 @@ test('leaves unrelated High and Critical findings fail closed', () => {
       artifact: { name: 'openjdk', version: '21.0.11+10-b1163.116', type: 'binary', locations: [{ path: runtimePath }] },
     },
   );
-  const result = evaluate(report, '2026-09-16');
+  const result = evaluate(report, '2026-09-25');
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /GHSA-v5mp-jgw5-2x6j toml@3\.0\.0: matched 0 reviews for raw High finding/);
   assert.match(result.stderr, /CVE-2099-0001 openjdk@21\.0\.11\+10-b1163\.116: matched 0 reviews/);

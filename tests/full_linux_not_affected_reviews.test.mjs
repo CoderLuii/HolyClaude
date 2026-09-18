@@ -12,21 +12,9 @@ const expectedReviews = [
     name: 'libtiff6',
     version: '4.5.0-6+deb12u4',
   },
-  {
-    id: 'v160-full-amd64-libevent-core-cve-2026-63382-not-affected',
-    vulnerability: 'CVE-2026-63382',
-    name: 'libevent-core-2.1-7',
-    version: '2.1.12-stable-8',
-  },
-  {
-    id: 'v160-full-amd64-libevent-core-cve-2026-63385-not-affected',
-    vulnerability: 'CVE-2026-63385',
-    name: 'libevent-core-2.1-7',
-    version: '2.1.12-stable-8',
-  },
 ];
 
-test('replaces only the three proven full amd64 Critical findings with exact not-affected records', () => {
+test('replaces the proven full amd64 TIFF finding with an exact not-affected record', () => {
   for (const expected of expectedReviews) {
     const matches = ledger.reviews.filter((review) => review.id === expected.id);
     assert.equal(matches.length, 1, `${expected.id} must exist exactly once`);
@@ -49,8 +37,8 @@ test('replaces only the three proven full amd64 Critical findings with exact not
     assert.equal(statement.status, 'not_affected');
     assert.equal(statement.justification, 'vulnerable_code_not_present');
     assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full',
     ]);
     for (const product of statement.products) {
       assert.deepEqual(product.subcomponents, [{
@@ -69,7 +57,7 @@ test('replaces only the three proven full amd64 Critical findings with exact not
   }
 });
 
-test('removes replaced full amd64 authority records without leaving the ARM replacements as exceptions', () => {
+test('removes replaced full amd64 and fixed Chromium authority records', () => {
   const authority = JSON.parse(
     readFileSync('security/critical-exception-authority-evidence-full-amd64.json', 'utf8'),
   );
@@ -78,18 +66,7 @@ test('removes replaced full amd64 authority records without leaving the ARM repl
     architecture: 'amd64',
     reportSha256: null,
   });
-  const expectedIds = new Set(
-    ['CVE-2026-87438', 'CVE-2026-87464', 'CVE-2026-87488', 'CVE-2026-87527', 'CVE-2026-87628']
-      .flatMap((vulnerability) => ['chromium', 'chromium-common', 'chromium-sandbox']
-        .map((name) => `full-amd64-chromium-${vulnerability.toLowerCase()}-${name}`)),
-  );
-  assert.equal(authority.records.length, 15);
-  assert.deepEqual(new Set(authority.records.map((record) => record.id)), expectedIds);
-  assert.ok(authority.records.every((record) =>
-    record.review === 'v160-full-amd64-chromium-upstream-critical-exception' &&
-    record.component.version === '152.0.7977.82-1~deb12u1'));
-  assert.ok(authority.records.every((record) =>
-    !['CVE-2026-52490', 'CVE-2026-63382', 'CVE-2026-63385'].includes(record.vulnerability)));
+  assert.deepEqual(authority.records, []);
 
   const remaining = ledger.reviews.filter((review) =>
     review.disposition === 'critical_exception' &&
@@ -109,20 +86,12 @@ test('removes replaced full amd64 authority records without leaving the ARM repl
   }
 });
 
-test('binds source build separation and real full-image consumers without suppressing genuine risks', () => {
+test('binds the TIFF source split without suppressing genuine risks', () => {
   const tiff = ledger.reviews.find((review) =>
     review.id === 'v160-full-amd64-libtiff6-cve-2026-52490-not-affected');
   assert.match(tiff.rationale, /tools\/tiffcrop\.c/);
   assert.match(tiff.rationale, /builds that file only into the tiffcrop tool installed by libtiff-tools/);
   assert.match(tiff.rationale, /gdk-pixbuf, OpenSlide, ImageMagick, Poppler, libtiffxx, and libvips/);
-
-  for (const vulnerability of ['CVE-2026-63382', 'CVE-2026-63385']) {
-    const review = ledger.reviews.find((item) => item.id ===
-      `v160-full-amd64-libevent-core-${vulnerability.toLowerCase()}-not-affected`);
-    assert.match(review.rationale, /http\.c/);
-    assert.match(review.rationale, /EXTRAS_SRC and libevent_extra, not CORE_SRC or libevent_core/);
-    assert.match(review.rationale, /tmux is the only direct full-image consumer/);
-  }
 
   const genuineRisks = new Set(['CVE-2026-78410', 'CVE-2026-86140']);
   const prohibitedReviews = ledger.reviews.filter((review) =>
@@ -135,8 +104,8 @@ test('binds source build separation and real full-image consumers without suppre
   const prohibitedStatements = vex.statements.filter((statement) =>
     genuineRisks.has(statement.vulnerability.name) &&
     statement.products.some((product) =>
-      product['@id'] === 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full' ||
-      product['@id'] === 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full'));
+      product['@id'] === 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full' ||
+      product['@id'] === 'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full'));
   assert.deepEqual(prohibitedStatements, []);
 });
 

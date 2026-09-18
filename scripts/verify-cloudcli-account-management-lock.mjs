@@ -4,9 +4,15 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-const expectedLockSha256 = '5e84dee0c448f9cd10eed9828a03681c0a8323935a365f42e9dad914e3109025';
+const expectedLockSha256 = 'de4a5b3424e88176c9e941f9ffee965fdfc8ce10370482c533719705e5ba4d18';
 const expectedName = '@cloudcli-ai/cloudcli';
 const expectedVersion = '1.37.3';
+const expectedBetterSqlite3 = {
+  version: '12.11.1',
+  resolved: 'https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-12.11.1.tgz',
+  integrity: 'sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==',
+  node: '20.x || 22.x || 23.x || 24.x || 25.x || 26.x',
+};
 const declarationFields = ['dependencies', 'devDependencies', 'optionalDependencies', 'bin'];
 
 const args = new Map();
@@ -49,6 +55,13 @@ if (
 for (const field of declarationFields) {
   if (JSON.stringify(packageJson[field] ?? {}) !== JSON.stringify(lockRoot[field] ?? {})) {
     throw new Error(`CloudCLI package.json and build lock root dependency declarations differ for ${field}`);
+  }
+}
+const betterSqlite3 = lock.packages?.['node_modules/better-sqlite3'];
+for (const [field, expected] of Object.entries(expectedBetterSqlite3)) {
+  const actual = field === 'node' ? betterSqlite3?.engines?.node : betterSqlite3?.[field];
+  if (actual !== expected) {
+    throw new Error(`CloudCLI build lock better-sqlite3 ${field} drift: expected ${expected}, got ${actual}`);
   }
 }
 if (lockSource.includes('registry.npmmirror.com')) {

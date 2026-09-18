@@ -62,13 +62,13 @@ function reportFor(target) {
   return {
     source: { type: 'sbom', target: `libde265-${target}.cdx.json` },
     distro: { name: 'debian', version: '12.15', idLike: ['debian'] },
-    descriptor: { name: 'grype', version: '0.118.0', configuration: {} },
+    descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
     ignoredMatches: [],
     matches,
   };
 }
 
-function evaluate({ target = 'full-amd64', report = reportFor(target), reviews = targetReviews(target), asOf = '2026-09-17' } = {}) {
+function evaluate({ target = 'full-amd64', report = reportFor(target), reviews = targetReviews(target), asOf = '2026-09-25' } = {}) {
   const [variant, architecture] = target.split('-');
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-libde265-'));
   try {
@@ -144,8 +144,8 @@ test('records twelve exact target-package-and-CVE libde265 High exceptions', () 
           url: `https://security-tracker.debian.org/tracker/${vulnerability}`,
         });
         assert.equal(review.approvedBy, 'CoderLuii');
-        assert.equal(review.reviewedAt, '2026-09-14');
-        assert.equal(review.expiresAt, '2026-09-17');
+        assert.equal(review.reviewedAt, '2026-09-18');
+        assert.equal(review.expiresAt, '2026-09-25');
         assert.deepEqual(review.variants, [variant]);
         assert.deepEqual(review.architectures, [architecture]);
         assert.match(review.rationale, /out-of-bounds memory access, memory corruption, or a crash/);
@@ -222,11 +222,11 @@ test('rejects a libde265 High exception without maintainer approval', () => {
   assert.match(result.stderr, /High exceptions require CoderLuii approval/);
 });
 
-test('accepts September 17 and rejects September 18 after the exception expires', () => {
-  const valid = evaluate({ asOf: '2026-09-17' });
+test('accepts September 25 and rejects September 26 after the exception expires', () => {
+  const valid = evaluate({ asOf: '2026-09-25' });
   assert.equal(valid.status, 0, valid.stderr);
 
-  const expired = evaluate({ asOf: '2026-09-18' });
+  const expired = evaluate({ asOf: '2026-09-26' });
   assert.notEqual(expired.status, 0);
-  assert.match(expired.stderr, /expired on 2026-09-17/);
+  assert.match(expired.stderr, /expired on 2026-09-25/);
 });

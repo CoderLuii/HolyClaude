@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.6.1 refreshes Claude Code, Cursor Agent, deployment tools, Python utilities and the pinned security overlays. It also adds an opt-in Full-derived Docker client recipe and a read-only Synology link-loop diagnostic. The stock images still ship without Docker CLI, and existing link loops still need a separate recovery step.
+v1.6.2 updates Node 26.9.0, Debian Chromium 153.0.8010.47, the bundled AI and deployment CLIs, Python utilities, Playwright bindings and pinned security overlays. CloudCLI's copied SQLite metadata now matches the verified Node 26 artifact, and Vercel's two installed `tar` layouts are both checked before the checksum-bound replacement is applied. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -580,7 +580,7 @@ This is not a minimal container. This is an entire development workstation.
 | `pyyaml`, `python-dotenv` | Config file parsing |
 | `rich`, `click`, `tqdm` | Beautiful CLIs and progress bars |
 | `desloppify`, `bandit`, `tree-sitter` | Code-quality scans, Python security checks, parser-backed code analysis |
-| `playwright` | Browser automation (Python 1.62.0; Node 1.63.0 is also baked into both images) |
+| `playwright` | Browser automation (Python and Node 1.63.0 are baked into both images) |
 | `pytest`, `pytest-asyncio`, `flake8` | Python tests, async tests, and linting |
 | `aiomqtt`, `aiohttp` | Async MQTT and HTTP clients |
 
@@ -610,13 +610,13 @@ This is not a minimal container. This is an entire development workstation.
 <details>
 <summary><strong>AI CLIs — core providers in both variants</strong></summary>
 
-| CLI | Command | What it's for |
-|-----|---------|---------------|
-| **Claude Code** | `claude` | The main event — you're running inside this |
-| **Gemini CLI** | `gemini` | Google's AI coding agent |
-| **OpenAI Codex** | `codex` | OpenAI's coding agent |
-| **Cursor** | `cursor` | Cursor's AI agent |
-| **TaskMaster AI** | `task-master` | Task planning and orchestration |
+| CLI | Command | Version | What it's for |
+|-----|---------|---------|---------------|
+| **Claude Code** | `claude` | 2.1.276 | The main event — you're running inside this |
+| **Gemini CLI** | `gemini` | 0.60.0 | Google's AI coding agent |
+| **OpenAI Codex** | `codex` | 0.155.0 | OpenAI's coding agent |
+| **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Cursor's AI agent |
+| **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and orchestration |
 
 Five AI CLIs ship in both full and slim. The full image adds Junie, OpenCode, and Pi below, for eight AI CLIs total.
 
@@ -629,11 +629,11 @@ The full image includes everything above, plus:
 <details>
 <summary><strong>Additional AI CLIs</strong></summary>
 
-| CLI | Command | What it's for |
-|-----|---------|---------------|
-| **Junie** | `junie` | JetBrains' AI coding agent |
-| **OpenCode** | `opencode` | Open source AI agent (OpenRouter and other providers) |
-| **Pi Coding Agent** | `pi` | Minimal agent harness (multiple providers) |
+| CLI | Command | Version | What it's for |
+|-----|---------|---------|---------------|
+| **Junie** | `junie` | 3196.5 | JetBrains' AI coding agent |
+| **OpenCode** | `opencode` | 1.18.31 | Open source AI agent (OpenRouter and other providers) |
+| **Pi Coding Agent** | `pi` | 0.85.1 | Minimal agent harness (multiple providers) |
 
 </details>
 

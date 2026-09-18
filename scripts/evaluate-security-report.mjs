@@ -29,7 +29,7 @@ const ALLOWED_DISPOSITIONS = new Set([
 const ALLOWED_VARIANTS = new Set(['full', 'slim']);
 const ALLOWED_ARCHITECTURES = new Set(['amd64', 'arm64']);
 const ALLOWED_PACKAGE_ARCHITECTURES = new Set(['all', ...ALLOWED_ARCHITECTURES]);
-const EXPECTED_GRYPE_VERSION = '0.118.0';
+const EXPECTED_GRYPE_VERSION = '0.119.0';
 const GRYPE_SEVERITIES = new Set(['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical']);
 const SEVERITY_ORDER = new Map([
   ['None', 0],

@@ -137,7 +137,7 @@ That profile uses `userns_mode: "keep-id:uid=1000,gid=1000"` and `:Z` volume lab
 
 ### Optional Docker client
 
-The stock Full and Slim images do not include Docker CLI or Docker Compose. If your agent needs to manage a separate Docker host, build the opt-in Full-derived recipe at [`examples/docker-client/Dockerfile`](../examples/docker-client/Dockerfile). It installs Docker CLI 29.8.0 and Compose 5.5.1 without Docker Engine, containerd, Buildx, or recommended packages.
+The stock Full and Slim images do not include Docker CLI or Docker Compose. If your agent needs to manage a separate Docker host, build the opt-in Full-derived recipe at [`examples/docker-client/Dockerfile`](../examples/docker-client/Dockerfile). It installs Docker CLI 29.8.1 and Compose 5.5.1 without Docker Engine, containerd, Buildx, or recommended packages.
 
 Pull the released Full image, resolve its immutable `RepoDigests` value, then pass that digest to the recipe:
 

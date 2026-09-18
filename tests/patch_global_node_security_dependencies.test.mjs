@@ -8,9 +8,9 @@ import test from 'node:test';
 const script = 'scripts/patch-global-node-security-dependencies.mjs';
 
 const packages = [
-  ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.9'],
+  ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.12'],
   [
-    'home/claude/.local/share/cursor-agent/versions/2026.09.10-fd3934a/node_modules/piscina/package.json',
+    'home/claude/.local/share/cursor-agent/versions/2026.09.15-d2fe57e/node_modules/piscina/package.json',
     'piscina',
     '4.9.3',
     '4.9.4',
@@ -61,7 +61,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/netlify-cli/package.json',
     'netlify-cli',
-    '27.6.0',
+    '27.8.0',
     '@netlify/images',
     '^2.0.1',
     '^2.0.1',
@@ -86,7 +86,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
     'miniflare',
-    '5.20260911.1-alpha',
+    '5.20260917.0-alpha',
     'sharp',
     '0.35.4',
     '0.35.4',
@@ -99,9 +99,17 @@ const dependencies = [
     '8.9.0',
     '8.10.2',
   ],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.3.0', 'nanoid', '3.3.8', '3.3.19'],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.3.0', 'minimatch', '5.1.2', '5.1.9'],
-  ['usr/local/lib/node_modules/vercel/package.json', 'vercel', '59.16.0', 'smol-toml', '1.5.2', '1.8.0'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'nanoid', '3.3.8', '3.3.19'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'minimatch', '5.1.2', '5.1.9'],
+  ['usr/local/lib/node_modules/vercel/package.json', 'vercel', '59.23.1', 'smol-toml', '1.5.2', '1.8.0'],
+  [
+    'usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json',
+    '@vercel/container',
+    '8.2.2',
+    'smol-toml',
+    '1.5.2',
+    '1.8.0',
+  ],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
     '@vercel/python-analysis',
@@ -113,7 +121,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/rust/package.json',
     '@vercel/rust',
-    '9.0.0',
+    '9.0.1',
     'smol-toml',
     '1.5.2',
     '1.8.0',
@@ -145,7 +153,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/backends/package.json',
     '@vercel/backends',
-    '8.0.0',
+    '8.0.1',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -153,7 +161,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/express/package.json',
     '@vercel/express',
-    '8.0.0',
+    '8.0.1',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -161,7 +169,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/hono/package.json',
     '@vercel/hono',
-    '8.0.0',
+    '8.0.1',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -177,7 +185,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/node/package.json',
     '@vercel/node',
-    '13.0.0',
+    '13.0.1',
     'path-to-regexp',
     '6.1.0',
     '6.3.0',
@@ -185,7 +193,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/remix-builder/package.json',
     '@vercel/remix-builder',
-    '13.0.0',
+    '13.0.1',
     'path-to-regexp',
     '6.1.0',
     '6.3.0',
@@ -315,6 +323,7 @@ test('fails closed when a reviewed dependency owner version drifts', () => {
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
     dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
     dependencies.find(([path]) => path.endsWith('/vercel/package.json')),
+    dependencies.find(([path]) => path.endsWith('/@vercel/container/package.json')),
     dependencies.find(([path, , , dependency]) => path.endsWith('/@vercel/python-analysis/package.json') && dependency === 'smol-toml'),
     dependencies.find(([path]) => path.endsWith('/@vercel/rust/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/node_modules/ipx/package.json')),
@@ -343,11 +352,11 @@ test('rejects the previous Wrangler Miniflare owner version', () => {
   const [path, name] = dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json'));
   const manifestPath = join(root, path);
   const value = JSON.parse(readFileSync(manifestPath));
-  value.version = '5.20260910.0-alpha';
+  value.version = '5.20260911.1-alpha';
   writeJson(manifestPath, value);
   const result = run(root, true);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, new RegExp(`expected ${name}@5\\.20260911\\.1-alpha\\b`));
+  assert.match(result.stderr, new RegExp(`expected ${name}@5\\.20260917\\.0-alpha\\b`));
 });
 
 test('fails closed when a reviewed owner dependency baseline drifts', () => {
@@ -358,6 +367,7 @@ test('fails closed when a reviewed owner dependency baseline drifts', () => {
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
     dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
     dependencies.find(([path]) => path.endsWith('/vercel/package.json')),
+    dependencies.find(([path]) => path.endsWith('/@vercel/container/package.json')),
     dependencies.find(([path, , , dependency]) => path.endsWith('/@vercel/python-analysis/package.json') && dependency === 'smol-toml'),
     dependencies.find(([path]) => path.endsWith('/@vercel/rust/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/node_modules/ipx/package.json')),

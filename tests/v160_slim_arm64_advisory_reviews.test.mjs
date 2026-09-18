@@ -48,8 +48,9 @@ test('maps every reviewed slim arm64 tuple without widening the amd64 precedent'
 test('keeps reviewed dates and target selectors exact for the slim arm64 mappings', () => {
   const arm64Reviews = amd64Ids.map((id) => reviews.find((review) => review.id === id.replace('slim-amd64', 'slim-arm64')));
   assert.ok(arm64Reviews.every(Boolean));
-  assert.ok(arm64Reviews.every((review) => review.reviewedAt === '2026-09-08'));
-  assert.ok(arm64Reviews.every((review) => review.expiresAt === '2026-10-08'));
+  assert.ok(arm64Reviews.every((review) => review.id.includes('-gh-fixed-')
+    ? review.reviewedAt === '2026-09-18' && review.expiresAt === '2026-10-18'
+    : review.reviewedAt === '2026-09-08' && review.expiresAt === '2026-10-08'));
   assert.ok(arm64Reviews.every((review) => JSON.stringify(review.variants) === '["slim"]'));
   assert.ok(arm64Reviews.every((review) => JSON.stringify(review.architectures) === '["arm64"]'));
 });

@@ -26,7 +26,7 @@ function fixture() {
   });
   writeJson(join(lib, 'eas-cli', 'package.json'), {
     name: 'eas-cli',
-    version: '24.3.0',
+    version: '24.7.0',
     dependencies: { tar: '7.5.19' },
   });
   writeJson(join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'), {
@@ -35,17 +35,34 @@ function fixture() {
   });
   writeJson(join(lib, 'vercel', 'package.json'), {
     name: 'vercel',
-    version: '59.16.0',
+    version: '59.23.1',
+  });
+  writeJson(join(lib, 'vercel', 'node_modules', '@vercel', 'container', 'package.json'), {
+    name: '@vercel/container',
+    version: '8.2.2',
+    dependencies: { tar: '7.5.11' },
   });
   writeJson(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json'), {
     name: '@vercel/fun',
     version: '1.3.0',
     dependencies: { tar: '7.5.7' },
   });
+  writeJson(join(lib, 'vercel', 'node_modules', '@mapbox', 'node-pre-gyp', 'package.json'), {
+    name: '@mapbox/node-pre-gyp',
+    version: '2.0.3',
+    dependencies: { tar: '^7.4.0' },
+  });
   writeJson(join(lib, 'vercel', 'node_modules', 'tar', 'package.json'), {
     name: 'tar',
-    version: '7.5.7',
+    version: '7.5.11',
   });
+  writeJson(
+    join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'node_modules', 'tar', 'package.json'),
+    {
+      name: 'tar',
+      version: '7.5.7',
+    },
+  );
   return root;
 }
 
@@ -55,6 +72,16 @@ function installReplacement(root) {
     join(lib, 'npm', 'node_modules', 'tar', 'package.json'),
     join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'),
     join(lib, 'vercel', 'node_modules', 'tar', 'package.json'),
+    join(
+      lib,
+      'vercel',
+      'node_modules',
+      '@vercel',
+      'fun',
+      'node_modules',
+      'tar',
+      'package.json',
+    ),
   ]) {
     writeJson(path, { name: 'tar', version: '7.5.22' });
   }
@@ -83,9 +110,17 @@ test('patches the verified npm, EAS, and Vercel tar dependency specs', () => {
   const vercelFun = JSON.parse(
     readFileSync(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json')),
   );
+  const vercelContainer = JSON.parse(
+    readFileSync(join(lib, 'vercel', 'node_modules', '@vercel', 'container', 'package.json')),
+  );
+  const nodePreGyp = JSON.parse(
+    readFileSync(join(lib, 'vercel', 'node_modules', '@mapbox', 'node-pre-gyp', 'package.json')),
+  );
   assert.equal(npm.dependencies.tar, '7.5.22');
   assert.equal(eas.dependencies.tar, '7.5.22');
+  assert.equal(vercelContainer.dependencies.tar, '7.5.22');
   assert.equal(vercelFun.dependencies.tar, '7.5.22');
+  assert.equal(nodePreGyp.dependencies.tar, '^7.4.0');
 });
 
 test('patches npm tar in the slim variant without requiring full-only packages', () => {
@@ -137,6 +172,126 @@ test('fails closed when an expected dependency spec drifts', () => {
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /unexpected baseline tar dependency/);
 });
+
+for (const [name, mutate, expectedError] of [
+  [
+    'the nested Vercel tar copy is missing',
+    (root) =>
+      rmSync(
+        join(
+          root,
+          'usr',
+          'local',
+          'lib',
+          'node_modules',
+          'vercel',
+          'node_modules',
+          '@vercel',
+          'fun',
+          'node_modules',
+          'tar',
+        ),
+        { recursive: true },
+      ),
+    /unexpected Vercel tar layout/,
+  ],
+  [
+    'the Vercel container tar spec drifts',
+    (root) => {
+      const path = join(
+        root,
+        'usr',
+        'local',
+        'lib',
+        'node_modules',
+        'vercel',
+        'node_modules',
+        '@vercel',
+        'container',
+        'package.json',
+      );
+      const value = JSON.parse(readFileSync(path));
+      value.dependencies.tar = '^7.5.11';
+      writeJson(path, value);
+    },
+    /unexpected baseline tar dependency/,
+  ],
+  [
+    'the Vercel tar copies swap locations',
+    (root) => {
+      const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
+      writeJson(join(lib, 'vercel', 'node_modules', 'tar', 'package.json'), {
+        name: 'tar',
+        version: '7.5.7',
+      });
+      writeJson(
+        join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'node_modules', 'tar', 'package.json'),
+        { name: 'tar', version: '7.5.11' },
+      );
+    },
+    /expected tar@7\.5\.11/,
+  ],
+  [
+    'an extra stale Vercel tar copy exists',
+    (root) =>
+      writeJson(
+        join(
+          root,
+          'usr',
+          'local',
+          'lib',
+          'node_modules',
+          'vercel',
+          'node_modules',
+          '@vercel',
+          'unexpected',
+          'node_modules',
+          'tar',
+          'package.json',
+        ),
+        { name: 'tar', version: '7.5.7' },
+      ),
+    /unexpected Vercel tar layout/,
+  ],
+  [
+    'a Vercel tar copy is relocated',
+    (root) => {
+      const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
+      const nested = join(
+        lib,
+        'vercel',
+        'node_modules',
+        '@vercel',
+        'fun',
+        'node_modules',
+        'tar',
+      );
+      rmSync(nested, { recursive: true });
+      writeJson(
+        join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'vendor', 'tar', 'package.json'),
+        { name: 'tar', version: '7.5.7' },
+      );
+    },
+    /unexpected Vercel tar layout/,
+  ],
+]) {
+  test(`fails closed before mutation when ${name}`, () => {
+    const root = fixture();
+    mutate(root);
+    const before = readFileSync(
+      join(root, 'usr', 'local', 'lib', 'node_modules', 'npm', 'package.json'),
+      'utf8',
+    );
+
+    const result = run(root, true);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, expectedError);
+    assert.equal(
+      readFileSync(join(root, 'usr', 'local', 'lib', 'node_modules', 'npm', 'package.json'), 'utf8'),
+      before,
+    );
+  });
+}
 
 test('fails closed unless both installed baseline packages are exact', () => {
   const root = fixture();

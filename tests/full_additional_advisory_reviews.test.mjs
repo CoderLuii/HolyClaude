@@ -17,8 +17,8 @@ const common = {
 };
 
 const reviewSpecs = [
-  ['v160-full-amd64-gh-fixed-cve-2024-52308', 'CVE-2024-52308', ['gh'], ['2.100.0'], 'fixed', 'None'],
-  ['v160-full-amd64-gh-fixed-cve-2026-48501', 'CVE-2026-48501', ['gh'], ['2.100.0'], 'fixed', 'None'],
+  ['v160-full-amd64-gh-fixed-cve-2024-52308', 'CVE-2024-52308', ['gh'], ['2.101.0'], 'fixed', 'None'],
+  ['v160-full-amd64-gh-fixed-cve-2026-48501', 'CVE-2026-48501', ['gh'], ['2.101.0'], 'fixed', 'None'],
   ['v160-full-amd64-aom-debian-minor-cve-2023-6879', 'CVE-2023-6879', ['libaom-dev', 'libaom3'], ['3.6.0-1+deb12u3'], 'vendor_severity', 'Low'],
   ['v160-full-amd64-aom-debian-minor-cve-2023-39616', 'CVE-2023-39616', ['libaom-dev', 'libaom3'], ['3.6.0-1+deb12u3'], 'vendor_severity', 'Low'],
   ['v160-full-amd64-util-linux-cve-2026-76642-not-affected', 'CVE-2026-76642', ['libblkid-dev', 'libblkid1', 'libfdisk1', 'libmount-dev', 'libmount1', 'libsmartcols1', 'libuuid1', 'mount', 'util-linux', 'util-linux-extra', 'uuid-dev'], ['2.38.1-5+deb12u3'], 'not_affected', 'None'],
@@ -46,8 +46,8 @@ test('maps all 48 selected full amd64 findings with exact full-only package cove
     assert.equal(review.effectiveSeverity, effectiveSeverity);
     assert.deepEqual(review.variants, common.variants);
     assert.deepEqual(review.architectures, common.architectures);
-    assert.equal(review.reviewedAt, common.reviewedAt);
-    assert.equal(review.expiresAt, common.expiresAt);
+    assert.equal(review.reviewedAt, id.includes('-gh-fixed-') ? '2026-09-18' : common.reviewedAt);
+    assert.equal(review.expiresAt, id.includes('-gh-fixed-') ? '2026-10-18' : common.expiresAt);
     assert.equal('approvedBy' in review, false);
     if (disposition !== 'not_affected') assert.equal('vexStatement' in review, false);
   }
@@ -77,8 +77,8 @@ test('binds every full not-affected record to exact full products and subcompone
       vulnerability === 'CVE-2025-40777' ? 'vulnerable_code_not_in_execute_path' : 'vulnerable_code_not_present',
     );
     assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full',
     ]);
     const expectedPurls = names.map((name) => {
       const arch = name === 'dnsutils' ? 'all' : 'amd64';

@@ -4,6 +4,27 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.2] - 09/18/2026
+
+### Changed
+
+- Updated Node to 26.9.0, Claude Code to 2.1.276, Codex to 0.155.0, Gemini CLI to 0.60.0, OpenCode to 1.18.31, Cursor Agent to `2026.09.15-d2fe57e` and Junie to stable 3196.5.
+- Updated pnpm to 12.4.2, Prettier to 3.9.8, Wrangler to 4.134.0, Vercel CLI to 59.23.1, Netlify CLI to 27.8.0 and EAS CLI to 24.7.0.
+- Updated GitHub CLI to 2.101.0, pandas to 3.0.6, tree-sitter-language-pack to 1.20.0 and Python Playwright to 1.63.0.
+- Updated Debian Chromium to 153.0.8010.47 using the checksum-pinned Bookworm security packages for AMD64 and ARM64.
+- Updated `libevent-core-2.1-7` to Debian's `2.1.12-stable-8+deb12u1` Bookworm security build for AMD64 and ARM64, replacing the temporary records for the vulnerabilities fixed by that package.
+- Updated the pinned brace-expansion and ip-address overlays, plus the Docker build actions and SBOM scanners.
+
+### Fixed
+
+- Aligned CloudCLI's copied `better-sqlite3` 12.11.1 metadata with its official Node 26 engine range while retaining the same registry artifact and integrity.
+- Normalized CloudCLI's generated shrinkwrap permissions so its checksum-bound bundle reproduces identically on Windows and Linux builders.
+- Covered Vercel CLI's hoisted and nested `tar` copies and the complete `smol-toml` owner graph with exact fail-closed checks before applying the pinned overlays.
+
+### Security
+
+- Renewed temporary acceptance through September 25, 2026 for previously reviewed High findings that remain in the updated bundle. Exact components, paths and deadlines are recorded in the [security reviews](https://github.com/CoderLuii/HolyClaude/blob/v1.6.2/security/advisory-reviews.json).
+
 ## [1.6.1] - 09/14/2026
 
 ### Added

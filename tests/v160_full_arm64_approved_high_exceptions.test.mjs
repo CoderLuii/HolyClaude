@@ -57,8 +57,8 @@ test('binds all 37 approved full arm64 findings to exact stable Junie and Debian
     const actual = reviews.filter((candidate) => candidate.id === review.id);
     assert.equal(actual.length, 1, `${review.id} must exist exactly once`);
     assert.deepEqual(actual[0], review);
-    assert.equal(actual[0].reviewedAt, review.id.includes('-junie-') ? '2026-09-14' : '2026-09-09');
-    assert.equal(actual[0].expiresAt, '2026-09-16');
+    assert.equal(actual[0].reviewedAt, '2026-09-18');
+    assert.equal(actual[0].expiresAt, '2026-09-25');
     assert.equal(actual[0].approvedBy, 'CoderLuii');
     assert.equal('vexStatement' in actual[0], false);
   }
@@ -78,8 +78,7 @@ test('keeps the approved full arm64 risk effective High through the fixed expiry
   assert.equal(arm64.length, 14);
   assert.ok(arm64.every((review) => review.effectiveSeverity === 'High'));
   assert.ok(arm64.every((review) =>
-    review.reviewedAt === (review.id.includes('-junie-') ? '2026-09-14' : '2026-09-09') &&
-    review.expiresAt === '2026-09-16',
+    review.reviewedAt === '2026-09-18' && review.expiresAt === '2026-09-25',
   ));
   assert.ok(arm64.every((review) => JSON.stringify(review.variants) === '["full"]'));
   assert.ok(arm64.every((review) => JSON.stringify(review.architectures) === '["arm64"]'));
@@ -100,8 +99,8 @@ test('records the two newly approved full-image High exceptions separately', () 
       assert.equal(review.disposition, 'high_exception');
       assert.equal(review.effectiveSeverity, 'High');
       assert.equal(review.approvedBy, 'CoderLuii');
-      assert.equal(review.reviewedAt, '2026-09-11');
-      assert.equal(review.expiresAt, '2026-09-17');
+      assert.equal(review.reviewedAt, '2026-09-18');
+      assert.equal(review.expiresAt, '2026-09-25');
       assert.deepEqual(review.variants, ['full']);
       assert.deepEqual(review.architectures, [architecture]);
     }

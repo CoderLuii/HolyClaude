@@ -52,7 +52,7 @@ timeout --foreground 90s env \
 import importlib.metadata
 
 assert importlib.metadata.version('tree-sitter') == '0.26.0'
-assert importlib.metadata.version('tree-sitter-language-pack') == '1.19.1'
+assert importlib.metadata.version('tree-sitter-language-pack') == '1.20.0'
 
 from tree_sitter_language_pack import downloaded_languages, get_parser
 
@@ -82,8 +82,19 @@ const vercelRoot = '/usr/local/lib/node_modules/vercel';
 const moduleRoot = path.join(vercelRoot, 'node_modules');
 const readPackage = name => JSON.parse(fs.readFileSync(path.join(moduleRoot, name, 'package.json'), 'utf8'));
 const vercelPackage = JSON.parse(fs.readFileSync(path.join(vercelRoot, 'package.json'), 'utf8'));
+const vercelContainerPackage = readPackage('@vercel/container');
+const vercelFunPackage = readPackage('@vercel/fun');
+const nodePreGypPackage = readPackage('@mapbox/node-pre-gyp');
 const pythonAnalysisPackage = readPackage('@vercel/python-analysis');
 const pep440Package = readPackage('@renovatebot/pep440');
+const vercelTarPackage = readPackage('tar');
+const vercelFunTarRoot = path.join(moduleRoot, '@vercel/fun/node_modules/tar');
+const vercelFunTarPackage = JSON.parse(fs.readFileSync(path.join(vercelFunTarRoot, 'package.json'), 'utf8'));
+const vercelTar = require(path.join(moduleRoot, 'tar'));
+const vercelFunTar = require(vercelFunTarRoot);
+const vercelContainerRoot = path.join(moduleRoot, '@vercel/container');
+const vercelContainerSmolTomlPath = require.resolve('smol-toml', { paths: [vercelContainerRoot] });
+const vercelContainerSmolToml = require(vercelContainerSmolTomlPath);
 const pythonAnalysis = require(path.join(moduleRoot, '@vercel/python-analysis'));
 const pep440 = require(path.join(moduleRoot, '@renovatebot/pep440'));
 const pep440Version = require(path.join(moduleRoot, '@renovatebot/pep440/lib/version'));
@@ -102,9 +113,25 @@ function pythonBuild(major, minor, patch, prerelease) {
 
 async function main() {
   const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  assert.equal(process.version, 'v26.8.2', 'unexpected Node version');
+  assert.equal(process.version, 'v26.9.0', 'unexpected Node version');
   assert.equal(installedNpmVersion, '12.0.2', 'unexpected npm version');
-  assert.equal(vercelPackage.version, '59.16.0', 'unexpected Vercel version');
+  assert.equal(vercelPackage.version, '59.23.1', 'unexpected Vercel version');
+  assert.equal(vercelContainerPackage.version, '8.2.2', 'unexpected @vercel/container version');
+  assert.equal(vercelContainerPackage.dependencies.tar, '7.5.22', 'unexpected @vercel/container tar dependency');
+  assert.equal(vercelContainerPackage.dependencies['smol-toml'], '1.8.0', 'unexpected @vercel/container smol-toml dependency');
+  assert.ok(vercelContainerSmolTomlPath.startsWith(path.join(moduleRoot, 'smol-toml') + path.sep), 'unexpected @vercel/container smol-toml resolution');
+  assert.equal(typeof vercelContainerSmolToml.parse, 'function', 'invalid @vercel/container smol-toml module');
+  assert.equal(vercelFunPackage.version, '1.3.0', 'unexpected @vercel/fun version');
+  assert.equal(vercelFunPackage.dependencies.tar, '7.5.22', 'unexpected @vercel/fun tar dependency');
+  assert.equal(nodePreGypPackage.version, '2.0.3', 'unexpected @mapbox/node-pre-gyp version');
+  assert.equal(nodePreGypPackage.dependencies.tar, '^7.4.0', 'unexpected @mapbox/node-pre-gyp tar dependency');
+  assert.equal(vercelTarPackage.version, '7.5.22', 'unexpected hoisted Vercel tar version');
+  assert.equal(vercelFunTarPackage.version, '7.5.22', 'unexpected nested @vercel/fun tar version');
+  assert.equal(typeof vercelTar.list, 'function', 'invalid hoisted Vercel tar module');
+  assert.equal(typeof vercelFunTar.list, 'function', 'invalid nested @vercel/fun tar module');
+  execFileSync('npm', ['--prefix', vercelRoot, 'ls', 'tar', '--all'], { stdio: 'ignore' });
+  execFileSync('vercel', ['--version'], { stdio: 'ignore' });
+  execFileSync('vercel', ['--help'], { stdio: 'ignore' });
   assert.equal(pythonAnalysisPackage.version, '0.14.0', 'unexpected @vercel/python-analysis version');
   assert.equal(pythonAnalysisPackage.dependencies['@renovatebot/pep440'], '4.2.1', 'unexpected published pep440 pin');
   assert.equal(pep440Package.version, '4.2.1', 'unexpected installed pep440 version');
@@ -182,7 +209,7 @@ main().catch(error => {
 NODE
 fi
 
-test "$(pnpm --version)" = 12.4.1
+test "$(pnpm --version)" = 12.4.2
 mkdir "$test_dir/dep" "$test_dir/project"
 printf '%s\n' '{"name":"local-smoke-dep","version":"1.0.0","main":"index.js"}' > "$test_dir/dep/package.json"
 printf '%s\n' 'module.exports = 42;' > "$test_dir/dep/index.js"

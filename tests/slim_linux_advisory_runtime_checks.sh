@@ -17,8 +17,14 @@ require_package() {
 test "$(cat /etc/holyclaude-variant)" = slim
 architecture="$(dpkg --print-architecture)"
 case "$architecture" in
-  amd64) library_dir=/usr/lib/x86_64-linux-gnu ;;
-  arm64) library_dir=/usr/lib/aarch64-linux-gnu ;;
+  amd64)
+    library_dir=/usr/lib/x86_64-linux-gnu
+    expected_libevent_core_sha256=62ef2b9108270573f45b92c84b59ab897e29b71e2c22b2e3e5dcef07fb141430
+    ;;
+  arm64)
+    library_dir=/usr/lib/aarch64-linux-gnu
+    expected_libevent_core_sha256=9331ae738c166e786f2bae7e28777f680e8582a42139f48921c0ae47b1f3efa0
+    ;;
   *) echo "unsupported architecture: $architecture" >&2; exit 1 ;;
 esac
 
@@ -32,7 +38,7 @@ require_package zlib1g '1:1.2.13.dfsg-1' "$architecture"
 for package in bind9-dnsutils bind9-host bind9-libs; do
   require_package "$package" '1:9.18.49-1~deb12u2' "$architecture"
 done
-require_package libevent-core-2.1-7 '2.1.12-stable-8' "$architecture"
+require_package libevent-core-2.1-7 '2.1.12-stable-8+deb12u1' "$architecture"
 require_package libtiff6 '4.5.0-6+deb12u4' "$architecture"
 
 # dnsutils is architecture-all and is bound separately from platform-architecture packages.
@@ -76,9 +82,9 @@ for static_library in \
 done
 libevent_core_path="$(ldconfig -p | awk '/libevent_core-2\.1\.so\.7 / { print $NF; exit }')"
 test -n "$libevent_core_path"
+test "$(sha256sum "$libevent_core_path" | cut -d' ' -f1)" = "$expected_libevent_core_sha256"
 if test "$architecture" = arm64; then
   test "$(readlink -f "$libevent_core_path")" = "$library_dir/libevent_core-2.1.so.7.0.1"
-  test "$(sha256sum "$libevent_core_path" | cut -d' ' -f1)" = c07184da97048cd7bdea88dede0b0ef26cf11c0bb16baeb48885839cc12086d0
   readelf -h "$libevent_core_path" | grep -Eq 'Machine:[[:space:]]+AArch64$'
 fi
 if nm -D --defined-only "$libevent_core_path" | grep -Fq ' evhttp_'; then

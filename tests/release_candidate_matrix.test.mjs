@@ -172,7 +172,7 @@ test('version normalization rejects substring, boundary, and ambiguous-version f
     ['codex', 'codex-cli 0.152.1', '0.152.1'],
     ['cursor', '2026.08.31-4057e58', '2026.08.31-4057e58'],
     ['junie', 'Junie 3126.1', '3126.1'],
-    ['junie', 'Junie version: 26.9.14 (3196.4)', '3196.4'],
+    ['junie', 'Junie version: 26.9.14 (3196.5)', '3196.5'],
   ]) {
     const result = runWorkflowVersionParser(command, output);
     assert.equal(result.status, 0, result.stderr);
@@ -188,15 +188,15 @@ test('version normalization rejects substring, boundary, and ambiguous-version f
 
 test('Junie normalization fails closed on malformed, extra, ambiguous, and wrong-build output', () => {
   for (const output of [
-    'Junie version: 26.9.14 3196.4',
-    'Junie version: 26.9.14 (3196.4) extra',
-    'Junie version: 26.9.14 (3196.4)\nJunie 3126.1',
-    'Junie version: 26.9.14 (3196.4) (3126.1)',
+    'Junie version: 26.9.14 3196.5',
+    'Junie version: 26.9.14 (3196.5) extra',
+    'Junie version: 26.9.14 (3196.5)\nJunie 3126.1',
+    'Junie version: 26.9.14 (3196.5) (3126.1)',
   ]) assert.notEqual(runWorkflowVersionParser('junie', output).status, 0);
 
   const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.9.14 (3196.3)');
   assert.equal(wrongBuild.status, 0, wrongBuild.stderr);
-  assert.notEqual(wrongBuild.stdout, '3196.4');
+  assert.notEqual(wrongBuild.stdout, '3196.5');
 });
 
 test('candidate attempt validation treats promotion workflow attempts as independent', () => {

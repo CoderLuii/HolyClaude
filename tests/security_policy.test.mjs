@@ -8,6 +8,17 @@ import test from 'node:test';
 
 const evaluator = resolve('scripts/evaluate-security-report.mjs');
 const authorityBinder = resolve('scripts/bind-security-authority-report.mjs');
+const chromiumNames = new Set(['chromium', 'chromium-common', 'chromium-sandbox']);
+const retiredChromiumVersions = new Set([
+  '151.0.7922.173-1~deb12u1',
+  '152.0.7977.82-1~deb12u1',
+]);
+
+function findRetiredChromiumReviews(reviews) {
+  return reviews.filter((review) =>
+    review.component.names.some((name) => chromiumNames.has(name)) &&
+    review.component.versions.some((version) => retiredChromiumVersions.has(version)));
+}
 
 const linuxLibcIgnoreRule = {
   namespace: '',
@@ -79,7 +90,7 @@ function fixture() {
     report: {
       source: { type: 'sbom', target: 'fixture.cdx.json' },
       distro: { name: 'debian', version: '12', idLike: ['debian'] },
-      descriptor: { name: 'grype', version: '0.118.0', configuration: {} },
+      descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
       ignoredMatches: [],
       matches: [
         {
@@ -255,11 +266,11 @@ function configureArchitectureAllReview(data, {
     vulnerability: { name: 'CVE-2099-0001' },
     products: [
       {
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=slim',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=slim',
         subcomponents: [{ identifiers: { purl: vexPurl } }],
       },
       {
-        '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=slim',
+        '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=slim',
         subcomponents: [{ identifiers: { purl: vexPurl } }],
       },
     ],
@@ -744,7 +755,7 @@ test('maps a raw High finding as temporary Critical when the official authority 
   assert.deepEqual(result.policy.acceptedTemporaryCriticalReviews, ['example-review']);
 });
 
-test('validates the committed advisory ledger and OpenVEX policy together', () => {
+test('accepts the committed advisory ledger after exact Chromium authority renewal', () => {
   const result = runFixture(
     (data) => {
       data.ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
@@ -776,7 +787,7 @@ test('validates the committed advisory ledger and OpenVEX policy together', () =
       arch: 'amd64',
       evidenceVariant: 'slim',
       evidenceArch: 'amd64',
-      asOf: '2026-09-14',
+      asOf: '2026-09-18',
     },
   );
   assert.equal(result.status, 0, result.stderr);
@@ -811,8 +822,8 @@ test('records the full-image TIFF tool absence as exact not-affected component e
   assert.deepEqual(
     statement.products.map((product) => product['@id']).sort(),
     [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full',
     ],
   );
   const expectedPurls = ['amd64', 'arm64'].flatMap((architecture) =>
@@ -828,7 +839,7 @@ test('records the full-image TIFF tool absence as exact not-affected component e
   }
 });
 
-test('replaces obsolete ARM64 Critical mappings while retaining the approved Chromium authority evidence', () => {
+test('replaces obsolete ARM64 Critical mappings and retires fixed Chromium authority evidence', () => {
   const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
   const evidence = JSON.parse(readFileSync('security/critical-exception-authority-evidence.json', 'utf8'));
   const expectedVulnerabilities = [
@@ -842,18 +853,12 @@ test('replaces obsolete ARM64 Critical mappings while retaining the approved Chr
     review.vulnerabilities.some((vulnerability) => expectedVulnerabilities.includes(vulnerability)),
   );
   assert.deepEqual(exceptions, []);
-  assert.equal(evidence.records.length, 15);
-  assert.deepEqual(
-    new Set(evidence.records.map((record) => record.vulnerability)),
-    new Set(['CVE-2026-87438', 'CVE-2026-87464', 'CVE-2026-87488', 'CVE-2026-87527', 'CVE-2026-87628']),
-  );
+  assert.deepEqual(evidence.records, []);
   assert.deepEqual(evidence.candidate, {
     variant: 'slim',
     architecture: 'arm64',
     reportSha256: null,
   });
-  assert.ok(evidence.records.every((record) => record.repository.origin === 'official_debian_repository'));
-  assert.ok(evidence.records.every((record) => record.advisoryStatus === 'open' && record.fixedVersion === null));
 });
 
 test('documents the temporary Critical exception without weakening the permanent fail-closed policy', () => {
@@ -881,16 +886,10 @@ test('a stale full-only review blocks a slim policy evaluation', () => {
   assert.match(result.stderr, /example-review: review expired on 2026-07-14/);
 });
 
-test('drops obsolete review artifacts while retaining the currently approved Chromium tuple', () => {
+test('drops obsolete review artifacts and fixed Chromium Critical authority tuples', () => {
   const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
   const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
-  const chromiumNames = new Set(['chromium', 'chromium-common', 'chromium-sandbox']);
-  const retiredChromiumVersions = new Set([
-    '151.0.7922.173-1~deb12u1',
-  ]);
-  const obsoleteReviews = ledger.reviews.filter((review) =>
-    review.component.names.some((name) => chromiumNames.has(name)) &&
-    review.component.versions.some((version) => retiredChromiumVersions.has(version)));
+  const obsoleteReviews = findRetiredChromiumReviews(ledger.reviews);
   assert.deepEqual(obsoleteReviews, []);
 
   for (const path of [
@@ -942,6 +941,20 @@ test('drops obsolete review artifacts while retaining the currently approved Chr
     ledger.reviews.some((review) => review.id.startsWith('v155-brace-expansion-high-exception-')),
     false,
   );
+});
+
+test('rejects stale Chromium vendor-severity reviews regardless of owner', () => {
+  const staleVendorReview = {
+    id: 'stale-chromium-vendor-severity-mutation',
+    disposition: 'vendor_severity',
+    owner: 'Renamed Chromium owner',
+    component: {
+      names: ['chromium-common'],
+      versions: ['152.0.7977.82-1~deb12u1'],
+    },
+  };
+
+  assert.deepEqual(findRetiredChromiumReviews([staleVendorReview]), [staleVendorReview]);
 });
 
 test('maps both downstream FFmpeg fixes across every rebuilt runtime package and architecture', () => {
@@ -1048,7 +1061,7 @@ for (const [name, mutate, expected] of [
   ['Grype report without matches', ({ report }) => delete report.matches, 'Grype report matches must be an array'],
   ['Grype report without source', ({ report }) => delete report.source, 'Grype report source is incomplete'],
   ['Grype report without descriptor', ({ report }) => delete report.descriptor, 'Grype report descriptor is incomplete'],
-  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.116.1'), 'expected Grype 0.118.0'],
+  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.116.1'), 'expected Grype 0.119.0'],
   ['Grype report without ignored matches', ({ report }) => delete report.ignoredMatches, 'ignoredMatches must be an array'],
   ['Grype report with arbitrary ignored findings', ({ report }) => report.ignoredMatches.push(structuredClone(report.matches[0])), 'Grype ignored matches require'],
   ['noncanonical Grype severity', ({ report }) => (report.matches[0].vulnerability.severity = 'critical'), 'invalid severity'],
@@ -1240,7 +1253,7 @@ test('rejects a not-affected review without the Docker Hub product scope', () =>
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [{
-        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
+        '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full',
         subcomponents: [
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=amd64' } },
           { identifiers: { purl: 'pkg:deb/debian/example-package@1.0.0?arch=arm64' } },
@@ -1277,8 +1290,8 @@ test('rejects statement-level vulnerability aliases', () => {
       vulnerability: { name: 'CVE-2099-0001' },
       aliases: ['CVE-2099-0002'],
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -1298,8 +1311,8 @@ test('rejects a not-affected product without exact component subcomponents', () 
       '@id': 'urn:test:vex:example',
       vulnerability: { name: 'CVE-2099-0001' },
       products: [
-        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full' },
-        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full' },
+        { '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full' },
+        { '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full' },
       ],
       status: 'not_affected',
       justification: 'vulnerable_code_not_present',
@@ -1326,11 +1339,11 @@ test('emits digest-bound OpenVEX with the exact component subcomponent', () => {
         vulnerability: { name: 'CVE-2099-0001' },
         products: [
           {
-            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
+            '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
           {
-            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
+            '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full',
             subcomponents: [{ identifiers: { purl: componentPurl } }],
           },
         ],
@@ -1575,11 +1588,11 @@ test('rejects unexpected review fields and orphan OpenVEX statements', () => {
       vulnerability: { '@id': 'https://nvd.nist.gov/vuln/detail/CVE-2099-0002', name: 'CVE-2099-0002' },
       products: [
         {
-          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=full',
+          '@id': 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
         {
-          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=full',
+          '@id': 'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=full',
           subcomponents: [{ identifiers: { purl: 'pkg:deb/debian/orphan@1.0.0?arch=amd64' } }],
         },
       ],

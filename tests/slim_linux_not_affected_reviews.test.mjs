@@ -58,18 +58,6 @@ const expectedReviews = [
     names: ['libtiff6'],
     version: '4.5.0-6+deb12u4',
   },
-  {
-    id: 'v160-slim-amd64-libevent-core-cve-2026-63382-not-affected',
-    vulnerability: 'CVE-2026-63382',
-    names: ['libevent-core-2.1-7'],
-    version: '2.1.12-stable-8',
-  },
-  {
-    id: 'v160-slim-amd64-libevent-core-cve-2026-63385-not-affected',
-    vulnerability: 'CVE-2026-63385',
-    names: ['libevent-core-2.1-7'],
-    version: '2.1.12-stable-8',
-  },
 ];
 
 function expectedPurls(review) {
@@ -80,7 +68,7 @@ function expectedPurls(review) {
   ).sort();
 }
 
-test('binds 35 slim amd64 findings to exact-version not-affected reviews and OpenVEX statements', () => {
+test('binds 33 slim amd64 findings to exact-version not-affected reviews and OpenVEX statements', () => {
   let tupleCount = 0;
   for (const expected of expectedReviews) {
     const matches = ledger.reviews.filter((review) => review.id === expected.id);
@@ -114,8 +102,8 @@ test('binds 35 slim amd64 findings to exact-version not-affected reviews and Ope
     assert.deepEqual(
       statement.products.map((product) => product['@id']).sort(),
       [
-        'pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=slim',
-        'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=slim',
+        'pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=slim',
+        'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=slim',
       ],
     );
     for (const product of statement.products) {
@@ -126,10 +114,10 @@ test('binds 35 slim amd64 findings to exact-version not-affected reviews and Ope
     }
     tupleCount += expected.names.length;
   }
-  assert.equal(tupleCount, 35);
+  assert.equal(tupleCount, 33);
 });
 
-test('replaces the proven slim amd64 findings and leaves no ARM replacement as an exception', () => {
+test('replaces the proven slim amd64 findings and retires fixed Chromium authority records', () => {
   const replacedIds = [
     'v158-libtiff-cve-2026-52490-critical-exception-slim-amd64',
     'v158-libevent-critical-exception-slim-amd64',
@@ -144,18 +132,7 @@ test('replaces the proven slim amd64 findings and leaves no ARM replacement as a
     architecture: 'amd64',
     reportSha256: null,
   });
-  const expectedIds = new Set(
-    ['CVE-2026-87438', 'CVE-2026-87464', 'CVE-2026-87488', 'CVE-2026-87527', 'CVE-2026-87628']
-      .flatMap((vulnerability) => ['chromium', 'chromium-common', 'chromium-sandbox']
-        .map((name) => `slim-amd64-chromium-${vulnerability.toLowerCase()}-${name}`)),
-  );
-  assert.equal(authority.records.length, 15);
-  assert.deepEqual(new Set(authority.records.map((record) => record.id)), expectedIds);
-  assert.ok(authority.records.every((record) =>
-    record.review === 'v160-slim-amd64-chromium-upstream-critical-exception' &&
-    record.component.version === '152.0.7977.82-1~deb12u1'));
-  assert.ok(authority.records.every((record) =>
-    !['CVE-2026-52490', 'CVE-2026-63382', 'CVE-2026-63385'].includes(record.vulnerability)));
+  assert.deepEqual(authority.records, []);
 
   const remaining = ledger.reviews.filter((review) =>
     review.disposition === 'critical_exception' &&
@@ -182,7 +159,7 @@ test('replaces the proven slim amd64 findings and leaves no ARM replacement as a
   }
 });
 
-test('records source build separation and real consumer paths for the three replacements', () => {
+test('records the TIFF source split and real consumer path', () => {
   const tiff = ledger.reviews.find(
     (review) => review.id === 'v160-slim-amd64-libtiff6-cve-2026-52490-not-affected',
   );
@@ -190,13 +167,6 @@ test('records source build separation and real consumer paths for the three repl
   assert.match(tiff.rationale, /builds.*tiffcrop tool installed by libtiff-tools/);
   assert.match(tiff.rationale, /gdk-pixbuf TIFF consumer links libtiff\.so\.6/);
 
-  for (const vulnerability of ['CVE-2026-63382', 'CVE-2026-63385']) {
-    const review = ledger.reviews.find((item) => item.id ===
-      `v160-slim-amd64-libevent-core-${vulnerability.toLowerCase()}-not-affected`);
-    assert.match(review.rationale, /http\.c/);
-    assert.match(review.rationale, /EXTRAS_SRC and libevent_extra, not CORE_SRC or libevent_core/);
-    assert.match(review.rationale, /tmux consumer links only libevent_core/);
-  }
 });
 
 test('preserves the upstream and Debian affected-range conflict for CVE-2026-76642', () => {

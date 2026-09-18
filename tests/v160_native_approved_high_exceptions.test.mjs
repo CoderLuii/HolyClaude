@@ -93,7 +93,7 @@ function reportFor(arch) {
   return {
     source: { type: 'sbom', target: `v160-slim-${arch}-approved-high.cdx.json` },
     distro: { name: 'debian', version: '12.15', idLike: ['debian'] },
-    descriptor: { name: 'grype', version: '0.118.0', configuration: {} },
+    descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
     ignoredMatches: [], matches,
   };
 }
@@ -141,8 +141,8 @@ test('binds the 20 approved slim findings to six exact architecture-specific exc
     assert.equal(review.disposition, 'high_exception');
     assert.equal(review.effectiveSeverity, 'High');
     assert.equal(review.approvedBy, 'CoderLuii');
-    assert.equal(review.reviewedAt, '2026-09-09');
-    assert.equal(review.expiresAt, '2026-09-16');
+    assert.equal(review.reviewedAt, '2026-09-18');
+    assert.equal(review.expiresAt, '2026-09-25');
     assert.deepEqual(review.variants, ['slim']);
     assert.deepEqual(review.architectures, [spec.id.includes('-amd64-') ? 'amd64' : 'arm64']);
     assert.equal('vexStatement' in review, false);
@@ -161,13 +161,13 @@ test('removes the stale AOM and libssh2 selectors after both native variants ver
 test('accepts both approved targets through expiry and rejects them afterward', () => {
   for (const arch of ['amd64', 'arm64']) {
     const report = reportFor(arch);
-    const valid = evaluate(arch, report, '2026-09-16');
+    const valid = evaluate(arch, report, '2026-09-25');
     assert.equal(valid.status, 0, valid.stderr);
     assert.equal(valid.policy.rawHighCount, 10);
     assert.equal(valid.policy.mappedHighCount, 10);
-    const expired = evaluate(arch, report, '2026-09-17');
+    const expired = evaluate(arch, report, '2026-09-26');
     assert.notEqual(expired.status, 0);
-    assert.match(expired.stderr, /expired on 2026-09-16/);
+    assert.match(expired.stderr, /expired on 2026-09-25/);
   }
 });
 
@@ -177,7 +177,7 @@ test('leaves unrelated High and Critical findings fail closed', () => {
     { vulnerability: { id: 'GHSA-v5mp-jgw5-2x6j', severity: 'High', fix: { versions: ['4.1.2'], state: 'fixed' } }, artifact: { name: 'toml', version: '3.0.0', type: 'npm', locations: [{ path: '/usr/local/lib/node_modules/netlify-cli/node_modules/toml/package.json' }] } },
     { vulnerability: { id: 'CVE-2099-0001', severity: 'Critical', fix: { versions: [], state: 'not-fixed' } }, artifact: { name: 'libxml2', version: '2.9.14+dfsg-1.3~deb12u6', type: 'deb', locations: pathsFor('libxml2', 'amd64').map((path) => ({ path })) } },
   );
-  const result = evaluate('amd64', report, '2026-09-16');
+  const result = evaluate('amd64', report, '2026-09-25');
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /GHSA-v5mp-jgw5-2x6j toml@3\.0\.0: matched 0 reviews for raw High finding/);
   assert.match(result.stderr, /CVE-2099-0001 libxml2@2\.9\.14\+dfsg-1\.3~deb12u6: matched 0 reviews/);

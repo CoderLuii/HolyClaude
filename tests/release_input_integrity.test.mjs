@@ -10,7 +10,7 @@ const dockerfile = readFileSync('Dockerfile', 'utf8');
 const dockerIgnore = readFileSync('.dockerignore', 'utf8');
 const gitAttributes = readFileSync('.gitattributes', 'utf8');
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
-const immutableInputs = readFileSync('security/immutable-inputs.yml', 'utf8');
+const immutableInputs = readFileSync('security/immutable-inputs.yml', 'utf8').replaceAll('\r\n', '\n');
 const browserRuntimeChecks = readFileSync('tests/browser_runtime_container_checks.sh', 'utf8');
 const browserSnapshotRetry = readFileSync('tests/browser_snapshot_retry.sh', 'utf8');
 const cloudcliManifest = JSON.parse(readFileSync('vendor/artifacts/cloudcli-account-management.manifest.json', 'utf8'));
@@ -32,14 +32,16 @@ test('security documentation matches the guarded Full-image tar parent baselines
   const tarPatcher = readFileSync('scripts/patch-global-node-tar.mjs', 'utf8');
   const easVersion = tarPatcher.match(/easManifest,[\s\S]{0,80}'eas-cli',\s*'([^']+)'/)?.[1];
   const vercelVersion = tarPatcher.match(/loadPackage\(vercelManifest, 'vercel', '([^']+)'\)/)?.[1];
+  const vercelContainerVersion = tarPatcher.match(/vercelContainerManifest,[\s\S]{0,80}'@vercel\/container',\s*'([^']+)'/)?.[1];
   const vercelFunVersion = tarPatcher.match(/vercelFunManifest,[\s\S]{0,80}'@vercel\/fun',\s*'([^']+)'/)?.[1];
   const easTarVersion = tarPatcher.match(/const EAS_BASELINE_TAR_VERSION = '([^']+)'/)?.[1];
-  const vercelTarVersion = tarPatcher.match(/const VERCEL_BASELINE_TAR_VERSION = '([^']+)'/)?.[1];
+  const vercelContainerTarVersion = tarPatcher.match(/const VERCEL_CONTAINER_BASELINE_TAR_VERSION = '([^']+)'/)?.[1];
+  const vercelFunTarVersion = tarPatcher.match(/const VERCEL_FUN_BASELINE_TAR_VERSION = '([^']+)'/)?.[1];
   const targetTarVersion = tarPatcher.match(/const TARGET_TAR_VERSION = '([^']+)'/)?.[1];
 
-  assert.ok(easVersion && vercelVersion && vercelFunVersion && easTarVersion && vercelTarVersion && targetTarVersion);
+  assert.ok(easVersion && vercelVersion && vercelContainerVersion && vercelFunVersion && easTarVersion && vercelContainerTarVersion && vercelFunTarVersion && targetTarVersion);
   assert.ok(securityDocs.includes(
-    `The full image includes EAS CLI ${easVersion} and Vercel CLI ${vercelVersion}. EAS CLI bundles \`tar\` ${easTarVersion}, while Vercel's \`@vercel/fun\` ${vercelFunVersion} package bundles \`tar\` ${vercelTarVersion}. The Docker build replaces only those two installed copies with checksum-verified \`tar\` ${targetTarVersion}`,
+    `The full image includes EAS CLI ${easVersion} and Vercel CLI ${vercelVersion}. EAS CLI bundles \`tar\` ${easTarVersion}. Vercel's \`@vercel/container\` ${vercelContainerVersion} resolves the hoisted \`tar\` ${vercelContainerTarVersion}, while \`@vercel/fun\` ${vercelFunVersion} retains a nested \`tar\` ${vercelFunTarVersion}. The Docker build replaces only those three installed copies with checksum-verified \`tar\` ${targetTarVersion}`,
   ));
 });
 
@@ -61,19 +63,19 @@ test('runtime CloudCLI and Netlify version checks match the selected release inp
 });
 
 test('verified direct dependency pins match build, runtime, product, and immutable assertions', () => {
-  for (const version of ['12.4.1', '4.131.2', '4.70.1', '1.19.1', '3.11.2', '0.53.0', '0.74.4', '2.1.270']) {
+  for (const version of ['12.4.2', '4.134.0', '4.70.1', '1.20.0', '3.11.2', '0.53.0', '0.74.4', '2.1.276']) {
     assert.ok(browserRuntimeChecks.includes(version), `runtime checks should contain ${version}`);
   }
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.270');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.276');
   for (const expected of [
-    'version: 12.4.1',
-    'version: 4.131.2',
+    'version: 12.4.2',
+    'version: 4.134.0',
     'version: 4.70.1',
-    'version: 1.19.1',
+    'version: 1.20.0',
     'version: 3.11.2',
     'version: 0.53.0',
     'version: 0.74.4',
-    'version: 2.1.270',
+    'version: 2.1.276',
   ]) assert.ok(immutableInputs.includes(expected), `immutable input inventory should contain ${expected}`);
 });
 
@@ -185,7 +187,7 @@ test('rollback artifact restores to the paths consumed by the rollback job', () 
 
 test('release base and archive inputs are versioned and checksum-verified', () => {
   assert.match(dockerfile, /^FROM golang:1\.27\.1-bookworm@sha256:[0-9a-f]{64} AS esbuild-builder$/m);
-  assert.match(dockerfile, /^FROM node:26\.8\.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae AS ffmpeg-security-builder$/m);
+  assert.match(dockerfile, /^FROM node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6 AS ffmpeg-security-builder$/m);
   assert.match(dockerfile, /^FROM python:3\.14\.7-slim-bookworm@sha256:9ab8d9c8514b44f90cf0029dd42fdd7e9e211e639c8b995304cc04568dee900f AS python-runtime$/m);
   assert.match(dockerfile, /for ESBUILD_VERSION in 0\.15\.18 0\.18\.20 0\.25\.12/);
   assert.match(dockerfile, /github\.com\/evanw\/esbuild\/cmd\/esbuild@v\$\{ESBUILD_VERSION\}/);
@@ -207,27 +209,28 @@ test('release base and archive inputs are versioned and checksum-verified', () =
   assert.match(dockerfile, /test "\$\(grep -F "  \$\{FZF_ASSET\}" \/tmp\/fzf-checksums\.txt \| cut -d' ' -f1\)" = "\$FZF_ARCHIVE_SHA256"/);
   assert.match(dockerfile, /echo "\$FZF_ARCHIVE_SHA256  \/tmp\/\$\{FZF_ASSET\}" \| sha256sum -c -/);
   assert.doesNotMatch(dockerfile, /tmux fzf bat bubblewrap/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=152\.0\.7977\.82-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=a95a8ff7db26ab9ddc69354dd99e89ba006f40b694f7cf643b82a0dcb38c0cb1/);
-  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=6c6152158a919619dd2fd7707dfaf1a5f14c46bc6414b912d2654a2c1b511629/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=aeef827a71b85e9379f7d65f612545d2f589b1322c4f5d1acad979774ef6f062/);
-  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=9b565f0f02713f9df011b5728cad9b72561a6b7b4096270529221825ffe92ee5/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=bb8e7023f138cbbfe0d451e10f8f6aceda799d28e51ded090203f140bac7b778/);
-  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=e8fa69b075194cafd4f0c26aec9d447015abe9aadaeb1a41f7776e22d3029e4c/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION=153\.0\.8010\.47-2~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_AMD64=ddd26b17ec5008aaccf9f0acd3031c9ac62984fe98b1dbc5782670598b6d3bd9/);
+  assert.match(dockerfile, /ARG CHROMIUM_PACKAGE_SHA256_ARM64=4df7ba070ef3d4e8e1bcb020d9a2a3e111f964456ac19bb728aa28434b880f7b/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=574470643af1492e222c85a1f051a20207951f5d3c4b9ea82f8d1f3b1368eb77/);
+  assert.match(dockerfile, /ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=9798dbacdab0f97050b055edfe00843f57ca2f575d14e4cc239cf00f1d445c3b/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=c397d185b57e000ed10d20c6ccdae7c8d6f66c3df35bcb428e8d67c299cb953b/);
+  assert.match(dockerfile, /ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=2712811e3e1ccb4bb8907745ef5b832abe29011fc937052f06535e4dfba2b083/);
   assert.match(dockerfile, /apt-get download[\s\S]+chromium-common[\s\S]+chromium-sandbox/);
   assert.match(dockerfile, /\| sha256sum -c -/);
   assert.match(dockerfile, /dpkg-query -W -f='\$\{Version\}' chromium/);
   assert.doesNotMatch(dockerfile, /playwright install/);
-  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 152\.0\.7977\.82-1~deb12u1/);
-  for (const field of [
-    'amd64-chromium-package-sha256',
-    'arm64-chromium-package-sha256',
-    'amd64-chromium-common-package-sha256',
-    'arm64-chromium-common-package-sha256',
-    'amd64-chromium-sandbox-package-sha256',
-    'arm64-chromium-sandbox-package-sha256',
-  ]) {
-    assert.match(immutableInputs, new RegExp(`${field}: [0-9a-f]{64}`));
+  assert.match(immutableInputs, /Debian Chromium package trio[\s\S]+version: 153\.0\.8010\.47-2~deb12u1/);
+  const chromiumImmutableBindings = {
+    'amd64-chromium-package-sha256': 'ddd26b17ec5008aaccf9f0acd3031c9ac62984fe98b1dbc5782670598b6d3bd9',
+    'arm64-chromium-package-sha256': '4df7ba070ef3d4e8e1bcb020d9a2a3e111f964456ac19bb728aa28434b880f7b',
+    'amd64-chromium-common-package-sha256': '574470643af1492e222c85a1f051a20207951f5d3c4b9ea82f8d1f3b1368eb77',
+    'arm64-chromium-common-package-sha256': '9798dbacdab0f97050b055edfe00843f57ca2f575d14e4cc239cf00f1d445c3b',
+    'amd64-chromium-sandbox-package-sha256': 'c397d185b57e000ed10d20c6ccdae7c8d6f66c3df35bcb428e8d67c299cb953b',
+    'arm64-chromium-sandbox-package-sha256': '2712811e3e1ccb4bb8907745ef5b832abe29011fc937052f06535e4dfba2b083',
+  };
+  for (const [field, sha256] of Object.entries(chromiumImmutableBindings)) {
+    assert.match(immutableInputs, new RegExp(`^    ${field}: ${sha256}$`, 'm'));
   }
 
   const architectureSelectors = dockerfile
@@ -246,16 +249,16 @@ test('release base and archive inputs are versioned and checksum-verified', () =
 });
 
 test('native installers and their outputs are pinned without unsupported flags', () => {
-  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.270/);
+  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.276/);
   assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=3a624a5a7cd79bbad4d32bd7db36f1197ecf458bc5bf1e2aed81834a01ad3ef0/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=7bf9f33acc124df9abccf6f2366397a82a740378d535fa12d426fa77fdbc9946/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=8a56c8a14bd3cb246e2bdb7e60aefe0f609bff78c8bbcc5ea6b1817c111c6145/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=e9ac3df956083645578a382ad64ec304468666e362c33bfdefd803cd6ff596b0/);
   assert.match(dockerfile, /bash \/tmp\/claude-install\.sh "\$CLAUDE_CODE_VERSION"/);
   assert.match(dockerfile, /\/home\/claude\/\.local\/bin\/claude --version/);
 
-  assert.match(dockerfile, /ARG JUNIE_VERSION=3196\.4/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=92b43a45b213a94d91a995a1c9c039cdcfe1c4e2f963d43cf9d4ad9b1298b05c/);
-  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=04834c6c5d43b418c338030f9dd0823dcf2bc3a1c9d175ec292a0dcf5573b285/);
+  assert.match(dockerfile, /ARG JUNIE_VERSION=3196\.5/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_AMD64=dfe7635595f87c6e6d2a3acfe239b2bcb54ceaef4df41f0ca1044ed0ae37aa01/);
+  assert.match(dockerfile, /JUNIE_ARCHIVE_SHA256_ARM64=ac43e6b9ab512b94c57b1d12d52ac35131eb8dbcfb55b42f7fb1e8cd2dd76a98/);
   assert.match(dockerfile, /JUNIE_ARCHIVE="junie-release-\$\{JUNIE_VERSION\}-linux-\$\{JUNIE_PLATFORM\}\.zip"/);
   assert.match(dockerfile, /unzip -Z1 "\/tmp\/\$\{JUNIE_ARCHIVE\}"/);
   assert.match(dockerfile, /test "\$JUNIE_TOP_LEVEL" = "channel junie junie-app shim "/);
@@ -265,9 +268,9 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.doesNotMatch(dockerfile, /junie-nightly|JUNIE_VERSION=3220\.1/);
   assert.doesNotMatch(dockerfile, /junie\.jetbrains\.com\/install\.sh/);
 
-  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.09\.10-fd3934a/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=27997c8391ad853a5a732b1845db8ef82a8ba6afb0f7829cc739464f8966e96e/);
-  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=e0494438b01c37bc34848491d1f3478ef469494c56caf020de11796d146db64a/);
+  assert.match(dockerfile, /ARG CURSOR_BUILD_ID=2026\.09\.15-d2fe57e/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97/);
+  assert.match(dockerfile, /CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d/);
   assert.match(dockerfile, /downloads\.cursor\.com\/lab\/\$\{CURSOR_BUILD_ID\}\/linux\/\$\{CURSOR_ASSET_ARCH\}\/agent-cli-package\.tar\.gz/);
   assert.match(dockerfile, /tar --strip-components=1 -xzf \/tmp\/cursor-agent\.tar\.gz -C "\$CURSOR_DIR"/);
   assert.doesNotMatch(dockerfile, /cursor\.com\/install/);
@@ -281,7 +284,7 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /test "\$\(cursor-agent --version\)" = "\$CURSOR_BUILD_ID"/);
   assert.match(dockerfile, /rm -f "\$CURSOR_DIR\/node"/);
   assert.match(dockerfile, /ln -s \/usr\/local\/bin\/node "\$CURSOR_DIR\/node"/);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.8\.2"/);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.9\.0"/);
   assert.match(dockerfile, /SETUPTOOLS_VERSION=84\.0\.0/);
   assert.match(dockerfile, /SETUPTOOLS_WHEEL_SHA256=51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670/);
   assert.match(dockerfile, /patch-global-node-security-dependencies\.mjs --root \/ --variant "\$VARIANT" --check-baseline/);
@@ -292,66 +295,81 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /AZURE_CLI_INSTALLER_SHA256=[0-9a-f]{64}/);
   assert.match(dockerfile, /sed -i[^\n]+azure-cli=\$AZURE_CLI_VERSION/);
   assert.match(dockerfile, /grep -Fqx[^\n]+azure-cli=\$AZURE_CLI_VERSION/);
-  assert.match(dockerfile, /ARG GITHUB_CLI_VERSION=2\.100\.0/);
-  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_AMD64=698c8d88cc19cc92bfe96bad58d10b2a5b274c52433d6dc57799c81f6139d5fc/);
-  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_ARM64=33ccd2ad7ce639c927e1cb209e36555b0e1fbb89f7a38239c0568040ec758612/);
+  assert.match(dockerfile, /ARG GITHUB_CLI_VERSION=2\.101\.0/);
+  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_AMD64=f876a3b87bf67c94f773d17becca4dc7340b056dab901473a9260ee2a73e237b/);
+  assert.match(dockerfile, /GITHUB_CLI_PACKAGE_SHA256_ARM64=9aec87f9a011b1521556b06cb003776e7e214144c8efd2144924a28d90c23057/);
   assert.match(dockerfile, /github\.com\/cli\/cli\/releases\/download\/v\$\{GITHUB_CLI_VERSION\}/);
-  assert.match(browserRuntimeChecks, /require_eq "GitHub CLI version"[\s\S]{0,160}"2\.100\.0"/);
+  assert.match(browserRuntimeChecks, /require_eq "GitHub CLI version"[\s\S]{0,160}"2\.101\.0"/);
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(immutableInputs, /^release: v1\.6\.1$/m);
+  assert.match(dockerfile, /^ARG HOLYCLAUDE_VERSION=1\.6\.2$/m);
+  assert.match(immutableInputs, /^release: v1\.6\.2$/m);
   assert.match(immutableInputs, /^expires-at: 2026-10-12$/m);
+  assert.match(
+    immutableInputs,
+    /^  - name: Prettier\n    version: 3\.9\.8\n    archive-sha256: c33e1990a784e5a4cbc357b0755dac69868eb80a4893940db483cbab4e8aa44f\n    npm-integrity: "sha512-WRFq3Wn3WId7LLROfMLdH7xaFr2jR62wU8nLO6rQUOLOxNZUviyJQs1M0iIhLexSFy\+L\+w0ch66wtoO2jRjG0A=="\n    verification: npm registry tarball integrity and committed SHA-256\n    verification-mode: committed-hash\n    status: updated$/m,
+  );
+  assert.match(
+    immutableInputs,
+    /^  - name: pandas\n    version: 3\.0\.6\n    amd64-wheel-sha256: 62f51d7f651c8054c5e82a69265c98082e795d1442df7ca6edc3a545d61214b1\n    arm64-wheel-sha256: 654aae059295dbba6ecd2328ca12712a2cf1676214c8699f1c29213f7ccf9c34\n    verification: PyPI CPython 3\.14 manylinux x86_64 and aarch64 wheel hashes\n    verification-mode: committed-hash\n    status: updated$/m,
+  );
+  assert.match(
+    immutableInputs,
+    /^  - name: Python Playwright\n    version: 1\.63\.0\n    amd64-wheel-sha256: ad21bc07516b187965a7521c5cf0df0bd657b17482eaad74335272d35a2b07de\n    arm64-wheel-sha256: 354e15b29503565fc598b89f16fbe070459343bef9d7498a93e304864000c6a7\n    verification: PyPI manylinux x86_64 and aarch64 wheel hashes\n    verification-mode: committed-hash\n    status: updated$/m,
+  );
   for (const value of [
     'sha256:648f440f42a0958804efb24df176f806f9d353b41f1c0627f666428e40310f6b',
-    'sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae',
+    'sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6',
     'sha256:9ab8d9c8514b44f90cf0029dd42fdd7e9e211e639c8b995304cc04568dee900f',
     'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667',
-    '8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3',
-    'a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f',
-    '1d444c5e7360471815f7158f71935fcecc68a3c417d85c7344f770854300bba2',
-    '32aceeb8ee837244775fcb522372c8b3a47914986385f3148f4ee2c930482a84',
+    'caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d',
+    'c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706',
+    '3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b',
+    '29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8',
     'dbcb813823bdd20940b903addbd779551569679f',
-    '37fe631027851001ddb9b187196cc803df7f5f0e',
+    'f87e5991a6d7451dcb8d9637bfbc97413f497069',
     '4895cd3fd33362471e739b786493aba048487bcc',
     '6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d',
     '391c7a29fd4a2136e5eb09b9f34fc9ec1e680da9e7b850a8cd1148d94c61e5b7',
     'b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6',
-    '3a624a5a7cd79bbad4d32bd7db36f1197ecf458bc5bf1e2aed81834a01ad3ef0',
-    '7bf9f33acc124df9abccf6f2366397a82a740378d535fa12d426fa77fdbc9946',
+    '8a56c8a14bd3cb246e2bdb7e60aefe0f609bff78c8bbcc5ea6b1817c111c6145',
+    'e9ac3df956083645578a382ad64ec304468666e362c33bfdefd803cd6ff596b0',
     '05e6813a337cc722c3ed07e54a764b75cc5d671e2e60459db0ba696ee5fa7504',
     '5d673b849f494f0d64ec471d8640b153ca8849e3846a31da17abdcfce8df6b46',
     '93b9cb6e68b97601268cc7afe17d89ce9364f6277f30b4193c725aa7dc3ededf',
-    '6276298e9af576b7a7f5e9044bfafbe2678209250cd10b1705ea5d3aa64d4882',
-    '860de8935336155ef7ac5ee91aeec78701edca4adb6987d4af6c41c1ea5c72b0',
+    '3bb1683c7bff8bf8a810284d8b38af46ac22e2a732fca88de299fdc6b88af814',
+    '0161f9532b530609de5bcb84643ac6e25afcf76496e53c3049afbe1bedf10acc',
     'c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73',
     'cefd0eca11b2a37a3aee776544d4f4ae913f02688135b5556b8788dfa474afc4',
-    '6d5187ee6b783614874d3fd7990edb51aa67703fa6ae2c05a2fd3a6cab08ddc1',
-    '86889d8409bea81276590f9f05d289c08e9921e041d9ea6c240786d4798b76ee',
-    '38364e9883febbf868b3737654bc93a813e44433a973f08be049930ce1b19b5f',
+    '355c35042989ec176dc9ded7082d3357b668429ea873ff76f2b9a6a7d753731b',
+    'e53fa9e1b281c21f1d885ae6a30828c2af2b0c43f221b7bc3c381fbdec4b1409',
+    '6f10672b06a48ce783c8000f465f0d271877372582407f93c05e0997800049f8',
     'bf3fe71fbfb8ec0e310e0bc8537c3405a01f38f25f9394ed2135e6202fed542b',
     '8c8255de28f986d935a64c9ca71c0ec2d2f41d355691f5ea684725dc91413f71',
     'cec596316640f2b394b8f0daa0ea61a8eae82d017b620b9f202befb972a59ea4',
     'e8dca71ec86dce5f04e333f0d56cdedf942446e6643b9cea1af0d6d3a02cb03e',
     'a9356f0cb89b3b8621529c5d5eebd69bfe154f4c3f68b4cf2de47e45fa855c2e',
-    '92b43a45b213a94d91a995a1c9c039cdcfe1c4e2f963d43cf9d4ad9b1298b05c',
-    '04834c6c5d43b418c338030f9dd0823dcf2bc3a1c9d175ec292a0dcf5573b285',
-    '698c8d88cc19cc92bfe96bad58d10b2a5b274c52433d6dc57799c81f6139d5fc',
-    '33ccd2ad7ce639c927e1cb209e36555b0e1fbb89f7a38239c0568040ec758612',
-    '27997c8391ad853a5a732b1845db8ef82a8ba6afb0f7829cc739464f8966e96e',
-    'e0494438b01c37bc34848491d1f3478ef469494c56caf020de11796d146db64a',
-    '59dc2cdb098b3000d36e34a185fc873932df4fd9d00900e817f2b19cd349d98b',
-    '870663d4e65042dd358305e96a22af58708a28317cd4e74a85aa867c69f5859b',
-    'e27c83a49e6031685ee7f956c12aad5f16484d3a80181dd3fea930fb96b3832b',
-    'a2315b5f64bfeaff79b71e0d35505ba8c22cc1e96cab9dc950b614c804105b24',
-    '3a97a99230d07fcbe6fd1ea2a001556297225d57f55d7880d3c9e6e29960ae90',
-    'aa31a7e68ce5c73cba302c6a4f31c2e308398db125e49d3dbea32f61862fe6de',
-    '1e20b66e76afbb7c1e5cd9be7515d2744cb4ea3476ff57add1f7e9ad6fb3a32d',
-    '58497b83da58f12722d8d5bbe4cd6b3965b918507899e459feea4af4a5717771',
-    '9e45622981fe3d7d004bd9ed357675b3acb25b44cfd112e32d224c7ddf5eeba1',
-    '4cd9c00c103bc3e5cffb0bc225a1088475bcfdfbafb22ad33d3b0046ac414919',
-    'df7dcd2bd917f6d6a23d006fd21e7b1eefb94048791ec4c904a7cb57a999e3bc',
-    'ab2c8f48015f15b6a6595901cd2ababd54e985f9dd792a5d5bedcc325743200c',
+    'dfe7635595f87c6e6d2a3acfe239b2bcb54ceaef4df41f0ca1044ed0ae37aa01',
+    'ac43e6b9ab512b94c57b1d12d52ac35131eb8dbcfb55b42f7fb1e8cd2dd76a98',
+    'f876a3b87bf67c94f773d17becca4dc7340b056dab901473a9260ee2a73e237b',
+    '9aec87f9a011b1521556b06cb003776e7e214144c8efd2144924a28d90c23057',
+    '4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97',
+    '2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d',
+    'ff812c5853c52ef120ec73132320805d179a376e42785085e2053ce7f2479860',
+    '72a9776fd667bdd6b91855e75e16603df22ce050c3563136acd273c95b099c09',
+    'cecb24eabf2eb23f0f49bf131cddd640e65017336b6298da9297bdf9d213cc0b',
+    'be7ee5f16f4c37d3a90e4edce35079cc65b62e5d83bad40f3613a6f2b45efbac',
+    '4c4c874e0dff97277f2de92cfe82e8d84ddc2d80f206779f38c831bd2e147647',
+    'ef1dac449531753ccfb02ec7df20164f3cf48fff666bf1b7348c3f872a13b6e9',
+    'b6baa53003cd2e096981474ba9461a33aba2e6948b2b4b08c4aa1a88e6dc1b59',
+    '6d89da252a8b030d923e728396dc34465cf6095101b78222b0ee337b68140dea',
+    '9f30fc9882c2782b7ce5714db5263993f6bcb310c8c590192baa7cfd9b7465d0',
+    '2e764877a5587816c633f18caf8f7402b8f5d26a9cede28aa79c70e05b270e15',
+    'a82d8ee92db0cf440ed9a757d7d8427b07e979b1d90bcabc3593f058cf63d86c',
+    '2b7abde059773e621ce22ea06cf3310d1c4d93e3bb18752bbbe73577fd3ae944',
+    'f0955d9224993e73bcec7a7fc0da5e1b58cfeaa45c5f7dc7e0112bd2f8fe3315',
+    '50bf844517c5d022fefe9463f01a1a6dc37f52c765de1895245a3e19666d2e81',
     'c5f056448f973ae7d39b5401949648a78f2dc1947d6a8eb65be60d5c504b9385',
     '88a1016bc1d657375a35864e4f44b6f333df8ff97b559f51bba0adcb2169df09',
     'b3c123df1887cf27c6480a87d148c86831cd83da478e0a8ab773ca188f3f3222',
@@ -364,31 +382,34 @@ test('immutable input inventory binds the release-critical inputs', () => {
 
 test('compatible package updates and plugin locks are exact', () => {
   for (const expected of [
+    'ARG BRACE_EXPANSION_VERSION=5.0.12',
+    'ARG BRACE_EXPANSION_ARCHIVE_SHA256=ef8448ec78f20b692f04fa6d01f39b5ab34c66404bea3429f5a39c6c9e0be8b4',
     'npm@12.0.2',
-    'pnpm@12.4.1',
+    'pnpm@12.4.2',
     'vite@8.3.0',
-    'prettier@3.9.6',
+    'prettier@3.9.8',
     'eslint@10.10.0',
     'concurrently@10.0.5',
-    'wrangler@4.131.2',
-    'vercel@59.16.0',
-    'netlify-cli@27.6.0',
-    'eas-cli@24.3.0',
+    'wrangler@4.134.0',
+    'vercel@59.23.1',
+    'netlify-cli@27.8.0',
+    'eas-cli@24.7.0',
     'prisma@7.10.0',
     'lighthouse@13.4.1',
     '@marp-team/marp-cli@4.5.1',
-    '@google/gemini-cli@0.59.0',
-    '@openai/codex@0.154.0',
-    'opencode-ai@1.18.30',
+    '@google/gemini-cli@0.60.0',
+    '@openai/codex@0.155.0',
+    'opencode-ai@1.18.31',
     '@earendil-works/pi-coding-agent@0.85.1',
-    'pandas==3.0.5',
+    'pandas==3.0.6',
     'tqdm==4.70.1',
     'matplotlib==3.11.2',
     'fastapi==0.141.1',
     'uvicorn==0.53.0',
     'lxml==6.1.3',
     'numpy==2.5.3',
-    'tree-sitter-language-pack==1.19.1',
+    'tree-sitter-language-pack==1.20.0',
+    'playwright==1.63.0',
     'weasyprint==70.0',
     'cairosvg==2.9.1',
     'CLOUDCLI_VERSION=1.37.3',
@@ -413,7 +434,7 @@ test('compatible package updates and plugin locks are exact', () => {
   assert.equal(webTerminalLock.packages[''].name, 'cloudcli-plugin-terminal');
   assert.match(
     dockerfile,
-    /ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=4d82af8edb903bb22cbc86d8d516e012c3fc74e9cc8172f2be6d5c743f5688ec/,
+    /ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=40e98ac4452603c3b59c082c033c8a7ea3b97dd09e2a3c93c1c15cfbf99d925d/,
   );
   assert.match(
     dockerfile,
@@ -426,13 +447,13 @@ test('compatible package updates and plugin locks are exact', () => {
   assert.match(dockerfile, /npm@12\.0\.2/);
   assert.match(
     dockerfile,
-    /npm i -g --allow-scripts=opencode-ai opencode-ai@1\.18\.30; \\\n+    test "\$\(opencode --version\)" = "1\.18\.30"/,
+    /npm i -g --allow-scripts=opencode-ai opencode-ai@1\.18\.31; \\\n+    test "\$\(opencode --version\)" = "1\.18\.31"/,
   );
   for (const expected of [
     'ARG CLOUDCLI_NANOID_VERSION=3.3.19',
     'ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849',
-    'ARG NESTED_IP_ADDRESS_VERSION=10.7.0',
-    'ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=25a406ee4388fa3d47380ad57b816087fa82a681cc710cccbfe9162cffa8a57a',
+    'ARG NESTED_IP_ADDRESS_VERSION=10.7.2',
+    'ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=4301746e43e8a85a6a41e268f02178b27e6ba58e78e6913ab105d3871618083b',
     'ARG CLOUDCLI_FAST_URI_VERSION=3.1.7',
     'ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92',
     'ARG CLOUDCLI_JS_YAML_VERSION=3.15.2',
@@ -462,6 +483,7 @@ test('compatible package updates and plugin locks are exact', () => {
     'npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all',
     'npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all',
     'npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all',
+    "@vercel/container/package.json').dependencies['smol-toml']",
     'npm --prefix /usr/local/lib/node_modules/vercel ls smol-toml --all',
     'npm --prefix /usr/local/lib/node_modules/@marp-team/marp-cli ls @xmldom/xmldom --all',
     'npm --prefix /usr/local/lib/node_modules/netlify-cli ls sharp --all',
@@ -490,6 +512,9 @@ test('compatible package updates and plugin locks are exact', () => {
   assert.match(dockerfile, /patch-global-node-tar\.mjs --root \/ --variant "\$VARIANT" --check-baseline/);
   assert.match(dockerfile, /node \/tmp\/patch-global-node-tar\.mjs --root \/ --variant "\$VARIANT"/);
   assert.match(dockerfile, /\/usr\/local\/lib\/node_modules\/npm\/node_modules\/tar/);
+  assert.match(dockerfile, /\/usr\/local\/lib\/node_modules\/vercel\/node_modules\/tar/);
+  assert.match(dockerfile, /\/usr\/local\/lib\/node_modules\/vercel\/node_modules\/@vercel\/fun\/node_modules\/tar/);
+  assert.match(dockerfile, /npm --prefix "\$VERCEL_ROOT" ls tar --all/);
   assert.match(dockerfile, /typeof require\(path\)\.list !== 'function'/);
 });
 
@@ -533,18 +558,18 @@ test('CloudCLI js-yaml overlay guard accepts only the reviewed baseline or pinne
 });
 
 test('release workflow keeps manifests clean and emits digest-bound security evidence', () => {
-  assert.match(workflow, /^run-name: v1\.6\.1$/m);
-  assert.match(workflow, /default: "1\.6\.1"/);
-  assert.match(workflow, /baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"/);
+  assert.match(workflow, /^run-name: v1\.6\.2$/m);
+  assert.match(workflow, /default: "1\.6\.2"/);
+  assert.match(workflow, /baseline="183f2a913c7618e652aa23f2ba40d1f9e3b04f92"/);
   assert.match(workflow, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}\/\[0-9\]\{2\}\/\[0-9\]\{4\}\$"/);
   assert.match(workflow, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(workflow, /git rev-parse 'v1\.6\.0\^\{commit\}'\)" = "651c48fc01a963acd605aa565bb9da8f9db9b340"/);
-  assert.match(workflow, /SYFT_VERSION: 1\.51\.1/);
-  assert.match(workflow, /GRYPE_VERSION: 0\.118\.0/);
-  assert.match(workflow, /SYFT_SHA256_AMD64: 8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3/);
-  assert.match(workflow, /SYFT_SHA256_ARM64: a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f/);
-  assert.match(workflow, /GRYPE_SHA256_AMD64: 1d444c5e7360471815f7158f71935fcecc68a3c417d85c7344f770854300bba2/);
-  assert.match(workflow, /GRYPE_SHA256_ARM64: 32aceeb8ee837244775fcb522372c8b3a47914986385f3148f4ee2c930482a84/);
+  assert.match(workflow, /git rev-parse 'v1\.6\.1\^\{commit\}'\)" = "183f2a913c7618e652aa23f2ba40d1f9e3b04f92"/);
+  assert.match(workflow, /SYFT_VERSION: 1\.52\.0/);
+  assert.match(workflow, /GRYPE_VERSION: 0\.119\.0/);
+  assert.match(workflow, /SYFT_SHA256_AMD64: caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d/);
+  assert.match(workflow, /SYFT_SHA256_ARM64: c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706/);
+  assert.match(workflow, /GRYPE_SHA256_AMD64: 3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b/);
+  assert.match(workflow, /GRYPE_SHA256_ARM64: 29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8/);
   assert.match(workflow, /SBOM_UTILITY_VERSION: 0\.19\.2/);
   assert.match(workflow, /git diff --check HEAD\^ HEAD/);
   const policyPreflight = workflow.indexOf('name: Validate committed advisory ledger and OpenVEX');
@@ -562,6 +587,8 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
   assert.match(workflow, /critical-exception-authority-evidence-\$\{\{ matrix\.variant \}\}-\$\{\{ matrix\.arch \}\}\.json/);
   assert.match(workflow, /rhysd\/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667/);
   assert.equal((workflow.match(/docker\/login-action@dbcb813823bdd20940b903addbd779551569679f # v4\.6\.0/g) ?? []).length, 8);
+  assert.equal((workflow.match(/docker\/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4\.4\.1/g) ?? []).length, 3);
+  assert.equal((workflow.match(/docker\/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7\.4\.0/g) ?? []).length, 1);
   assert.match(workflow, /test "\$\(git rev-parse HEAD\^\)" = "\$\{baseline\}"/);
   assert.match(workflow, /test "\$\(git rev-parse origin\/master\)" = "\$\{GITHUB_SHA\}"/);
   assert.match(workflow, /sbom: false/);
@@ -675,6 +702,25 @@ test('release workflow keeps manifests clean and emits digest-bound security evi
   }
 });
 
+test('release workflow binds validation and FFmpeg change detection to the exact v1.6.1 parent independently', () => {
+  const expectedBaseline = 'baseline="183f2a913c7618e652aa23f2ba40d1f9e3b04f92"';
+  const baselineAssignments = workflow.match(/^\s*baseline="[0-9a-f]{40}"\r?$/gm) ?? [];
+  assert.equal(baselineAssignments.length, 2, 'workflow must contain exactly two release baseline assignments');
+
+  const validationStart = workflow.indexOf('  validate-release-ref:');
+  const validationEnd = workflow.indexOf('\n  build-candidate:', validationStart);
+  assert.notEqual(validationStart, -1, 'validate-release-ref job must exist');
+  assert.notEqual(validationEnd, -1, 'build-candidate job boundary must exist');
+  assert.match(workflow.slice(validationStart, validationEnd), new RegExp(`^\\s*${expectedBaseline}\\r?$`, 'm'));
+
+  const ffmpegStepName = '      - name: Verify FFmpeg artifacts from two empty-cache builds when inputs changed';
+  const ffmpegStart = workflow.indexOf(ffmpegStepName);
+  const ffmpegEnd = workflow.indexOf('\n      - name:', ffmpegStart + ffmpegStepName.length);
+  assert.notEqual(ffmpegStart, -1, 'FFmpeg independent-rebuild step must exist');
+  assert.notEqual(ffmpegEnd, -1, 'FFmpeg independent-rebuild step boundary must exist');
+  assert.match(workflow.slice(ffmpegStart, ffmpegEnd), new RegExp(`^\\s*${expectedBaseline}\\r?$`, 'm'));
+});
+
 test('runtime smoke rotates CloudCLI credentials and rejects the old token', () => {
   const runtimeChecks = readFileSync('tests/browser_runtime_container_checks.sh', 'utf8');
   assert.match(runtimeChecks, /assert_cloudcli_security_dependencies\(\)/);
@@ -698,7 +744,7 @@ test('runtime smoke rotates CloudCLI credentials and rejects the old token', () 
   assert.match(runtimeChecks, /npm --prefix \/usr\/local\/lib\/node_modules\/npm ls tar --all/);
   assert.match(runtimeChecks, /Node tar security overlay/);
   assert.match(runtimeChecks, /typeof require\(path\)\.list !== 'function'/);
-  assert.match(runtimeChecks, /Vercel vc-native package version[\s\S]{0,320}"59\.16\.0"/);
+  assert.match(runtimeChecks, /Vercel vc-native package version[\s\S]{0,320}"59\.23\.1"/);
   assert.match(runtimeChecks, /@vercel\/vc-native-linux-\$\{vercel_native_arch\}\/package\.json/);
   for (const expected of [
     'npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all',
@@ -719,7 +765,9 @@ test('runtime smoke rotates CloudCLI credentials and rejects the old token', () 
     'npm --prefix /usr/local/lib/node_modules/@cloudcli-ai/cloudcli ls js-yaml --all',
     'cloudcli_js_yaml_merge_limit=ok',
     'Vercel smol-toml dependency',
+    'Vercel container smol-toml dependency',
     'Vercel smol-toml package version',
+    "require.resolve('smol-toml', { paths: [owner] })",
     'vercel_smol_toml=ok',
     'vercel_smol_toml_consumers=ok',
     'error instanceof TomlError',
@@ -842,10 +890,10 @@ test('libssh findings use exact backend, version, and vendor-severity evidence',
   assert.match(browserRuntimeChecks, /libssh_backend=gcrypt openssl=absent/);
 });
 
-test('release OpenVEX identity uses the v1.6.1 publication date', () => {
+test('release OpenVEX identity uses the v1.6.2 review date', () => {
   const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
-  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.6.1');
-  assert.equal(vex.timestamp, '2026-09-14T00:00:00Z');
+  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.6.2');
+  assert.equal(vex.timestamp, '2026-09-18T00:00:00Z');
 });
 
 test('json-server smoke tolerates only wait cleanup failure', () => {

@@ -84,7 +84,7 @@ esac
 if [[ $* == *'--name optional-fixture-client-cleanup '*' compose --project-name '*' down --remove-orphans' ]]; then exit "\${CLEANUP_COMPOSE_STATUS:-0}"; fi
 if [[ $* == *'compose --project-name'*' logs '* ]]; then echo optional-docker-client-compose-ok; fi
 if [[ $* == *'dpkg-query -W'* ]]; then
-  [[ $* == *holyclaude-optional-docker-client:* ]] && printf '%s\\n' 'docker-ce-cli|5:29.8.0-1~debian.12~bookworm' 'docker-compose-plugin|5.5.1-1~debian.12~bookworm'
+  [[ $* == *holyclaude-optional-docker-client:* ]] && printf '%s\\n' 'docker-ce-cli|5:29.8.1-1~debian.12~bookworm' 'docker-compose-plugin|5.5.1-1~debian.12~bookworm'
 fi
 if [[ $* == 'buildx history inspect --builder fixture-builder --format json fixture-record' ]]; then
   [[ -z \${LOOKUP_STATUS:-} ]] || exit "$LOOKUP_STATUS"
@@ -124,7 +124,7 @@ test('optional recipe pins only the signed Bookworm Docker client packages and u
   assert.match(recipe, /signed-by=\/etc\/apt\/keyrings\/docker\.asc/);
   assert.match(recipe, /docker-ce-cli="\$\{DOCKER_CE_CLI_VERSION\}"/);
   assert.match(recipe, /docker-compose-plugin="\$\{DOCKER_COMPOSE_PLUGIN_VERSION\}"/);
-  assert.match(recipe, /DOCKER_CE_CLI_VERSION=5:29\.8\.0-1~debian\.12~bookworm/);
+  assert.match(recipe, /DOCKER_CE_CLI_VERSION=5:29\.8\.1-1~debian\.12~bookworm/);
   assert.match(recipe, /DOCKER_COMPOSE_PLUGIN_VERSION=5\.5\.1-1~debian\.12~bookworm/);
   assert.match(recipe, /--no-install-recommends/);
   assert.doesNotMatch(recipe, /docker-ce(?:\s|=)|containerd\.io|docker-buildx-plugin|docker-ce-rootless-extras/);
@@ -249,7 +249,7 @@ esac
 if [[ $* == *'--name optional-fixture-client-cleanup '*' compose --project-name '*' down --remove-orphans' ]]; then exit "\${CLEANUP_COMPOSE_STATUS:-9}"; fi
 if [[ $* == *'compose --project-name'*' logs '* ]]; then echo optional-docker-client-compose-ok; fi
 if [[ $* == *'dpkg-query -W'* ]]; then
-  [[ $* == *holyclaude-optional-docker-client:* ]] && printf '%s\\n' 'docker-ce-cli|5:29.8.0-1~debian.12~bookworm' 'docker-compose-plugin|5.5.1-1~debian.12~bookworm'
+  [[ $* == *holyclaude-optional-docker-client:* ]] && printf '%s\\n' 'docker-ce-cli|5:29.8.1-1~debian.12~bookworm' 'docker-compose-plugin|5.5.1-1~debian.12~bookworm'
 fi
 if [[ $* == *'buildx history inspect attachment'* ]]; then echo 100; fi
 if [[ $* == *'--entrypoint du'* ]]; then echo '100 /'; fi
@@ -320,7 +320,7 @@ test('configuration guide keeps Docker access opt-in and documents authenticated
   assert.match(section, /\.\/data\/claude\/docker-client/);
   assert.match(section, /credential|secret/i);
   assert.match(section, /host-level authority/);
-  assert.match(section, /Docker CLI 29\.8\.0/);
+  assert.match(section, /Docker CLI 29\.8\.1/);
   assert.match(section, /Compose 5\.5\.1/);
   assert.match(section, /existing Full Compose service/i);
   assert.match(section, /image: holyclaude:1\.6\.1-docker-client/);

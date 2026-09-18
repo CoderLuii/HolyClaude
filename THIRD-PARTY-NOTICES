@@ -108,14 +108,14 @@ HolyClaude keeps the JavaScript package versions required by the bundled full-im
 HolyClaude replaces selected compatible dependency copies with version-pinned
 archives and fail-closed path checks. Overlays that replace a known vendored copy
 also verify its owning tool and original dependency version before changing it.
-v1.6.0 includes overlays for selected copies of setuptools, Piscina, brace-expansion,
+v1.6.2 includes overlays for selected copies of setuptools, Piscina, brace-expansion,
 js-yaml, minimatch, Nanoid, path-to-regexp, Sharp, smol-toml, Undici, ws, and xmldom. The full
 image uses js-yaml 4.3.2 in PM2 and Vercel, and Sharp 0.35.4 with matching
 native bindings and libvips package 1.3.3 in Wrangler and Netlify. Vercel uses
-smol-toml 1.7.1. Marp's speech-rule-engine
+smol-toml 1.8.0. Marp's speech-rule-engine
 uses xmldom 0.9.12; EAS's separate xmldom 0.8.15 copy is unchanged. CloudCLI retains its
 separate js-yaml 3.15.2 overlay. Cursor Agent uses
-HolyClaude's Node 26.8.2 runtime instead of its bundled Node binary.
+HolyClaude's Node 26.9.0 runtime instead of its bundled Node binary.
 
 These packages retain their upstream licenses. The exact versions, archive
 hashes, owning paths, and fail-closed patch checks are recorded in the
@@ -126,7 +126,7 @@ Dockerfile, `security/immutable-inputs.yml`, and the release source.
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 152.0.7977.82-1~deb12u1, installed from Bookworm security packages
+- Version: 153.0.8010.47-2~deb12u1, installed from Bookworm security packages
 
 ## OpenSSH
 
@@ -150,7 +150,7 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 
 - License: MIT
 - Source: https://github.com/nodejs/node
-- Version: 26.8.2 base image
+- Version: 26.9.0 base image
 
 ## node-tar
 
@@ -160,7 +160,8 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 - Version: 7.5.22, installed in the full image only
 
 HolyClaude uses the checksum-verified npm archive to replace the retained `tar`
-copies bundled by EAS CLI 24.0.0 and Vercel CLI 59.15.1. The replacement
+copies bundled by EAS CLI 24.7.0 and Vercel CLI 59.23.1. Vercel retains both a
+hoisted copy and a nested `@vercel/fun` copy; the replacement updates both. It
 contains the upstream fix for `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw`.
 
 ## Netlify CLI
@@ -168,7 +169,7 @@ contains the upstream fix for `CVE-2026-59873` / `GHSA-23hp-3jrh-7fpw`.
 - License: MIT
 - Source: https://github.com/netlify/cli
 - npm: https://www.npmjs.com/package/netlify-cli
-- Version: 27.5.2, installed in the full image only
+- Version: 27.8.0, installed in the full image only
 
 HolyClaude removes Netlify CLI's optional `local-functions-proxy` executable.
 The current architecture packages ship that executable with Go 1.16.7. The

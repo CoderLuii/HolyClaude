@@ -131,13 +131,13 @@ run_stage fixture-image candidate fixture-claude fixture-workspace fixture-cloud
   assert.equal(result.status, 0, result.stderr || result.stdout);
 });
 
-test('upgrade baseline binds v1.6.0 native images and checks current persistence in every stage', () => {
+test('upgrade baseline binds v1.6.1 native images and checks current persistence in every stage', () => {
   const payloads = upgrade.match(/assert_payloads\(\) \{[\s\S]*?\n\}\nrun_stage/)?.[0].replace(/\nrun_stage$/, '');
   assert.ok(payloads, 'missing assert_payloads function');
-  assert.match(upgrade, /full-amd64\) OLD_TAG=1\.6\.0; OLD_INDEX=sha256:2b74a8523d73bcfc888325417b408e2189f87b1212cd85186773330f9fa98775; OLD_DIGEST=sha256:b8f058f8c82cd3b4896188535a13b244994aec0ce4f21a3225d4851750b79162/);
-  assert.match(upgrade, /full-arm64\) OLD_TAG=1\.6\.0; OLD_INDEX=sha256:2b74a8523d73bcfc888325417b408e2189f87b1212cd85186773330f9fa98775; OLD_DIGEST=sha256:caab18df125676f36b61b38875530544a0334326d01e30d0a045a6432c36a17c/);
-  assert.match(upgrade, /slim-amd64\) OLD_TAG=1\.6\.0-slim; OLD_INDEX=sha256:8b0899509b06d2c57f46a26df30e0e4cf21fbfeaf04f80b379d31ec70224b6da; OLD_DIGEST=sha256:42fb0117f98e43a4e98f7efaa2a769a1a81ec38e8fdbe2f361fd4ea6c604aeee/);
-  assert.match(upgrade, /slim-arm64\) OLD_TAG=1\.6\.0-slim; OLD_INDEX=sha256:8b0899509b06d2c57f46a26df30e0e4cf21fbfeaf04f80b379d31ec70224b6da; OLD_DIGEST=sha256:e40a907546a70a9c9b84283c924d92a22d5d9cfb8ed36559252ed0ce97ba2982/);
+  assert.match(upgrade, /full-amd64\) OLD_TAG=1\.6\.1; OLD_INDEX=sha256:570d9332026850015164ef41a7869cd5343eeefc70cadf1f4eb41a6da8109a97; OLD_DIGEST=sha256:62f512475930d84584981036625029ff40dca01c37bd35c89b78f06a564741e0/);
+  assert.match(upgrade, /full-arm64\) OLD_TAG=1\.6\.1; OLD_INDEX=sha256:570d9332026850015164ef41a7869cd5343eeefc70cadf1f4eb41a6da8109a97; OLD_DIGEST=sha256:a0c5df6ad9724ba9e2f940fbc8c47dc1f3cfe067a3aa7825ec2cfeedb4b06a4f/);
+  assert.match(upgrade, /slim-amd64\) OLD_TAG=1\.6\.1-slim; OLD_INDEX=sha256:64745d2678e5529732b4236f54c95201f5975646847bc14fbe6f8a1ec4055dc9; OLD_DIGEST=sha256:79555d4b5955d4aee451d9c2355db17fe916edb460fa2c2f32cc32bbe7cd5405/);
+  assert.match(upgrade, /slim-arm64\) OLD_TAG=1\.6\.1-slim; OLD_INDEX=sha256:64745d2678e5529732b4236f54c95201f5975646847bc14fbe6f8a1ec4055dc9; OLD_DIGEST=sha256:9a63b1e618b5e433fb94798726fb8470233ed3969c36f2d792e0928f04a7c665/);
   assert.match(payloads, /grep -Fq cursor-fixture \/home\/claude\/\.claude\/\.cursor\/runtime-marker/);
   assert.match(payloads, /# cursor-contract-start[\s\S]*# cursor-contract-end/);
   assert.match(payloads, /test -L \/home\/claude\/\.bash_aliases/);
@@ -348,9 +348,16 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
-  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.8\.2'/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.9\.0'/);
   assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.0\.2'/);
-  assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '59\.16\.0'/);
+  assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '59\.23\.1'/);
+  assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.dependencies\.tar, '7\.5\.22'/);
+  assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.dependencies\['smol-toml'\], '1\.8\.0'/);
+  assert.match(developerTools, /require\.resolve\('smol-toml', \{ paths: \[vercelContainerRoot\] \}\)/);
+  assert.match(developerTools, /assert\.equal\(vercelFunPackage\.dependencies\.tar, '7\.5\.22'/);
+  assert.match(developerTools, /assert\.equal\(nodePreGypPackage\.dependencies\.tar, '\^7\.4\.0'/);
+  assert.match(developerTools, /@vercel\/fun\/node_modules\/tar/);
+  assert.match(developerTools, /execFileSync\('npm', \['--prefix', vercelRoot, 'ls', 'tar', '--all'\]/);
   assert.match(developerTools, /assert\.equal\(pythonAnalysisPackage\.version, '0\.14\.0'/);
   assert.match(developerTools, /assert\.equal\(pythonAnalysisPackage\.dependencies\['@renovatebot\/pep440'\], '4\.2\.1'/);
   assert.match(developerTools, /assert\.equal\(pep440Package\.version, '4\.2\.1'/);

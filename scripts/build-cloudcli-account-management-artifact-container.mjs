@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(fileURLToPath(new URL('..', import.meta.url)));
 const artifactDir = path.join(repoRoot, 'vendor/artifacts');
-const buildImage = 'node:26.8.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae';
+const buildImage = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
 const artifactFile = 'cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz';
 const buildPackages = {
   'build-essential': '12.9',

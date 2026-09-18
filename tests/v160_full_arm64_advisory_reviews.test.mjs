@@ -31,7 +31,9 @@ test('maps only the four full arm64 Critical/vendor tuples supported without rea
   }
   assert.equal(expected.filter((review) => review.disposition === 'fixed').length, 2);
   assert.equal(expected.filter((review) => review.disposition === 'vendor_severity').length, 2);
-  assert.ok(expected.every((review) => review.reviewedAt === '2026-09-08' && review.expiresAt === '2026-10-08'));
+  assert.ok(expected.every((review) => review.id.includes('-gh-fixed-')
+    ? review.reviewedAt === '2026-09-18' && review.expiresAt === '2026-10-18'
+    : review.reviewedAt === '2026-09-08' && review.expiresAt === '2026-10-08'));
   assert.ok(expected.every((review) => 'vexStatement' in review === false));
 });
 

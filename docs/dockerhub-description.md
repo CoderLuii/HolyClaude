@@ -40,11 +40,11 @@ That's it. Open your browser, sign in, start building.
 
 ## What's Inside
 
-🤖 **8 AI CLIs** — Claude Code, Gemini CLI, OpenAI Codex, Cursor, TaskMaster AI, Junie, OpenCode (OpenRouter/multi-provider), Pi Coding Agent
+🤖 **8 AI CLIs** — Claude Code 2.1.276, Gemini CLI 0.60.0, OpenAI Codex 0.155.0, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 3196.5, OpenCode 1.18.31, Pi Coding Agent 0.85.1
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 152.0.7977.82 + Xvfb + Node Playwright 1.63.0 + Python Playwright 1.62.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 153.0.8010.47 + Xvfb + Node Playwright 1.63.0 + Python Playwright 1.63.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 

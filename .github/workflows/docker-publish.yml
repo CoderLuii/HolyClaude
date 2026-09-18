@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.6.1
+run-name: v1.6.2
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.6.1"
+        default: "1.6.2"
         type: string
   push:
     branches:
@@ -26,12 +26,12 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
-  SYFT_VERSION: 1.51.1
-  GRYPE_VERSION: 0.118.0
-  SYFT_SHA256_AMD64: 8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3
-  SYFT_SHA256_ARM64: a7fd2b784e6664acd44719270574f6cd8c6864fc2b1700bf9099bd1cccda7d7f
-  GRYPE_SHA256_AMD64: 1d444c5e7360471815f7158f71935fcecc68a3c417d85c7344f770854300bba2
-  GRYPE_SHA256_ARM64: 32aceeb8ee837244775fcb522372c8b3a47914986385f3148f4ee2c930482a84
+  SYFT_VERSION: 1.52.0
+  GRYPE_VERSION: 0.119.0
+  SYFT_SHA256_AMD64: caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d
+  SYFT_SHA256_ARM64: c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706
+  GRYPE_SHA256_AMD64: 3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b
+  GRYPE_SHA256_ARM64: 29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8
   SBOM_UTILITY_VERSION: 0.19.2
   SBOM_UTILITY_SHA256_AMD64: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
   SBOM_UTILITY_SHA256_ARM64: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"
+          baseline="183f2a913c7618e652aa23f2ba40d1f9e3b04f92"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.6.0^{commit}')" = "651c48fc01a963acd605aa565bb9da8f9db9b340"
+          test "$(git rev-parse 'v1.6.1^{commit}')" = "183f2a913c7618e652aa23f2ba40d1f9e3b04f92"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -194,7 +194,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Verify CloudCLI artifact reproducibility from two clean builds
         if: matrix.variant == 'full' && matrix.arch == 'amd64'
@@ -213,7 +213,7 @@ jobs:
         timeout-minutes: 180
         run: |
           set -euo pipefail
-          baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"
+          baseline="183f2a913c7618e652aa23f2ba40d1f9e3b04f92"
           if git diff --quiet "${baseline}" -- \
             Dockerfile \
             scripts/build-ffmpeg-security-backport.sh \
@@ -286,7 +286,7 @@ jobs:
 
       - name: Build and push candidate
         id: build
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           platforms: linux/${{ matrix.arch }}
@@ -1054,7 +1054,7 @@ jobs:
           done
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Login to Docker Hub
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -1711,7 +1711,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.moved.outputs.value == 'true'
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Login to Docker Hub
         if: steps.moved.outputs.value == 'true'

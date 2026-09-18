@@ -36,14 +36,14 @@ function assertBuildCandidateDependsOnValidation(source) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.6.1'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.6.2'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
     () => validateExpectedRelease(facts, 'v1.5.4'),
-    /release v1\.6\.1 does not match expected v1\.5\.4/,
+    /release v1\.6\.2 does not match expected v1\.5\.4/,
   );
 });
 
@@ -177,10 +177,10 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="651c48fc01a963acd605aa565bb9da8f9db9b340"/);
+  assert.match(validationJob, /baseline="183f2a913c7618e652aa23f2ba40d1f9e3b04f92"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.6\.0\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.6\.1\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assertBuildCandidateDependsOnValidation(workflow);
 });
@@ -207,8 +207,13 @@ test('public documentation matches the product facts contract', () => {
   ].join('\n');
 
   assert.match(readme, /contracts\/product-facts\.json/);
-  assert.match(readme, /Python 1\.62\.0; Node 1\.63\.0 is also baked into both images/);
+  assert.match(readme, /v1\.6\.2 updates Node 26\.9\.0/);
+  assert.match(readme, /\| \*\*Claude Code\*\* \| `claude` \| 2\.1\.276 \|/);
+  assert.match(readme, /\| \*\*OpenAI Codex\*\* \| `codex` \| 0\.155\.0 \|/);
+  assert.match(readme, /\| \*\*Cursor\*\* \| `cursor` \| `2026\.09\.15-d2fe57e` \|/);
+  assert.match(readme, /Python and Node 1\.63\.0 are baked into both images/);
   assert.doesNotMatch(readme, /Playwright 1\.61\.0, baked at build time/);
+  assert.match(dockerHubDescription, /Node Playwright 1\.63\.0 \+ Python Playwright 1\.63\.0/);
   assert.match(architecture, /contracts\/product-facts\.json/);
   assert.match(readme, /fallback.*request omits `permissionMode`/i);
   assert.match(configuration, /browser client sends an explicit `permissionMode`/i);
@@ -226,7 +231,11 @@ test('public documentation matches the product facts contract', () => {
     assert.doesNotMatch(content, /~\d+[.,]\d+ GB/);
   }
   assert.doesNotMatch(memories, /Playwright Chromium build 1228/);
-  assert.match(memories, /Debian Chromium 152\.0\.7977\.82/);
+  assert.match(memories, /Debian Chromium 153\.0\.8010\.47/);
+  assert.match(memories, /\| \*\*Claude Code\*\* \| `claude` \| 2\.1\.276 \|/);
+  assert.match(memories, /\| \*\*Gemini CLI\*\* \| `gemini` \| 0\.60\.0 \|/);
+  assert.match(memories, /\| \*\*OpenAI Codex\*\* \| `codex` \| 0\.155\.0 \|/);
+  assert.match(memories, /\| \*\*Cursor\*\* \| `cursor` \| `2026\.09\.15-d2fe57e` \|/);
 
   for (const file of readdirSync('docs/translations').filter((name) => /^README\..+\.md$/.test(name))) {
     const path = `docs/translations/${file}`;

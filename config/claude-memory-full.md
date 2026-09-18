@@ -77,16 +77,16 @@ The `--break-system-packages` flag is required (no venv in container context).
 
 ## AI CLI Providers
 
-| CLI | Command | Notes |
-|-----|---------|-------|
-| **Claude Code** | `claude` | Primary — you are running inside this |
-| **Gemini CLI** | `gemini` | Requires `GEMINI_API_KEY` env var. Config persists across rebuilds. Notifications via Apprise. |
-| **OpenAI Codex** | `codex` | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. Auth persists across rebuilds. Notifications via Apprise. |
-| **Cursor** | `cursor` | Requires `CURSOR_API_KEY` env var. Config persists across rebuilds. |
-| **TaskMaster AI** | `task-master` | Task planning and management |
-| **Junie** | `junie` | JetBrains AI coding agent (requires JetBrains account) |
-| **OpenCode** | `opencode` | Open source AI agent (OpenRouter and other providers) |
-| **Pi Coding Agent** | `pi` | Minimal agent harness (supports multiple providers) |
+| CLI | Command | Version | Notes |
+|-----|---------|---------|-------|
+| **Claude Code** | `claude` | 2.1.276 | Primary — you are running inside this |
+| **Gemini CLI** | `gemini` | 0.60.0 | Requires `GEMINI_API_KEY` env var. Config persists across rebuilds. Notifications via Apprise. |
+| **OpenAI Codex** | `codex` | 0.155.0 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. Auth persists across rebuilds. Notifications via Apprise. |
+| **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Requires `CURSOR_API_KEY` env var. Config persists across rebuilds. |
+| **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and management |
+| **Junie** | `junie` | 3196.5 | JetBrains AI coding agent (requires JetBrains account) |
+| **OpenCode** | `opencode` | 1.18.31 | Open source AI agent (OpenRouter and other providers) |
+| **Pi Coding Agent** | `pi` | 0.85.1 | Minimal agent harness (supports multiple providers) |
 
 ## Desloppify
 
@@ -121,8 +121,8 @@ The `--break-system-packages` flag is required (no venv in container context).
 
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
-- **Node Playwright 1.63.0 and Python Playwright 1.62.0** — baked at build time, no runtime browser download
-- **Debian Chromium 152.0.7977.82** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Node and Python Playwright 1.63.0** — baked at build time, no runtime browser download
+- **Debian Chromium 153.0.8010.47** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 - Lighthouse and `@lhci/cli` are full-image tools

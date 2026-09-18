@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, lstatSync, readFileSync, readlinkSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, lstatSync, readFileSync, readlinkSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -17,9 +17,9 @@ const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
 const upstreamCommit = '70e57859b6224ff0eb0539fcde7d13a3186c9c93';
 const packageVersion = '1.37.3';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
-const expectedBuildLockSha256 = '5e84dee0c448f9cd10eed9828a03681c0a8323935a365f42e9dad914e3109025';
-const expectedBuildImage = 'node:26.8.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae';
-const expectedNode = 'v26.8.2';
+const expectedBuildLockSha256 = 'de4a5b3424e88176c9e941f9ffee965fdfc8ce10370482c533719705e5ba4d18';
+const expectedBuildImage = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
+const expectedNode = 'v26.9.0';
 const expectedNpm = '12.0.2';
 const reviewedLockDependencies = {
   'node_modules/better-sqlite3': '12.11.1',
@@ -36,6 +36,12 @@ const reviewedLockDependencies = {
   'node_modules/tar-fs': '2.1.5',
   'node_modules/ws': '8.21.3',
   'node_modules/yaml': '2.9.0',
+};
+const expectedBetterSqlite3 = {
+  version: '12.11.1',
+  resolved: 'https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-12.11.1.tgz',
+  integrity: 'sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==',
+  node: '20.x || 22.x || 23.x || 24.x || 25.x || 26.x',
 };
 const expectedRuntimeDependencies = Object.fromEntries(
   Object.entries(reviewedLockDependencies)
@@ -189,6 +195,13 @@ function verifyResolvedDependencies(lock, label) {
   for (const packagePath of forbiddenRuntimeDependencies) {
     if (lock.packages?.[packagePath]) {
       throw new Error(`${label} must not include unused runtime dependency ${packagePath}`);
+    }
+  }
+  const betterSqlite3 = lock.packages?.['node_modules/better-sqlite3'];
+  for (const [field, expected] of Object.entries(expectedBetterSqlite3)) {
+    const actual = field === 'node' ? betterSqlite3?.engines?.node : betterSqlite3?.[field];
+    if (actual !== expected) {
+      throw new Error(`${label} better-sqlite3 ${field} drift: expected ${expected}, got ${actual}`);
     }
   }
 }
@@ -382,6 +395,7 @@ try {
     path.join(workdir, 'package-lock.json'),
     path.join(workdir, 'npm-shrinkwrap.json'),
   );
+  chmodSync(path.join(workdir, 'npm-shrinkwrap.json'), 0o644);
   normalizeRegistryFile(workdir, 'npm-shrinkwrap.json');
   verifyShrinkwrap(workdir);
   const productionAudit = verifyProductionAudit(workdir);

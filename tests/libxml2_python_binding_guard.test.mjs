@@ -76,8 +76,8 @@ test('binds four exact libxml2 Python-binding reviews and OpenVEX statements', (
         assert.deepEqual(product.subcomponents.map((item) => item.identifiers.purl), expectedPurls);
       }
       assert.deepEqual(statement.products.map((product) => product['@id']), [
-        `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
-        `pkg:oci/docker.io/coderluii/holyclaude@1.6.1?variant=${variant}`,
+        `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.2?variant=${variant}`,
+        `pkg:oci/docker.io/coderluii/holyclaude@1.6.2?variant=${variant}`,
       ]);
     }
   }

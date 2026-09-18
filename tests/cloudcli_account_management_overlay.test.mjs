@@ -59,6 +59,25 @@ async function collectFiles(root, prefix = '') {
   return entries;
 }
 
+test('CloudCLI frozen lock binds the official better-sqlite3 12.11.1 Node 26 metadata', async () => {
+  const lock = JSON.parse(await readFile(buildLockPath, 'utf8'));
+  const betterSqlite3 = lock.packages['node_modules/better-sqlite3'];
+
+  assert.equal(lock.packages[''].dependencies['better-sqlite3'], '^12.6.2');
+  assert.equal(betterSqlite3.version, '12.11.1');
+  assert.equal(
+    betterSqlite3.resolved,
+    'https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-12.11.1.tgz',
+  );
+  assert.equal(
+    betterSqlite3.integrity,
+    'sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==',
+  );
+  assert.deepEqual(betterSqlite3.engines, {
+    node: '20.x || 22.x || 23.x || 24.x || 25.x || 26.x',
+  });
+});
+
 test('CloudCLI account-management manifest matches the generated artifact and patch files', async () => {
   const manifest = await readManifest();
   const artifactPath = path.join(repoRoot, 'vendor/artifacts', manifest.artifact.file);
@@ -68,10 +87,10 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   assert.equal(manifest.state, 'holyclaude-bridge-complete');
   assert.equal(manifest.upstream.commit, '70e57859b6224ff0eb0539fcde7d13a3186c9c93');
   assert.equal(manifest.upstream.version, '1.37.3');
-  assert.equal(manifest.build.node, 'v26.8.2');
+  assert.equal(manifest.build.node, 'v26.9.0');
   assert.equal(manifest.build.npm, '12.0.2');
-  assert.equal(manifest.build.sourceTreeSha256, 'ea940fa4cfe9341d221216f2915e91ae9a2a94d66ae784413333395d7abbc88d');
-  assert.match(manifest.build.image, /^node:26\.8\.2-bookworm-slim@sha256:[0-9a-f]{64}$/);
+  assert.equal(manifest.build.sourceTreeSha256, 'e9f750ec94b23f088ffd2b587517bfa3baf03046b2cd5f2fc85ee3ca2b5b06a0');
+  assert.match(manifest.build.image, /^node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6$/);
   assert.match(manifest.artifact.shrinkwrapSha256, /^[0-9a-f]{64}$/);
   assert.match(manifest.artifact.productionDependencyTreeSha256, /^[0-9a-f]{64}$/);
   assert.equal(manifest.artifact.duplicatePackSha256, manifest.artifact.sha256);
@@ -188,6 +207,23 @@ test('CloudCLI account-management manifest matches the generated artifact and pa
   ]) {
     assert.equal(manifest.reproducibility.builds[0][key], manifest.reproducibility.builds[1][key]);
   }
+});
+
+test('CloudCLI artifact normalizes the copied shrinkwrap to mode 0644', async () => {
+  const manifest = await readManifest();
+  const artifactPath = path.join(repoRoot, 'vendor/artifacts', manifest.artifact.file);
+  const { stdout } = await execFileAsync('tar', [
+    '-tvzf',
+    artifactPath,
+    'package/npm-shrinkwrap.json',
+  ]);
+  const buildScript = await readFile(buildScriptPath, 'utf8');
+
+  assert.match(stdout, /^-rw-r--r--\s/m);
+  assert.match(
+    buildScript,
+    /chmodSync\(path\.join\(workdir, 'npm-shrinkwrap\.json'\), 0o644\)/,
+  );
 });
 
 test('CloudCLI manifest binds exact bootstrap package versions', async () => {

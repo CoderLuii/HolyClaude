@@ -27,9 +27,9 @@ case "$architecture:$multiarch" in
     ;;
 esac
 
-require_package gh '2.100.0' "$architecture"
+require_package gh '2.101.0' "$architecture"
 gh_version="$(gh --version)"
-grep -Fq 'gh version 2.100.0' <<<"$gh_version"
+grep -Fq 'gh version 2.101.0' <<<"$gh_version"
 
 for package in libaom3 libaom-dev; do
   require_package "$package" '3.6.0-1+deb12u3' "$architecture"

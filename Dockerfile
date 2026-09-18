@@ -21,7 +21,7 @@ RUN case "$TARGETARCH" in amd64) ;; arm64) ;; *) echo "Unsupported TARGETARCH: $
       test "$("/out/${ESBUILD_VERSION}/esbuild" --version)" = "$ESBUILD_VERSION"; \
     done
 
-FROM node:26.8.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae AS ffmpeg-security-builder
+FROM node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6 AS ffmpeg-security-builder
 ENV DEBIAN_FRONTEND=noninteractive
 ARG TARGETARCH
 ARG VARIANT
@@ -49,13 +49,13 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
 
 FROM python:3.14.7-slim-bookworm@sha256:9ab8d9c8514b44f90cf0029dd42fdd7e9e211e639c8b995304cc04568dee900f AS python-runtime
 
-FROM node:26.8.2-bookworm-slim@sha256:cd9f682fa2885cd1056e830424764158570061c59736a1da836bc3d73df095ae
+FROM node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6
 
 COPY --from=python-runtime /usr/local/ /usr/local/
 RUN test "$(python3 --version)" = "Python 3.14.7" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.6.1
+ARG HOLYCLAUDE_VERSION=1.6.2
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -67,23 +67,23 @@ ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd7121
 ARG FZF_VERSION=0.74.4
 ARG FZF_ARCHIVE_SHA256_AMD64=05e6813a337cc722c3ed07e54a764b75cc5d671e2e60459db0ba696ee5fa7504
 ARG FZF_ARCHIVE_SHA256_ARM64=5d673b849f494f0d64ec471d8640b153ca8849e3846a31da17abdcfce8df6b46
-ARG CHROMIUM_DEBIAN_VERSION=152.0.7977.82-1~deb12u1
-ARG CHROMIUM_PACKAGE_SHA256_AMD64=a95a8ff7db26ab9ddc69354dd99e89ba006f40b694f7cf643b82a0dcb38c0cb1
-ARG CHROMIUM_PACKAGE_SHA256_ARM64=6c6152158a919619dd2fd7707dfaf1a5f14c46bc6414b912d2654a2c1b511629
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=aeef827a71b85e9379f7d65f612545d2f589b1322c4f5d1acad979774ef6f062
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=9b565f0f02713f9df011b5728cad9b72561a6b7b4096270529221825ffe92ee5
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=bb8e7023f138cbbfe0d451e10f8f6aceda799d28e51ded090203f140bac7b778
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=e8fa69b075194cafd4f0c26aec9d447015abe9aadaeb1a41f7776e22d3029e4c
-ARG CLAUDE_CODE_VERSION=2.1.270
+ARG CHROMIUM_DEBIAN_VERSION=153.0.8010.47-2~deb12u1
+ARG CHROMIUM_PACKAGE_SHA256_AMD64=ddd26b17ec5008aaccf9f0acd3031c9ac62984fe98b1dbc5782670598b6d3bd9
+ARG CHROMIUM_PACKAGE_SHA256_ARM64=4df7ba070ef3d4e8e1bcb020d9a2a3e111f964456ac19bb728aa28434b880f7b
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=574470643af1492e222c85a1f051a20207951f5d3c4b9ea82f8d1f3b1368eb77
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=9798dbacdab0f97050b055edfe00843f57ca2f575d14e4cc239cf00f1d445c3b
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=c397d185b57e000ed10d20c6ccdae7c8d6f66c3df35bcb428e8d67c299cb953b
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=2712811e3e1ccb4bb8907745ef5b832abe29011fc937052f06535e4dfba2b083
+ARG CLAUDE_CODE_VERSION=2.1.276
 ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-ARG CLAUDE_BINARY_SHA256_AMD64=3a624a5a7cd79bbad4d32bd7db36f1197ecf458bc5bf1e2aed81834a01ad3ef0
-ARG CLAUDE_BINARY_SHA256_ARM64=7bf9f33acc124df9abccf6f2366397a82a740378d535fa12d426fa77fdbc9946
-ARG JUNIE_VERSION=3196.4
-ARG JUNIE_ARCHIVE_SHA256_AMD64=92b43a45b213a94d91a995a1c9c039cdcfe1c4e2f963d43cf9d4ad9b1298b05c
-ARG JUNIE_ARCHIVE_SHA256_ARM64=04834c6c5d43b418c338030f9dd0823dcf2bc3a1c9d175ec292a0dcf5573b285
-ARG CURSOR_BUILD_ID=2026.09.10-fd3934a
-ARG CURSOR_ARCHIVE_SHA256_AMD64=27997c8391ad853a5a732b1845db8ef82a8ba6afb0f7829cc739464f8966e96e
-ARG CURSOR_ARCHIVE_SHA256_ARM64=e0494438b01c37bc34848491d1f3478ef469494c56caf020de11796d146db64a
+ARG CLAUDE_BINARY_SHA256_AMD64=8a56c8a14bd3cb246e2bdb7e60aefe0f609bff78c8bbcc5ea6b1817c111c6145
+ARG CLAUDE_BINARY_SHA256_ARM64=e9ac3df956083645578a382ad64ec304468666e362c33bfdefd803cd6ff596b0
+ARG JUNIE_VERSION=3196.5
+ARG JUNIE_ARCHIVE_SHA256_AMD64=dfe7635595f87c6e6d2a3acfe239b2bcb54ceaef4df41f0ca1044ed0ae37aa01
+ARG JUNIE_ARCHIVE_SHA256_ARM64=ac43e6b9ab512b94c57b1d12d52ac35131eb8dbcfb55b42f7fb1e8cd2dd76a98
+ARG CURSOR_BUILD_ID=2026.09.15-d2fe57e
+ARG CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97
+ARG CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d
 ARG CURSOR_LAUNCHER_SHA256=2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
@@ -91,8 +91,8 @@ ARG SETUPTOOLS_VERSION=84.0.0
 ARG SETUPTOOLS_WHEEL_SHA256=51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670
 ARG PISCINA_VERSION=4.9.4
 ARG PISCINA_ARCHIVE_SHA256=9ea03459396e46c626b8e1b8d73e827ecfbe48ac1e94fb9ba7235e6b25f9fc2f
-ARG BRACE_EXPANSION_VERSION=5.0.9
-ARG BRACE_EXPANSION_ARCHIVE_SHA256=5d06001fddd25cbee90c96db4dc5b7b57711b984c3141e28d10f143deb52dbaf
+ARG BRACE_EXPANSION_VERSION=5.0.12
+ARG BRACE_EXPANSION_ARCHIVE_SHA256=ef8448ec78f20b692f04fa6d01f39b5ab34c66404bea3429f5a39c6c9e0be8b4
 ARG MINIMATCH_5_VERSION=5.1.9
 ARG MINIMATCH_5_ARCHIVE_SHA256=67e7dacfba9fcabb6ac661620b67e6c22600b4aa56ffa14431cbdfdeebbd4cfe
 ARG MINIMATCH_10_VERSION=10.2.6
@@ -105,8 +105,8 @@ ARG WS_VERSION=8.21.3
 ARG WS_ARCHIVE_SHA256=df3454ef205791ce50b5b9241762dcf9bfe1aa9f7f01d3057229be7dac0c2dc3
 ARG CLOUDCLI_NANOID_VERSION=3.3.19
 ARG CLOUDCLI_NANOID_ARCHIVE_SHA256=4e371b71e3d5081fa0052356d5c1904e7a60e049864c26f0724cfd32dc303849
-ARG NESTED_IP_ADDRESS_VERSION=10.7.0
-ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=25a406ee4388fa3d47380ad57b816087fa82a681cc710cccbfe9162cffa8a57a
+ARG NESTED_IP_ADDRESS_VERSION=10.7.2
+ARG NESTED_IP_ADDRESS_ARCHIVE_SHA256=4301746e43e8a85a6a41e268f02178b27e6ba58e78e6913ab105d3871618083b
 ARG CLOUDCLI_FAST_URI_VERSION=3.1.7
 ARG CLOUDCLI_FAST_URI_ARCHIVE_SHA256=3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92
 ARG CLOUDCLI_JS_YAML_VERSION=3.15.2
@@ -136,9 +136,9 @@ ARG WRANGLER_SHARP_LIBVIPS_LINUX_X64_ARCHIVE_SHA256=74b6fa0abb2e41a163853a00e2f2
 ARG WRANGLER_SHARP_LIBVIPS_LINUX_ARM64_ARCHIVE_SHA256=b56f6488e113c385a463fd3be8134b043a17114228f544701fc9c040227e4a59
 ARG AZURE_CLI_VERSION=2.90.0-1~bookworm
 ARG AZURE_CLI_INSTALLER_SHA256=01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
-ARG GITHUB_CLI_VERSION=2.100.0
-ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=698c8d88cc19cc92bfe96bad58d10b2a5b274c52433d6dc57799c81f6139d5fc
-ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=33ccd2ad7ce639c927e1cb209e36555b0e1fbb89f7a38239c0568040ec758612
+ARG GITHUB_CLI_VERSION=2.101.0
+ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=f876a3b87bf67c94f773d17becca4dc7340b056dab901473a9260ee2a73e237b
+ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=9aec87f9a011b1521556b06cb003776e7e214144c8efd2144924a28d90c23057
 ARG NODE_TAR_VERSION=7.5.22
 ARG NODE_TAR_SHA256=b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6
 ARG PRISMA_MYSQL2_VERSION=3.24.4
@@ -354,9 +354,9 @@ RUN npm install -g npm@12.0.2 && \
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.63.0 \
     typescript@7.0.2 tsx@4.23.13 \
-    pnpm@12.4.1 \
+    pnpm@12.4.2 \
     vite@8.3.0 esbuild@0.28.2 \
-    eslint@10.10.0 prettier@3.9.6 \
+    eslint@10.10.0 prettier@3.9.8 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.5 \
     dotenv-cli@11.0.0
 
@@ -364,10 +364,10 @@ RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
 RUN if [ "$VARIANT" = "full" ]; then \
     set -e; \
     npm i -g \
-      wrangler@4.131.2 vercel@59.16.0 netlify-cli@27.6.0 \
+      wrangler@4.134.0 vercel@59.23.1 netlify-cli@27.8.0 \
       pm2@7.0.4 \
       prisma@7.10.0 drizzle-kit@0.31.10 \
-      eas-cli@24.3.0 \
+      eas-cli@24.7.0 \
       lighthouse@13.4.1 @lhci/cli@0.15.1 \
       sharp-cli@6.1.0 json-server@0.17.4 http-server@14.1.1 \
       @marp-team/marp-cli@4.5.1 && \
@@ -412,14 +412,14 @@ RUN if [ "$VARIANT" = "full" ]; then \
     fi
 
 # npm 12, EAS 24, and Vercel 59 retain tar below the reviewed security floor. Replace only their installed
-# copies with the checksum-bound fix for CVE-2026-59873, then update exact metadata.
+# copies, including Vercel's exact hoisted and @vercel/fun layouts, then update exact metadata.
 COPY scripts/patch-global-node-tar.mjs /tmp/patch-global-node-tar.mjs
 RUN node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" --check-baseline && \
     curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o /tmp/node-tar.tgz "https://registry.npmjs.org/tar/-/tar-${NODE_TAR_VERSION}.tgz" && \
     echo "$NODE_TAR_SHA256  /tmp/node-tar.tgz" | sha256sum -c - && \
     targets="/usr/local/lib/node_modules/npm/node_modules/tar" && \
     if [ "$VARIANT" = "full" ]; then \
-      targets="$targets /usr/local/lib/node_modules/eas-cli/node_modules/tar /usr/local/lib/node_modules/vercel/node_modules/tar"; \
+      targets="$targets /usr/local/lib/node_modules/eas-cli/node_modules/tar /usr/local/lib/node_modules/vercel/node_modules/tar /usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/node_modules/tar"; \
     fi && \
     for target in $targets; do \
         rm -rf "$target" && \
@@ -431,15 +431,22 @@ RUN node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" --check-ba
     node -e "if (typeof require('/usr/local/lib/node_modules/npm/node_modules/tar').list !== 'function') throw new Error('invalid npm tar module')" && \
     npm --prefix /usr/local/lib/node_modules/npm ls tar --all >/dev/null && \
     if [ "$VARIANT" = "full" ]; then \
+      VERCEL_ROOT=/usr/local/lib/node_modules/vercel && \
       test "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
-      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
-      node -e "for (const path of ['/usr/local/lib/node_modules/eas-cli/node_modules/tar', '/usr/local/lib/node_modules/vercel/node_modules/tar']) { if (typeof require(path).list !== 'function') throw new Error('invalid tar module at ' + path); }" && \
+      test "$(node -p "require('$VERCEL_ROOT/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
+      test "$(node -p "require('$VERCEL_ROOT/node_modules/@vercel/fun/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
+      test "$(node -p "require('$VERCEL_ROOT/node_modules/@vercel/container/package.json').dependencies.tar")" = "$NODE_TAR_VERSION" && \
+      test "$(node -p "require('$VERCEL_ROOT/node_modules/@vercel/fun/package.json').dependencies.tar")" = "$NODE_TAR_VERSION" && \
+      test "$(node -p "require('$VERCEL_ROOT/node_modules/@mapbox/node-pre-gyp/package.json').dependencies.tar")" = "^7.4.0" && \
+      node -e "for (const path of ['/usr/local/lib/node_modules/eas-cli/node_modules/tar', '$VERCEL_ROOT/node_modules/tar', '$VERCEL_ROOT/node_modules/@vercel/fun/node_modules/tar']) { if (typeof require(path).list !== 'function') throw new Error('invalid tar module at ' + path); }" && \
+      npm --prefix "$VERCEL_ROOT" ls tar --all >/dev/null && \
       eas --version >/dev/null && \
-      vercel --version >/dev/null; \
+      vercel --version >/dev/null && \
+      vercel --help >/dev/null; \
     fi && \
     rm -f /tmp/node-tar.tgz
 
-# Netlify CLI 27.6.0 bundles an optional local Go/Rust functions proxy built
+# Netlify CLI 27.8.0 bundles an optional local Go/Rust functions proxy built
 # with Go 1.16.7. Keep the deployment CLI, but remove that stale executable.
 RUN if [ "$VARIANT" = "full" ]; then \
       NETLIFY_PROXY_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -448,7 +455,7 @@ RUN if [ "$VARIANT" = "full" ]; then \
       test -x "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
       rm -f "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
       test ! -e "$NETLIFY_PROXY_ROOT/bin/local-functions-proxy" && \
-      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.6.0" && \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.8.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').dependencies.toml")" = "^4.0.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').dependencies['cron-parser']")" = "^5.0.0" && \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').dependencies['raw-body']")" = "^4.0.0" && \
@@ -492,13 +499,13 @@ RUN if [ "$VARIANT" = "full" ]; then \
 RUN pip install --no-cache-dir --break-system-packages \
     requests==2.34.2 httpx==0.28.1 beautifulsoup4==4.15.0 lxml==6.1.3 \
     Pillow==12.3.0 \
-    pandas==3.0.5 numpy==2.5.3 \
+    pandas==3.0.6 numpy==2.5.3 \
     openpyxl==3.1.5 python-docx==1.2.0 \
     jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.3 markdown==3.10.3 \
     rich==15.0.0 click==8.5.0 tqdm==4.70.1 \
     desloppify==1.0 bandit==1.9.4 defusedxml==0.7.1 \
-    tree-sitter==0.26.0 tree-sitter-language-pack==1.19.1 stevedore==5.9.1 \
-    playwright==1.62.0 \
+    tree-sitter==0.26.0 tree-sitter-language-pack==1.20.0 stevedore==5.9.1 \
+    playwright==1.63.0 \
     apprise==1.13.1 \
     pytest==9.1.1 pytest-asyncio==1.4.0 flake8==7.3.0 \
     aiomqtt==2.5.1 aiohttp==3.14.3
@@ -511,7 +518,7 @@ RUN test "$(dpkg-query -W -f='${Version}' chromium)" = "$CHROMIUM_DEBIAN_VERSION
     chmod +x /usr/local/bin/holyclaude-chromium && \
     ln -sf /usr/local/bin/holyclaude-chromium /usr/bin/chromium && \
     test "$(node -p "require('/usr/local/lib/node_modules/playwright/package.json').version")" = "1.63.0" && \
-    test "$(python3 -c "import importlib.metadata; print(importlib.metadata.version('playwright'))")" = "1.62.0" && \
+    test "$(python3 -c "import importlib.metadata; print(importlib.metadata.version('playwright'))")" = "1.63.0" && \
     test "$(/usr/bin/chromium --version | awk '{print $2}')" = "${CHROMIUM_DEBIAN_VERSION%%-*}" && \
     runuser -u claude -- test -r /usr/lib/chromium/chromium && \
     runuser -u claude -- test -x /usr/lib/chromium/chromium && \
@@ -541,7 +548,7 @@ RUN curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on
     rm -f "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl"
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.59.0 @openai/codex@0.154.0 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.60.0 @openai/codex@0.155.0 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -566,7 +573,7 @@ RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "a
     rm -f "$CURSOR_DIR/node" && \
     ln -s /usr/local/bin/node "$CURSOR_DIR/node" && \
     test "$(readlink -f "$CURSOR_DIR/node")" = "$(readlink -f /usr/local/bin/node)" && \
-    test "$("$CURSOR_DIR/node" --version)" = "v26.8.2" && \
+    test "$("$CURSOR_DIR/node" --version)" = "v26.9.0" && \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
     cursor-agent --help >/dev/null && \
     rm -f /tmp/cursor-agent.tar.gz
@@ -601,8 +608,8 @@ USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --allow-scripts=opencode-ai opencode-ai@1.18.30; \
-    test "$(opencode --version)" = "1.18.30"; \
+    npm i -g --allow-scripts=opencode-ai opencode-ai@1.18.31; \
+    test "$(opencode --version)" = "1.18.31"; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
@@ -722,7 +729,9 @@ RUN set -eux; \
       npm --prefix /usr/local/lib/node_modules/@earendil-works/pi-coding-agent ls undici --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all >/dev/null; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json').dependencies['smol-toml']")" = "$VERCEL_SMOL_TOML_VERSION"; \
       npm --prefix /usr/local/lib/node_modules/vercel ls smol-toml --all >/dev/null; \
+      node -e "const owner = '/usr/local/lib/node_modules/vercel/node_modules/@vercel/container'; const resolved = require.resolve('smol-toml', { paths: [owner] }); if (!resolved.startsWith('/usr/local/lib/node_modules/vercel/node_modules/smol-toml/')) throw new Error('unexpected @vercel/container smol-toml resolution: ' + resolved); if (typeof require(resolved).parse !== 'function') throw new Error('invalid @vercel/container smol-toml module');"; \
       npm --prefix /usr/local/lib/node_modules/@marp-team/marp-cli ls @xmldom/xmldom --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/wrangler ls sharp --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/netlify-cli ls sharp --all >/dev/null; \
@@ -749,7 +758,7 @@ RUN set -eux; \
 
 ARG CLOUDCLI_VERSION=1.37.3
 ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT=cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz
-ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=4d82af8edb903bb22cbc86d8d516e012c3fc74e9cc8172f2be6d5c743f5688ec
+ARG CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256=40e98ac4452603c3b59c082c033c8a7ea3b97dd09e2a3c93c1c15cfbf99d925d
 COPY vendor/artifacts/${CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT} /tmp/vendor/cloudcli-ai-cloudcli.tgz
 COPY vendor/artifacts/cloudcli-account-management.manifest.json /tmp/vendor/cloudcli-account-management.manifest.json
 COPY --chown=claude:claude vendor/locks/cloudcli-web-terminal-6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d.package-lock.json /tmp/vendor/web-terminal-package-lock.json

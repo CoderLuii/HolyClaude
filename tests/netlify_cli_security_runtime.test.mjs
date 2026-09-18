@@ -9,18 +9,18 @@ const releaseInputs = readFileSync('tests/release_input_integrity.test.mjs', 'ut
 const securityPatch = readFileSync('scripts/patch-global-node-security-dependencies.mjs', 'utf8');
 
 test('Netlify CLI uses the checksum-bound upstream TOML security release', () => {
-  assert.match(dockerfile, /netlify-cli@27\.6\.0/);
+  assert.match(dockerfile, /netlify-cli@27\.8\.0/);
   assert.doesNotMatch(dockerfile, /netlify-cli@27\.5\.2/);
   assert.match(
     immutableInputs,
-    /name: Netlify CLI[\s\S]*?version: 27\.6\.0[\s\S]*?archive-sha256: df7dcd2bd917f6d6a23d006fd21e7b1eefb94048791ec4c904a7cb57a999e3bc[\s\S]*?npm-integrity: "sha512-WW4NpAWUcoi9cX\/CEpqu5sm4e6Q\/ueJRpJEhzpWd92T6wrTk5QrGT1V0gqDJohYsNxa\+q1YrDS6sTQELqDWduQ=="/,
+    /name: Netlify CLI[\s\S]*?version: 27\.8\.0[\s\S]*?archive-sha256: f0955d9224993e73bcec7a7fc0da5e1b58cfeaa45c5f7dc7e0112bd2f8fe3315[\s\S]*?npm-integrity: "sha512-B7hic3S\/cM3\+LtTSFqMgQp05g1C7dHlJ1JRysTa3AyIQoDPMHKIEyZoVwQ3yyVkArB4EKB73m2N0\/6KnlaEmbQ=="/,
   );
-  assert.match(releaseInputs, /'netlify-cli@27\.6\.0'/);
+  assert.match(releaseInputs, /'netlify-cli@27\.8\.0'/);
 });
 
 test('full-image runtime validates Netlify parser upgrades and real Rust TOML reachability', () => {
   for (const expected of [
-    "'netlify-cli': '27.6.0'",
+    "'netlify-cli': '27.8.0'",
     'Netlify CLI TOML dependency',
     'Netlify CLI cron-parser dependency',
     'Netlify CLI raw-body dependency',

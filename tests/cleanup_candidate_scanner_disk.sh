@@ -25,10 +25,10 @@ if [[ ! "${GITHUB_RUN_ID:-}" =~ ^[0-9]+$ || ! "${GITHUB_RUN_ATTEMPT:-}" =~ ^[0-9
 fi
 
 case "$VARIANT-$ARCH" in
-  full-amd64) BASELINE='coderluii/holyclaude:1.6.0@sha256:b8f058f8c82cd3b4896188535a13b244994aec0ce4f21a3225d4851750b79162' ;;
-  full-arm64) BASELINE='coderluii/holyclaude:1.6.0@sha256:caab18df125676f36b61b38875530544a0334326d01e30d0a045a6432c36a17c' ;;
-  slim-amd64) BASELINE='coderluii/holyclaude:1.6.0-slim@sha256:42fb0117f98e43a4e98f7efaa2a769a1a81ec38e8fdbe2f361fd4ea6c604aeee' ;;
-  slim-arm64) BASELINE='coderluii/holyclaude:1.6.0-slim@sha256:e40a907546a70a9c9b84283c924d92a22d5d9cfb8ed36559252ed0ce97ba2982' ;;
+  full-amd64) BASELINE='coderluii/holyclaude:1.6.1@sha256:62f512475930d84584981036625029ff40dca01c37bd35c89b78f06a564741e0' ;;
+  full-arm64) BASELINE='coderluii/holyclaude:1.6.1@sha256:a0c5df6ad9724ba9e2f940fbc8c47dc1f3cfe067a3aa7825ec2cfeedb4b06a4f' ;;
+  slim-amd64) BASELINE='coderluii/holyclaude:1.6.1-slim@sha256:79555d4b5955d4aee451d9c2355db17fe916edb460fa2c2f32cc32bbe7cd5405' ;;
+  slim-arm64) BASELINE='coderluii/holyclaude:1.6.1-slim@sha256:9a63b1e618b5e433fb94798726fb8470233ed3969c36f2d792e0928f04a7c665' ;;
   *) echo "unsupported candidate cleanup target: $VARIANT-$ARCH" >&2; exit 1 ;;
 esac
 

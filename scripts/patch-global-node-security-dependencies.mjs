@@ -2,9 +2,9 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const COMMON_PACKAGES = [
-  ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.9'],
+  ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.12'],
   [
-    'home/claude/.local/share/cursor-agent/versions/2026.09.10-fd3934a/node_modules/piscina/package.json',
+    'home/claude/.local/share/cursor-agent/versions/2026.09.15-d2fe57e/node_modules/piscina/package.json',
     'piscina',
     '4.9.3',
     '4.9.4',
@@ -58,7 +58,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/netlify-cli/package.json',
     'netlify-cli',
-    '27.6.0',
+    '27.8.0',
     '@netlify/images',
     '^2.0.1',
     '^2.0.1',
@@ -83,7 +83,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
     'miniflare',
-    '5.20260911.1-alpha',
+    '5.20260917.0-alpha',
     'sharp',
     '0.35.4',
     '0.35.4',
@@ -96,9 +96,17 @@ const FULL_DEPENDENCIES = [
     '8.9.0',
     '8.10.2',
   ],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.3.0', 'nanoid', '3.3.8', '3.3.19'],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.3.0', 'minimatch', '5.1.2', '5.1.9'],
-  ['usr/local/lib/node_modules/vercel/package.json', 'vercel', '59.16.0', 'smol-toml', '1.5.2', '1.8.0'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'nanoid', '3.3.8', '3.3.19'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'minimatch', '5.1.2', '5.1.9'],
+  ['usr/local/lib/node_modules/vercel/package.json', 'vercel', '59.23.1', 'smol-toml', '1.5.2', '1.8.0'],
+  [
+    'usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json',
+    '@vercel/container',
+    '8.2.2',
+    'smol-toml',
+    '1.5.2',
+    '1.8.0',
+  ],
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
     '@vercel/python-analysis',
@@ -110,7 +118,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/rust/package.json',
     '@vercel/rust',
-    '9.0.0',
+    '9.0.1',
     'smol-toml',
     '1.5.2',
     '1.8.0',
@@ -142,7 +150,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/backends/package.json',
     '@vercel/backends',
-    '8.0.0',
+    '8.0.1',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -150,7 +158,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/express/package.json',
     '@vercel/express',
-    '8.0.0',
+    '8.0.1',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -158,7 +166,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/hono/package.json',
     '@vercel/hono',
-    '8.0.0',
+    '8.0.1',
     'path-to-regexp',
     '8.3.0',
     '8.4.2',
@@ -174,7 +182,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/node/package.json',
     '@vercel/node',
-    '13.0.0',
+    '13.0.1',
     'path-to-regexp',
     '6.1.0',
     '6.3.0',
@@ -182,7 +190,7 @@ const FULL_DEPENDENCIES = [
   [
     'usr/local/lib/node_modules/vercel/node_modules/@vercel/remix-builder/package.json',
     '@vercel/remix-builder',
-    '13.0.0',
+    '13.0.1',
     'path-to-regexp',
     '6.1.0',
     '6.3.0',
