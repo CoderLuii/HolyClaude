@@ -299,6 +299,7 @@
           "required": [
             "name",
             "version",
+            "versionByArch",
             "executable"
           ],
           "additionalProperties": false,
@@ -308,6 +309,24 @@
             },
             "version": {
               "$ref": "#/$defs/version"
+            },
+            "versionByArch": {
+              "type": "object",
+              "required": [
+                "amd64",
+                "arm64"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "amd64": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(?:\\.[0-9]+)+(?:-[0-9A-Za-z.+~:]+)?$"
+                },
+                "arm64": {
+                  "type": "string",
+                  "pattern": "^[0-9]+(?:\\.[0-9]+)+(?:-[0-9A-Za-z.+~:]+)?$"
+                }
+              }
             },
             "executable": {
               "const": "/usr/bin/chromium"

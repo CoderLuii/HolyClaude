@@ -41,7 +41,10 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.6.3 updates Debian Chromium to 153.0.8010.52, Claude Code to 2.1.281, Atuin to 18.23.0, and seven bundled npm tools. Node stays at the verified 26.9.0 build because a newer runtime must first pass CloudCLI's native-module compatibility check. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it.
+v1.6.4 updates Claude Code to 2.1.287 and OpenAI Codex to 0.160.0. It pins Debian Chromium 154.0.8037.92 for AMD64 and ARM64. Node stays at 26.9.0 until a newer runtime passes CloudCLI's native-module compatibility check. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it.
+
+> [!WARNING]
+> v1.6.4 carries a CoderLuii-approved acceptance through October 4, 2026 for the exact known Critical and High findings recorded for the native Full and Slim AMD64 and ARM64 images. The accepted set includes findings in HolyClaude's custom FFmpeg build and bundled tool dependencies, not only upstream Debian packages. Raw severity, unresolved or fixable status, and digest-bound scan evidence remain unchanged. Any new or changed finding still blocks publication. This acceptance applies only to v1.6.4 and does not claim that an affected component is fixed, safe, or harmless. See the [accepted-risk manifest](security/v1.6.4-accepted-risk.json), [Debian review deferral](security/v1.6.4-release-security-deferral.json), and the release's scan evidence before deploying. We'll update affected packages and rebuild the images as fixes become available or are integrated.
 
 Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
 
@@ -612,9 +615,9 @@ This is not a minimal container. This is an entire development workstation.
 
 | CLI | Command | Version | What it's for |
 |-----|---------|---------|---------------|
-| **Claude Code** | `claude` | 2.1.281 | The main event — you're running inside this |
+| **Claude Code** | `claude` | 2.1.287 | The main event — you're running inside this |
 | **Gemini CLI** | `gemini` | 0.61.0 | Google's AI coding agent |
-| **OpenAI Codex** | `codex` | 0.156.1 | OpenAI's coding agent |
+| **OpenAI Codex** | `codex` | 0.160.0 | OpenAI's coding agent |
 | **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Cursor's AI agent |
 | **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and orchestration |
 
@@ -631,7 +634,7 @@ The full image includes everything above, plus:
 
 | CLI | Command | Version | What it's for |
 |-----|---------|---------|---------------|
-| **Junie** | `junie` | 3196.5 | JetBrains' AI coding agent |
+| **Junie** | `junie` | 3419.26 | JetBrains' AI coding agent |
 | **OpenCode** | `opencode` | 1.18.32 | Open source AI agent (OpenRouter and other providers) |
 | **Pi Coding Agent** | `pi` | 0.85.1 | Minimal agent harness (multiple providers) |
 

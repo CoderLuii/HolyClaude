@@ -1,6 +1,6 @@
 schema-version: 1
-release: v1.6.3
-reviewed-at: 2026-09-24
+release: v1.6.4
+reviewed-at: 2026-10-01
 expires-at: 2026-10-12
 
 base-images:
@@ -17,8 +17,8 @@ base-images:
     digest: sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6
     status: updated
   - name: Python runtime
-    reference: python:3.14.7-slim-bookworm
-    digest: sha256:82bc3c539b8813ada9d68c63b40158fa002f7f33de9bf3312a3dfdc0620dff56
+    reference: python:3.14.8-slim-bookworm
+    digest: sha256:c8137f4c460908c8763f281c8f22c431eb5c538514ba9553fc3a89c06b7cfb88
     status: updated
 
 release-assets:
@@ -53,13 +53,15 @@ release-assets:
     verification-mode: committed-hash
     status: added
   - name: Debian Chromium package trio
-    version: 153.0.8010.52-1~deb12u1
-    amd64-chromium-package-sha256: ac40026c10d0a8c2bb699035873ca33440566033068b1abdc19cbe7c861ff11f
-    arm64-chromium-package-sha256: a7bba2726939dfa0484dee3f9c4da46761e32a7b0ee97ffc7040be1582dc5824
-    amd64-chromium-common-package-sha256: 7c674dbd4d188108904f7c4117f12ae1c7e0557ebb64ba77964c6b903bbd061a
-    arm64-chromium-common-package-sha256: 9e5f90c9643dcbe2964e16d5972e4e7f76c18b1cad7845855116a4890895884d
-    amd64-chromium-sandbox-package-sha256: 08f35c0b27fe17c985f2dca6995e9fc006f3f406534c1e8800ac15ba75df90ec
-    arm64-chromium-sandbox-package-sha256: 0b2cf9c09495674f193e950d9af9789c3fa65ddbf40a3c5522c65cb32b74a075
+    version: 154.0.8037
+    amd64-version: 154.0.8037.92-1~deb12u1
+    arm64-version: 154.0.8037.92-1~deb12u1
+    amd64-chromium-package-sha256: cd258a352414714e8027a623c4ff01ef1c565446d8f7206bc4ce085a4aa7bea5
+    arm64-chromium-package-sha256: 4ee18389861d6c2af9be00ae0a8b3ecdba20aed6c08ae41fcc310da1727dd1df
+    amd64-chromium-common-package-sha256: c10056d7f80dcb2a9dc384997ecd5fd3aec9fa5acea472d53063ea6ba1f700d9
+    arm64-chromium-common-package-sha256: 338df7ca0323ad2e6c98f3d628381cfb762dca2d0bcc12dd7e5adcb4b005260c
+    amd64-chromium-sandbox-package-sha256: b48372322890bfb88c32662a94ff3ec7088fb6ce026cf5d238534378a82eb4f8
+    arm64-chromium-sandbox-package-sha256: 18b827aee52af82fdba80e3acf00e07e529b6077d925dd4351c95b1d4829eaee
     verification: Bookworm security package indexes for amd64 and arm64
     verification-mode: repository-index
     status: updated
@@ -132,9 +134,9 @@ release-assets:
     verification-mode: committed-hash
     status: security-patched
   - name: CloudCLI fast-uri nested package
-    version: 3.1.7
-    archive-sha256: 3fa380284be4ecbf471c1dbb8c5da6f517c95f54279f88c2037985d03fdc6d92
-    npm-integrity: "sha512-dOvZVzjdZdz7phd9v6jCbwxrBW3fK6n8Rc0CtdmM4bumzMnxywBYhuph6J819RRw/ku+rLbelwfMunktuzVVHg=="
+    version: 3.1.8
+    archive-sha256: 86be033b406a7737c0521edc8fe3e15c7ac0cb6b5e509478cc9539a2efaa086c
+    npm-integrity: "sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg=="
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
@@ -142,6 +144,13 @@ release-assets:
     version: 3.15.2
     archive-sha256: 7f005cf0b8ee639b4557e0e321dc067c1f2aa0a442d096e03f2ab53353738794
     npm-integrity: "sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: npm bundled undici
+    version: 6.28.1
+    archive-sha256: e18191aac9c0ff43dac7fe9b10b7041a22d07addb7b66a6e8ac14a52a5b69b74
+    npm-integrity: "sha512-zWpdTVD54H48CIybL0rWQ3ukpb9d23wM7eH5RtfdmeP70cWHNjtfo7P4vZX+5CoDcO53J4Pu5uXp7lNfjc6DRA=="
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
@@ -256,6 +265,18 @@ release-assets:
     verification: PyPI wheel
     verification-mode: committed-hash
     status: security-patched
+  - name: Azure CLI PyJWT security wheel
+    version: 2.15.1
+    wheel-sha256: 42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193
+    verification: PyPI universal wheel and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: Azure CLI urllib3 security wheel
+    version: 2.8.0
+    wheel-sha256: 0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3
+    verification: PyPI universal wheel and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
   - name: piscina
     version: 4.9.4
     archive-sha256: 9ea03459396e46c626b8e1b8d73e827ecfbe48ac1e94fb9ba7235e6b25f9fc2f
@@ -267,6 +288,13 @@ release-assets:
     version: 5.0.12
     archive-sha256: ef8448ec78f20b692f04fa6d01f39b5ab34c66404bea3429f5a39c6c9e0be8b4
     npm-integrity: "sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ=="
+    verification: npm registry tarball integrity and committed SHA-256
+    verification-mode: committed-hash
+    status: security-patched
+  - name: EAS CLI Joi security package
+    version: 17.13.7
+    archive-sha256: fdbac1bfb9aba062a1ebe89dfa1fcfa940c3326dbd36cc76c7e1990573613222
+    npm-integrity: "sha512-MF80Dm5Y2veNy8QWVx9Bj3ui4mo7+VPSPsR1M+oaHXV0Gx6zGX9a2F+OZG3Blby9tOlzU9Rs5FUimlEhbKtfnQ=="
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: security-patched
@@ -349,13 +377,13 @@ release-assets:
     verification-mode: committed-hash
     status: updated
   - name: OpenAI Codex CLI
-    version: 0.156.1
-    archive-sha256: 08f128dd29bc659a62c16110dc4e8acad6858ba884a9b420631fbfa270b941d1
-    amd64-archive-sha256: ded9840babeb511e79738ae708044ae489fbce50db7002b943b3195cf5ae6a25
-    arm64-archive-sha256: 3ca3c3a85e184594d0b665ea9028bc38c4ae89691e86edbeefd2c6f58979fcb4
-    npm-integrity: "sha512-nI1iVl/n2SO2lSvlwEsJx63zdSI4C4Me2gR7AG0OWMJiGSakz2tY2hx43E39Zq5aEoeB5bZjJXzp5Sqhog6vyA=="
-    amd64-npm-integrity: "sha512-2ePo0wgOcnONKsuzp8vBjOmNY+IdsKaouaDDIdiKq9HOWNuV/GI22OeXft2A/1GaoL71ictO0/pLAsCEnQ6wew=="
-    arm64-npm-integrity: "sha512-sTEHk31C12dqzJdjZ2u9KLFCXKL04KyCM+QheSjdQI8uzmVJS7aEF2/qAqFxXwk/jwMzC9u7IihfoIlAGR6YsA=="
+    version: 0.160.0
+    archive-sha256: 373517768e912eeb5054024ae9215e2c90a1420957b66fe134ef745a00948d4a
+    amd64-archive-sha256: 37a41d61c3399182b8c727b77090cc7a1566bd849d0f09070a0bbc6fec4c58dc
+    arm64-archive-sha256: 9286a7e01d500ab224c9e5b4b223b7adf5dd901fba23efd6a438316426798b17
+    npm-integrity: "sha512-kEtVGzjRAYAMOwJxN39bGcna7LT3IDQgq64NNJ/dDTfu4OzZaocJcyNb5/gGJ/IVF/Vj7oK7E2m3nmTan7lpjg=="
+    amd64-npm-integrity: "sha512-KI/73OqGrHmR18s7ya7E1NqV6rT0y3lxr0s8S1qR2m6zU6QRF/HlR529jALLh5vjdUnsRT4Ahoxt0axb4kY99g=="
+    arm64-npm-integrity: "sha512-VnVdsS06YlDsL8OwaJjQ3xdqdJNG4i+eBJBV3LytddknzSaF/urijLzVg3ptkwvoj8C7Gn7iWpVE+y8WEaPiCg=="
     verification: npm registry parent and Linux architecture tarballs
     verification-mode: committed-hash
     status: updated
@@ -366,9 +394,9 @@ release-assets:
     verification-mode: committed-hash
     status: updated
   - name: Wrangler
-    version: 4.134.0
-    archive-sha256: 0161f9532b530609de5bcb84643ac6e25afcf76496e53c3049afbe1bedf10acc
-    npm-integrity: "sha512-65JbYVGSt0XpPH8O/y6pNuS0t+AvvwVv+VRPbqYsNI5NMF9oFiJxVoS5GYU47ooamF9ucSXWvGyQ6QnAtXLgRA=="
+    version: 4.146.0
+    archive-sha256: e6ad9c61546aea21779a92da3b7eae9fb228fcbde80c203fe3a78417b8530132
+    npm-integrity: "sha512-c27eHUH0Isr8HTmgZ6cLtLr/0cxtiBoLren6ywBeTW8ZIzj/dINVNBcqsbZc+iETnI5jrzO7E7Z8mLgLZ/l9iw=="
     verification: npm registry tarball integrity and committed SHA-256
     verification-mode: committed-hash
     status: updated
@@ -501,16 +529,16 @@ release-assets:
     status: security-patched
 installers:
   - name: Claude Code
-    version: 2.1.281
+    version: 2.1.287
     installer-sha256: 3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-    amd64-output-sha256: 56fe3da88458465fb27d7e9299dddb3fead55750fb9c2de795f233b5eea6dce1
-    arm64-output-sha256: dd27b36438a4fed1670cd29bad2fda6a73b628b6da55443e5c2f647fe6ed328f
+    amd64-output-sha256: 3920489a5109cff5786a1a392c25277408ff22bc796d5edb9c16a60e5a1718f0
+    arm64-output-sha256: e4daf793d1e74fb0d9874dd09e98690bbfd7be515f78a87fd05b9e2b4bb33b03
     status: pinned
 
   - name: Junie
-    version: "3196.5"
-    amd64-archive-sha256: dfe7635595f87c6e6d2a3acfe239b2bcb54ceaef4df41f0ca1044ed0ae37aa01
-    arm64-archive-sha256: ac43e6b9ab512b94c57b1d12d52ac35131eb8dbcfb55b42f7fb1e8cd2dd76a98
+    version: "3419.26"
+    amd64-archive-sha256: 52a0c255e70df2cf030b134d8e458d3013d6d8149f8ff47ef562a7eedef13d4f
+    arm64-archive-sha256: db0967f44ec04e70069b137136f8c53fdda3c6a4607870a568fa9454b48ba005
     install: direct from verified official release-channel archive
     status: pinned
   - name: Cursor CLI
@@ -545,10 +573,10 @@ vendored-artifacts:
     upstream-commit: 70e57859b6224ff0eb0539fcde7d13a3186c9c93
     artifact: vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz
     lock: vendor/locks/cloudcli-account-management-70e57859b6224ff0eb0539fcde7d13a3186c9c93.package-lock.json
-    lock-sha256: de4a5b3424e88176c9e941f9ffee965fdfc8ce10370482c533719705e5ba4d18
+    lock-sha256: 84801d30cba43008fe983ab18cbf318f99bb453a3be9f256e84a342cd7000c19
     manifest: vendor/artifacts/cloudcli-account-management.manifest.json
-    manifest-sha256: 451ec2a2bc1dde55093e5aac79f8534bd778a06898322498aada280f7aa43bf0
-    sha256: 40e98ac4452603c3b59c082c033c8a7ea3b97dd09e2a3c93c1c15cfbf99d925d
+    manifest-sha256: 58912dbf29ae2b21781ebe8e9112220b09e093e61bcf3bf020726e9ddaee2b7d
+    sha256: 545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2
     verification: two independent clean builds in the pinned Node image
     status: updated
 

@@ -67,10 +67,6 @@ const staleJunieIds = [
   'v155-netty-transport-classes-epoll-high-exception-b07473f4a2',
 ];
 
-function escapePattern(value) {
-  return `^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`;
-}
-
 function targetReviews() {
   const ids = new Set(reviewSpecs.map(([id]) => id));
   return ledger.reviews.filter((review) => ids.has(review.id));
@@ -140,67 +136,21 @@ function evaluate(report, asOf, { variant = 'full', architecture = 'amd64' } = {
   }
 }
 
-test('binds the 37 approved full amd64 High findings to 14 exact temporary exceptions', () => {
+test('removes the 14 expired full amd64 High exceptions from the active ledger', () => {
   assert.equal(reviewSpecs.length, 14);
   assert.equal(reportForApprovedFindings().matches.length, 37);
-  for (const [id, vulnerabilities, names, versions, type, paths] of reviewSpecs) {
-    const matches = ledger.reviews.filter((review) => review.id === id);
-    assert.equal(matches.length, 1, `${id} must exist exactly once`);
-    const review = matches[0];
-    assert.deepEqual(review.vulnerabilities, vulnerabilities);
-    assert.deepEqual(review.component.names, names);
-    assert.deepEqual(review.component.versions, versions);
-    assert.deepEqual(review.component.types, [type]);
-    assert.deepEqual(review.component.locationPatterns, paths.map(escapePattern));
-    assert.equal(review.disposition, 'high_exception');
-    assert.equal(review.effectiveSeverity, 'High');
-    assert.equal(review.approvedBy, 'CoderLuii');
-    assert.equal(review.reviewedAt, '2026-09-18');
-    assert.equal(review.expiresAt, '2026-09-25');
-    assert.deepEqual(review.variants, ['full']);
-    assert.deepEqual(review.architectures, ['amd64']);
-    assert.equal('vexStatement' in review, false);
+  for (const [id] of reviewSpecs) {
+    assert.equal(ledger.reviews.some((review) => review.id === id), false, `${id} must be removed`);
   }
 });
 
-test('carries exactly 22 Junie High exceptions to official stable 3196.5 without widening scope', () => {
+test('removes all 22 expired Junie High exceptions from the active ledger', () => {
   const amd64Specs = reviewSpecs.filter(([id]) => id.includes('-junie-'));
   const expectedIds = amd64Specs.flatMap(([id]) => [id, id.replace('full-amd64', 'full-arm64')]);
-  const expectedIdSet = new Set(expectedIds);
-  const actual = ledger.reviews.filter((review) => expectedIdSet.has(review.id));
 
   assert.equal(amd64Specs.length, 11);
-  assert.equal(actual.length, 22);
-  assert.deepEqual(actual.map((review) => review.id).sort(), expectedIds.sort());
-
-  for (const review of actual) {
-    const amd64Id = review.id.replace('full-arm64', 'full-amd64');
-    const [, vulnerabilities, names, versions, type] = amd64Specs.find(([id]) => id === amd64Id);
-    const architecture = review.id.includes('full-arm64') ? 'arm64' : 'amd64';
-    const expectedPath = type === 'binary' ? runtimePath : appPath;
-
-    assert.deepEqual(review.vulnerabilities, vulnerabilities);
-    assert.deepEqual(review.component.names, names);
-    assert.deepEqual(review.component.versions, versions);
-    assert.deepEqual(review.component.types, [type]);
-    assert.deepEqual(review.component.locationPatterns, [escapePattern(expectedPath)]);
-    assert.equal(review.reviewedAt, '2026-09-18');
-    assert.equal(review.expiresAt, '2026-09-25');
-    assert.equal(review.approvedBy, 'CoderLuii');
-    assert.deepEqual(review.variants, ['full']);
-    assert.deepEqual(review.architectures, [architecture]);
-    assert.match(review.rationale, /official stable Junie CLI 3196\.5/);
-    assert.doesNotMatch(review.rationale, /3220\.1|nightly/i);
-    assert.ok(!review.component.locationPatterns.includes(escapePattern(oldAppPath)));
-    assert.ok(!review.component.locationPatterns.includes(escapePattern(oldRuntimePath)));
-  }
-
-  const stableJunieExceptions = ledger.reviews.filter((review) =>
-    review.disposition === 'high_exception' &&
-    review.owner === 'Junie CLI' &&
-    review.component.locationPatterns.some((pattern) => pattern.includes('3196\\.5')),
-  );
-  assert.deepEqual(stableJunieExceptions.map((review) => review.id).sort(), expectedIds.sort());
+  assert.equal(expectedIds.length, 22);
+  assert.ok(expectedIds.every((id) => !ledger.reviews.some((review) => review.id === id)));
 });
 
 test('removes the legacy full arm64 selectors after native replacement verification', () => {
@@ -217,16 +167,11 @@ test('removes the legacy full arm64 selectors after native replacement verificat
   }
 });
 
-test('accepts the approved findings through the expiry date and rejects them after it', () => {
+test('fails closed for the former approved findings after their reviews are removed', () => {
   const report = reportForApprovedFindings();
-  const valid = evaluate(report, '2026-09-25');
-  assert.equal(valid.status, 0, valid.stderr);
-  assert.equal(valid.policy.rawHighCount, 37);
-  assert.equal(valid.policy.mappedHighCount, 37);
-
-  const expired = evaluate(report, '2026-09-26');
-  assert.notEqual(expired.status, 0);
-  assert.match(expired.stderr, /expired on 2026-09-25/);
+  const result = evaluate(report, '2026-10-01');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /matched 0 reviews for raw High finding/);
 });
 
 test('rejects nightly paths, wrong Junie tuples, and Slim applicability', () => {

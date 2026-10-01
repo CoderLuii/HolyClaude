@@ -17,15 +17,17 @@ const upstreamRepo = 'https://github.com/siteboon/claudecodeui.git';
 const upstreamCommit = '70e57859b6224ff0eb0539fcde7d13a3186c9c93';
 const packageVersion = '1.37.3';
 const artifactFile = `cloudcli-ai-cloudcli-${packageVersion}-holyclaude-account-management.tgz`;
-const expectedBuildLockSha256 = 'de4a5b3424e88176c9e941f9ffee965fdfc8ce10370482c533719705e5ba4d18';
+const expectedBuildLockSha256 = '84801d30cba43008fe983ab18cbf318f99bb453a3be9f256e84a342cd7000c19';
 const expectedBuildImage = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
 const expectedNode = 'v26.9.0';
 const expectedNpm = '12.0.2';
 const reviewedLockDependencies = {
   'node_modules/better-sqlite3': '12.11.1',
+  'node_modules/brace-expansion': '2.1.7',
+  'node_modules/deslop-js/node_modules/brace-expansion': '5.0.12',
   'node_modules/dompurify': '3.4.15',
   'node_modules/express': '4.22.2',
-  'node_modules/fast-uri': '3.1.6',
+  'node_modules/fast-uri': '3.1.8',
   'node_modules/hono': '4.13.7',
   'node_modules/jws': '3.2.3',
   'node_modules/minimatch': '9.0.9',
@@ -36,6 +38,12 @@ const reviewedLockDependencies = {
   'node_modules/tar-fs': '2.1.5',
   'node_modules/ws': '8.21.3',
   'node_modules/yaml': '2.9.0',
+};
+const reviewedSecurityIntegrities = {
+  'fast-uri@3.1.8': 'sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==',
+  'brace-expansion@1.1.21': 'sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==',
+  'brace-expansion@2.1.7': 'sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g==',
+  'brace-expansion@5.0.12': 'sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==',
 };
 const expectedBetterSqlite3 = {
   version: '12.11.1',
@@ -190,6 +198,19 @@ function verifyResolvedDependencies(lock, label) {
   for (const [packagePath, version] of Object.entries(reviewedLockDependencies)) {
     if (lock.packages?.[packagePath]?.version !== version) {
       throw new Error(`${label} must resolve ${packagePath} ${version}`);
+    }
+  }
+  for (const [packagePath, metadata] of Object.entries(lock.packages ?? {})) {
+    const name = packagePath.endsWith('node_modules/fast-uri')
+      ? 'fast-uri'
+      : packagePath.endsWith('node_modules/brace-expansion')
+        ? 'brace-expansion'
+        : undefined;
+    if (!name) continue;
+    const key = `${name}@${metadata.version}`;
+    const expectedIntegrity = reviewedSecurityIntegrities[key];
+    if (!expectedIntegrity || metadata.integrity !== expectedIntegrity) {
+      throw new Error(`${label} contains unreviewed ${key} at ${packagePath}`);
     }
   }
   for (const packagePath of forbiddenRuntimeDependencies) {

@@ -12,7 +12,7 @@ const upgradedPackages = new Map([
   ['eslint', '10.11.0'],
   ['prettier', '3.9.9'],
   ['@google/gemini-cli', '0.61.0'],
-  ['@openai/codex', '0.156.1'],
+  ['@openai/codex', '0.160.0'],
   ['opencode-ai', '1.18.32'],
 ]);
 
@@ -35,14 +35,14 @@ test('pins the reviewed npm CLI and developer tool upgrades', () => {
 
 test('keeps public AI CLI facts synchronized with the image pins', () => {
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'gemini-cli')?.version, '0.61.0');
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'openai-codex')?.version, '0.156.1');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'openai-codex')?.version, '0.160.0');
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'opencode')?.version, '1.18.32');
 });
 
 test('retains overlay-bound tools at their reviewed owner versions', () => {
   for (const [name, version] of [
     ['npm', '12.0.2'],
-    ['wrangler', '4.134.0'],
+    ['wrangler', '4.146.0'],
     ['vercel', '59.23.1'],
     ['netlify-cli', '27.8.0'],
     ['@earendil-works/pi-coding-agent', '0.85.1'],

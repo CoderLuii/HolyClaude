@@ -22,6 +22,7 @@ const packages = [
     '8.10.2',
   ],
   ['usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json', 'nanoid', '3.3.8', '3.3.19'],
+  ['usr/local/lib/node_modules/eas-cli/node_modules/joi/package.json', 'joi', '17.11.0', '17.13.7'],
   ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.1', '4.3.2'],
   ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.2'],
   ['usr/local/lib/node_modules/vercel/node_modules/smol-toml/package.json', 'smol-toml', '1.5.2', '1.8.0'],
@@ -69,7 +70,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/images/package.json',
     '@netlify/images',
-    '2.0.1',
+    '2.0.3',
     'ipx',
     '^3.1.1',
     '^3.1.1',
@@ -86,7 +87,7 @@ const dependencies = [
   [
     'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
     'miniflare',
-    '5.20260917.0-alpha',
+    '5.20261001.0-alpha',
     'sharp',
     '0.35.4',
     '0.35.4',
@@ -100,6 +101,15 @@ const dependencies = [
     '8.10.2',
   ],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'nanoid', '3.3.8', '3.3.19'],
+  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'joi', '17.11.0', '17.13.7'],
+  [
+    'usr/local/lib/node_modules/eas-cli/node_modules/@expo/eas-json/package.json',
+    '@expo/eas-json',
+    '24.5.0',
+    'joi',
+    '17.11.0',
+    '17.13.7',
+  ],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/vercel/package.json', 'vercel', '59.23.1', 'smol-toml', '1.5.2', '1.8.0'],
   [
@@ -299,6 +309,7 @@ test('fails closed when a reviewed full-image package baseline drifts', () => {
   for (const [path, name, baseline] of [
     packages.find(([path]) => path.endsWith('/pi-coding-agent/node_modules/undici/package.json')),
     packages.find(([path]) => path.endsWith('/eas-cli/node_modules/nanoid/package.json')),
+    packages.find(([path]) => path.endsWith('/eas-cli/node_modules/joi/package.json')),
     packages.find(([path]) => path.endsWith('/pm2/node_modules/js-yaml/package.json')),
     packages.find(([path]) => path.endsWith('/vercel/node_modules/js-yaml/package.json')),
     packages.find(([path]) => path.endsWith('/vercel/node_modules/smol-toml/package.json')),
@@ -319,6 +330,8 @@ test('fails closed when a reviewed dependency owner version drifts', () => {
   for (const [path, name, version] of [
     dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
     dependencies.find(([path, , , dependency]) => path.endsWith('/eas-cli/package.json') && dependency === 'nanoid'),
+    dependencies.find(([path, , , dependency]) => path.endsWith('/eas-cli/package.json') && dependency === 'joi'),
+    dependencies.find(([path]) => path.endsWith('/@expo/eas-json/package.json')),
     dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
     dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
@@ -356,13 +369,15 @@ test('rejects the previous Wrangler Miniflare owner version', () => {
   writeJson(manifestPath, value);
   const result = run(root, true);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, new RegExp(`expected ${name}@5\\.20260917\\.0-alpha\\b`));
+  assert.match(result.stderr, new RegExp(`expected ${name}@5\\.20261001\\.0-alpha\\b`));
 });
 
 test('fails closed when a reviewed owner dependency baseline drifts', () => {
   for (const [path, , , dependency, , , dependencyGroup = 'dependencies'] of [
     dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
     dependencies.find(([path, , , dependency]) => path.endsWith('/eas-cli/package.json') && dependency === 'nanoid'),
+    dependencies.find(([path, , , dependency]) => path.endsWith('/eas-cli/package.json') && dependency === 'joi'),
+    dependencies.find(([path]) => path.endsWith('/@expo/eas-json/package.json')),
     dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
     dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),

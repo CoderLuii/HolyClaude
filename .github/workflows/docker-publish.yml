@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.6.3
+run-name: v1.6.4
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.6.3"
+        default: "1.6.4"
         type: string
   push:
     branches:
@@ -86,10 +86,10 @@ jobs:
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           grep -Fq "@${release#v}?variant=full" security/openvex.json
           grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="1bf4ce19ea92308dc659fef7a7e15eab67f25685"
+          baseline="44e5a11d18269b877be2103235c790ab1c3c8e84"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.6.2^{commit}')" = "1bf4ce19ea92308dc659fef7a7e15eab67f25685"
+          test "$(git rev-parse 'v1.6.3^{commit}')" = "44e5a11d18269b877be2103235c790ab1c3c8e84"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -101,21 +101,24 @@ jobs:
             --release "${release}"
           echo "release=${release}" >> "${GITHUB_OUTPUT}"
 
-      - name: Validate committed advisory ledger and OpenVEX
+      - name: Validate committed advisory ledger, OpenVEX, and v1.6.4 deferral
         shell: bash
         run: |
           set -euo pipefail
           as_of="$(date -u +%F)"
-          node scripts/preflight-security-policy.mjs \
-            --ledger security/advisory-reviews.json \
-            --authority-evidence security/critical-exception-authority-evidence.json \
-            --vex security/openvex.json \
-            --as-of "${as_of}"
           for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
-            node scripts/preflight-security-policy.mjs \
+            variant="${target%-*}"
+            arch="${target#*-}"
+            node scripts/evaluate-release-security-deferral.mjs \
+              --manifest security/v1.6.4-release-security-deferral.json \
+              --accepted-risk-manifest security/v1.6.4-accepted-risk.json \
+              --release "${{ steps.source.outputs.release }}" \
               --ledger security/advisory-reviews.json \
               --authority-evidence "security/critical-exception-authority-evidence-${target}.json" \
               --vex security/openvex.json \
+              --variant "${variant}" \
+              --arch "${arch}" \
+              --preflight true \
               --as-of "${as_of}"
           done
 
@@ -213,7 +216,7 @@ jobs:
         timeout-minutes: 180
         run: |
           set -euo pipefail
-          baseline="1bf4ce19ea92308dc659fef7a7e15eab67f25685"
+          baseline="44e5a11d18269b877be2103235c790ab1c3c8e84"
           if git diff --quiet "${baseline}" -- \
             Dockerfile \
             scripts/build-ffmpeg-security-backport.sh \
@@ -484,12 +487,9 @@ jobs:
             ! command -v pi
           fi
 
-          chromium_expected="$(node -p "require('/tmp/product-facts.json').browser.chromium.version")"
+          chromium_expected="$(node -p "require('/tmp/product-facts.json').browser.chromium.versionByArch['$arch']")"
           chromium_actual="$(dpkg-query -W -f='${Version}' chromium)"
-          case "$chromium_actual" in
-            "$chromium_expected"|"$chromium_expected"-*) ;;
-            *) echo "Chromium mismatch: $chromium_actual != $chromium_expected" >&2; exit 1 ;;
-          esac
+          require_eq "Chromium package version" "$chromium_actual" "$chromium_expected"
           test -x /usr/bin/chromium
           test -x /usr/local/bin/entrypoint.sh
           for plugin in project-stats web-terminal; do
@@ -655,7 +655,10 @@ jobs:
             --report "${evidence_dir}/grype.json" \
             --output "${evidence_dir}/critical-exception-authority-evidence.json"
           set +e
-          node scripts/evaluate-security-report.mjs \
+          node scripts/evaluate-release-security-deferral.mjs \
+            --manifest security/v1.6.4-release-security-deferral.json \
+            --accepted-risk-manifest security/v1.6.4-accepted-risk.json \
+            --release "${{ needs.validate-release-ref.outputs.release }}" \
             --report "${evidence_dir}/grype.json" \
             --ledger security/advisory-reviews.json \
             --authority-evidence "${evidence_dir}/critical-exception-authority-evidence.json" \
@@ -664,15 +667,18 @@ jobs:
             --variant "${{ matrix.variant }}" \
             --arch "${{ matrix.arch }}" \
             --image-digest "${{ steps.digests.outputs.dockerhub_digest }}" \
-            --sbom-sha256 "${sbom_sha256}"
+            --sbom-sha256 "${sbom_sha256}" \
+            --as-of "$(date -u +%F)"
           policy_status=$?
           set -e
           EVIDENCE_DIR="${evidence_dir}" \
           IMAGE="${image}" \
           DOCKERHUB_DIGEST="${{ steps.digests.outputs.dockerhub_digest }}" \
           GHCR_DIGEST="${{ steps.digests.outputs.ghcr_digest }}" \
+          RELEASE="${{ needs.validate-release-ref.outputs.release }}" \
           VARIANT="${{ matrix.variant }}" \
           ARCH="${{ matrix.arch }}" \
+          POLICY_STATUS="${policy_status}" \
           python3 - <<'PY'
           import hashlib
           import json
@@ -754,6 +760,73 @@ jobs:
           if policy.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
               raise SystemExit("security policy sbomSha256 does not match the normalized CycloneDX SBOM")
 
+          policy_status = int(os.environ["POLICY_STATUS"])
+          accepted = {}
+          accepted_path = root / "release-accepted-risk.json"
+          if accepted_path.is_file():
+              with accepted_path.open(encoding="utf-8") as handle:
+                  accepted = json.load(handle)
+          deferral = {}
+          deferral_path = root / "release-security-deferral.json"
+          if deferral_path.is_file():
+              with deferral_path.open(encoding="utf-8") as handle:
+                  deferral = json.load(handle)
+          if policy_status == 0:
+              if not accepted_path.is_file():
+                  raise SystemExit("release accepted-risk evidence is missing")
+              if accepted.get("status") != "known_risk_accepted" or accepted.get("release") != os.environ["RELEASE"]:
+                  raise SystemExit("release accepted-risk evidence is invalid")
+              if accepted.get("variant") != os.environ["VARIANT"] or accepted.get("architecture") != os.environ["ARCH"]:
+                  raise SystemExit("release accepted-risk target mismatch")
+              if accepted.get("imageDigest") != os.environ["DOCKERHUB_DIGEST"]:
+                  raise SystemExit("release accepted-risk image digest mismatch")
+              if accepted.get("reportSha256") != hashlib.sha256((root / "grype.json").read_bytes()).hexdigest():
+                  raise SystemExit("release accepted-risk report hash mismatch")
+              if accepted.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
+                  raise SystemExit("release accepted-risk SBOM hash mismatch")
+              accepted_policy = policy.get("acceptedKnownRisk", {})
+              if policy.get("securityStatus") != "known_risk_accepted":
+                  raise SystemExit("security policy is missing the accepted-risk status")
+              for key in (
+                  "acceptedFindingCount",
+                  "acceptedCriticalCount",
+                  "acceptedHighCount",
+                  "manifestSha256",
+                  "approvedBy",
+                  "reviewedAt",
+                  "expiresAt",
+              ):
+                  if accepted_policy.get(key) != accepted.get(key):
+                      raise SystemExit(f"security policy accepted-risk {key} mismatch")
+
+              release_deferral = policy.get("releaseDeferral", {})
+              deferred_review_ids = release_deferral.get("usedReviewIds", [])
+              if deferred_review_ids:
+                  if not deferral_path.is_file():
+                      raise SystemExit("release security deferral evidence is missing")
+                  if deferral.get("status") != "deferred_not_fixed" or deferral.get("release") != os.environ["RELEASE"]:
+                      raise SystemExit("release security deferral evidence is invalid")
+                  if deferral.get("variant") != os.environ["VARIANT"] or deferral.get("architecture") != os.environ["ARCH"]:
+                      raise SystemExit("release security deferral target mismatch")
+                  if deferral.get("imageDigest") != os.environ["DOCKERHUB_DIGEST"]:
+                      raise SystemExit("release security deferral image digest mismatch")
+                  if deferral.get("reportSha256") != hashlib.sha256((root / "grype.json").read_bytes()).hexdigest():
+                      raise SystemExit("release security deferral report hash mismatch")
+                  if deferral.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
+                      raise SystemExit("release security deferral SBOM hash mismatch")
+                  for key in (
+                      "status",
+                      "release",
+                      "manifestSha256",
+                      "approvedBy",
+                      "reviewedAt",
+                      "expiresAt",
+                      "deferredFindingCount",
+                      "usedReviewIds",
+                  ):
+                      if release_deferral.get(key) != deferral.get(key):
+                          raise SystemExit(f"security policy release deferral {key} mismatch")
+
           metadata = {
               "variant": os.environ["VARIANT"],
               "arch": os.environ["ARCH"],
@@ -766,7 +839,31 @@ jobs:
               "effectiveCriticalCount": policy.get("effectiveCriticalCount"),
               "rawHighCount": policy.get("rawHighCount"),
               "mappedHighCount": policy.get("mappedHighCount"),
+              "securityStatus": policy.get("securityStatus"),
               "cycloneDxLicenseNormalizationCount": normalization_count,
+              "acceptedRiskStatus": accepted.get("status"),
+              "acceptedFindingCount": accepted.get("acceptedFindingCount"),
+              "acceptedCriticalCount": accepted.get("acceptedCriticalCount"),
+              "acceptedHighCount": accepted.get("acceptedHighCount"),
+              "acceptedRiskRelease": accepted.get("release"),
+              "acceptedRiskAsOf": accepted.get("asOf"),
+              "acceptedRiskManifestSha256": accepted.get("manifestSha256"),
+              "acceptedRiskReportSha256": accepted.get("reportSha256"),
+              "acceptedRiskImageDigest": accepted.get("imageDigest"),
+              "acceptedRiskSbomSha256": accepted.get("sbomSha256"),
+              "acceptedRiskApprovedBy": accepted.get("approvedBy"),
+              "acceptedRiskReviewedAt": accepted.get("reviewedAt"),
+              "acceptedRiskExpiresAt": accepted.get("expiresAt"),
+              "releaseSecurityDeferralStatus": deferral.get("status"),
+              "releaseSecurityDeferralApprovedBy": deferral.get("approvedBy"),
+              "releaseSecurityDeferralReviewedAt": deferral.get("reviewedAt"),
+              "releaseSecurityDeferralExpiresAt": deferral.get("expiresAt"),
+              "releaseSecurityDeferralManifestSha256": deferral.get("manifestSha256"),
+              "releaseSecurityDeferralReportSha256": deferral.get("reportSha256"),
+              "releaseSecurityDeferralImageDigest": deferral.get("imageDigest"),
+              "releaseSecurityDeferralSbomSha256": deferral.get("sbomSha256"),
+              "releaseSecurityDeferralFindingCount": deferral.get("deferredFindingCount"),
+              "releaseSecurityDeferralUsedReviewIds": deferral.get("usedReviewIds"),
           }
           with (root / "metadata.json").open("w", encoding="utf-8") as handle:
               json.dump(metadata, handle, indent=2, sort_keys=True)
@@ -1029,10 +1126,82 @@ jobs:
               sbom_sha256 = hashlib.sha256(sbom_path.read_bytes()).hexdigest()
               if metadata.get("sbomSha256") != sbom_sha256:
                   raise SystemExit(f"security policy SBOM hash mismatch for {target}")
+              report_path = metadata_dirs[target] / "grype.json"
+              accepted_path = metadata_dirs[target] / "release-accepted-risk.json"
+              if not accepted_path.is_file():
+                  raise SystemExit(f"accepted-risk evidence is missing for {target}: {accepted_path}")
+              with accepted_path.open(encoding="utf-8") as handle:
+                  accepted = json.load(handle)
+              if accepted.get("status") != "known_risk_accepted":
+                  raise SystemExit(f"accepted-risk status is invalid for {target}")
+              if accepted.get("release") != record.get("release"):
+                  raise SystemExit(f"accepted-risk release mismatch for {target}")
+              if (accepted.get("variant"), accepted.get("architecture")) != target:
+                  raise SystemExit(f"accepted-risk target mismatch for {target}")
+              if accepted.get("imageDigest") != record["dockerhub_digest"]:
+                  raise SystemExit(f"accepted-risk image digest mismatch for {target}")
+              if accepted.get("reportSha256") != hashlib.sha256(report_path.read_bytes()).hexdigest():
+                  raise SystemExit(f"accepted-risk report hash mismatch for {target}")
+              if accepted.get("sbomSha256") != sbom_sha256:
+                  raise SystemExit(f"accepted-risk SBOM hash mismatch for {target}")
+              manifest_sha256 = hashlib.sha256(Path("security/v1.6.4-accepted-risk.json").read_bytes()).hexdigest()
+              if accepted.get("manifestSha256") != manifest_sha256:
+                  raise SystemExit(f"accepted-risk manifest hash mismatch for {target}")
+              metadata_fields = {
+                  "securityStatus": "known_risk_accepted",
+                  "acceptedRiskStatus": accepted.get("status"),
+                  "acceptedFindingCount": accepted.get("acceptedFindingCount"),
+                  "acceptedCriticalCount": accepted.get("acceptedCriticalCount"),
+                  "acceptedHighCount": accepted.get("acceptedHighCount"),
+                  "acceptedRiskRelease": accepted.get("release"),
+                  "acceptedRiskAsOf": accepted.get("asOf"),
+                  "acceptedRiskManifestSha256": accepted.get("manifestSha256"),
+                  "acceptedRiskReportSha256": accepted.get("reportSha256"),
+                  "acceptedRiskImageDigest": accepted.get("imageDigest"),
+                  "acceptedRiskSbomSha256": accepted.get("sbomSha256"),
+                  "acceptedRiskApprovedBy": accepted.get("approvedBy"),
+                  "acceptedRiskReviewedAt": accepted.get("reviewedAt"),
+                  "acceptedRiskExpiresAt": accepted.get("expiresAt"),
+              }
+              for key, expected in metadata_fields.items():
+                  if metadata.get(key) != expected:
+                      raise SystemExit(f"accepted-risk metadata {key} mismatch for {target}")
+              if metadata.get("releaseSecurityDeferralStatus"):
+                  deferral_path = metadata_dirs[target] / "release-security-deferral.json"
+                  if not deferral_path.is_file():
+                      raise SystemExit(f"release deferral evidence is missing for {target}: {deferral_path}")
+                  with deferral_path.open(encoding="utf-8") as handle:
+                      deferral = json.load(handle)
+                  if deferral.get("status") != "deferred_not_fixed":
+                      raise SystemExit(f"release deferral status is invalid for {target}")
+                  if (deferral.get("variant"), deferral.get("architecture")) != target:
+                      raise SystemExit(f"release deferral target mismatch for {target}")
+                  if deferral.get("imageDigest") != record["dockerhub_digest"]:
+                      raise SystemExit(f"release deferral image digest mismatch for {target}")
+                  if deferral.get("reportSha256") != hashlib.sha256(report_path.read_bytes()).hexdigest():
+                      raise SystemExit(f"release deferral report hash mismatch for {target}")
+                  if deferral.get("sbomSha256") != sbom_sha256:
+                      raise SystemExit(f"release deferral SBOM hash mismatch for {target}")
+                  deferral_metadata = {
+                      "releaseSecurityDeferralStatus": deferral.get("status"),
+                      "releaseSecurityDeferralApprovedBy": deferral.get("approvedBy"),
+                      "releaseSecurityDeferralReviewedAt": deferral.get("reviewedAt"),
+                      "releaseSecurityDeferralExpiresAt": deferral.get("expiresAt"),
+                      "releaseSecurityDeferralManifestSha256": deferral.get("manifestSha256"),
+                      "releaseSecurityDeferralReportSha256": deferral.get("reportSha256"),
+                      "releaseSecurityDeferralImageDigest": deferral.get("imageDigest"),
+                      "releaseSecurityDeferralSbomSha256": deferral.get("sbomSha256"),
+                      "releaseSecurityDeferralFindingCount": deferral.get("deferredFindingCount"),
+                      "releaseSecurityDeferralUsedReviewIds": deferral.get("usedReviewIds"),
+                  }
+                  for key, expected in deferral_metadata.items():
+                      if metadata.get(key) != expected:
+                          raise SystemExit(f"release deferral metadata {key} mismatch for {target}")
           PY
 
           rm -rf security-revalidation
           mkdir -p security-revalidation
+          as_of="$(date -u +%F)"
           for report in "${reports[@]}"; do
             evidence_dir="$(dirname "${report}")"
             metadata="${evidence_dir}/metadata.json"
@@ -1041,7 +1210,10 @@ jobs:
             image_digest="$(jq -r .imageDigest "${metadata}")"
             sbom_sha256="$(jq -r .sbomSha256 "${metadata}")"
             output="security-revalidation/${variant}-${arch}"
-            node scripts/evaluate-security-report.mjs \
+            node scripts/evaluate-release-security-deferral.mjs \
+              --manifest security/v1.6.4-release-security-deferral.json \
+              --accepted-risk-manifest security/v1.6.4-accepted-risk.json \
+              --release "${{ needs.validate-release-ref.outputs.release }}" \
               --report "${report}" \
               --ledger security/advisory-reviews.json \
               --authority-evidence "${evidence_dir}/critical-exception-authority-evidence.json" \
@@ -1050,7 +1222,8 @@ jobs:
               --variant "${variant}" \
               --arch "${arch}" \
               --image-digest "${image_digest}" \
-              --sbom-sha256 "${sbom_sha256}"
+              --sbom-sha256 "${sbom_sha256}" \
+              --as-of "${as_of}"
           done
 
       - name: Set up Docker Buildx

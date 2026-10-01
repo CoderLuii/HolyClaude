@@ -8,6 +8,8 @@ Claude Code, CloudCLI web UI, headless browser, 8 AI CLIs, Desloppify, 50+ dev t
 [![GitHub Stars](https://img.shields.io/github/stars/coderluii/holyclaude?style=flat-square&logo=github)](https://github.com/CoderLuii/HolyClaude)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/CoderLuii/HolyClaude/blob/master/LICENSE)
 
+> **Security notice for v1.6.4:** CoderLuii accepted the exact known Critical and High findings recorded for the native Full and Slim AMD64 and ARM64 images through October 4, 2026. The accepted set includes findings in HolyClaude's custom FFmpeg build and bundled tool dependencies, not only upstream Debian packages. Raw severity, unresolved or fixable status, and digest-bound scan evidence remain unchanged. Any new or changed finding still blocks publication. This v1.6.4-only acceptance does not claim that an affected component is fixed, safe, or harmless. Review the [accepted-risk manifest](https://github.com/CoderLuii/HolyClaude/blob/v1.6.4/security/v1.6.4-accepted-risk.json), [Debian review deferral](https://github.com/CoderLuii/HolyClaude/blob/v1.6.4/security/v1.6.4-release-security-deferral.json), and scan evidence before deploying.
+
 ## Quick Start
 
 ```yaml
@@ -40,11 +42,11 @@ That's it. Open your browser, sign in, start building.
 
 ## What's Inside
 
-🤖 **8 AI CLIs** — Claude Code 2.1.281, Gemini CLI 0.61.0, OpenAI Codex 0.156.1, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 3196.5, OpenCode 1.18.32, Pi Coding Agent 0.85.1
+🤖 **8 AI CLIs** — Claude Code 2.1.287, Gemini CLI 0.61.0, OpenAI Codex 0.160.0, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 3419.26, OpenCode 1.18.32, Pi Coding Agent 0.85.1
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
-🖥️ **Headless Browser** — Debian Chromium 153.0.8010.52 + Xvfb + Node Playwright 1.63.0 + Python Playwright 1.63.0, pinned at build time for screenshots, testing, and automation
+🖥️ **Headless Browser** — Debian Chromium 154.0.8037 + Xvfb + Node Playwright 1.63.0 + Python Playwright 1.63.0, pinned at build time for screenshots, testing, and automation
 
 📊 **Lighthouse** — Full image only
 

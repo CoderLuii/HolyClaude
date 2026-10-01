@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.6.3",
-    "dockerVersion": "1.6.3"
+    "tag": "v1.6.4",
+    "dockerVersion": "1.6.4"
   },
   "registries": {
     "dockerHub": {
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.281",
+      "version": "2.1.287",
       "variants": [
         "full",
         "slim"
@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.156.1",
+      "version": "0.160.0",
       "variants": [
         "full",
         "slim"
@@ -87,7 +87,7 @@
       "id": "junie",
       "name": "Junie",
       "command": "junie",
-      "version": "3196.5",
+      "version": "3419.26",
       "variants": [
         "full"
       ]
@@ -156,7 +156,11 @@
   "browser": {
     "chromium": {
       "name": "Debian Chromium",
-      "version": "153.0.8010.52",
+      "version": "154.0.8037",
+      "versionByArch": {
+        "amd64": "154.0.8037.92-1~deb12u1",
+        "arm64": "154.0.8037.92-1~deb12u1"
+      },
       "executable": "/usr/bin/chromium"
     },
     "playwright": {

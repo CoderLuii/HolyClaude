@@ -17,24 +17,24 @@ SPEC.loader.exec_module(guard)
 
 class JunieGuardTests(unittest.TestCase):
     def test_binds_official_stable_jar_identity(self):
-        self.assertEqual(guard.VERSION, "3196.5")
+        self.assertEqual(guard.VERSION, "3419.26")
         self.assertEqual(
             guard.JAR_PATH,
-            "/home/claude/.local/share/junie/versions/3196.5/lib/app/junie-release-3196.5.jar",
+            "/home/claude/.local/share/junie/versions/3419.26/lib/app/junie-release-3419.26.jar",
         )
-        self.assertEqual(guard.JAR_SHA256, "f82726298a4e12ee3798bcda516fbaf0d9d6b85da89110b7bd62801af64997f7")
+        self.assertEqual(guard.JAR_SHA256, "6e4994ce18e1d4744658c6fb7aec6c99fb5d9b241d27970c2371953f2a0e6295")
         self.assertEqual(
             guard.GATEWAY_CLASSES[
                 "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/http/GatewayServerKt.class"
             ],
-            "6a1da55c9a946f73d5d5795c1f51a641c712d75fdd5421e852f2ab7a239c5221",
+            "ea2c8101bc3ae1ba14f57b799377de73e9e458ed69fafc13b0c56a3bb734a206",
         )
         self.assertEqual(guard.MAIN_CLASS, "com.intellij.ml.llm.matterhorn.ej.app.cli.standalone.MainKt")
         self.assertEqual(
             guard.GATEWAY_CLASSES[
                 "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/cli/JunieCli.class"
             ],
-            "f4e40d610438ff9f553ccc6529d943d5272eb8fa26e3c92ae51812623bfee438",
+            "3133142a6d3e21efa3a53fdf0ad5a4e8651113724665e99f7e1be5bdb72fd992",
         )
         self.assertEqual(
             guard.GATEWAY_CLASSES[

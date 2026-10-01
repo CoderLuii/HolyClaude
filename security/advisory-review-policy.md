@@ -15,3 +15,18 @@ HolyClaude stores raw Syft and Grype output for every release candidate. Raw sca
 - High exceptions require `CoderLuii`, expire within 30 days, and name the exact component.
 
 Temporary Critical findings and High findings remain in the release evidence with their package, version, path, owner, authority, approval, expiry, fix availability, and rationale. A mapped finding is not a claim that it is harmless.
+
+## v1.6.4 release deferral
+
+`security/v1.6.4-release-security-deferral.json` and `security/v1.6.4-accepted-risk.json` are separate, short-lived release decisions. They do not edit, renew, or replace `advisory-reviews.json`.
+
+- The deferral applies only to `v1.6.4`, expires on October 4, 2026, and requires `CoderLuii` approval.
+- The Debian review deferral carries forward only its named, exact, expired Debian reviews. The accepted-risk manifest covers the remaining approved findings.
+- For `v1.6.4` only, the accepted-risk manifest overrides the general restrictions above on accepting Critical, fixable, or project-controlled findings, including findings in HolyClaude's custom FFmpeg build and bundled tool dependencies. It does not change the policy for any other release or create a reusable advisory-ledger disposition.
+- The acceptance covers only the exact known Critical and High findings recorded for the native Full AMD64, Full ARM64, Slim AMD64, and Slim ARM64 images. Each accepted finding stays bound to its vulnerability, raw severity, component, version, type, exact locations, variant, architecture, fix state, fix versions, occurrence count, candidate report, image digest, and SBOM.
+- Raw scanner severity is not downgraded. Unresolved findings stay unresolved, and available fixes stay recorded as available. Acceptance permits this release; it does not count as remediation.
+- A new vulnerability, component, version, location, variant, architecture, severity, fix state, or report tuple is outside the approved set and fails the release.
+- Expired reviews that are not named in the deferral are removed from the effective evaluation set. If the scanner still reports one of those findings, the release fails as unmapped.
+- Syft, Grype, SBOM validation, digest binding, raw reports, native Full/Slim AMD64/ARM64 builds, runtime smoke tests, and promotion verification remain required.
+- Every accepted target writes `release-security-deferral.json` and `release-accepted-risk.json` beside the raw report. Those records bind the decisions to their manifest hashes, report hash, image digest, SBOM hash, exact findings or review IDs, approval, and expiry.
+- Deferred reviews keep the status `deferred_not_fixed`; accepted findings use `known_risk_accepted`. Neither status means fixed, safe, harmless, or resolved. A later compatible package or project correction ends the acceptance only after the affected images are rebuilt and rescanned.

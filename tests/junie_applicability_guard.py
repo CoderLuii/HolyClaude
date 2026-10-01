@@ -13,10 +13,10 @@ import tempfile
 import time
 import zipfile
 
-VERSION = "3196.5"
+VERSION = "3419.26"
 ARCHITECTURES = {"amd64", "arm64"}
 JAR_PATH = f"/home/claude/.local/share/junie/versions/{VERSION}/lib/app/junie-release-{VERSION}.jar"
-JAR_SHA256 = "f82726298a4e12ee3798bcda516fbaf0d9d6b85da89110b7bd62801af64997f7"
+JAR_SHA256 = "6e4994ce18e1d4744658c6fb7aec6c99fb5d9b241d27970c2371953f2a0e6295"
 NETTY_VERSION = "4.2.9.Final"
 NETTY_PROPERTIES = "META-INF/maven/io.netty/netty-handler/pom.properties"
 MANIFEST_PATH = "META-INF/MANIFEST.MF"
@@ -37,10 +37,10 @@ SSL_CONNECTOR_BASELINE = {
     "io/ktor/server/engine/EnvironmentUtilsJvmKt.class",
 }
 GATEWAY_CLASSES = {
-    "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/http/GatewayServerKt.class": "6a1da55c9a946f73d5d5795c1f51a641c712d75fdd5421e852f2ab7a239c5221",
+    "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/http/GatewayServerKt.class": "ea2c8101bc3ae1ba14f57b799377de73e9e458ed69fafc13b0c56a3bb734a206",
     "com/intellij/ml/llm/matterhorn/ej/app/cli/gateway/MainKt.class": "0447ad9e5f7c4e8ebd96bafafa4a2eac81340396e3d03f2692c099b710a55642",
     "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/MainKt.class": "bb30e63ba85ace4a353ed4e5036e89232aa7508308f7d690ac002a9731b63869",
-    "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/cli/JunieCli.class": "f4e40d610438ff9f553ccc6529d943d5272eb8fa26e3c92ae51812623bfee438",
+    "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/cli/JunieCli.class": "3133142a6d3e21efa3a53fdf0ad5a4e8651113724665e99f7e1be5bdb72fd992",
     "com/intellij/ml/llm/matterhorn/ej/app/cli/standalone/cli/options/SystemOptionsGroup.class": "5a953748e13fcd3b0006b007c77616651358522fa4f38a86d7a31ec18c14cf4d",
 }
 TLS_CONFIG_NAMES = (b"sslConnector", b"clientAuth", b"keyStore", b"trustStore")

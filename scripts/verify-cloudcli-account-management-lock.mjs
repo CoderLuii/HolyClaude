@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-const expectedLockSha256 = 'de4a5b3424e88176c9e941f9ffee965fdfc8ce10370482c533719705e5ba4d18';
+const expectedLockSha256 = '84801d30cba43008fe983ab18cbf318f99bb453a3be9f256e84a342cd7000c19';
 const expectedName = '@cloudcli-ai/cloudcli';
 const expectedVersion = '1.37.3';
 const expectedBetterSqlite3 = {
@@ -12,6 +12,24 @@ const expectedBetterSqlite3 = {
   resolved: 'https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-12.11.1.tgz',
   integrity: 'sha512-dq9AtApgg5PGFtBzPFSBl3HZQjHok5gaQCM6zh2Yk0aSmDCs1CbnVI8/HgASQkNKsWFpseIO9beg5xxpYhbIfA==',
   node: '20.x || 22.x || 23.x || 24.x || 25.x || 26.x',
+};
+const expectedSecurityPackages = {
+  'node_modules/fast-uri': {
+    version: '3.1.8',
+    integrity: 'sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==',
+  },
+  'brace-expansion@1': {
+    version: '1.1.21',
+    integrity: 'sha512-9zeA+KLZNNzglF2TPKRQEDyx6Yby7daAkuy8MiPzpXPsYDWi/DRM8jmwUDxokQjYqBpv5DgPiwD4h4ZZSy1Ujw==',
+  },
+  'brace-expansion@2': {
+    version: '2.1.7',
+    integrity: 'sha512-uZbew1NqdmPDTMJ8ah1y+b+9QEJrfkXFk3RcTQw3X0jW/xRUvFKsg1CfQdSYGdTbXZWExtU3J3ccxtnfw1Fi0g==',
+  },
+  'brace-expansion@5': {
+    version: '5.0.12',
+    integrity: 'sha512-YovQ3rzhaLMIrDjNDMkNS01tea93qhEhG5xy8f6+R0l+dw3Ki+5sCoIoI942iuLZTHWogWktgwVDhU09iNEimQ==',
+  },
 };
 const declarationFields = ['dependencies', 'devDependencies', 'optionalDependencies', 'bin'];
 
@@ -64,8 +82,34 @@ for (const [field, expected] of Object.entries(expectedBetterSqlite3)) {
     throw new Error(`CloudCLI build lock better-sqlite3 ${field} drift: expected ${expected}, got ${actual}`);
   }
 }
+for (const [packagePath, expected] of Object.entries(expectedSecurityPackages)) {
+  if (packagePath === 'node_modules/fast-uri') {
+    const actual = lock.packages?.[packagePath];
+    assertSecurityPackage(packagePath, actual, expected);
+    continue;
+  }
+  const matches = Object.entries(lock.packages)
+    .filter(([candidatePath, metadata]) => (
+      candidatePath.endsWith('node_modules/brace-expansion')
+      && metadata.version.split('.')[0] === expected.version.split('.')[0]
+    ));
+  if (matches.length === 0) {
+    throw new Error(`CloudCLI build lock must include ${packagePath}`);
+  }
+  for (const [candidatePath, actual] of matches) {
+    assertSecurityPackage(candidatePath, actual, expected);
+  }
+}
 if (lockSource.includes('registry.npmmirror.com')) {
   throw new Error('CloudCLI build lock must use registry.npmjs.org URLs');
 }
 
 console.log(`CloudCLI build lock verified: ${actualLockSha256}`);
+
+function assertSecurityPackage(packagePath, actual, expected) {
+  if (actual?.version !== expected.version || actual?.integrity !== expected.integrity) {
+    throw new Error(
+      `CloudCLI build lock ${packagePath} drift: expected ${expected.version} ${expected.integrity}, got ${actual?.version ?? 'missing'} ${actual?.integrity ?? 'missing'}`,
+    );
+  }
+}

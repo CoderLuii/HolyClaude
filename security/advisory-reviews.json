@@ -3,6 +3,520 @@
   "policy": "security/advisory-review-policy.md",
   "reviews": [
     {
+      "id": "v164-chromium-fixed-cve-2026-102299-high",
+      "vulnerabilities": ["CVE-2026-102299"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102299"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102299 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102301-high",
+      "vulnerabilities": ["CVE-2026-102301"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102301"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102301 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102302-high",
+      "vulnerabilities": ["CVE-2026-102302"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102302"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102302 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102317-high",
+      "vulnerabilities": ["CVE-2026-102317"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102317"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102317 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102321-high",
+      "vulnerabilities": ["CVE-2026-102321"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102321"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102321 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102323-high",
+      "vulnerabilities": ["CVE-2026-102323"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102323"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102323 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102324-high",
+      "vulnerabilities": ["CVE-2026-102324"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102324"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102324 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102326-high",
+      "vulnerabilities": ["CVE-2026-102326"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102326"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102326 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102327-high",
+      "vulnerabilities": ["CVE-2026-102327"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102327"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102327 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102328-high",
+      "vulnerabilities": ["CVE-2026-102328"],
+      "component": {
+        "names": ["chromium", "chromium-common", "chromium-sandbox"],
+        "versions": ["154.0.8037.92-1~deb12u1"],
+        "types": ["deb"],
+        "locationPatterns": ["^/usr/share/doc/chromium-common/copyright$", "^/usr/share/doc/chromium-sandbox/copyright$", "^/usr/share/doc/chromium/copyright$", "^/var/lib/dpkg/info/chromium-common\\.list$", "^/var/lib/dpkg/info/chromium-common\\.md5sums$", "^/var/lib/dpkg/info/chromium-common\\.shlibs$", "^/var/lib/dpkg/info/chromium-common\\.triggers$", "^/var/lib/dpkg/info/chromium-sandbox\\.list$", "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.conffiles$", "^/var/lib/dpkg/info/chromium\\.list$", "^/var/lib/dpkg/info/chromium\\.md5sums$", "^/var/lib/dpkg/info/chromium\\.postinst$", "^/var/lib/dpkg/info/chromium\\.prerm$", "^/var/lib/dpkg/status$"]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-102328"},
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-11-01",
+      "rationale": "The Debian Security Tracker marks chromium 154.0.8037.92-1~deb12u1 fixed for CVE-2026-102328 in Bookworm through DLA-4811-1. The candidate installs that exact source-package version as chromium, chromium-common, and chromium-sandbox; Grype's not-fixed result is stale for the exact binary packages and paths listed here.",
+      "variants": ["full", "slim"],
+      "architectures": ["amd64", "arm64"]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102304",
+      "vulnerabilities": [
+        "CVE-2026-102304"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "154.0.8037.92-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/chromium-common/copyright$",
+          "^/usr/share/doc/chromium-sandbox/copyright$",
+          "^/usr/share/doc/chromium/copyright$",
+          "^/var/lib/dpkg/info/chromium-common\\.list$",
+          "^/var/lib/dpkg/info/chromium-common\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium-common\\.shlibs$",
+          "^/var/lib/dpkg/info/chromium-common\\.triggers$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.list$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.conffiles$",
+          "^/var/lib/dpkg/info/chromium\\.list$",
+          "^/var/lib/dpkg/info/chromium\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.postinst$",
+          "^/var/lib/dpkg/info/chromium\\.prerm$",
+          "^/var/lib/dpkg/status$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-102304"
+      },
+      "reviewedAt": "2026-10-01",
+      "expiresAt": "2026-10-31",
+      "rationale": "The signed Debian acceptance and security changelog include CVE-2026-102304 in chromium 154.0.8037.92-1~deb12u1 for bookworm-security. The candidate installs that exact package version; this fixed disposition is limited to Grype's stale Debian metadata for the exact package names, version, type, paths, variants, and architectures listed here.",
+      "variants": [
+        "full",
+        "slim"
+      ],
+      "architectures": [
+        "amd64",
+        "arm64"
+      ]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102306",
+      "vulnerabilities": [
+        "CVE-2026-102306"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "154.0.8037.92-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/chromium-common/copyright$",
+          "^/usr/share/doc/chromium-sandbox/copyright$",
+          "^/usr/share/doc/chromium/copyright$",
+          "^/var/lib/dpkg/info/chromium-common\\.list$",
+          "^/var/lib/dpkg/info/chromium-common\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium-common\\.shlibs$",
+          "^/var/lib/dpkg/info/chromium-common\\.triggers$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.list$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.conffiles$",
+          "^/var/lib/dpkg/info/chromium\\.list$",
+          "^/var/lib/dpkg/info/chromium\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.postinst$",
+          "^/var/lib/dpkg/info/chromium\\.prerm$",
+          "^/var/lib/dpkg/status$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-102306"
+      },
+      "reviewedAt": "2026-10-01",
+      "expiresAt": "2026-10-31",
+      "rationale": "The signed Debian acceptance and security changelog include CVE-2026-102306 in chromium 154.0.8037.92-1~deb12u1 for bookworm-security. The candidate installs that exact package version; this fixed disposition is limited to Grype's stale Debian metadata for the exact package names, version, type, paths, variants, and architectures listed here.",
+      "variants": [
+        "full",
+        "slim"
+      ],
+      "architectures": [
+        "amd64",
+        "arm64"
+      ]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102308",
+      "vulnerabilities": [
+        "CVE-2026-102308"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "154.0.8037.92-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/chromium-common/copyright$",
+          "^/usr/share/doc/chromium-sandbox/copyright$",
+          "^/usr/share/doc/chromium/copyright$",
+          "^/var/lib/dpkg/info/chromium-common\\.list$",
+          "^/var/lib/dpkg/info/chromium-common\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium-common\\.shlibs$",
+          "^/var/lib/dpkg/info/chromium-common\\.triggers$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.list$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.conffiles$",
+          "^/var/lib/dpkg/info/chromium\\.list$",
+          "^/var/lib/dpkg/info/chromium\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.postinst$",
+          "^/var/lib/dpkg/info/chromium\\.prerm$",
+          "^/var/lib/dpkg/status$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-102308"
+      },
+      "reviewedAt": "2026-10-01",
+      "expiresAt": "2026-10-31",
+      "rationale": "The signed Debian acceptance and security changelog include CVE-2026-102308 in chromium 154.0.8037.92-1~deb12u1 for bookworm-security. The candidate installs that exact package version; this fixed disposition is limited to Grype's stale Debian metadata for the exact package names, version, type, paths, variants, and architectures listed here.",
+      "variants": [
+        "full",
+        "slim"
+      ],
+      "architectures": [
+        "amd64",
+        "arm64"
+      ]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102309",
+      "vulnerabilities": [
+        "CVE-2026-102309"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "154.0.8037.92-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/chromium-common/copyright$",
+          "^/usr/share/doc/chromium-sandbox/copyright$",
+          "^/usr/share/doc/chromium/copyright$",
+          "^/var/lib/dpkg/info/chromium-common\\.list$",
+          "^/var/lib/dpkg/info/chromium-common\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium-common\\.shlibs$",
+          "^/var/lib/dpkg/info/chromium-common\\.triggers$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.list$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.conffiles$",
+          "^/var/lib/dpkg/info/chromium\\.list$",
+          "^/var/lib/dpkg/info/chromium\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.postinst$",
+          "^/var/lib/dpkg/info/chromium\\.prerm$",
+          "^/var/lib/dpkg/status$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-102309"
+      },
+      "reviewedAt": "2026-10-01",
+      "expiresAt": "2026-10-31",
+      "rationale": "The signed Debian acceptance and security changelog include CVE-2026-102309 in chromium 154.0.8037.92-1~deb12u1 for bookworm-security. The candidate installs that exact package version; this fixed disposition is limited to Grype's stale Debian metadata for the exact package names, version, type, paths, variants, and architectures listed here.",
+      "variants": [
+        "full",
+        "slim"
+      ],
+      "architectures": [
+        "amd64",
+        "arm64"
+      ]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102316",
+      "vulnerabilities": [
+        "CVE-2026-102316"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "154.0.8037.92-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/chromium-common/copyright$",
+          "^/usr/share/doc/chromium-sandbox/copyright$",
+          "^/usr/share/doc/chromium/copyright$",
+          "^/var/lib/dpkg/info/chromium-common\\.list$",
+          "^/var/lib/dpkg/info/chromium-common\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium-common\\.shlibs$",
+          "^/var/lib/dpkg/info/chromium-common\\.triggers$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.list$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.conffiles$",
+          "^/var/lib/dpkg/info/chromium\\.list$",
+          "^/var/lib/dpkg/info/chromium\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.postinst$",
+          "^/var/lib/dpkg/info/chromium\\.prerm$",
+          "^/var/lib/dpkg/status$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-102316"
+      },
+      "reviewedAt": "2026-10-01",
+      "expiresAt": "2026-10-31",
+      "rationale": "The signed Debian acceptance and security changelog include CVE-2026-102316 in chromium 154.0.8037.92-1~deb12u1 for bookworm-security. The candidate installs that exact package version; this fixed disposition is limited to Grype's stale Debian metadata for the exact package names, version, type, paths, variants, and architectures listed here.",
+      "variants": [
+        "full",
+        "slim"
+      ],
+      "architectures": [
+        "amd64",
+        "arm64"
+      ]
+    },
+    {
+      "id": "v164-chromium-fixed-cve-2026-102331",
+      "vulnerabilities": [
+        "CVE-2026-102331"
+      ],
+      "component": {
+        "names": [
+          "chromium",
+          "chromium-common",
+          "chromium-sandbox"
+        ],
+        "versions": [
+          "154.0.8037.92-1~deb12u1"
+        ],
+        "types": [
+          "deb"
+        ],
+        "locationPatterns": [
+          "^/usr/share/doc/chromium-common/copyright$",
+          "^/usr/share/doc/chromium-sandbox/copyright$",
+          "^/usr/share/doc/chromium/copyright$",
+          "^/var/lib/dpkg/info/chromium-common\\.list$",
+          "^/var/lib/dpkg/info/chromium-common\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium-common\\.shlibs$",
+          "^/var/lib/dpkg/info/chromium-common\\.triggers$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.list$",
+          "^/var/lib/dpkg/info/chromium-sandbox\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.conffiles$",
+          "^/var/lib/dpkg/info/chromium\\.list$",
+          "^/var/lib/dpkg/info/chromium\\.md5sums$",
+          "^/var/lib/dpkg/info/chromium\\.postinst$",
+          "^/var/lib/dpkg/info/chromium\\.prerm$",
+          "^/var/lib/dpkg/status$"
+        ]
+      },
+      "disposition": "fixed",
+      "effectiveSeverity": "None",
+      "owner": "Debian Bookworm Chromium",
+      "authority": {
+        "name": "Debian Security Tracker",
+        "url": "https://security-tracker.debian.org/tracker/CVE-2026-102331"
+      },
+      "reviewedAt": "2026-10-01",
+      "expiresAt": "2026-10-31",
+      "rationale": "The signed Debian acceptance and security changelog include CVE-2026-102331 in chromium 154.0.8037.92-1~deb12u1 for bookworm-security. The candidate installs that exact package version; this fixed disposition is limited to Grype's stale Debian metadata for the exact package names, version, type, paths, variants, and architectures listed here.",
+      "variants": [
+        "full",
+        "slim"
+      ],
+      "architectures": [
+        "amd64",
+        "arm64"
+      ]
+    },
+    {
       "id": "v163-perl-cve-2026-82560-high-exception",
       "vulnerabilities": [
         "CVE-2026-82560"
@@ -398,89 +912,6 @@
       ]
     },
     {
-      "id": "v163-libexpat1-cve-2026-93990-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-93990"
-      ],
-      "component": {
-        "names": [
-          "libexpat1"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1/copyright$",
-          "^/var/lib/dpkg/info/libexpat1:amd64\\.md5sums$",
-          "^/var/lib/dpkg/info/libexpat1:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-93990"
-      },
-      "reviewedAt": "2026-09-24",
-      "expiresAt": "2026-10-01",
-      "rationale": "The September 24 maintainer direction to proceed despite unresolved upstream packages is applied narrowly to this exact affected and unfixed Bookworm runtime package tuple. This review expires on 2026-10-01, and the package remains affected and unfixed.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full",
-        "slim"
-      ],
-      "architectures": [
-        "amd64",
-        "arm64"
-      ]
-    },
-    {
-      "id": "v163-full-libexpat1-dev-cve-2026-93990-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-93990"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/info/libexpat1-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-93990"
-      },
-      "reviewedAt": "2026-09-24",
-      "expiresAt": "2026-10-01",
-      "rationale": "The September 24 maintainer direction to proceed despite unresolved upstream packages is applied narrowly to this exact affected and unfixed Bookworm Full-image development package tuple. This review expires on 2026-10-01, and the package remains affected and unfixed.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64",
-        "arm64"
-      ]
-    },
-    {
       "id": "v163-libxrender1-cve-2026-88807-high-exception",
       "vulnerabilities": [
         "CVE-2026-88807"
@@ -557,50 +988,6 @@
       "approvedBy": "CoderLuii",
       "variants": [
         "full"
-      ],
-      "architectures": [
-        "amd64",
-        "arm64"
-      ]
-    },
-    {
-      "id": "v163-redis-tools-cve-2026-92925-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-92925"
-      ],
-      "component": {
-        "names": [
-          "redis-tools"
-        ],
-        "versions": [
-          "5:7.0.15-1~deb12u9"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/redis-tools/copyright$",
-          "^/var/lib/dpkg/info/redis-tools\\.list$",
-          "^/var/lib/dpkg/info/redis-tools\\.md5sums$",
-          "^/var/lib/dpkg/info/redis-tools\\.postinst$",
-          "^/var/lib/dpkg/info/redis-tools\\.postrm$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-92925"
-      },
-      "reviewedAt": "2026-09-24",
-      "expiresAt": "2026-10-01",
-      "rationale": "The September 24 maintainer direction to proceed despite unresolved upstream packages is applied narrowly to this exact affected and unfixed Bookworm package tuple. This review expires on 2026-10-01, and the package remains affected and unfixed.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full",
-        "slim"
       ],
       "architectures": [
         "amd64",
@@ -727,8 +1114,8 @@
         "name": "Debian Security Tracker",
         "url": "https://security-tracker.debian.org/tracker/CVE-2023-45853"
       },
-      "reviewedAt": "2026-09-01",
-      "expiresAt": "2026-10-01",
+      "reviewedAt": "2026-10-02",
+      "expiresAt": "2026-10-04",
       "rationale": "Debian confirms that src:zlib does not produce the affected contrib/minizip binary packages.",
       "vexStatement": "urn:holyclaude:vex:zlib-cve-2023-45853",
       "variants": [
@@ -3955,8 +4342,7 @@
       "rationale": "Debian Bookworm does not yet provide a repository package that resolves these exact findings. HolyClaude retains the package for the documented full or common toolset, and this exact exception expires before the next release review.",
       "approvedBy": "CoderLuii",
       "variants": [
-        "full",
-        "slim"
+        "full"
       ],
       "architectures": [
         "amd64",
@@ -6261,84 +6647,6 @@
       ]
     },
     {
-      "id": "v158-full-amd64-high-exception-fbe0f7fe0229",
-      "vulnerabilities": [
-        "CVE-2026-63076"
-      ],
-      "component": {
-        "names": [
-          "libssl-dev"
-        ],
-        "versions": [
-          "3.0.20-1~deb12u2"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libssl-dev/copyright$",
-          "^/var/lib/dpkg/info/libssl-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-63076"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
-      "id": "v158-full-amd64-high-exception-c3c5ff066060",
-      "vulnerabilities": [
-        "CVE-2025-59375"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2025-59375"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
       "id": "v158-full-amd64-high-exception-9d90a2fc1905",
       "vulnerabilities": [
         "GO-2026-4981"
@@ -6992,45 +7300,6 @@
       "authority": {
         "name": "go.dev",
         "url": "https://go.dev/cl/758320"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
-      "id": "v158-full-amd64-high-exception-58f2cf273722",
-      "vulnerabilities": [
-        "CVE-2026-63072"
-      ],
-      "component": {
-        "names": [
-          "libssl-dev"
-        ],
-        "versions": [
-          "3.0.20-1~deb12u2"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libssl-dev/copyright$",
-          "^/var/lib/dpkg/info/libssl-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-63072"
       },
       "reviewedAt": "2026-09-02",
       "expiresAt": "2026-10-02",
@@ -7897,45 +8166,6 @@
       ]
     },
     {
-      "id": "v158-full-amd64-high-exception-3b85f1b609d4",
-      "vulnerabilities": [
-        "CVE-2026-54874"
-      ],
-      "component": {
-        "names": [
-          "libssl-dev"
-        ],
-        "versions": [
-          "3.0.20-1~deb12u2"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libssl-dev/copyright$",
-          "^/var/lib/dpkg/info/libssl-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-54874"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
       "id": "v158-full-amd64-high-exception-8b48d7fa5ffe",
       "vulnerabilities": [
         "GHSA-ggr8-5vv4-36mx"
@@ -7999,123 +8229,6 @@
       "authority": {
         "name": "Debian Security Tracker",
         "url": "https://security-tracker.debian.org/tracker/CVE-2026-62292"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
-      "id": "v158-full-amd64-high-exception-511f2a517fa2",
-      "vulnerabilities": [
-        "CVE-2026-45186"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-45186"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
-      "id": "v158-full-amd64-high-exception-58e430686477",
-      "vulnerabilities": [
-        "CVE-2026-66046"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-66046"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
-      "id": "v158-full-amd64-high-exception-086bcd19c8df",
-      "vulnerabilities": [
-        "CVE-2026-41080"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-41080"
       },
       "reviewedAt": "2026-09-02",
       "expiresAt": "2026-10-02",
@@ -9731,45 +9844,6 @@
       ]
     },
     {
-      "id": "v158-full-amd64-high-exception-ed3db0ddc1c4",
-      "vulnerabilities": [
-        "CVE-2026-25210"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:amd64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-25210"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-amd64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "amd64"
-      ]
-    },
-    {
       "id": "v158-full-amd64-high-exception-588b6d970917",
       "vulnerabilities": [
         "GHSA-g6cj-pr64-35w5"
@@ -11295,84 +11369,6 @@
       ]
     },
     {
-      "id": "v158-full-arm64-high-exception-3d077d3690a2",
-      "vulnerabilities": [
-        "CVE-2026-63076"
-      ],
-      "component": {
-        "names": [
-          "libssl-dev"
-        ],
-        "versions": [
-          "3.0.20-1~deb12u2"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libssl-dev/copyright$",
-          "^/var/lib/dpkg/info/libssl-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-63076"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v158-full-arm64-high-exception-ee520e1ef801",
-      "vulnerabilities": [
-        "CVE-2025-59375"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2025-59375"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
       "id": "v158-full-arm64-high-exception-8380753a6c17",
       "vulnerabilities": [
         "GO-2026-4981"
@@ -12026,45 +12022,6 @@
       "authority": {
         "name": "go.dev",
         "url": "https://go.dev/cl/758320"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v158-full-arm64-high-exception-2945813d7a70",
-      "vulnerabilities": [
-        "CVE-2026-63072"
-      ],
-      "component": {
-        "names": [
-          "libssl-dev"
-        ],
-        "versions": [
-          "3.0.20-1~deb12u2"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libssl-dev/copyright$",
-          "^/var/lib/dpkg/info/libssl-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-63072"
       },
       "reviewedAt": "2026-09-02",
       "expiresAt": "2026-10-02",
@@ -12931,45 +12888,6 @@
       ]
     },
     {
-      "id": "v158-full-arm64-high-exception-645a3b410a58",
-      "vulnerabilities": [
-        "CVE-2026-54874"
-      ],
-      "component": {
-        "names": [
-          "libssl-dev"
-        ],
-        "versions": [
-          "3.0.20-1~deb12u2"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libssl-dev/copyright$",
-          "^/var/lib/dpkg/info/libssl-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-54874"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
       "id": "v158-full-arm64-high-exception-8c97bdc8edf0",
       "vulnerabilities": [
         "GHSA-ggr8-5vv4-36mx"
@@ -13033,123 +12951,6 @@
       "authority": {
         "name": "Debian Security Tracker",
         "url": "https://security-tracker.debian.org/tracker/CVE-2026-62292"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v158-full-arm64-high-exception-3ffb75a2e30d",
-      "vulnerabilities": [
-        "CVE-2026-45186"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-45186"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v158-full-arm64-high-exception-46268bc83306",
-      "vulnerabilities": [
-        "CVE-2026-66046"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-66046"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v158-full-arm64-high-exception-806eccfb1427",
-      "vulnerabilities": [
-        "CVE-2026-41080"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-41080"
       },
       "reviewedAt": "2026-09-02",
       "expiresAt": "2026-10-02",
@@ -14752,45 +14553,6 @@
       "authority": {
         "name": "Debian Security Tracker",
         "url": "https://security-tracker.debian.org/tracker/CVE-2026-59187"
-      },
-      "reviewedAt": "2026-09-02",
-      "expiresAt": "2026-10-02",
-      "rationale": "The full-arm64 candidate contains this exact component and no compatible owning-tool update was selected for v1.5.8. The finding remains effective High and this exact exception expires before the next release review.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v158-full-arm64-high-exception-c889b5c83b7e",
-      "vulnerabilities": [
-        "CVE-2026-25210"
-      ],
-      "component": {
-        "names": [
-          "libexpat1-dev"
-        ],
-        "versions": [
-          "2.5.0-1+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libexpat1-dev/copyright$",
-          "^/var/lib/dpkg/info/libexpat1-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-25210"
       },
       "reviewedAt": "2026-09-02",
       "expiresAt": "2026-10-02",
@@ -17259,298 +17021,6 @@
       "architectures": ["amd64"]
     },
     {
-      "id": "v160-full-amd64-junie-json-smart-high-exception",
-      "vulnerabilities": ["GHSA-pq2g-wx69-c263"],
-      "component": {
-        "names": ["json-smart"],
-        "versions": ["2.5.1"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory", "url": "https://github.com/advisories/GHSA-pq2g-wx69-c263"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-codec-high-exception",
-      "vulnerabilities": ["GHSA-558v-64gr-wgg4", "GHSA-mj4r-2hfc-f8p6"],
-      "component": {
-        "names": ["netty-codec"],
-        "versions": ["4.1.118.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-codec-compression-high-exception",
-      "vulnerabilities": ["GHSA-558v-64gr-wgg4", "GHSA-mj4r-2hfc-f8p6"],
-      "component": {
-        "names": ["netty-codec-compression"],
-        "versions": ["4.2.9.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-codec-dns-high-exception",
-      "vulnerabilities": ["GHSA-cm33-6792-r9fm"],
-      "component": {
-        "names": ["netty-codec-dns"],
-        "versions": ["4.1.118.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory", "url": "https://github.com/advisories/GHSA-cm33-6792-r9fm"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-codec-http-high-exception",
-      "vulnerabilities": ["GHSA-57rv-r2g8-2cj3", "GHSA-6jqx-86gh-f27w", "GHSA-f6hv-jmp6-3vwv", "GHSA-jppx-w49h-x2qq", "GHSA-mvh2-crg5-v77c", "GHSA-pwqr-wmgm-9rr8"],
-      "component": {
-        "names": ["netty-codec-http"],
-        "versions": ["4.2.9.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-codec-http2-high-exception",
-      "vulnerabilities": ["GHSA-93wv-jw9v-4972", "GHSA-f6hv-jmp6-3vwv", "GHSA-w9fj-cfpg-grvv"],
-      "component": {
-        "names": ["netty-codec-http2"],
-        "versions": ["4.2.9.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-handler-high-exception",
-      "vulnerabilities": ["GHSA-3qp7-7mw8-wx86", "GHSA-c653-97m9-rcg9", "GHSA-x4gw-5cx5-pgmh"],
-      "component": {
-        "names": ["netty-handler"],
-        "versions": ["4.2.9.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-resolver-dns-high-exception",
-      "vulnerabilities": ["GHSA-5pvg-856g-cp85", "GHSA-676x-f7gg-47vc"],
-      "component": {
-        "names": ["netty-resolver-dns"],
-        "versions": ["4.1.118.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory database", "url": "https://github.com/advisories"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-netty-transport-classes-epoll-high-exception",
-      "vulnerabilities": ["GHSA-rwm7-x88c-3g2p"],
-      "component": {
-        "names": ["netty-transport-classes-epoll"],
-        "versions": ["4.2.9.Final"],
-        "types": ["java-archive"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "GitHub Security Advisory", "url": "https://github.com/advisories/GHSA-rwm7-x88c-3g2p"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-openjdk-cve-2026-41254-high-exception",
-      "vulnerabilities": ["CVE-2026-41254"],
-      "component": {
-        "names": ["openjdk"],
-        "versions": ["21.0.11+10-b1163.116"],
-        "types": ["binary"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/runtime/release$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "NVD", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41254"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-junie-openjdk-cve-2026-47063-high-exception",
-      "vulnerabilities": ["CVE-2026-47063"],
-      "component": {
-        "names": ["openjdk"],
-        "versions": ["21.0.11+10-b1163.116"],
-        "types": ["binary"],
-        "locationPatterns": ["^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/runtime/release$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {"name": "NVD", "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47063"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-libxml2-cve-2026-86140-high-exception",
-      "vulnerabilities": ["CVE-2026-86140"],
-      "component": {
-        "names": ["libxml2", "libxml2-dev"],
-        "versions": ["2.9.14+dfsg-1.3~deb12u6"],
-        "types": ["deb"],
-        "locationPatterns": ["^/usr/share/doc/libxml2/copyright$", "^/usr/share/doc/libxml2-dev/copyright$", "^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$", "^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$", "^/var/lib/dpkg/status$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-86140"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh full amd64 report identifies these exact Bookworm packages with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-bsdutils-cve-2026-78410-high-exception",
-      "vulnerabilities": ["CVE-2026-78410"],
-      "component": {
-        "names": ["bsdutils"],
-        "versions": ["1:2.38.1-5+deb12u3"],
-        "types": ["deb"],
-        "locationPatterns": ["^/usr/share/doc/bsdutils/copyright$", "^/var/lib/dpkg/info/bsdutils\\.list$", "^/var/lib/dpkg/info/bsdutils\\.md5sums$", "^/var/lib/dpkg/status$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh full amd64 report identifies this exact Bookworm package with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-full-amd64-util-linux-cve-2026-78410-high-exception",
-      "vulnerabilities": ["CVE-2026-78410"],
-      "component": {
-        "names": ["libblkid-dev", "libblkid1", "libfdisk1", "libmount-dev", "libmount1", "libsmartcols1", "libuuid1", "mount", "util-linux", "util-linux-extra", "uuid-dev"],
-        "versions": ["2.38.1-5+deb12u3"],
-        "types": ["deb"],
-        "locationPatterns": [
-          "^/usr/share/doc/libblkid-dev/copyright$", "^/var/lib/dpkg/info/libblkid-dev:amd64\\.md5sums$",
-          "^/usr/share/doc/libblkid1/copyright$", "^/var/lib/dpkg/info/libblkid1:amd64\\.md5sums$",
-          "^/usr/share/doc/libfdisk1/copyright$", "^/var/lib/dpkg/info/libfdisk1:amd64\\.md5sums$",
-          "^/usr/share/doc/libmount-dev/copyright$", "^/var/lib/dpkg/info/libmount-dev:amd64\\.md5sums$",
-          "^/usr/share/doc/libmount1/copyright$", "^/var/lib/dpkg/info/libmount1:amd64\\.md5sums$",
-          "^/usr/share/doc/libsmartcols1/copyright$", "^/var/lib/dpkg/info/libsmartcols1:amd64\\.md5sums$",
-          "^/usr/share/doc/libuuid1/copyright$", "^/var/lib/dpkg/info/libuuid1:amd64\\.md5sums$",
-          "^/usr/share/doc/mount/copyright$", "^/var/lib/dpkg/info/mount\\.list$", "^/var/lib/dpkg/info/mount\\.md5sums$",
-          "^/usr/share/doc/util-linux/copyright$", "^/var/lib/dpkg/info/util-linux\\.conffiles$", "^/var/lib/dpkg/info/util-linux\\.list$", "^/var/lib/dpkg/info/util-linux\\.md5sums$", "^/var/lib/dpkg/info/util-linux\\.postinst$", "^/var/lib/dpkg/info/util-linux\\.postrm$", "^/var/lib/dpkg/info/util-linux\\.prerm$",
-          "^/usr/share/doc/util-linux-extra/copyright$", "^/var/lib/dpkg/info/util-linux-extra\\.conffiles$", "^/var/lib/dpkg/info/util-linux-extra\\.list$", "^/var/lib/dpkg/info/util-linux-extra\\.md5sums$", "^/var/lib/dpkg/info/util-linux-extra\\.postinst$", "^/var/lib/dpkg/info/util-linux-extra\\.postrm$", "^/var/lib/dpkg/info/util-linux-extra\\.preinst$",
-          "^/usr/share/doc/uuid-dev/copyright$", "^/var/lib/dpkg/info/uuid-dev:amd64\\.md5sums$", "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh full amd64 report identifies these exact Bookworm packages with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["full"],
-      "architectures": ["amd64"]
-    },
-    {
       "id": "v160-slim-arm64-gh-fixed-cve-2024-52308",
       "vulnerabilities": ["CVE-2024-52308"],
       "component": {
@@ -17715,725 +17185,6 @@
       "reviewedAt": "2026-09-08", "expiresAt": "2026-10-08",
       "rationale": "The affected detached-tree X-mount.subdir hook first shipped in util-linux 2.42. Exact Bookworm 2.38.1 source contains the older subdir implementation but has no hook_subdir.c or MNT_STAGE_MOUNT_POST framework.",
       "vexStatement": "urn:holyclaude:vex:slim-arm64-bsdutils-cve-2026-78409", "variants": ["slim"], "architectures": ["arm64"]
-    },
-    {
-      "id": "v160-slim-amd64-libxml2-cve-2026-86140-high-exception",
-      "vulnerabilities": ["CVE-2026-86140"],
-      "component": {
-        "names": ["libxml2"],
-        "versions": ["2.9.14+dfsg-1.3~deb12u6"],
-        "types": ["deb"],
-        "locationPatterns": ["^/usr/share/doc/libxml2/copyright$", "^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$", "^/var/lib/dpkg/status$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-86140"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh slim amd64 report identifies this exact Bookworm package with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["slim"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-slim-amd64-bsdutils-cve-2026-78410-high-exception",
-      "vulnerabilities": ["CVE-2026-78410"],
-      "component": {
-        "names": ["bsdutils"],
-        "versions": ["1:2.38.1-5+deb12u3"],
-        "types": ["deb"],
-        "locationPatterns": ["^/usr/share/doc/bsdutils/copyright$", "^/var/lib/dpkg/info/bsdutils\\.list$", "^/var/lib/dpkg/info/bsdutils\\.md5sums$", "^/var/lib/dpkg/status$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh slim amd64 report identifies this exact Bookworm package with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["slim"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-slim-amd64-util-linux-cve-2026-78410-high-exception",
-      "vulnerabilities": ["CVE-2026-78410"],
-      "component": {
-        "names": ["libblkid1", "libfdisk1", "libmount1", "libsmartcols1", "libuuid1", "mount", "util-linux", "util-linux-extra"],
-        "versions": ["2.38.1-5+deb12u3"],
-        "types": ["deb"],
-        "locationPatterns": [
-          "^/usr/share/doc/libblkid1/copyright$", "^/var/lib/dpkg/info/libblkid1:amd64\\.md5sums$",
-          "^/usr/share/doc/libfdisk1/copyright$", "^/var/lib/dpkg/info/libfdisk1:amd64\\.md5sums$",
-          "^/usr/share/doc/libmount1/copyright$", "^/var/lib/dpkg/info/libmount1:amd64\\.md5sums$",
-          "^/usr/share/doc/libsmartcols1/copyright$", "^/var/lib/dpkg/info/libsmartcols1:amd64\\.md5sums$",
-          "^/usr/share/doc/libuuid1/copyright$", "^/var/lib/dpkg/info/libuuid1:amd64\\.md5sums$",
-          "^/usr/share/doc/mount/copyright$", "^/var/lib/dpkg/info/mount\\.list$", "^/var/lib/dpkg/info/mount\\.md5sums$",
-          "^/usr/share/doc/util-linux/copyright$", "^/var/lib/dpkg/info/util-linux\\.conffiles$", "^/var/lib/dpkg/info/util-linux\\.list$", "^/var/lib/dpkg/info/util-linux\\.md5sums$", "^/var/lib/dpkg/info/util-linux\\.postinst$", "^/var/lib/dpkg/info/util-linux\\.postrm$", "^/var/lib/dpkg/info/util-linux\\.prerm$",
-          "^/usr/share/doc/util-linux-extra/copyright$", "^/var/lib/dpkg/info/util-linux-extra\\.conffiles$", "^/var/lib/dpkg/info/util-linux-extra\\.list$", "^/var/lib/dpkg/info/util-linux-extra\\.md5sums$", "^/var/lib/dpkg/info/util-linux-extra\\.postinst$", "^/var/lib/dpkg/info/util-linux-extra\\.postrm$", "^/var/lib/dpkg/info/util-linux-extra\\.preinst$", "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh slim amd64 report identifies these exact Bookworm packages with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["slim"],
-      "architectures": ["amd64"]
-    },
-    {
-      "id": "v160-slim-arm64-libxml2-cve-2026-86140-high-exception",
-      "vulnerabilities": ["CVE-2026-86140"],
-      "component": {
-        "names": ["libxml2"],
-        "versions": ["2.9.14+dfsg-1.3~deb12u6"],
-        "types": ["deb"],
-        "locationPatterns": ["^/usr/share/doc/libxml2/copyright$", "^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$", "^/var/lib/dpkg/status$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-86140"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh slim arm64 report identifies this exact Bookworm package with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["slim"],
-      "architectures": ["arm64"]
-    },
-    {
-      "id": "v160-slim-arm64-bsdutils-cve-2026-78410-high-exception",
-      "vulnerabilities": ["CVE-2026-78410"],
-      "component": {
-        "names": ["bsdutils"],
-        "versions": ["1:2.38.1-5+deb12u3"],
-        "types": ["deb"],
-        "locationPatterns": ["^/usr/share/doc/bsdutils/copyright$", "^/var/lib/dpkg/info/bsdutils\\.list$", "^/var/lib/dpkg/info/bsdutils\\.md5sums$", "^/var/lib/dpkg/status$"]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh slim arm64 report identifies this exact Bookworm package with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["slim"],
-      "architectures": ["arm64"]
-    },
-    {
-      "id": "v160-slim-arm64-util-linux-cve-2026-78410-high-exception",
-      "vulnerabilities": ["CVE-2026-78410"],
-      "component": {
-        "names": ["libblkid1", "libfdisk1", "libmount1", "libsmartcols1", "libuuid1", "mount", "util-linux", "util-linux-extra"],
-        "versions": ["2.38.1-5+deb12u3"],
-        "types": ["deb"],
-        "locationPatterns": [
-          "^/usr/share/doc/libblkid1/copyright$", "^/var/lib/dpkg/info/libblkid1:arm64\\.md5sums$",
-          "^/usr/share/doc/libfdisk1/copyright$", "^/var/lib/dpkg/info/libfdisk1:arm64\\.md5sums$",
-          "^/usr/share/doc/libmount1/copyright$", "^/var/lib/dpkg/info/libmount1:arm64\\.md5sums$",
-          "^/usr/share/doc/libsmartcols1/copyright$", "^/var/lib/dpkg/info/libsmartcols1:arm64\\.md5sums$",
-          "^/usr/share/doc/libuuid1/copyright$", "^/var/lib/dpkg/info/libuuid1:arm64\\.md5sums$",
-          "^/usr/share/doc/mount/copyright$", "^/var/lib/dpkg/info/mount\\.list$", "^/var/lib/dpkg/info/mount\\.md5sums$",
-          "^/usr/share/doc/util-linux/copyright$", "^/var/lib/dpkg/info/util-linux\\.conffiles$", "^/var/lib/dpkg/info/util-linux\\.list$", "^/var/lib/dpkg/info/util-linux\\.md5sums$", "^/var/lib/dpkg/info/util-linux\\.postinst$", "^/var/lib/dpkg/info/util-linux\\.postrm$", "^/var/lib/dpkg/info/util-linux\\.prerm$",
-          "^/usr/share/doc/util-linux-extra/copyright$", "^/var/lib/dpkg/info/util-linux-extra\\.conffiles$", "^/var/lib/dpkg/info/util-linux-extra\\.list$", "^/var/lib/dpkg/info/util-linux-extra\\.md5sums$", "^/var/lib/dpkg/info/util-linux-extra\\.postinst$", "^/var/lib/dpkg/info/util-linux-extra\\.postrm$", "^/var/lib/dpkg/info/util-linux-extra\\.preinst$", "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {"name": "Debian Security Tracker", "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"},
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh slim arm64 report identifies these exact Bookworm packages with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": ["slim"],
-      "architectures": ["arm64"]
-    },
-    {
-      "id": "v160-full-arm64-junie-json-smart-high-exception",
-      "vulnerabilities": [
-        "GHSA-pq2g-wx69-c263"
-      ],
-      "component": {
-        "names": [
-          "json-smart"
-        ],
-        "versions": [
-          "2.5.1"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory",
-        "url": "https://github.com/advisories/GHSA-pq2g-wx69-c263"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-codec-high-exception",
-      "vulnerabilities": [
-        "GHSA-558v-64gr-wgg4",
-        "GHSA-mj4r-2hfc-f8p6"
-      ],
-      "component": {
-        "names": [
-          "netty-codec"
-        ],
-        "versions": [
-          "4.1.118.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory database",
-        "url": "https://github.com/advisories"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-codec-compression-high-exception",
-      "vulnerabilities": [
-        "GHSA-558v-64gr-wgg4",
-        "GHSA-mj4r-2hfc-f8p6"
-      ],
-      "component": {
-        "names": [
-          "netty-codec-compression"
-        ],
-        "versions": [
-          "4.2.9.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory database",
-        "url": "https://github.com/advisories"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-codec-dns-high-exception",
-      "vulnerabilities": [
-        "GHSA-cm33-6792-r9fm"
-      ],
-      "component": {
-        "names": [
-          "netty-codec-dns"
-        ],
-        "versions": [
-          "4.1.118.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory",
-        "url": "https://github.com/advisories/GHSA-cm33-6792-r9fm"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-codec-http-high-exception",
-      "vulnerabilities": [
-        "GHSA-57rv-r2g8-2cj3",
-        "GHSA-6jqx-86gh-f27w",
-        "GHSA-f6hv-jmp6-3vwv",
-        "GHSA-jppx-w49h-x2qq",
-        "GHSA-mvh2-crg5-v77c",
-        "GHSA-pwqr-wmgm-9rr8"
-      ],
-      "component": {
-        "names": [
-          "netty-codec-http"
-        ],
-        "versions": [
-          "4.2.9.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory database",
-        "url": "https://github.com/advisories"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-codec-http2-high-exception",
-      "vulnerabilities": [
-        "GHSA-93wv-jw9v-4972",
-        "GHSA-f6hv-jmp6-3vwv",
-        "GHSA-w9fj-cfpg-grvv"
-      ],
-      "component": {
-        "names": [
-          "netty-codec-http2"
-        ],
-        "versions": [
-          "4.2.9.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory database",
-        "url": "https://github.com/advisories"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-handler-high-exception",
-      "vulnerabilities": [
-        "GHSA-3qp7-7mw8-wx86",
-        "GHSA-c653-97m9-rcg9",
-        "GHSA-x4gw-5cx5-pgmh"
-      ],
-      "component": {
-        "names": [
-          "netty-handler"
-        ],
-        "versions": [
-          "4.2.9.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory database",
-        "url": "https://github.com/advisories"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-resolver-dns-high-exception",
-      "vulnerabilities": [
-        "GHSA-5pvg-856g-cp85",
-        "GHSA-676x-f7gg-47vc"
-      ],
-      "component": {
-        "names": [
-          "netty-resolver-dns"
-        ],
-        "versions": [
-          "4.1.118.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory database",
-        "url": "https://github.com/advisories"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the findings remain effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-netty-transport-classes-epoll-high-exception",
-      "vulnerabilities": [
-        "GHSA-rwm7-x88c-3g2p"
-      ],
-      "component": {
-        "names": [
-          "netty-transport-classes-epoll"
-        ],
-        "versions": [
-          "4.2.9.Final"
-        ],
-        "types": [
-          "java-archive"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "GitHub Security Advisory",
-        "url": "https://github.com/advisories/GHSA-rwm7-x88c-3g2p"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact embeds this exact dependency. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-openjdk-cve-2026-41254-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-41254"
-      ],
-      "component": {
-        "names": [
-          "openjdk"
-        ],
-        "versions": [
-          "21.0.11+10-b1163.116"
-        ],
-        "types": [
-          "binary"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/runtime/release$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "NVD",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41254"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-junie-openjdk-cve-2026-47063-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-47063"
-      ],
-      "component": {
-        "names": [
-          "openjdk"
-        ],
-        "versions": [
-          "21.0.11+10-b1163.116"
-        ],
-        "types": [
-          "binary"
-        ],
-        "locationPatterns": [
-          "^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/runtime/release$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Junie CLI",
-      "authority": {
-        "name": "NVD",
-        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-47063"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The official stable Junie CLI 3196.5 artifact ships this exact runtime. The maintainer approved preserving the current Junie tool and behavior through 2026-09-25 while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-libxml2-cve-2026-86140-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-86140"
-      ],
-      "component": {
-        "names": [
-          "libxml2",
-          "libxml2-dev"
-        ],
-        "versions": [
-          "2.9.14+dfsg-1.3~deb12u6"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libxml2/copyright$",
-          "^/usr/share/doc/libxml2-dev/copyright$",
-          "^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-86140"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh full arm64 report identifies these exact Bookworm packages with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-bsdutils-cve-2026-78410-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-78410"
-      ],
-      "component": {
-        "names": [
-          "bsdutils"
-        ],
-        "versions": [
-          "1:2.38.1-5+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/bsdutils/copyright$",
-          "^/var/lib/dpkg/info/bsdutils\\.list$",
-          "^/var/lib/dpkg/info/bsdutils\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh full arm64 report identifies this exact Bookworm package with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
-    },
-    {
-      "id": "v160-full-arm64-util-linux-cve-2026-78410-high-exception",
-      "vulnerabilities": [
-        "CVE-2026-78410"
-      ],
-      "component": {
-        "names": [
-          "libblkid-dev",
-          "libblkid1",
-          "libfdisk1",
-          "libmount-dev",
-          "libmount1",
-          "libsmartcols1",
-          "libuuid1",
-          "mount",
-          "util-linux",
-          "util-linux-extra",
-          "uuid-dev"
-        ],
-        "versions": [
-          "2.38.1-5+deb12u3"
-        ],
-        "types": [
-          "deb"
-        ],
-        "locationPatterns": [
-          "^/usr/share/doc/libblkid-dev/copyright$",
-          "^/var/lib/dpkg/info/libblkid-dev:arm64\\.md5sums$",
-          "^/usr/share/doc/libblkid1/copyright$",
-          "^/var/lib/dpkg/info/libblkid1:arm64\\.md5sums$",
-          "^/usr/share/doc/libfdisk1/copyright$",
-          "^/var/lib/dpkg/info/libfdisk1:arm64\\.md5sums$",
-          "^/usr/share/doc/libmount-dev/copyright$",
-          "^/var/lib/dpkg/info/libmount-dev:arm64\\.md5sums$",
-          "^/usr/share/doc/libmount1/copyright$",
-          "^/var/lib/dpkg/info/libmount1:arm64\\.md5sums$",
-          "^/usr/share/doc/libsmartcols1/copyright$",
-          "^/var/lib/dpkg/info/libsmartcols1:arm64\\.md5sums$",
-          "^/usr/share/doc/libuuid1/copyright$",
-          "^/var/lib/dpkg/info/libuuid1:arm64\\.md5sums$",
-          "^/usr/share/doc/mount/copyright$",
-          "^/var/lib/dpkg/info/mount\\.list$",
-          "^/var/lib/dpkg/info/mount\\.md5sums$",
-          "^/usr/share/doc/util-linux/copyright$",
-          "^/var/lib/dpkg/info/util-linux\\.conffiles$",
-          "^/var/lib/dpkg/info/util-linux\\.list$",
-          "^/var/lib/dpkg/info/util-linux\\.md5sums$",
-          "^/var/lib/dpkg/info/util-linux\\.postinst$",
-          "^/var/lib/dpkg/info/util-linux\\.postrm$",
-          "^/var/lib/dpkg/info/util-linux\\.prerm$",
-          "^/usr/share/doc/util-linux-extra/copyright$",
-          "^/var/lib/dpkg/info/util-linux-extra\\.conffiles$",
-          "^/var/lib/dpkg/info/util-linux-extra\\.list$",
-          "^/var/lib/dpkg/info/util-linux-extra\\.md5sums$",
-          "^/var/lib/dpkg/info/util-linux-extra\\.postinst$",
-          "^/var/lib/dpkg/info/util-linux-extra\\.postrm$",
-          "^/var/lib/dpkg/info/util-linux-extra\\.preinst$",
-          "^/usr/share/doc/uuid-dev/copyright$",
-          "^/var/lib/dpkg/info/uuid-dev:arm64\\.md5sums$",
-          "^/var/lib/dpkg/status$"
-        ]
-      },
-      "disposition": "high_exception",
-      "effectiveSeverity": "High",
-      "owner": "Debian Bookworm base",
-      "authority": {
-        "name": "Debian Security Tracker",
-        "url": "https://security-tracker.debian.org/tracker/CVE-2026-78410"
-      },
-      "reviewedAt": "2026-09-18",
-      "expiresAt": "2026-09-25",
-      "rationale": "The fresh full arm64 report identifies these exact Bookworm packages with no fixed repository version. The maintainer approved preserving the current tools and behavior for seven days while the finding remains effective High.",
-      "approvedBy": "CoderLuii",
-      "variants": [
-        "full"
-      ],
-      "architectures": [
-        "arm64"
-      ]
     },
     {
       "id": "v160-full-arm64-gh-fixed-cve-2024-52308",
@@ -19159,7 +17910,7 @@
         "arm64"
       ]
     },
-          {
+    {
     "id": "v160-full-amd64-curl-upstream-cve-2026-13608",
     "vulnerabilities": [
       "CVE-2026-13608"
@@ -19208,7 +17959,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-full-amd64-curl-upstream-cve-2026-18924",
     "vulnerabilities": [
       "CVE-2026-18924"
@@ -19257,7 +18008,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-full-amd64-curl-upstream-cve-2026-19931",
     "vulnerabilities": [
       "CVE-2026-19931"
@@ -19306,7 +18057,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-full-amd64-curl-upstream-cve-2026-80230",
     "vulnerabilities": [
       "CVE-2026-80230"
@@ -19355,7 +18106,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-full-amd64-curl-upstream-cve-2026-82209",
     "vulnerabilities": [
       "CVE-2026-82209"
@@ -19404,87 +18155,7 @@
       "amd64"
     ]
   },
-  {
-    "id": "v160-full-amd64-bubblewrap-cve-2026-87766-high-exception",
-    "vulnerabilities": [
-      "CVE-2026-87766"
-    ],
-    "component": {
-      "names": [
-        "bubblewrap"
-      ],
-      "versions": [
-        "0.8.0-2+deb12u1"
-      ],
-      "types": [
-        "deb"
-      ],
-      "locationPatterns": [
-        "^/usr/share/doc/bubblewrap/copyright$",
-        "^/var/lib/dpkg/info/bubblewrap\\.list$",
-        "^/var/lib/dpkg/info/bubblewrap\\.md5sums$",
-        "^/var/lib/dpkg/info/bubblewrap\\.postinst$",
-        "^/var/lib/dpkg/status$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "Debian Bookworm bubblewrap",
-    "authority": {
-      "name": "bubblewrap upstream advisory",
-      "url": "https://github.com/containers/bubblewrap/security/advisories/GHSA-pxhw-h44j-8pfx"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "Upstream classifies CVE-2026-87766 as High and Debian Bookworm 0.8.0-2+deb12u1 remains affected without a fixed package. CoderLuii approved this exact full amd64 tuple through 2026-09-25; it is not harmless or fixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "full"
-    ],
-    "architectures": [
-      "amd64"
-    ]
-  },
-  {
-    "id": "v160-full-amd64-extract-zip-ghsa-7pqw-9j4j-h8q3-high-exception",
-    "vulnerabilities": [
-      "GHSA-7pqw-9j4j-h8q3"
-    ],
-    "component": {
-      "names": [
-        "extract-zip"
-      ],
-      "versions": [
-        "2.0.1"
-      ],
-      "types": [
-        "npm"
-      ],
-      "locationPatterns": [
-        "^/usr/local/lib/node_modules/@lhci/cli/node_modules/extract-zip/package\\.json$",
-        "^/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/extract-zip/package\\.json$",
-        "^/usr/local/lib/node_modules/task-master-ai/node_modules/extract-zip/package\\.json$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "HolyClaude bundled extract-zip",
-    "authority": {
-      "name": "GitHub Advisory Database",
-      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "extract-zip 2.0.1 remains affected by GHSA-7pqw-9j4j-h8q3 and no official fixed release exists. CoderLuii approved only the exact installed full amd64 owner paths through 2026-09-25; the package remains affected and unfixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "full"
-    ],
-    "architectures": [
-      "amd64"
-    ]
-  },
-          {
+    {
     "id": "v160-full-arm64-curl-upstream-cve-2026-13608",
     "vulnerabilities": [
       "CVE-2026-13608"
@@ -19533,7 +18204,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-full-arm64-curl-upstream-cve-2026-18924",
     "vulnerabilities": [
       "CVE-2026-18924"
@@ -19582,7 +18253,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-full-arm64-curl-upstream-cve-2026-19931",
     "vulnerabilities": [
       "CVE-2026-19931"
@@ -19631,7 +18302,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-full-arm64-curl-upstream-cve-2026-80230",
     "vulnerabilities": [
       "CVE-2026-80230"
@@ -19680,7 +18351,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-full-arm64-curl-upstream-cve-2026-82209",
     "vulnerabilities": [
       "CVE-2026-82209"
@@ -19729,87 +18400,7 @@
       "arm64"
     ]
   },
-  {
-    "id": "v160-full-arm64-bubblewrap-cve-2026-87766-high-exception",
-    "vulnerabilities": [
-      "CVE-2026-87766"
-    ],
-    "component": {
-      "names": [
-        "bubblewrap"
-      ],
-      "versions": [
-        "0.8.0-2+deb12u1"
-      ],
-      "types": [
-        "deb"
-      ],
-      "locationPatterns": [
-        "^/usr/share/doc/bubblewrap/copyright$",
-        "^/var/lib/dpkg/info/bubblewrap\\.list$",
-        "^/var/lib/dpkg/info/bubblewrap\\.md5sums$",
-        "^/var/lib/dpkg/info/bubblewrap\\.postinst$",
-        "^/var/lib/dpkg/status$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "Debian Bookworm bubblewrap",
-    "authority": {
-      "name": "bubblewrap upstream advisory",
-      "url": "https://github.com/containers/bubblewrap/security/advisories/GHSA-pxhw-h44j-8pfx"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "Upstream classifies CVE-2026-87766 as High and Debian Bookworm 0.8.0-2+deb12u1 remains affected without a fixed package. CoderLuii approved this exact full arm64 tuple through 2026-09-25; it is not harmless or fixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "full"
-    ],
-    "architectures": [
-      "arm64"
-    ]
-  },
-  {
-    "id": "v160-full-arm64-extract-zip-ghsa-7pqw-9j4j-h8q3-high-exception",
-    "vulnerabilities": [
-      "GHSA-7pqw-9j4j-h8q3"
-    ],
-    "component": {
-      "names": [
-        "extract-zip"
-      ],
-      "versions": [
-        "2.0.1"
-      ],
-      "types": [
-        "npm"
-      ],
-      "locationPatterns": [
-        "^/usr/local/lib/node_modules/@lhci/cli/node_modules/extract-zip/package\\.json$",
-        "^/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/extract-zip/package\\.json$",
-        "^/usr/local/lib/node_modules/task-master-ai/node_modules/extract-zip/package\\.json$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "HolyClaude bundled extract-zip",
-    "authority": {
-      "name": "GitHub Advisory Database",
-      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "extract-zip 2.0.1 remains affected by GHSA-7pqw-9j4j-h8q3 and no official fixed release exists. CoderLuii approved only the exact installed full arm64 owner paths through 2026-09-25; the package remains affected and unfixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "full"
-    ],
-    "architectures": [
-      "arm64"
-    ]
-  },
-          {
+    {
     "id": "v160-slim-amd64-curl-upstream-cve-2026-13608",
     "vulnerabilities": [
       "CVE-2026-13608"
@@ -19855,7 +18446,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-slim-amd64-curl-upstream-cve-2026-18924",
     "vulnerabilities": [
       "CVE-2026-18924"
@@ -19901,7 +18492,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-slim-amd64-curl-upstream-cve-2026-19931",
     "vulnerabilities": [
       "CVE-2026-19931"
@@ -19947,7 +18538,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-slim-amd64-curl-upstream-cve-2026-80230",
     "vulnerabilities": [
       "CVE-2026-80230"
@@ -19993,7 +18584,7 @@
       "amd64"
     ]
   },
-  {
+    {
     "id": "v160-slim-amd64-curl-upstream-cve-2026-82209",
     "vulnerabilities": [
       "CVE-2026-82209"
@@ -20039,85 +18630,7 @@
       "amd64"
     ]
   },
-  {
-    "id": "v160-slim-amd64-bubblewrap-cve-2026-87766-high-exception",
-    "vulnerabilities": [
-      "CVE-2026-87766"
-    ],
-    "component": {
-      "names": [
-        "bubblewrap"
-      ],
-      "versions": [
-        "0.8.0-2+deb12u1"
-      ],
-      "types": [
-        "deb"
-      ],
-      "locationPatterns": [
-        "^/usr/share/doc/bubblewrap/copyright$",
-        "^/var/lib/dpkg/info/bubblewrap\\.list$",
-        "^/var/lib/dpkg/info/bubblewrap\\.md5sums$",
-        "^/var/lib/dpkg/info/bubblewrap\\.postinst$",
-        "^/var/lib/dpkg/status$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "Debian Bookworm bubblewrap",
-    "authority": {
-      "name": "bubblewrap upstream advisory",
-      "url": "https://github.com/containers/bubblewrap/security/advisories/GHSA-pxhw-h44j-8pfx"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "Upstream classifies CVE-2026-87766 as High and Debian Bookworm 0.8.0-2+deb12u1 remains affected without a fixed package. CoderLuii approved this exact slim amd64 tuple through 2026-09-25; it is not harmless or fixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "slim"
-    ],
-    "architectures": [
-      "amd64"
-    ]
-  },
-  {
-    "id": "v160-slim-amd64-extract-zip-ghsa-7pqw-9j4j-h8q3-high-exception",
-    "vulnerabilities": [
-      "GHSA-7pqw-9j4j-h8q3"
-    ],
-    "component": {
-      "names": [
-        "extract-zip"
-      ],
-      "versions": [
-        "2.0.1"
-      ],
-      "types": [
-        "npm"
-      ],
-      "locationPatterns": [
-        "^/usr/local/lib/node_modules/task-master-ai/node_modules/extract-zip/package\\.json$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "HolyClaude bundled extract-zip",
-    "authority": {
-      "name": "GitHub Advisory Database",
-      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "extract-zip 2.0.1 remains affected by GHSA-7pqw-9j4j-h8q3 and no official fixed release exists. CoderLuii approved only the exact installed slim amd64 owner paths through 2026-09-25; the package remains affected and unfixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "slim"
-    ],
-    "architectures": [
-      "amd64"
-    ]
-  },
-          {
+    {
     "id": "v160-slim-arm64-curl-upstream-cve-2026-13608",
     "vulnerabilities": [
       "CVE-2026-13608"
@@ -20163,7 +18676,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-slim-arm64-curl-upstream-cve-2026-18924",
     "vulnerabilities": [
       "CVE-2026-18924"
@@ -20209,7 +18722,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-slim-arm64-curl-upstream-cve-2026-19931",
     "vulnerabilities": [
       "CVE-2026-19931"
@@ -20255,7 +18768,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-slim-arm64-curl-upstream-cve-2026-80230",
     "vulnerabilities": [
       "CVE-2026-80230"
@@ -20301,7 +18814,7 @@
       "arm64"
     ]
   },
-  {
+    {
     "id": "v160-slim-arm64-curl-upstream-cve-2026-82209",
     "vulnerabilities": [
       "CVE-2026-82209"
@@ -20347,86 +18860,7 @@
       "arm64"
     ]
   },
-  {
-    "id": "v160-slim-arm64-bubblewrap-cve-2026-87766-high-exception",
-    "vulnerabilities": [
-      "CVE-2026-87766"
-    ],
-    "component": {
-      "names": [
-        "bubblewrap"
-      ],
-      "versions": [
-        "0.8.0-2+deb12u1"
-      ],
-      "types": [
-        "deb"
-      ],
-      "locationPatterns": [
-        "^/usr/share/doc/bubblewrap/copyright$",
-        "^/var/lib/dpkg/info/bubblewrap\\.list$",
-        "^/var/lib/dpkg/info/bubblewrap\\.md5sums$",
-        "^/var/lib/dpkg/info/bubblewrap\\.postinst$",
-        "^/var/lib/dpkg/status$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "Debian Bookworm bubblewrap",
-    "authority": {
-      "name": "bubblewrap upstream advisory",
-      "url": "https://github.com/containers/bubblewrap/security/advisories/GHSA-pxhw-h44j-8pfx"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "Upstream classifies CVE-2026-87766 as High and Debian Bookworm 0.8.0-2+deb12u1 remains affected without a fixed package. CoderLuii approved this exact slim arm64 tuple through 2026-09-25; it is not harmless or fixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "slim"
-    ],
-    "architectures": [
-      "arm64"
-    ]
-  },
-  {
-    "id": "v160-slim-arm64-extract-zip-ghsa-7pqw-9j4j-h8q3-high-exception",
-    "vulnerabilities": [
-      "GHSA-7pqw-9j4j-h8q3"
-    ],
-    "component": {
-      "names": [
-        "extract-zip"
-      ],
-      "versions": [
-        "2.0.1"
-      ],
-      "types": [
-        "npm"
-      ],
-      "locationPatterns": [
-        "^/usr/local/lib/node_modules/task-master-ai/node_modules/extract-zip/package\\.json$"
-      ]
-    },
-    "disposition": "high_exception",
-    "effectiveSeverity": "High",
-    "owner": "HolyClaude bundled extract-zip",
-    "authority": {
-      "name": "GitHub Advisory Database",
-      "url": "https://github.com/advisories/GHSA-7pqw-9j4j-h8q3"
-    },
-    "reviewedAt": "2026-09-18",
-    "expiresAt": "2026-09-25",
-    "rationale": "extract-zip 2.0.1 remains affected by GHSA-7pqw-9j4j-h8q3 and no official fixed release exists. CoderLuii approved only the exact installed slim arm64 owner paths through 2026-09-25; the package remains affected and unfixed.",
-    "approvedBy": "CoderLuii",
-    "variants": [
-      "slim"
-    ],
-    "architectures": [
-      "arm64"
-    ]
-  }
-  ,
-  {
+    {
     "id": "v160-full-amd64-imagemagick-upstream-cve-2026-86420",
     "vulnerabilities": ["CVE-2026-86420"],
     "component": {
@@ -20500,7 +18934,7 @@
     "variants": ["full"],
     "architectures": ["amd64"]
   },
-  {
+    {
     "id": "v160-full-amd64-imagemagick-upstream-cve-2026-86421",
     "vulnerabilities": ["CVE-2026-86421"],
     "component": {
@@ -20574,7 +19008,7 @@
     "variants": ["full"],
     "architectures": ["amd64"]
   },
-  {
+    {
     "id": "v160-full-arm64-imagemagick-upstream-cve-2026-86420",
     "vulnerabilities": ["CVE-2026-86420"],
     "component": {
@@ -20648,7 +19082,7 @@
     "variants": ["full"],
     "architectures": ["arm64"]
   },
-  {
+    {
     "id": "v160-full-arm64-imagemagick-upstream-cve-2026-86421",
     "vulnerabilities": ["CVE-2026-86421"],
     "component": {
@@ -20722,7 +19156,7 @@
     "variants": ["full"],
     "architectures": ["arm64"]
   },
-  {
+    {
     "id": "v160-slim-amd64-imagemagick-upstream-cve-2026-86420",
     "vulnerabilities": ["CVE-2026-86420"],
     "component": {
@@ -20764,7 +19198,7 @@
     "variants": ["slim"],
     "architectures": ["amd64"]
   },
-  {
+    {
     "id": "v160-slim-amd64-imagemagick-upstream-cve-2026-86421",
     "vulnerabilities": ["CVE-2026-86421"],
     "component": {
@@ -20806,7 +19240,7 @@
     "variants": ["slim"],
     "architectures": ["amd64"]
   },
-  {
+    {
     "id": "v160-slim-arm64-imagemagick-upstream-cve-2026-86420",
     "vulnerabilities": ["CVE-2026-86420"],
     "component": {
@@ -20848,7 +19282,7 @@
     "variants": ["slim"],
     "architectures": ["arm64"]
   },
-  {
+    {
     "id": "v160-slim-arm64-imagemagick-upstream-cve-2026-86421",
     "vulnerabilities": ["CVE-2026-86421"],
     "component": {
@@ -20890,7 +19324,7 @@
     "variants": ["slim"],
     "architectures": ["arm64"]
   },
-  {
+    {
     "id": "v160-full-amd64-libxml2-cve-2026-74860-python-binding-not-affected",
     "vulnerabilities": ["CVE-2026-74860"],
     "component": {
@@ -20917,7 +19351,7 @@
     "architectures": ["amd64"],
     "vexStatement": "urn:holyclaude:vex:full-amd64-libxml2-cve-2026-74860-python-binding"
   },
-  {
+    {
     "id": "v160-full-arm64-libxml2-cve-2026-74860-python-binding-not-affected",
     "vulnerabilities": ["CVE-2026-74860"],
     "component": {
@@ -20944,7 +19378,7 @@
     "architectures": ["arm64"],
     "vexStatement": "urn:holyclaude:vex:full-arm64-libxml2-cve-2026-74860-python-binding"
   },
-  {
+    {
     "id": "v160-slim-amd64-libxml2-cve-2026-74860-python-binding-not-affected",
     "vulnerabilities": ["CVE-2026-74860"],
     "component": {
@@ -20969,7 +19403,7 @@
     "architectures": ["amd64"],
     "vexStatement": "urn:holyclaude:vex:slim-amd64-libxml2-cve-2026-74860-python-binding"
   },
-  {
+    {
     "id": "v160-slim-arm64-libxml2-cve-2026-74860-python-binding-not-affected",
     "vulnerabilities": ["CVE-2026-74860"],
     "component": {
@@ -23519,17 +21953,6 @@
     {"id":"v162-libevent-cve-2026-63384-fixed","vulnerabilities":["CVE-2026-63384"],"component":{"names":["libevent-core-2.1-7"],"versions":["2.1.12-stable-8+deb12u1"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libevent-core-2\\.1-7/copyright$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:amd64\\.md5sums$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"fixed","effectiveSeverity":"None","owner":"Debian Bookworm security","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-63384"},"reviewedAt":"2026-09-18","expiresAt":"2026-10-18","rationale":"The signed Debian security changelog for 2.1.12-stable-8+deb12u1 records the upstream fix for CVE-2026-63384; exact AMD64 and ARM64 package and library hashes are bound in the immutable input inventory. Grype 0.119.0 still reports the superseded Bookworm status.","variants":["full","slim"],"architectures":["amd64","arm64"]},
     {"id":"v162-libevent-cve-2026-63385-fixed","vulnerabilities":["CVE-2026-63385"],"component":{"names":["libevent-core-2.1-7"],"versions":["2.1.12-stable-8+deb12u1"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libevent-core-2\\.1-7/copyright$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:amd64\\.md5sums$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"fixed","effectiveSeverity":"None","owner":"Debian Bookworm security","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-63385"},"reviewedAt":"2026-09-18","expiresAt":"2026-10-18","rationale":"The signed Debian security changelog for 2.1.12-stable-8+deb12u1 records the upstream fix for CVE-2026-63385; exact AMD64 and ARM64 package and library hashes are bound in the immutable input inventory. Grype 0.119.0 still reports the superseded Bookworm status.","variants":["full","slim"],"architectures":["amd64","arm64"]},
     {"id":"v162-libevent-cve-2026-63387-fixed","vulnerabilities":["CVE-2026-63387"],"component":{"names":["libevent-core-2.1-7"],"versions":["2.1.12-stable-8+deb12u1"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libevent-core-2\\.1-7/copyright$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:amd64\\.md5sums$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"fixed","effectiveSeverity":"None","owner":"Debian Bookworm security","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-63387"},"reviewedAt":"2026-09-18","expiresAt":"2026-10-18","rationale":"The signed Debian security changelog for 2.1.12-stable-8+deb12u1 records the upstream fix for CVE-2026-63387; exact AMD64 and ARM64 package and library hashes are bound in the immutable input inventory. Grype 0.119.0 still reports the superseded Bookworm status.","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-libevent-cve-2026-63388-fixed","vulnerabilities":["CVE-2026-63388"],"component":{"names":["libevent-core-2.1-7"],"versions":["2.1.12-stable-8+deb12u1"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libevent-core-2\\.1-7/copyright$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:amd64\\.md5sums$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"fixed","effectiveSeverity":"None","owner":"Debian Bookworm security","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-63388"},"reviewedAt":"2026-09-18","expiresAt":"2026-10-18","rationale":"The signed Debian security changelog for 2.1.12-stable-8+deb12u1 records the upstream fix for CVE-2026-63388; exact AMD64 and ARM64 package and library hashes are bound in the immutable input inventory. Grype 0.119.0 still reports the superseded Bookworm status.","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-libxml2-cve-2026-86138-high-exception","vulnerabilities":["CVE-2026-86138"],"component":{"names":["libxml2"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2/copyright$","^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86138"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native scanner reports identify this exact vulnerable and unfixed Bookworm package tuple. CoderLuii explicitly accepted this exact High finding through 2026-09-25 so the community release can proceed without claiming the package is fixed.","approvedBy":"CoderLuii","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-libxml2-cve-2026-86139-high-exception","vulnerabilities":["CVE-2026-86139"],"component":{"names":["libxml2"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2/copyright$","^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86139"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native scanner reports identify this exact vulnerable and unfixed Bookworm package tuple. CoderLuii explicitly accepted this exact High finding through 2026-09-25 so the community release can proceed without claiming the package is fixed.","approvedBy":"CoderLuii","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-libxml2-cve-2026-86142-high-exception","vulnerabilities":["CVE-2026-86142"],"component":{"names":["libxml2"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2/copyright$","^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86142"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native scanner reports identify this exact vulnerable and unfixed Bookworm package tuple. CoderLuii explicitly accepted this exact High finding through 2026-09-25 so the community release can proceed without claiming the package is fixed.","approvedBy":"CoderLuii","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-libxml2-cve-2026-86143-high-exception","vulnerabilities":["CVE-2026-86143"],"component":{"names":["libxml2"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2/copyright$","^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86143"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native scanner reports identify this exact vulnerable and unfixed Bookworm package tuple. CoderLuii explicitly accepted this exact High finding through 2026-09-25 so the community release can proceed without claiming the package is fixed.","approvedBy":"CoderLuii","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-libxml2-cve-2026-86144-high-exception","vulnerabilities":["CVE-2026-86144"],"component":{"names":["libxml2"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2/copyright$","^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86144"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native scanner reports identify this exact vulnerable and unfixed Bookworm package tuple. CoderLuii explicitly accepted this exact High finding through 2026-09-25 so the community release can proceed without claiming the package is fixed.","approvedBy":"CoderLuii","variants":["full","slim"],"architectures":["amd64","arm64"]},
-    {"id":"v162-full-libxml2-dev-cve-2026-86138-high-exception","vulnerabilities":["CVE-2026-86138"],"component":{"names":["libxml2-dev"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2-dev/copyright$","^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86138"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native Full-image scanner reports identify this exact vulnerable and unfixed Bookworm development package tuple from the same approved libxml2 source package and CVE. CoderLuii explicitly accepted this exact High finding through 2026-09-25 for Full AMD64 and ARM64 only.","approvedBy":"CoderLuii","variants":["full"],"architectures":["amd64","arm64"]},
-    {"id":"v162-full-libxml2-dev-cve-2026-86139-high-exception","vulnerabilities":["CVE-2026-86139"],"component":{"names":["libxml2-dev"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2-dev/copyright$","^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86139"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native Full-image scanner reports identify this exact vulnerable and unfixed Bookworm development package tuple from the same approved libxml2 source package and CVE. CoderLuii explicitly accepted this exact High finding through 2026-09-25 for Full AMD64 and ARM64 only.","approvedBy":"CoderLuii","variants":["full"],"architectures":["amd64","arm64"]},
-    {"id":"v162-full-libxml2-dev-cve-2026-86142-high-exception","vulnerabilities":["CVE-2026-86142"],"component":{"names":["libxml2-dev"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2-dev/copyright$","^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86142"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native Full-image scanner reports identify this exact vulnerable and unfixed Bookworm development package tuple from the same approved libxml2 source package and CVE. CoderLuii explicitly accepted this exact High finding through 2026-09-25 for Full AMD64 and ARM64 only.","approvedBy":"CoderLuii","variants":["full"],"architectures":["amd64","arm64"]},
-    {"id":"v162-full-libxml2-dev-cve-2026-86143-high-exception","vulnerabilities":["CVE-2026-86143"],"component":{"names":["libxml2-dev"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2-dev/copyright$","^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86143"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native Full-image scanner reports identify this exact vulnerable and unfixed Bookworm development package tuple from the same approved libxml2 source package and CVE. CoderLuii explicitly accepted this exact High finding through 2026-09-25 for Full AMD64 and ARM64 only.","approvedBy":"CoderLuii","variants":["full"],"architectures":["amd64","arm64"]},
-    {"id":"v162-full-libxml2-dev-cve-2026-86144-high-exception","vulnerabilities":["CVE-2026-86144"],"component":{"names":["libxml2-dev"],"versions":["2.9.14+dfsg-1.3~deb12u6"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libxml2-dev/copyright$","^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$","^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-86144"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native Full-image scanner reports identify this exact vulnerable and unfixed Bookworm development package tuple from the same approved libxml2 source package and CVE. CoderLuii explicitly accepted this exact High finding through 2026-09-25 for Full AMD64 and ARM64 only.","approvedBy":"CoderLuii","variants":["full"],"architectures":["amd64","arm64"]},
-    {"id":"v162-glibc-cve-2026-19499-high-exception","vulnerabilities":["CVE-2026-19499"],"component":{"names":["libc-bin","libc-dev-bin","libc-l10n","libc6","libc6-dev","locales"],"versions":["2.36-9+deb12u14"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libc-bin/copyright$","^/usr/share/doc/libc-dev-bin/copyright$","^/usr/share/doc/libc-l10n/copyright$","^/usr/share/doc/libc6-dev/copyright$","^/usr/share/doc/libc6/copyright$","^/usr/share/doc/locales/copyright$","^/var/lib/dpkg/info/libc-bin\\.conffiles$","^/var/lib/dpkg/info/libc-bin\\.list$","^/var/lib/dpkg/info/libc-bin\\.md5sums$","^/var/lib/dpkg/info/libc-bin\\.postinst$","^/var/lib/dpkg/info/libc-bin\\.triggers$","^/var/lib/dpkg/info/libc-dev-bin\\.list$","^/var/lib/dpkg/info/libc-dev-bin\\.md5sums$","^/var/lib/dpkg/info/libc-l10n\\.list$","^/var/lib/dpkg/info/libc-l10n\\.md5sums$","^/var/lib/dpkg/info/libc6-dev:amd64\\.md5sums$","^/var/lib/dpkg/info/libc6-dev:arm64\\.md5sums$","^/var/lib/dpkg/info/libc6:amd64\\.conffiles$","^/var/lib/dpkg/info/libc6:amd64\\.md5sums$","^/var/lib/dpkg/info/libc6:arm64\\.conffiles$","^/var/lib/dpkg/info/libc6:arm64\\.md5sums$","^/var/lib/dpkg/info/locales\\.conffiles$","^/var/lib/dpkg/info/locales\\.config$","^/var/lib/dpkg/info/locales\\.list$","^/var/lib/dpkg/info/locales\\.md5sums$","^/var/lib/dpkg/info/locales\\.postinst$","^/var/lib/dpkg/info/locales\\.postrm$","^/var/lib/dpkg/info/locales\\.prerm$","^/var/lib/dpkg/info/locales\\.templates$","^/var/lib/dpkg/status$"]},"disposition":"high_exception","effectiveSeverity":"High","owner":"Debian Bookworm base","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-19499"},"reviewedAt":"2026-09-18","expiresAt":"2026-09-25","rationale":"The retained native scanner reports identify these exact Bookworm package tuples. CoderLuii explicitly accepted the scanner's High finding through 2026-09-25 without resolving the conflicting upstream and Debian applicability assessments.","approvedBy":"CoderLuii","variants":["full","slim"],"architectures":["amd64","arm64"]}
+    {"id":"v162-libevent-cve-2026-63388-fixed","vulnerabilities":["CVE-2026-63388"],"component":{"names":["libevent-core-2.1-7"],"versions":["2.1.12-stable-8+deb12u1"],"types":["deb"],"locationPatterns":["^/usr/share/doc/libevent-core-2\\.1-7/copyright$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:amd64\\.md5sums$","^/var/lib/dpkg/info/libevent-core-2\\.1-7:arm64\\.md5sums$","^/var/lib/dpkg/status$"]},"disposition":"fixed","effectiveSeverity":"None","owner":"Debian Bookworm security","authority":{"name":"Debian Security Tracker","url":"https://security-tracker.debian.org/tracker/CVE-2026-63388"},"reviewedAt":"2026-09-18","expiresAt":"2026-10-18","rationale":"The signed Debian security changelog for 2.1.12-stable-8+deb12u1 records the upstream fix for CVE-2026-63388; exact AMD64 and ARM64 package and library hashes are bound in the immutable input inventory. Grype 0.119.0 still reports the superseded Bookworm status.","variants":["full","slim"],"architectures":["amd64","arm64"]}
   ]
 }

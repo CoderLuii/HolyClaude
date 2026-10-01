@@ -73,7 +73,6 @@ const expected = [
     },
   ]),
   ...[
-    ['CVE-2026-93990', 'libexpat1', 'libexpat1-dev', '2.5.0-1+deb12u3'],
     ['CVE-2026-88807', 'libxrender1', 'libxrender-dev', '1:0.9.10-1.1'],
   ].flatMap(([cve, runtime, development, version]) => [
     {
@@ -103,21 +102,6 @@ const expected = [
       ],
     },
   ]),
-  {
-    id: 'v163-redis-tools-cve-2026-92925-high-exception',
-    cve: 'CVE-2026-92925',
-    names: ['redis-tools'],
-    version: '5:7.0.15-1~deb12u9',
-    variants: ['full', 'slim'],
-    locations: [
-      '^/usr/share/doc/redis-tools/copyright$',
-      '^/var/lib/dpkg/info/redis-tools\\.list$',
-      '^/var/lib/dpkg/info/redis-tools\\.md5sums$',
-      '^/var/lib/dpkg/info/redis-tools\\.postinst$',
-      '^/var/lib/dpkg/info/redis-tools\\.postrm$',
-      '^/var/lib/dpkg/status$',
-    ],
-  },
   {
     id: 'v163-libx11-cve-2026-88806-high-exception',
     cve: 'CVE-2026-88806',
@@ -152,9 +136,9 @@ const expected = [
   },
 ];
 
-test('authorizes only the exact v1.6.3 unresolved High package scope', () => {
+test('retains only the v1.6.3 High reviews still present in v1.6.4', () => {
   const v163 = reviews.filter((review) => review.id.startsWith('v163-'));
-  assert.equal(v163.length, 16);
+  assert.equal(v163.length, 13);
   assert.deepEqual(v163.map((review) => review.id).sort(), expected.map((review) => review.id).sort());
 
   for (const item of expected) {
@@ -194,8 +178,6 @@ test('adds no other September 24 review changes', () => {
       'CVE-2026-84447',
       'CVE-2026-84446',
       'CVE-2026-84444',
-      'CVE-2026-93990',
-      'CVE-2026-92925',
       'CVE-2026-88807',
       'CVE-2026-88806',
     ]),

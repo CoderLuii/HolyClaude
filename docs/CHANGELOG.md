@@ -4,6 +4,22 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.4] - 10/02/2026
+
+### Changed
+
+- Updated Claude Code to 2.1.287 and OpenAI Codex to 0.160.0 using the verified AMD64 and ARM64 release inputs.
+- Updated Junie to stable 3419.26 using checksum-verified AMD64 and ARM64 release archives.
+- Updated Wrangler to 4.146.0 in the Full image.
+- Pinned Debian Chromium 154.0.8037.92 for AMD64 and ARM64.
+- Updated the application Python runtime to 3.14.8 using the official multi-architecture image digest.
+- Removed redundant Debian Python packages from the Slim image; the application still uses Python 3.14.8.
+- Updated Azure CLI's bundled PyJWT to 2.15.1 and urllib3 to 2.8.0 in the Full image.
+
+### Security
+
+- Accepted the exact Critical and High findings recorded for the native Full and Slim AMD64 and ARM64 v1.6.4 images through October 4, 2026, including findings in HolyClaude's custom FFmpeg build and bundled tool dependencies. CoderLuii approved this v1.6.4-only exception. Raw severity, unresolved or fixable status, and digest-bound evidence remain unchanged; any new or changed finding still blocks publication. This acceptance does not claim that an affected component is fixed, safe, or harmless. See the [accepted-risk manifest](../security/v1.6.4-accepted-risk.json) and [Debian review deferral](../security/v1.6.4-release-security-deferral.json) for the recorded scope and expiration.
+
 ## [1.6.3] - 09/24/2026
 
 ### Changed

@@ -108,7 +108,7 @@ HolyClaude keeps the JavaScript package versions required by the bundled full-im
 HolyClaude replaces selected compatible dependency copies with version-pinned
 archives and fail-closed path checks. Overlays that replace a known vendored copy
 also verify its owning tool and original dependency version before changing it.
-v1.6.3 includes overlays for selected copies of setuptools, Piscina, brace-expansion,
+HolyClaude includes overlays for selected copies of setuptools, Piscina, brace-expansion,
 js-yaml, minimatch, Nanoid, path-to-regexp, Sharp, smol-toml, Undici, ws, and xmldom. The full
 image uses js-yaml 4.3.2 in PM2 and Vercel, and Sharp 0.35.4 with matching
 native bindings and libvips package 1.3.3 in Wrangler and Netlify. Vercel uses
@@ -126,7 +126,7 @@ Dockerfile, `security/immutable-inputs.yml`, and the release source.
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 153.0.8010.52-1~deb12u1, installed from Bookworm security packages
+- Version: 154.0.8037 (architecture-specific Bookworm security package revisions)
 
 ## OpenSSH
 

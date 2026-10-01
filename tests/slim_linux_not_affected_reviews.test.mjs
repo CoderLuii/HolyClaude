@@ -102,8 +102,8 @@ test('binds 33 slim amd64 findings to exact-version not-affected reviews and Ope
     assert.deepEqual(
       statement.products.map((product) => product['@id']).sort(),
       [
-        'pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim',
-        'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim',
+        'pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim',
+        'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim',
       ],
     );
     for (const product of statement.products) {

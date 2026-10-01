@@ -140,7 +140,7 @@ test('records both exact ImageMagick Low severities from official upstream advis
   }
 });
 
-test('records exact temporary High approvals for bubblewrap and the new extract-zip advisory', () => {
+test('removes expired temporary High approvals for bubblewrap and extract-zip', () => {
   for (const target of targets) {
     const reviews = targetReviews(target);
     for (const [vulnerability, name, owner] of [
@@ -148,14 +148,7 @@ test('records exact temporary High approvals for bubblewrap and the new extract-
       ['GHSA-7pqw-9j4j-h8q3', 'extract-zip', 'HolyClaude bundled extract-zip'],
     ]) {
       const review = reviews.find((candidate) => candidate.vulnerabilities.includes(vulnerability) && candidate.owner === owner);
-      assert.ok(review, `${target} ${vulnerability}`);
-      assert.deepEqual(review.vulnerabilities, [vulnerability]);
-      assert.deepEqual(review.component.names, [name]);
-      assert.equal(review.disposition, 'high_exception');
-      assert.equal(review.effectiveSeverity, 'High');
-      assert.equal(review.approvedBy, 'CoderLuii');
-      assert.equal(review.reviewedAt, '2026-09-18');
-      assert.equal(review.expiresAt, '2026-09-25');
+      assert.equal(review, undefined, `${target} ${vulnerability}`);
     }
   }
 });

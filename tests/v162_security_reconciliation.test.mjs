@@ -1,9 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
@@ -26,8 +22,6 @@ const newlyAcceptedCves = [
   'CVE-2026-86144',
   'CVE-2026-19499',
 ];
-const evaluator = resolve('scripts/evaluate-security-report.mjs');
-
 const renewedHighOwners = new Map([
   ['Debian Bookworm base', 12],
   ['Debian Bookworm bubblewrap', 4],
@@ -35,26 +29,14 @@ const renewedHighOwners = new Map([
   ['Junie CLI', 22],
 ]);
 
-test('renews only the previously accepted High scope through September 25', () => {
+test('removes every expired September 25 High exception from the active ledger', () => {
   const renewed = ledger.reviews.filter((review) =>
     review.disposition === 'high_exception' &&
     renewedHighOwners.has(review.owner) &&
-    !review.id.startsWith('v162-') &&
-    review.reviewedAt === '2026-09-18' &&
     review.expiresAt === '2026-09-25',
   );
 
-  assert.equal(renewed.length, 42);
-  for (const [owner, count] of renewedHighOwners) {
-    assert.equal(renewed.filter((review) => review.owner === owner).length, count, owner);
-  }
-  for (const review of renewed) {
-    assert.equal(review.reviewedAt, '2026-09-18', review.id);
-    assert.equal(review.expiresAt, '2026-09-25', review.id);
-    assert.equal(review.approvedBy, 'CoderLuii', review.id);
-    assert.equal(review.effectiveSeverity, 'High', review.id);
-    assert.equal('vexStatement' in review, false, review.id);
-  }
+  assert.deepEqual(renewed, []);
 });
 
 test('refreshes exact vendor severities without converting them to accepted risk', () => {
@@ -96,21 +78,15 @@ test('rebinds all eight GitHub CLI fixed mappings to the scanned 2.101.0 package
   }
 });
 
-test('relocates Junie review and VEX bindings to exact stable 3196.5 identities', () => {
+test('retains exact Junie not-affected evidence without expired High exceptions', () => {
   const junie = ledger.reviews.filter((review) => review.owner === 'Junie CLI');
   const high = junie.filter((review) => review.disposition === 'high_exception');
   const notAffected = junie.filter((review) =>
     review.vulnerabilities.includes('GHSA-c4c3-7fpv-j4q5'),
   );
 
-  assert.equal(high.length, 22);
+  assert.deepEqual(high, []);
   assert.equal(notAffected.length, 2);
-  for (const review of high) {
-    assert.ok(review.component.locationPatterns.every((pattern) => pattern.includes('3196\\.5')));
-    assert.match(review.rationale, /official stable Junie CLI 3196\.5/);
-    assert.equal(review.reviewedAt, '2026-09-18');
-    assert.equal(review.expiresAt, '2026-09-25');
-  }
   for (const review of notAffected) {
     assert.deepEqual(review.component.locationPatterns, [
       '^/home/claude/\\.local/share/junie/versions/3196\\.5/lib/app/junie-release-3196\\.5\\.jar$',
@@ -128,17 +104,17 @@ test('relocates Junie review and VEX bindings to exact stable 3196.5 identities'
   assert.doesNotMatch(JSON.stringify({ junie, statements: vex.statements }), /3196\\?\.4|24cc3269086af0d31f475229b138bd3f965bbde8d41f879cc1ee38a4a94aff9f/);
 });
 
-test('publishes the OpenVEX document only under the v1.6.3 product identity', () => {
+test('publishes the OpenVEX document only under the v1.6.4 product identity', () => {
   const productIds = vex.statements.flatMap((statement) =>
     statement.products.map((product) => product['@id']),
   );
 
-  assert.equal(ledger.reviews.length, 596);
+  assert.equal(ledger.reviews.length, 540);
   assert.equal(vex.statements.length, 113);
   assert.equal(productIds.length, 234);
-  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.6.3');
-  assert.equal(vex.timestamp, '2026-09-24T00:00:00Z');
-  assert.ok(productIds.every((id) => id.includes('/holyclaude@1.6.3?variant=')));
+  assert.equal(vex['@id'], 'urn:holyclaude:openvex:v1.6.4');
+  assert.equal(vex.timestamp, '2026-10-01T00:00:00Z');
+  assert.ok(productIds.every((id) => id.includes('/holyclaude@1.6.4?variant=')));
   assert.ok(productIds.every((id) => !id.includes('@1.6.1')));
 });
 
@@ -208,8 +184,8 @@ test('maps the seven new BIND advisories to 56 exact target and package-group ap
         assert.match(statement.impact_statement, /named(?: server| resolver| executable)?|resolver/);
         assert.match(statement.impact_statement, /not installed|absent/);
         assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-          `pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=${variant}`,
-          `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=${variant}`,
+          `pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=${variant}`,
+          `pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=${variant}`,
         ]);
         const expectedPurls = names.map((name) => {
           const packageArch = name === 'dnsutils' ? 'all' : arch;
@@ -223,246 +199,17 @@ test('maps the seven new BIND advisories to 56 exact target and package-group ap
   }
 });
 
-test('binds newly authorized High risk only to the exact evidenced native tuples', () => {
+test('removes the expired all-target High exceptions from the active ledger', () => {
   const accepted = ledger.reviews.filter((review) =>
     newlyAcceptedCves.includes(review.vulnerabilities[0]) && review.disposition === 'high_exception',
   );
-  assert.equal(accepted.length, 11);
-  for (const cve of newlyAcceptedCves) {
-    const review = accepted.find((item) =>
-      item.vulnerabilities[0] === cve &&
-      (cve === 'CVE-2026-19499' || item.component.names[0] === 'libxml2'));
-    assert.ok(review, cve);
-    assert.deepEqual(review.variants, ['full', 'slim']);
-    assert.deepEqual(review.architectures, ['amd64', 'arm64']);
-    assert.equal(review.reviewedAt, '2026-09-18');
-    assert.equal(review.expiresAt, '2026-09-25');
-    assert.equal(review.approvedBy, 'CoderLuii');
-    assert.equal(review.effectiveSeverity, 'High');
-    assert.equal('vexStatement' in review, false);
-    assert.equal(vex.statements.some((statement) => statement.vulnerability?.name === cve), false, cve);
-  }
-
-  for (const review of accepted.filter((item) => item.component.names[0] === 'libxml2')) {
-    assert.deepEqual(review.component.names, ['libxml2']);
-    assert.deepEqual(review.component.versions, ['2.9.14+dfsg-1.3~deb12u6']);
-    assert.deepEqual(review.component.types, ['deb']);
-    assert.deepEqual(review.component.locationPatterns, [
-      '^/usr/share/doc/libxml2/copyright$',
-      '^/var/lib/dpkg/info/libxml2:amd64\\.md5sums$',
-      '^/var/lib/dpkg/info/libxml2:arm64\\.md5sums$',
-      '^/var/lib/dpkg/status$',
-    ]);
-  }
-  for (const review of accepted.filter((item) => item.component.names[0] === 'libxml2-dev')) {
-    assert.deepEqual(review.component.names, ['libxml2-dev']);
-    assert.deepEqual(review.component.versions, ['2.9.14+dfsg-1.3~deb12u6']);
-    assert.deepEqual(review.component.types, ['deb']);
-    assert.deepEqual(review.variants, ['full']);
-    assert.deepEqual(review.architectures, ['amd64', 'arm64']);
-    assert.deepEqual(review.component.locationPatterns, [
-      '^/usr/share/doc/libxml2-dev/copyright$',
-      '^/var/lib/dpkg/info/libxml2-dev:amd64\\.md5sums$',
-      '^/var/lib/dpkg/info/libxml2-dev:arm64\\.md5sums$',
-      '^/var/lib/dpkg/status$',
-    ]);
-  }
-  const glibc = accepted.find((item) => item.vulnerabilities[0] === 'CVE-2026-19499');
-  assert.deepEqual(glibc.component.names, ['libc-bin', 'libc-dev-bin', 'libc-l10n', 'libc6', 'libc6-dev', 'locales']);
-  assert.deepEqual(glibc.component.versions, ['2.36-9+deb12u14']);
-  assert.deepEqual(glibc.component.types, ['deb']);
-  assert.deepEqual(glibc.component.locationPatterns, [
-    '^/usr/share/doc/libc-bin/copyright$',
-    '^/usr/share/doc/libc-dev-bin/copyright$',
-    '^/usr/share/doc/libc-l10n/copyright$',
-    '^/usr/share/doc/libc6-dev/copyright$',
-    '^/usr/share/doc/libc6/copyright$',
-    '^/usr/share/doc/locales/copyright$',
-    '^/var/lib/dpkg/info/libc-bin\\.conffiles$',
-    '^/var/lib/dpkg/info/libc-bin\\.list$',
-    '^/var/lib/dpkg/info/libc-bin\\.md5sums$',
-    '^/var/lib/dpkg/info/libc-bin\\.postinst$',
-    '^/var/lib/dpkg/info/libc-bin\\.triggers$',
-    '^/var/lib/dpkg/info/libc-dev-bin\\.list$',
-    '^/var/lib/dpkg/info/libc-dev-bin\\.md5sums$',
-    '^/var/lib/dpkg/info/libc-l10n\\.list$',
-    '^/var/lib/dpkg/info/libc-l10n\\.md5sums$',
-    '^/var/lib/dpkg/info/libc6-dev:amd64\\.md5sums$',
-    '^/var/lib/dpkg/info/libc6-dev:arm64\\.md5sums$',
-    '^/var/lib/dpkg/info/libc6:amd64\\.conffiles$',
-    '^/var/lib/dpkg/info/libc6:amd64\\.md5sums$',
-    '^/var/lib/dpkg/info/libc6:arm64\\.conffiles$',
-    '^/var/lib/dpkg/info/libc6:arm64\\.md5sums$',
-    '^/var/lib/dpkg/info/locales\\.conffiles$',
-    '^/var/lib/dpkg/info/locales\\.config$',
-    '^/var/lib/dpkg/info/locales\\.list$',
-    '^/var/lib/dpkg/info/locales\\.md5sums$',
-    '^/var/lib/dpkg/info/locales\\.postinst$',
-    '^/var/lib/dpkg/info/locales\\.postrm$',
-    '^/var/lib/dpkg/info/locales\\.prerm$',
-    '^/var/lib/dpkg/info/locales\\.templates$',
-    '^/var/lib/dpkg/status$',
-  ]);
-
-  const root = mkdtempSync(join(tmpdir(), 'holyclaude-v162-unmapped-high-'));
-  try {
-    const report = {
-      source: { type: 'sbom', target: 'v162-unmapped-high.cdx.json' },
-      distro: { name: 'debian', version: '12.15', idLike: ['debian'] },
-      descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
-      ignoredMatches: [],
-      matches: [
-        ...newlyAcceptedCves.slice(0, 5).map((id) => ({
-          vulnerability: { id, severity: 'High', fix: { versions: [], state: 'not-fixed' } },
-          artifact: { name: 'libxml2', version: '2.9.14+dfsg-1.3~deb12u6', type: 'deb', locations: [{ path: '/var/lib/dpkg/status' }] },
-        })),
-        {
-          vulnerability: { id: 'CVE-2026-19499', severity: 'High', fix: { versions: [], state: 'not-fixed' } },
-          artifact: { name: 'libc6', version: '2.36-9+deb12u14', type: 'deb', locations: [{ path: '/var/lib/dpkg/status' }] },
-        },
-      ],
-    };
-    const reportText = `${JSON.stringify(report, null, 2)}\n`;
-    const files = {
-      report,
-      ledger: { schemaVersion: ledger.schemaVersion, policy: ledger.policy, reviews: accepted },
-      authority: {
-        schemaVersion: 1,
-        candidate: {
-          variant: 'slim',
-          architecture: 'amd64',
-          reportSha256: createHash('sha256').update(reportText).digest('hex'),
-        },
-        records: [],
-      },
-      vex: {
-        '@context': 'https://openvex.dev/ns/v0.2.0',
-        '@id': 'urn:test:v162-unmapped-high',
-        author: 'CoderLuii',
-        timestamp: '2026-09-18T00:00:00Z',
-        version: 1,
-        statements: [],
-      },
-    };
-    writeFileSync(join(root, 'report.json'), reportText);
-    for (const [name, value] of Object.entries(files)) {
-      if (name !== 'report') writeFileSync(join(root, `${name}.json`), `${JSON.stringify(value, null, 2)}\n`);
-    }
-    const result = spawnSync(process.execPath, [
-      evaluator,
-      '--report', join(root, 'report.json'),
-      '--ledger', join(root, 'ledger.json'),
-      '--authority-evidence', join(root, 'authority.json'),
-      '--vex', join(root, 'vex.json'),
-      '--output-dir', join(root, 'output'),
-      '--variant', 'slim',
-      '--arch', 'amd64',
-      '--image-digest', `sha256:${'a'.repeat(64)}`,
-      '--sbom-sha256', 'b'.repeat(64),
-      '--as-of', '2026-09-18',
-    ], { encoding: 'utf8' });
-
-    assert.equal(result.status, 0, result.stderr);
-
-    report.matches[0].artifact.version = '2.9.14+dfsg-1.3~deb12u5';
-    const mutatedText = `${JSON.stringify(report, null, 2)}\n`;
-    writeFileSync(join(root, 'report.json'), mutatedText);
-    files.authority.candidate.reportSha256 = createHash('sha256').update(mutatedText).digest('hex');
-    writeFileSync(join(root, 'authority.json'), `${JSON.stringify(files.authority, null, 2)}\n`);
-    const rejected = spawnSync(process.execPath, [
-      evaluator,
-      '--report', join(root, 'report.json'),
-      '--ledger', join(root, 'ledger.json'),
-      '--authority-evidence', join(root, 'authority.json'),
-      '--vex', join(root, 'vex.json'),
-      '--output-dir', join(root, 'mutated-output'),
-      '--variant', 'slim',
-      '--arch', 'amd64',
-      '--image-digest', `sha256:${'a'.repeat(64)}`,
-      '--sbom-sha256', 'b'.repeat(64),
-      '--as-of', '2026-09-18',
-    ], { encoding: 'utf8' });
-    assert.notEqual(rejected.status, 0);
-    assert.match(rejected.stderr, /CVE-2026-86138 libxml2@2\.9\.14\+dfsg-1\.3~deb12u5: matched 0 reviews for raw High finding/);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
+  assert.deepEqual(accepted, []);
 });
 
-test('accepts libxml2-dev only in Full images and rejects the same tuple in Slim images', () => {
-  const root = mkdtempSync(join(tmpdir(), 'holyclaude-v162-libxml2-dev-scope-'));
-  try {
-    const scopedReviews = ledger.reviews.filter((review) =>
-      review.component.names.length === 1 && review.component.names[0] === 'libxml2-dev');
-    assert.equal(scopedReviews.length, 5);
-
-    for (const arch of ['amd64', 'arm64']) {
-      const report = {
-        source: { type: 'sbom', target: `v162-full-${arch}.cdx.json` },
-        distro: { name: 'debian', version: '12.15', idLike: ['debian'] },
-        descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
-        ignoredMatches: [],
-        matches: newlyAcceptedCves.slice(0, 5).map((id) => ({
-          vulnerability: { id, severity: 'High', fix: { versions: [], state: 'not-fixed' } },
-          artifact: {
-            name: 'libxml2-dev',
-            version: '2.9.14+dfsg-1.3~deb12u6',
-            type: 'deb',
-            locations: [{ path: `/var/lib/dpkg/info/libxml2-dev:${arch}.md5sums` }],
-          },
-        })),
-      };
-      const reportText = `${JSON.stringify(report, null, 2)}\n`;
-      const reportPath = join(root, `report-${arch}.json`);
-      const ledgerPath = join(root, `ledger-${arch}.json`);
-      const vexPath = join(root, `vex-${arch}.json`);
-      writeFileSync(reportPath, reportText);
-      writeFileSync(ledgerPath, `${JSON.stringify({ schemaVersion: ledger.schemaVersion, policy: ledger.policy, reviews: scopedReviews }, null, 2)}\n`);
-      writeFileSync(vexPath, `${JSON.stringify({
-        '@context': 'https://openvex.dev/ns/v0.2.0',
-        '@id': `urn:test:v162-libxml2-dev-${arch}`,
-        author: 'CoderLuii',
-        timestamp: '2026-09-18T00:00:00Z',
-        version: 1,
-        statements: [],
-      }, null, 2)}\n`);
-
-      for (const variant of ['full', 'slim']) {
-        const authorityPath = join(root, `authority-${variant}-${arch}.json`);
-        writeFileSync(authorityPath, `${JSON.stringify({
-          schemaVersion: 1,
-          candidate: {
-            variant,
-            architecture: arch,
-            reportSha256: createHash('sha256').update(reportText).digest('hex'),
-          },
-          records: [],
-        }, null, 2)}\n`);
-        const result = spawnSync(process.execPath, [
-          evaluator,
-          '--report', reportPath,
-          '--ledger', ledgerPath,
-          '--authority-evidence', authorityPath,
-          '--vex', vexPath,
-          '--output-dir', join(root, `output-${variant}-${arch}`),
-          '--variant', variant,
-          '--arch', arch,
-          '--image-digest', `sha256:${'c'.repeat(64)}`,
-          '--sbom-sha256', 'd'.repeat(64),
-          '--as-of', '2026-09-18',
-        ], { encoding: 'utf8' });
-
-        if (variant === 'full') {
-          assert.equal(result.status, 0, result.stderr);
-        } else {
-          assert.notEqual(result.status, 0);
-          assert.match(result.stderr, /libxml2-dev@2\.9\.14\+dfsg-1\.3~deb12u6: matched 0 reviews for raw High finding/);
-        }
-      }
-    }
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
+test('removes expired libxml2-dev exceptions from the active ledger', () => {
+  const scopedReviews = ledger.reviews.filter((review) =>
+    review.component.names.length === 1 && review.component.names[0] === 'libxml2-dev');
+  assert.deepEqual(scopedReviews, []);
 });
 
 test('retains exact BIND native runtime guards and candidate/final workflow coverage', () => {

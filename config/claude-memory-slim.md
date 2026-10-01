@@ -123,9 +123,9 @@ These take longer to install (~1-2 minutes) because they require system dependen
 
 | CLI | Command | Version | Notes |
 |-----|---------|---------|-------|
-| **Claude Code** | `claude` | 2.1.281 | Primary — you are running inside this |
+| **Claude Code** | `claude` | 2.1.287 | Primary — you are running inside this |
 | **Gemini CLI** | `gemini` | 0.61.0 | Requires `GEMINI_API_KEY` env var |
-| **OpenAI Codex** | `codex` | 0.156.1 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. |
+| **OpenAI Codex** | `codex` | 0.160.0 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. |
 | **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Requires `CURSOR_API_KEY` env var |
 | **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and management |
 
@@ -152,7 +152,7 @@ These take longer to install (~1-2 minutes) because they require system dependen
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
 - **Node and Python Playwright 1.63.0** — baked at build time, no runtime browser download
-- **Debian Chromium 153.0.8010.52** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Debian Chromium 154.0.8037** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 

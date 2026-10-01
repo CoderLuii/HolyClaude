@@ -1,8 +1,8 @@
 {
   "@context": "https://openvex.dev/ns/v0.2.0",
-  "@id": "urn:holyclaude:openvex:v1.6.3",
+  "@id": "urn:holyclaude:openvex:v1.6.4",
   "author": "CoderLuii",
-  "timestamp": "2026-09-24T00:00:00Z",
+  "timestamp": "2026-10-01T00:00:00Z",
   "version": 1,
   "statements": [
     {
@@ -13,7 +13,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -38,7 +38,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -75,7 +75,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -90,7 +90,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -117,7 +117,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -152,7 +152,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -187,7 +187,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -222,7 +222,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -269,7 +269,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -314,7 +314,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -359,7 +359,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -404,7 +404,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -461,7 +461,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -506,7 +506,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -551,7 +551,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -596,7 +596,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -653,7 +653,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -678,7 +678,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -715,7 +715,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -740,7 +740,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -777,7 +777,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -822,7 +822,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -867,7 +867,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -912,7 +912,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -969,7 +969,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -984,7 +984,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1011,7 +1011,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1026,7 +1026,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1053,7 +1053,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1068,7 +1068,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1095,7 +1095,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1140,7 +1140,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1197,7 +1197,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1207,7 +1207,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1229,7 +1229,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1274,7 +1274,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1331,7 +1331,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1341,7 +1341,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1363,7 +1363,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1408,7 +1408,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1465,7 +1465,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1475,7 +1475,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1497,7 +1497,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1507,7 +1507,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1529,7 +1529,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1549,7 +1549,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1581,7 +1581,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1591,7 +1591,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1613,7 +1613,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1623,7 +1623,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -1645,7 +1645,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1655,7 +1655,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1677,11 +1677,11 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
         }
       ],
@@ -1697,11 +1697,11 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/libtiff6@4.5.0-6%2Bdeb12u4?arch=arm64"}}]
         }
       ],
@@ -1713,10 +1713,10 @@
       "@id": "urn:holyclaude:vex:full-amd64-util-linux-cve-2026-76642",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642", "name": "CVE-2026-76642"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [
           {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
         ]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [
           {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
         ]}
       ],
@@ -1728,8 +1728,8 @@
       "@id": "urn:holyclaude:vex:full-amd64-bsdutils-cve-2026-76642",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-76642", "name": "CVE-2026-76642"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
@@ -1739,10 +1739,10 @@
       "@id": "urn:holyclaude:vex:full-amd64-util-linux-cve-2026-78408",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408", "name": "CVE-2026-78408"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [
           {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
         ]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [
           {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
         ]}
       ],
@@ -1754,8 +1754,8 @@
       "@id": "urn:holyclaude:vex:full-amd64-bsdutils-cve-2026-78408",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78408", "name": "CVE-2026-78408"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
@@ -1765,10 +1765,10 @@
       "@id": "urn:holyclaude:vex:full-amd64-util-linux-cve-2026-78409",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409", "name": "CVE-2026-78409"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [
           {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
         ]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [
           {"identifiers": {"purl": "pkg:deb/debian/libblkid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libblkid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libfdisk1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libmount1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libsmartcols1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/libuuid1@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/mount@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/util-linux-extra@2.38.1-5%2Bdeb12u3?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/uuid-dev@2.38.1-5%2Bdeb12u3?arch=amd64"}}
         ]}
       ],
@@ -1780,8 +1780,8 @@
       "@id": "urn:holyclaude:vex:full-amd64-bsdutils-cve-2026-78409",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-78409", "name": "CVE-2026-78409"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bsdutils@1%3A2.38.1-5%2Bdeb12u3?arch=amd64"}}]}
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
@@ -1791,8 +1791,8 @@
       "@id": "urn:holyclaude:vex:full-amd64-zlib-cve-2026-85091",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2026-85091", "name": "CVE-2026-85091"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"}}]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"}}]}
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/zlib1g@1%3A1.2.13.dfsg-1?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/zlib1g-dev@1%3A1.2.13.dfsg-1?arch=amd64"}}]}
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_present",
@@ -1802,8 +1802,8 @@
       "@id": "urn:holyclaude:vex:full-amd64-bind-clients-cve-2025-40777",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777", "name": "CVE-2025-40777"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"}}]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"}}]}
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/bind9-dnsutils@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-host@1%3A9.18.49-1~deb12u2?arch=amd64"}}, {"identifiers": {"purl": "pkg:deb/debian/bind9-libs@1%3A9.18.49-1~deb12u2?arch=amd64"}}]}
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
@@ -1813,8 +1813,8 @@
       "@id": "urn:holyclaude:vex:full-amd64-dnsutils-cve-2025-40777",
       "vulnerability": {"@id": "https://nvd.nist.gov/vuln/detail/CVE-2025-40777", "name": "CVE-2025-40777"},
       "products": [
-        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"}}]},
-        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"}}]}
+        {"@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"}}]},
+        {"@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full", "subcomponents": [{"identifiers": {"purl": "pkg:deb/debian/dnsutils@1%3A9.18.49-1~deb12u2?arch=all"}}]}
       ],
       "status": "not_affected",
       "justification": "vulnerable_code_not_in_execute_path",
@@ -1828,7 +1828,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1848,7 +1848,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1880,7 +1880,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1890,7 +1890,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1912,7 +1912,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1922,7 +1922,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1944,7 +1944,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -1989,7 +1989,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2046,7 +2046,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2056,7 +2056,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2078,7 +2078,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2123,7 +2123,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2180,7 +2180,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2190,7 +2190,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2212,7 +2212,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2257,7 +2257,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2314,7 +2314,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2324,7 +2324,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -2346,7 +2346,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2366,7 +2366,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2398,7 +2398,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2408,7 +2408,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2430,7 +2430,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2445,7 +2445,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2472,7 +2472,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2532,7 +2532,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2604,7 +2604,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2614,7 +2614,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2636,7 +2636,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2696,7 +2696,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2768,7 +2768,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2778,7 +2778,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2800,7 +2800,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2860,7 +2860,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2932,7 +2932,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2942,7 +2942,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2964,7 +2964,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2974,7 +2974,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -2996,7 +2996,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3006,7 +3006,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3028,14 +3028,14 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}},
             {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}},
             {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
@@ -3054,14 +3054,14 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}},
             {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}},
             {"identifiers": {"purl": "pkg:deb/debian/libxml2-dev@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
@@ -3080,13 +3080,13 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=amd64"}}
           ]
@@ -3104,13 +3104,13 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {"identifiers": {"purl": "pkg:deb/debian/libxml2@2.9.14%2Bdfsg-1.3~deb12u6?arch=arm64"}}
           ]
@@ -3128,7 +3128,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3148,7 +3148,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3180,7 +3180,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3190,7 +3190,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3212,7 +3212,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3232,7 +3232,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3264,7 +3264,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3274,7 +3274,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3296,7 +3296,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3316,7 +3316,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3348,7 +3348,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3358,7 +3358,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3380,7 +3380,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3400,7 +3400,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3432,7 +3432,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3442,7 +3442,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3464,7 +3464,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3484,7 +3484,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3516,7 +3516,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3526,7 +3526,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3548,7 +3548,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3568,7 +3568,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3600,7 +3600,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3610,7 +3610,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3632,7 +3632,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3652,7 +3652,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3684,7 +3684,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3694,7 +3694,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3716,7 +3716,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3736,7 +3736,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3768,7 +3768,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3778,7 +3778,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3800,7 +3800,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3820,7 +3820,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3852,7 +3852,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3862,7 +3862,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3884,7 +3884,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3904,7 +3904,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3936,7 +3936,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3946,7 +3946,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -3968,7 +3968,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -3988,7 +3988,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4020,7 +4020,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4030,7 +4030,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4052,7 +4052,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4072,7 +4072,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4104,7 +4104,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4114,7 +4114,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4136,7 +4136,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4156,7 +4156,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4188,7 +4188,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4198,7 +4198,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4220,7 +4220,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4240,7 +4240,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4272,7 +4272,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4282,7 +4282,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4304,7 +4304,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4324,7 +4324,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4356,7 +4356,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4366,7 +4366,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4388,7 +4388,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4408,7 +4408,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4440,7 +4440,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4450,7 +4450,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4472,7 +4472,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4492,7 +4492,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4524,7 +4524,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4534,7 +4534,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4556,7 +4556,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4576,7 +4576,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4608,7 +4608,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4618,7 +4618,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4640,7 +4640,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4660,7 +4660,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4692,7 +4692,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4702,7 +4702,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4724,7 +4724,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4744,7 +4744,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4776,7 +4776,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4786,7 +4786,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4808,7 +4808,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4828,7 +4828,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4860,7 +4860,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4870,7 +4870,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4892,7 +4892,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4912,7 +4912,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4944,7 +4944,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4954,7 +4954,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -4976,7 +4976,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -4996,7 +4996,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5028,7 +5028,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5038,7 +5038,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5060,7 +5060,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5080,7 +5080,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5112,7 +5112,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5122,7 +5122,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5144,7 +5144,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5164,7 +5164,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5196,7 +5196,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5206,7 +5206,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5228,7 +5228,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5248,7 +5248,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5280,7 +5280,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5290,7 +5290,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full",
           "subcomponents": [
             {
               "identifiers": {
@@ -5312,7 +5312,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5332,7 +5332,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5364,7 +5364,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5374,7 +5374,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5396,7 +5396,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5416,7 +5416,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5448,7 +5448,7 @@
       },
       "products": [
         {
-          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {
@@ -5458,7 +5458,7 @@
           ]
         },
         {
-          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=slim",
+          "@id": "pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=slim",
           "subcomponents": [
             {
               "identifiers": {

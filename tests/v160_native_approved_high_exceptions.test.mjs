@@ -74,10 +74,6 @@ function specsFor(arch) {
 
 const targetSpecs = ['amd64', 'arm64'].flatMap(specsFor);
 
-function exactPattern(value) {
-  return `^${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`;
-}
-
 function reportFor(arch) {
   const matches = [];
   for (const spec of specsFor(arch)) {
@@ -123,29 +119,12 @@ function evaluate(arch, report, asOf) {
   }
 }
 
-test('binds the 20 approved slim findings to six exact architecture-specific exceptions', () => {
+test('removes the six expired slim exceptions from the active ledger', () => {
   assert.equal(targetSpecs.length, 6);
   assert.equal(reportFor('amd64').matches.length, 10);
   assert.equal(reportFor('arm64').matches.length, 10);
   for (const spec of targetSpecs) {
-    const review = ledger.reviews.find((item) => item.id === spec.id);
-    assert.ok(review, `${spec.id} must exist`);
-    assert.deepEqual(review.vulnerabilities, spec.vulnerabilities);
-    assert.deepEqual(review.component.names, spec.names);
-    assert.deepEqual(review.component.versions, spec.versions);
-    assert.deepEqual(review.component.types, ['deb']);
-    assert.deepEqual(
-      [...review.component.locationPatterns].sort(),
-      [...new Set(spec.paths)].map(exactPattern).sort(),
-    );
-    assert.equal(review.disposition, 'high_exception');
-    assert.equal(review.effectiveSeverity, 'High');
-    assert.equal(review.approvedBy, 'CoderLuii');
-    assert.equal(review.reviewedAt, '2026-09-18');
-    assert.equal(review.expiresAt, '2026-09-25');
-    assert.deepEqual(review.variants, ['slim']);
-    assert.deepEqual(review.architectures, [spec.id.includes('-amd64-') ? 'amd64' : 'arm64']);
-    assert.equal('vexStatement' in review, false);
+    assert.equal(ledger.reviews.some((review) => review.id === spec.id), false, `${spec.id} must be removed`);
   }
 });
 
@@ -158,16 +137,12 @@ test('removes the stale AOM and libssh2 selectors after both native variants ver
   }
 });
 
-test('accepts both approved targets through expiry and rejects them afterward', () => {
+test('fails closed for both former approved slim targets after review removal', () => {
   for (const arch of ['amd64', 'arm64']) {
     const report = reportFor(arch);
-    const valid = evaluate(arch, report, '2026-09-25');
-    assert.equal(valid.status, 0, valid.stderr);
-    assert.equal(valid.policy.rawHighCount, 10);
-    assert.equal(valid.policy.mappedHighCount, 10);
-    const expired = evaluate(arch, report, '2026-09-26');
-    assert.notEqual(expired.status, 0);
-    assert.match(expired.stderr, /expired on 2026-09-25/);
+    const result = evaluate(arch, report, '2026-10-01');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /matched 0 reviews for raw High finding/);
   }
 });
 

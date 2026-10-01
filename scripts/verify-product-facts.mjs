@@ -362,8 +362,17 @@ export function verifyProductSources(facts, root) {
     throw new Error('CloudCLI install must be shared by full and slim variants');
   }
 
-  const chromium = facts.browser.chromium.version;
-  requireMatch(dockerfile, new RegExp(`ARG CHROMIUM_DEBIAN_VERSION=${escapeRegex(chromium)}-`), 'Chromium version does not match Dockerfile');
+  const chromium = facts.browser.chromium;
+  for (const [arch, version] of Object.entries(chromium.versionByArch)) {
+    if (!version.startsWith(`${chromium.version}.`)) {
+      throw new Error(`Chromium ${arch} version does not match the shared Chromium version`);
+    }
+    requireMatch(
+      dockerfile,
+      new RegExp(`ARG CHROMIUM_DEBIAN_VERSION_${arch.toUpperCase()}=${escapeRegex(version)}`),
+      `Chromium ${arch} version does not match Dockerfile`,
+    );
+  }
   const playwrightBindings = [
     ['playwright@', facts.browser.playwright.nodeVersion, 'Node'],
     ['playwright==', facts.browser.playwright.pythonVersion, 'Python'],

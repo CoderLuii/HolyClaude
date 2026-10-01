@@ -37,8 +37,8 @@ test('replaces the proven full amd64 TIFF finding with an exact not-affected rec
     assert.equal(statement.status, 'not_affected');
     assert.equal(statement.justification, 'vulnerable_code_not_present');
     assert.deepEqual(statement.products.map((product) => product['@id']).sort(), [
-      'pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full',
-      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full',
+      'pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full',
+      'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full',
     ]);
     for (const product of statement.products) {
       assert.deepEqual(product.subcomponents, [{
@@ -104,8 +104,8 @@ test('binds the TIFF source split without suppressing genuine risks', () => {
   const prohibitedStatements = vex.statements.filter((statement) =>
     genuineRisks.has(statement.vulnerability.name) &&
     statement.products.some((product) =>
-      product['@id'] === 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.3?variant=full' ||
-      product['@id'] === 'pkg:oci/docker.io/coderluii/holyclaude@1.6.3?variant=full'));
+      product['@id'] === 'pkg:oci/ghcr.io/coderluii/holyclaude@1.6.4?variant=full' ||
+      product['@id'] === 'pkg:oci/docker.io/coderluii/holyclaude@1.6.4?variant=full'));
   assert.deepEqual(prohibitedStatements, []);
 });
 

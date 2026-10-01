@@ -170,7 +170,7 @@ const variant = process.argv[3];
 const common = {
   '@cloudcli-ai/cloudcli': '1.37.3',
   '@google/gemini-cli': '0.61.0',
-  '@openai/codex': '0.156.1',
+  '@openai/codex': '0.160.0',
   concurrently: '10.0.5',
   'dotenv-cli': '11.0.0',
   esbuild: '0.28.2',
@@ -202,7 +202,7 @@ const full = {
   prisma: '7.10.0',
   'sharp-cli': '6.1.0',
   vercel: '59.23.1',
-  wrangler: '4.134.0',
+  wrangler: '4.146.0',
 };
 const expected = variant === 'full' ? { ...common, ...full } : common;
 const actual = Object.fromEntries(
@@ -282,12 +282,18 @@ PY
 
 assert_runtime_identity() {
   require_eq "runtime user" "$(id -un)" "claude"
+  require_eq "application Python" "$(python3 --version)" "Python 3.14.8"
   require_eq "command -v chromium" "$(command -v chromium)" "/usr/bin/chromium"
   require_eq "CHROME_PATH" "${CHROME_PATH:-}" "/usr/bin/chromium"
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
   test -x /usr/lib/chromium/chromium
-  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "153.0.8010.52-1~deb12u1"
+  case "$(uname -m)" in
+    x86_64) chromium_debian_version="154.0.8037.92-1~deb12u1" ;;
+    aarch64) chromium_debian_version="154.0.8037.92-1~deb12u1" ;;
+    *) fail "unsupported Chromium architecture: $(uname -m)" ;;
+  esac
+  require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "$chromium_debian_version"
   require_eq "libde265 runtime package version" "$(dpkg-query -W -f='${Version}' libde265-0)" "1.0.11-1+deb12u3"
   pcre2_version="$(dpkg-query -W -f='${Version}' libpcre2-8-0)"
   dpkg --compare-versions "$pcre2_version" ge "10.42-1+deb12u1"
@@ -306,12 +312,13 @@ assert_runtime_identity() {
   require_eq "pnpm version" "$(pnpm --version)" "12.6.0"
   require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.3.1"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.9"
-  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.156.1"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.160.0"
+  require_eq "Codex CLI version" "$(codex --version | awk '{print $NF}')" "0.160.0"
   require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.61.0"
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.20.0"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.1"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.4"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.281"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.287"
   require_eq "GitHub CLI version" "$(gh --version | awk 'NR == 1 {print $3}')" "2.101.0"
   require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.09.15-d2fe57e"
   local web_terminal_esbuild_arch
@@ -330,6 +337,8 @@ assert_runtime_identity() {
   evidence "web_terminal_esbuild_transform=ok"
   evidence "web_terminal_esbuild_sha256=$web_terminal_esbuild_sha256"
   if [ "$VARIANT" = "full" ]; then
+    require_eq "Full libvips development package" "$(dpkg-query -W -f='${Status}' libvips-dev)" "install ok installed"
+    pkg-config --exists vips
     local libssh_gcrypt_path
     require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u2"
     libssh_gcrypt_path="$(dpkg -L libssh-gcrypt-4 | grep '/libssh-gcrypt\.so\.4$')"
@@ -386,6 +395,38 @@ assert_runtime_identity() {
     evidence "ffmpeg_backport=$ffmpeg_backport_version media_sha256=$(sha256sum "$ffmpeg_smoke" | cut -d' ' -f1)"
     require_eq "Azure CLI embedded Python" "$(/opt/az/bin/python3 --version | awk '{print $2}')" "3.14.6"
     require_eq "Azure CLI bundled cryptography" "$(/opt/az/bin/python3 -c 'import cryptography; print(cryptography.__version__)')" "48.0.1"
+    require_eq "Azure CLI bundled PyJWT" "$(/opt/az/bin/python3 -c 'import importlib.metadata; print(importlib.metadata.version("PyJWT"))')" "2.15.1"
+    require_eq "Azure CLI bundled urllib3" "$(/opt/az/bin/python3 -c 'import urllib3; print(urllib3.__version__)')" "2.8.0"
+    /opt/az/bin/python3 - <<'PY'
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+import jwt
+import requests
+
+token = jwt.encode({"sub": "smoke"}, "local-only-smoke-key-32-bytes-long!", algorithm="HS256")
+assert jwt.decode(token, "local-only-smoke-key-32-bytes-long!", algorithms=["HS256"])["sub"] == "smoke"
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"ok")
+
+    def log_message(self, *args):
+        pass
+
+server = HTTPServer(("127.0.0.1", 0), Handler)
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+thread.start()
+try:
+    response = requests.get(f"http://127.0.0.1:{server.server_port}/", timeout=5)
+    assert response.status_code == 200 and response.content == b"ok"
+finally:
+    server.shutdown()
+    server.server_close()
+    thread.join(timeout=5)
+PY
     /opt/az/bin/python3 -m pip check
     local azure_config_dir="$SENTINEL_ROOT/azure"
     AZURE_CONFIG_DIR="$azure_config_dir" AZURE_CORE_COLLECT_TELEMETRY=false az version >/dev/null
@@ -393,12 +434,12 @@ assert_runtime_identity() {
     AZURE_CONFIG_DIR="$azure_config_dir" AZURE_CORE_COLLECT_TELEMETRY=false az config get core.collect_telemetry >/dev/null
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-x64/bin/local-functions-proxy"
     test ! -e "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-arm64/bin/local-functions-proxy"
-    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.134.0"
-    require_eq "Wrangler undici development dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').devDependencies.undici")" "7.29.0"
-    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20260917.0-alpha"
-    require_eq "Wrangler workerd package version" "$(node -p "require(require.resolve('workerd/package.json', { paths: ['/usr/local/lib/node_modules/wrangler'] })).version")" "1.20260917.1"
-    require_eq "Wrangler Miniflare undici dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.undici")" "7.29.0"
-    require_eq "Wrangler undici package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json').version")" "7.29.0"
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.146.0"
+    require_eq "Wrangler undici development dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').devDependencies.undici")" "7.29.1"
+    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20261001.0-alpha"
+    require_eq "Wrangler workerd package version" "$(node -p "require(require.resolve('workerd/package.json', { paths: ['/usr/local/lib/node_modules/wrangler'] })).version")" "1.20261001.1"
+    require_eq "Wrangler Miniflare undici dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.undici")" "7.29.1"
+    require_eq "Wrangler undici package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json').version")" "7.29.1"
     npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null
     require_eq "Wrangler Miniflare sharp dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.sharp")" "0.35.4"
     require_eq "Wrangler sharp package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/sharp/package.json').version")" "0.35.4"
@@ -436,9 +477,14 @@ assert_runtime_identity() {
     PM2_HOME="$SENTINEL_ROOT/pm2" pm2 kill >/dev/null
     require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.2"
     require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.141.1"
-    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3196.5"
-    test -f /home/claude/.local/share/junie/current/lib/app/junie-release-3196.5.jar
+    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3419.26"
+    test -f /home/claude/.local/share/junie/current/lib/app/junie-release-3419.26.jar
   else
+    for debian_python_package in libpython3.11-minimal libpython3.11-stdlib python3.11 python3.11-minimal python3.11-venv; do
+      if dpkg-query -W "$debian_python_package" >/dev/null 2>&1; then
+        fail "Slim retains Debian Python package: $debian_python_package"
+      fi
+    done
     ! dpkg-query -W libssh-gcrypt-4 >/dev/null 2>&1
     test ! -e /usr/local/lib/node_modules/wrangler
     test ! -e /usr/local/lib/node_modules/prisma
@@ -497,9 +543,11 @@ function close(server) {
 
 for (const [dependency, version] of Object.entries({
   'better-sqlite3': '12.11.1',
+  'brace-expansion': '2.1.7',
+  'deslop-js/node_modules/brace-expansion': '5.0.12',
   dompurify: '3.4.15',
   express: '4.22.2',
-  'fast-uri': '3.1.7',
+  'fast-uri': '3.1.8',
   'ip-address': '10.7.2',
   'js-yaml': '3.15.2',
   nanoid: '3.3.19',
@@ -539,7 +587,7 @@ assert.equal(
 
 if (process.env.EXPECT_FULL === '1') {
   for (const [path, version] of Object.entries({
-    '/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json': '7.29.0',
+    '/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json': '7.29.1',
     '/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json': '8.10.2',
     '/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json': '3.3.19',
     '/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json': '4.3.2',

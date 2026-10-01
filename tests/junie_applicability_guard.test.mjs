@@ -19,10 +19,10 @@ test('runs the exact Junie guard at every native full-image advisory gate', () =
   assert.match(harness, /python3 \/tests\/junie_applicability_guard\.py/);
   assert.equal((workflow.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
   assert.equal((workflow.match(/--init --network none --entrypoint bash[\s\S]*?full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
-  assert.match(guard, /3196\.5/);
+  assert.match(guard, /3419\.26/);
   assert.match(guard, /junie-release-\{VERSION\}\.jar/);
-  assert.match(guard, /f82726298a4e12ee3798bcda516fbaf0d9d6b85da89110b7bd62801af64997f7/);
-  assert.match(guard, /6a1da55c9a946f73d5d5795c1f51a641c712d75fdd5421e852f2ab7a239c5221/);
+  assert.match(guard, /6e4994ce18e1d4744658c6fb7aec6c99fb5d9b241d27970c2371953f2a0e6295/);
+  assert.match(guard, /ea2c8101bc3ae1ba14f57b799377de73e9e458ed69fafc13b0c56a3bb734a206/);
   assert.doesNotMatch(guard, /3220\.1|junie-nightly|86c6899a7478c5a5884c1ddaf50f7c8e794b51d92a41c597512989e162886ec1/);
   assert.match(guard, /io\/netty\/handler\/ssl\/SniHandler/);
   assert.match(guard, /io\/netty\/handler\/ssl\/AbstractSniHandler/);
@@ -33,12 +33,21 @@ test('runs the exact Junie guard at every native full-image advisory gate', () =
   assert.match(guard, /validate_gateway_rejection/);
   assert.match(guard, /validate_runtime_residue/);
   assert.match(guard, /com\.intellij\.ml\.llm\.matterhorn\.ej\.app\.cli\.standalone\.MainKt/);
-  assert.match(guard, /f4e40d610438ff9f553ccc6529d943d5272eb8fa26e3c92ae51812623bfee438/);
+  assert.match(guard, /3133142a6d3e21efa3a53fdf0ad5a4e8651113724665e99f7e1be5bdb72fd992/);
   assert.match(guard, /5a953748e13fcd3b0006b007c77616651358522fa4f38a86d7a31ec18c14cf4d/);
   assert.doesNotMatch(guard, /--help/);
   assert.doesNotMatch(guard, /--gateway-status/);
   assert.doesNotMatch(guard, /run_probes|capture_client_hello|stop_gateway/);
   assert.match(workflow, /python3 -m unittest tests\/test_notify\.py tests\/junie_applicability_guard_unit\.py/);
+});
+
+test('does not carry 3196.5 security dispositions into the 3419.26 artifact', () => {
+  const currentPath = '/home/claude/.local/share/junie/versions/3419.26/lib/app/junie-release-3419.26.jar';
+  const applicable = ledger.reviews.filter((review) =>
+    review.owner === 'Junie CLI' &&
+    review.component.locationPatterns?.some((pattern) => new RegExp(pattern).test(currentPath)));
+  assert.deepEqual(applicable, []);
+  assert.doesNotMatch(JSON.stringify(vex.statements), /Junie 3419\.26/);
 });
 
 test('fails closed on malformed JAR input and changed bytes', () => {

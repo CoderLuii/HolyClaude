@@ -36,32 +36,10 @@ const staleArm64Ids = [
   'v158-full-arm64-high-exception-574a47ae18f2',
 ];
 
-function arm64Counterpart(review) {
-  const counterpart = structuredClone(review);
-  counterpart.id = counterpart.id.replace('full-amd64', 'full-arm64');
-  counterpart.architectures = ['arm64'];
-  counterpart.component.locationPatterns = counterpart.component.locationPatterns
-    .map((pattern) => pattern.replaceAll('3219', '3220').replaceAll(':amd64', ':arm64'));
-  counterpart.rationale = counterpart.rationale
-    .replaceAll('3219.1', '3220.1')
-    .replaceAll('full amd64', 'full arm64');
-  return counterpart;
-}
-
-test('binds all 37 approved full arm64 findings to exact stable Junie and Debian tuples', () => {
-  const expected = amd64Ids.map((id) => arm64Counterpart(reviews.find((review) => review.id === id)));
-  assert.equal(expected.length, 14);
-  assert.equal(expected.reduce((count, review) => count + review.vulnerabilities.length * review.component.names.length, 0), 37);
-
-  for (const review of expected) {
-    const actual = reviews.filter((candidate) => candidate.id === review.id);
-    assert.equal(actual.length, 1, `${review.id} must exist exactly once`);
-    assert.deepEqual(actual[0], review);
-    assert.equal(actual[0].reviewedAt, '2026-09-18');
-    assert.equal(actual[0].expiresAt, '2026-09-25');
-    assert.equal(actual[0].approvedBy, 'CoderLuii');
-    assert.equal('vexStatement' in actual[0], false);
-  }
+test('removes all 14 expired full arm64 exceptions from the active ledger', () => {
+  const arm64Ids = amd64Ids.map((id) => id.replace('full-amd64', 'full-arm64'));
+  assert.equal(arm64Ids.length, 14);
+  assert.ok(arm64Ids.every((id) => !reviews.some((review) => review.id === id)));
 });
 
 test('removes only the 14 exception records proven stale by the full arm64 report', () => {
@@ -69,22 +47,16 @@ test('removes only the 14 exception records proven stale by the full arm64 repor
   for (const id of staleArm64Ids) {
     assert.equal(reviews.some((review) => review.id === id), false, `${id} must be removed`);
   }
-  assert.equal(reviews.filter((review) => amd64Ids.includes(review.id)).length, 14);
+  assert.equal(reviews.filter((review) => amd64Ids.includes(review.id)).length, 0);
 });
 
-test('keeps the approved full arm64 risk effective High through the fixed expiry', () => {
+test('does not retain expired full arm64 effective-High approvals', () => {
   const arm64Ids = amd64Ids.map((id) => id.replace('full-amd64', 'full-arm64'));
   const arm64 = reviews.filter((review) => arm64Ids.includes(review.id));
-  assert.equal(arm64.length, 14);
-  assert.ok(arm64.every((review) => review.effectiveSeverity === 'High'));
-  assert.ok(arm64.every((review) =>
-    review.reviewedAt === '2026-09-18' && review.expiresAt === '2026-09-25',
-  ));
-  assert.ok(arm64.every((review) => JSON.stringify(review.variants) === '["full"]'));
-  assert.ok(arm64.every((review) => JSON.stringify(review.architectures) === '["arm64"]'));
+  assert.deepEqual(arm64, []);
 });
 
-test('records the two newly approved full-image High exceptions separately', () => {
+test('removes the expired bubblewrap and extract-zip full-image exceptions', () => {
   for (const architecture of ['amd64', 'arm64']) {
     for (const expected of [
       { suffix: 'bubblewrap-cve-2026-87766-high-exception', vulnerability: 'CVE-2026-87766', name: 'bubblewrap' },
@@ -92,17 +64,7 @@ test('records the two newly approved full-image High exceptions separately', () 
     ]) {
       const id = `v160-full-${architecture}-${expected.suffix}`;
       const matches = reviews.filter((review) => review.id === id);
-      assert.equal(matches.length, 1, `${id} must exist exactly once`);
-      const [review] = matches;
-      assert.deepEqual(review.vulnerabilities, [expected.vulnerability]);
-      assert.deepEqual(review.component.names, [expected.name]);
-      assert.equal(review.disposition, 'high_exception');
-      assert.equal(review.effectiveSeverity, 'High');
-      assert.equal(review.approvedBy, 'CoderLuii');
-      assert.equal(review.reviewedAt, '2026-09-18');
-      assert.equal(review.expiresAt, '2026-09-25');
-      assert.deepEqual(review.variants, ['full']);
-      assert.deepEqual(review.architectures, [architecture]);
+      assert.deepEqual(matches, [], `${id} must be removed`);
     }
   }
 });
