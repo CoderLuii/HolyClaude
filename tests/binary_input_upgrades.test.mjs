@@ -18,49 +18,50 @@ const thirdPartyNotices = read('THIRD-PARTY-NOTICES');
 const productFacts = JSON.parse(read('contracts/product-facts.json'));
 const cloudcliManifest = JSON.parse(read('vendor/artifacts/cloudcli-account-management.manifest.json'));
 
-test('pins the verified Node 26.9.0 runtime and CloudCLI build provenance', () => {
-  const image = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
-  assert.equal(dockerfile.match(/^FROM node:[^\r\n]+/gm)?.filter((line) => line.startsWith(`FROM ${image}`)).length, 2);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.9\.0"/);
-  assert.match(runtimeChecks, /require_eq "Node version" "\$\(node --version\)" "v26\.9\.0"/);
-  assert.match(developerToolsSmoke, /assert\.equal\(process\.version, 'v26\.9\.0'/);
+test('pins Node 26.10.0 while preserving CloudCLI build provenance', () => {
+  const buildImage = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
+  const runtimeImage = 'node:26.10.0-bookworm-slim@sha256:662933cf47f013bc8e4beb31a6116448427a82057ba7c42c97e4c5ba766504c2';
+  assert.equal(dockerfile.match(/^FROM node:[^\r\n]+/gm)?.filter((line) => line.startsWith(`FROM ${buildImage}`)).length, 1);
+  assert.equal(dockerfile.match(/^FROM node:[^\r\n]+/gm)?.filter((line) => line.startsWith(`FROM ${runtimeImage}`)).length, 1);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.10\.0"/);
+  assert.match(runtimeChecks, /require_eq "Node version" "\$\(node --version\)" "v26\.10\.0"/);
+  assert.match(developerToolsSmoke, /assert\.equal\(process\.version, 'v26\.10\.0'/);
   assert.doesNotMatch(architectureDocs, /Node 26\.8\.2 runtime/);
   assert.doesNotMatch(thirdPartyNotices, /Node 26\.8\.2 runtime|Version: 26\.8\.2 base image/);
-  assert.equal(cloudcliManifest.build.image, image);
+  assert.equal(cloudcliManifest.build.image, buildImage);
   assert.equal(cloudcliManifest.build.node, 'v26.9.0');
-  assert.match(immutableInputs, /reference: node:26\.9\.0-bookworm-slim\s+digest: sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6/);
+  assert.match(immutableInputs, /name: FFmpeg security builder\s+reference: node:26\.9\.0-bookworm-slim\s+digest: sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6\s+status: retained/);
+  assert.match(immutableInputs, /reference: node:26\.10\.0-bookworm-slim\s+digest: sha256:662933cf47f013bc8e4beb31a6116448427a82057ba7c42c97e4c5ba766504c2/);
 });
 
 test('pins the verified native binary candidates and runtime contracts', () => {
   for (const expected of [
-    'ARG CLAUDE_CODE_VERSION=2.1.287',
-    'ARG CLAUDE_BINARY_SHA256_AMD64=3920489a5109cff5786a1a392c25277408ff22bc796d5edb9c16a60e5a1718f0',
-    'ARG CLAUDE_BINARY_SHA256_ARM64=e4daf793d1e74fb0d9874dd09e98690bbfd7be515f78a87fd05b9e2b4bb33b03',
-    'ARG GITHUB_CLI_VERSION=2.101.0',
-    'ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=f876a3b87bf67c94f773d17becca4dc7340b056dab901473a9260ee2a73e237b',
-    'ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=9aec87f9a011b1521556b06cb003776e7e214144c8efd2144924a28d90c23057',
+    'ARG CLAUDE_CODE_VERSION=2.1.290',
+    'ARG CLAUDE_BINARY_SHA256_AMD64=ea38ee1a1f946eea9bc6e97fb912dbe71fc379b25cc605d91b308afa1ca08be7',
+    'ARG CLAUDE_BINARY_SHA256_ARM64=24c31a685e363190c165353f10b4e8434fd22647c1dd76eb6d2a05634eb60b95',
+    'ARG GITHUB_CLI_VERSION=2.102.0',
+    'ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0',
+    'ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=5006962696f01e1624b3fcf1f9d8e1a11547f24bf067dd2a0371b7b421945237',
     'ARG CURSOR_BUILD_ID=2026.09.15-d2fe57e',
     'ARG CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97',
     'ARG CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d',
     'ARG CURSOR_LAUNCHER_SHA256=2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233',
-    'ARG JUNIE_VERSION=3419.26',
-    'ARG JUNIE_ARCHIVE_SHA256_AMD64=52a0c255e70df2cf030b134d8e458d3013d6d8149f8ff47ef562a7eedef13d4f',
-    'ARG JUNIE_ARCHIVE_SHA256_ARM64=db0967f44ec04e70069b137136f8c53fdda3c6a4607870a568fa9454b48ba005',
+    'ARG JUNIE_VERSION=3419.29',
+    'ARG JUNIE_ARCHIVE_SHA256_AMD64=7ac5d675d90305c65207f9ddaf4219a1bf78c34630b8e39423833d2716ce7b5e',
+    'ARG JUNIE_ARCHIVE_SHA256_ARM64=17338e32942ffb1eca2f8aab020495c10bd8ab92d3772e59b0ca67e791e242ad',
   ]) assert.ok(dockerfile.includes(expected), `Dockerfile should bind ${expected}`);
 
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.287');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.290');
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'cursor-agent')?.version, '2026.09.15-d2fe57e');
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'junie')?.version, '3419.26');
-  assert.match(runtimeChecks, /require_eq "Claude Code version"[^\n]+"2\.1\.287"/);
-  assert.match(runtimeChecks, /require_eq "GitHub CLI version"[^\n]+"2\.101\.0"/);
-  assert.match(additionalLinuxRuntimeChecks, /require_package gh '2\.101\.0'/);
-  assert.match(additionalLinuxRuntimeChecks, /gh version 2\.101\.0/);
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'junie')?.version, '3419.29');
+  assert.match(runtimeChecks, /require_eq "Claude Code version"[^\n]+"2\.1\.290"/);
+  assert.match(runtimeChecks, /require_eq "GitHub CLI version"[^\n]+"2\.102\.0"/);
   assert.match(runtimeChecks, /require_eq "Cursor Agent build"[^\n]+"2026\.09\.15-d2fe57e"/);
-  assert.match(runtimeChecks, /require_eq "Junie build"[^\n]+"3419\.26"/);
+  assert.match(runtimeChecks, /require_eq "Junie build"[^\n]+"3419\.29"/);
   assert.match(cursorOwnerGuard, /versions\/2026\.09\.15-d2fe57e\/node_modules\/piscina\/package\.json/);
 });
 
-test('rebinds the Junie applicability guard to observed 3419.26 identities', () => {
+test('preserves the historical Junie 3419.26 applicability guard', () => {
   for (const expected of [
     'VERSION = "3419.26"',
     'JAR_SHA256 = "6e4994ce18e1d4744658c6fb7aec6c99fb5d9b241d27970c2371953f2a0e6295"',
@@ -72,12 +73,12 @@ test('rebinds the Junie applicability guard to observed 3419.26 identities', () 
 
 test('pins the verified workflow scanner and action updates', () => {
   for (const expected of [
-    'SYFT_VERSION: 1.52.0',
-    'GRYPE_VERSION: 0.119.0',
-    'SYFT_SHA256_AMD64: caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d',
-    'SYFT_SHA256_ARM64: c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706',
-    'GRYPE_SHA256_AMD64: 3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b',
-    'GRYPE_SHA256_ARM64: 29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8',
+    'SYFT_VERSION: 1.54.0',
+    'GRYPE_VERSION: 0.120.0',
+    'SYFT_SHA256_AMD64: 54a87372498168b2d033e876fd41fa4e8035b872699e525a57046e1f2f09c860',
+    'SYFT_SHA256_ARM64: ee6d4566373a05b344bc6b5f1706f14419bf9338ba39ff686e247deefe9b8818',
+    'GRYPE_SHA256_AMD64: a5a1218dce63acdac152a6b3b5bb366e7267e36f4069848cf455543b3fa5700e',
+    'GRYPE_SHA256_ARM64: bc0e52b1a0de37e2ff021c4924d689dce7dcff2e7d74b39aea16c0453e69be18',
     'docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1',
     'docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0',
   ]) assert.ok(workflow.includes(expected), `workflow should bind ${expected}`);

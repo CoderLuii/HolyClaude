@@ -3,6 +3,8 @@ data/
 workspace/*
 !workspace/.gitkeep
 .omc/
+.omx/
+.sisyphus/
 evidence/
 .evidence/
 .tmp/

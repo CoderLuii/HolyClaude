@@ -1,0 +1,175 @@
+name: HolyClaude - Source and security monitoring
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "23 9 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: holyclaude-source-security-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  SYFT_VERSION: 1.54.0
+  GRYPE_VERSION: 0.120.0
+  SYFT_SHA256_AMD64: 54a87372498168b2d033e876fd41fa4e8035b872699e525a57046e1f2f09c860
+  SYFT_SHA256_ARM64: ee6d4566373a05b344bc6b5f1706f14419bf9338ba39ff686e247deefe9b8818
+  GRYPE_SHA256_AMD64: a5a1218dce63acdac152a6b3b5bb366e7267e36f4069848cf455543b3fa5700e
+  GRYPE_SHA256_ARM64: bc0e52b1a0de37e2ff021c4924d689dce7dcff2e7d74b39aea16c0453e69be18
+
+jobs:
+  source-validation:
+    name: source validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate source and standing policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in scripts/*.sh tests/*.sh; do bash -n "${file}"; done
+          for file in scripts/holyclaude-chromium scripts/holyclaude-mosh-server; do sh -n "${file}"; done
+          for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
+          PYTHONPYCACHEPREFIX="${RUNNER_TEMP}/pycache" python3 -m py_compile scripts/secure-cli-persistence.py
+          node scripts/verify-product-facts.mjs --release v1.6.5
+          node --test tests/*.test.mjs
+          python3 -m unittest tests/test_notify.py tests/junie_applicability_guard_unit.py tests/libxml2_python_binding_guard_unit.py
+          as_of="$(date -u +%F)"
+          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${as_of}" --release v1.6.5
+          for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
+            node scripts/evaluate-upstream-dependency-report.mjs \
+              --policy security/upstream-dependency-policy.json \
+              --release v1.6.5 \
+              --variant "${target%-*}" \
+              --arch "${target#*-}" \
+              --preflight true \
+              --as-of "${as_of}"
+          done
+          docker run --rm -v "${GITHUB_WORKSPACE}:/repo" -w /repo \
+            rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+
+  published-image-scan:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    name: published scan (${{ matrix.variant }}, ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: full
+            arch: amd64
+            runner: ubuntu-24.04
+            tag: "1.6.5"
+          - variant: full
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            tag: "1.6.5"
+          - variant: slim
+            arch: amd64
+            runner: ubuntu-24.04
+            tag: "1.6.5-slim"
+          - variant: slim
+            arch: arm64
+            runner: ubuntu-24.04-arm
+            tag: "1.6.5-slim"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Prepare monitoring evidence directory
+        shell: bash
+        run: mkdir -p evidence
+
+      - name: Install checksum-pinned scanners
+        shell: bash
+        run: |
+          set -euo pipefail
+          install_scanner() {
+            local tool="$1" version="$2" expected_sha256="$3"
+            local archive="${tool}_${version}_linux_${{ matrix.arch }}.tar.gz"
+            local base="https://github.com/anchore/${tool}/releases/download/v${version}"
+            curl --disable --retry 8 --retry-all-errors --remove-on-error -fsSLO "${base}/${archive}"
+            curl --disable --retry 8 --retry-all-errors --remove-on-error -fsSLO "${base}/${tool}_${version}_checksums.txt"
+            grep -F "  ${archive}" "${tool}_${version}_checksums.txt" | sha256sum -c -
+            printf '%s  %s\n' "${expected_sha256}" "${archive}" | sha256sum -c -
+            sudo tar -xzf "${archive}" -C /usr/local/bin "${tool}"
+          }
+          syft_sha="${SYFT_SHA256_AMD64}"
+          grype_sha="${GRYPE_SHA256_AMD64}"
+          if [[ "${{ matrix.arch }}" == "arm64" ]]; then
+            syft_sha="${SYFT_SHA256_ARM64}"
+            grype_sha="${GRYPE_SHA256_ARM64}"
+          fi
+          install_scanner syft "${SYFT_VERSION}" "${syft_sha}"
+          install_scanner grype "${GRYPE_VERSION}" "${grype_sha}"
+          grype db update
+
+      - name: Scan published image and evaluate advisory policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="coderluii/holyclaude:${{ matrix.tag }}"
+          docker buildx imagetools inspect --raw "${image}" > evidence/index.json
+          digest="$(jq -r --arg arch '${{ matrix.arch }}' '[.manifests[] | select(.platform.os == "linux" and .platform.architecture == $arch) | .digest] | if length == 1 then .[0] else error("expected one platform manifest") end' evidence/index.json)"
+          [[ "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]
+          docker pull "${image}@${digest}"
+          test "$(docker image inspect --format '{{.Os}}' "${image}@${digest}")" = linux
+          test "$(docker image inspect --format '{{.Architecture}}' "${image}@${digest}")" = "${{ matrix.arch }}"
+          grype db status -o json > evidence/grype-db-status.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import parse_qs, urlparse
+          path = Path("evidence/grype-db-status.json")
+          status = json.loads(path.read_text(encoding="utf-8"))
+          checksum = parse_qs(urlparse(status.get("from", "")).query).get("checksum", [""])[0]
+          if not status.get("valid") or not status.get("built") or not checksum.startswith("sha256:"):
+              raise SystemExit("Grype database evidence is incomplete")
+          evidence = {"schemaVersion": status.get("schemaVersion"), "built": status["built"], "source": status["from"], "checksum": checksum, "valid": status["valid"]}
+          Path("evidence/grype-db-evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          syft "${image}@${digest}" --from registry \
+            -o syft-json=evidence/sbom.syft.json \
+            -o cyclonedx-json=evidence/sbom.cyclonedx.json
+          printf '{}\n' > "${RUNNER_TEMP}/grype-empty.yaml"
+          grype --config "${RUNNER_TEMP}/grype-empty.yaml" sbom:evidence/sbom.cyclonedx.json -o json > evidence/grype.json
+          node scripts/evaluate-upstream-dependency-report.mjs \
+            --policy security/upstream-dependency-policy.json \
+            --release v1.6.5 \
+            --report evidence/grype.json \
+            --sbom evidence/sbom.cyclonedx.json \
+            --syft-json evidence/sbom.syft.json \
+            --image-ref "${image}@${digest}" \
+            --db-evidence evidence/grype-db-evidence.json \
+            --immutable-inputs security/immutable-inputs.yml \
+            --output-dir evidence \
+            --variant "${{ matrix.variant }}" \
+            --arch "${{ matrix.arch }}" \
+            --image-digest "${digest}" \
+            --as-of "$(date -u +%F)"
+          (cd evidence && sha256sum ./*.json > SHA256SUMS)
+
+      - name: Upload monitoring evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: published-security-${{ matrix.variant }}-${{ matrix.arch }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 30

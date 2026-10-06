@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.6.4
+run-name: v1.6.5
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.6.4"
+        default: "1.6.5"
         type: string
   push:
     branches:
@@ -26,12 +26,12 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
-  SYFT_VERSION: 1.52.0
-  GRYPE_VERSION: 0.119.0
-  SYFT_SHA256_AMD64: caeedb81fb0491615f1ebd1761e4145d41ee86dd2cc7bf80669f9f5ad9d6133d
-  SYFT_SHA256_ARM64: c46d5e4c28e12aa4c5becfaa343ef1c7f89045b6b895f2c21d471c62db09c706
-  GRYPE_SHA256_AMD64: 3fa2dc4b924621ab65404cf08d0b8438d896d80ab949c9d5a4ca283c36004c9b
-  GRYPE_SHA256_ARM64: 29f0ec7c549ddb0e2b6a0ca714851f7399438afc399b80c12808e065edc9a8f8
+  SYFT_VERSION: 1.54.0
+  GRYPE_VERSION: 0.120.0
+  SYFT_SHA256_AMD64: 54a87372498168b2d033e876fd41fa4e8035b872699e525a57046e1f2f09c860
+  SYFT_SHA256_ARM64: ee6d4566373a05b344bc6b5f1706f14419bf9338ba39ff686e247deefe9b8818
+  GRYPE_SHA256_AMD64: a5a1218dce63acdac152a6b3b5bb366e7267e36f4069848cf455543b3fa5700e
+  GRYPE_SHA256_ARM64: bc0e52b1a0de37e2ff021c4924d689dce7dcff2e7d74b39aea16c0453e69be18
   SBOM_UTILITY_VERSION: 0.19.2
   SBOM_UTILITY_SHA256_AMD64: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
   SBOM_UTILITY_SHA256_ARM64: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
@@ -84,12 +84,11 @@ jobs:
           test "$(head -n 1 docs/CHANGELOG.md)" = "# Changelog"
           grep -Eq "^## \[${release#v}\] - [0-9]{2}/[0-9]{2}/[0-9]{4}$" docs/CHANGELOG.md
           grep -Fq "release: ${release}" security/immutable-inputs.yml
-          grep -Fq "@${release#v}?variant=full" security/openvex.json
-          grep -Fq "@${release#v}?variant=slim" security/openvex.json
-          baseline="44e5a11d18269b877be2103235c790ab1c3c8e84"
+          test "$(jq -r .release security/upstream-dependency-policy.json)" = "${release}"
+          baseline="20e9e10681aec9b091bb54da8755f8a1c59f69bb"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.6.3^{commit}')" = "44e5a11d18269b877be2103235c790ab1c3c8e84"
+          test "$(git rev-parse 'v1.6.4^{commit}')" = "20e9e10681aec9b091bb54da8755f8a1c59f69bb"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -101,7 +100,7 @@ jobs:
             --release "${release}"
           echo "release=${release}" >> "${GITHUB_OUTPUT}"
 
-      - name: Validate committed advisory ledger, OpenVEX, and v1.6.4 deferral
+      - name: Validate upstream dependency advisory policy
         shell: bash
         run: |
           set -euo pipefail
@@ -109,13 +108,9 @@ jobs:
           for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
             variant="${target%-*}"
             arch="${target#*-}"
-            node scripts/evaluate-release-security-deferral.mjs \
-              --manifest security/v1.6.4-release-security-deferral.json \
-              --accepted-risk-manifest security/v1.6.4-accepted-risk.json \
+            node scripts/evaluate-upstream-dependency-report.mjs \
+              --policy security/upstream-dependency-policy.json \
               --release "${{ steps.source.outputs.release }}" \
-              --ledger security/advisory-reviews.json \
-              --authority-evidence "security/critical-exception-authority-evidence-${target}.json" \
-              --vex security/openvex.json \
               --variant "${variant}" \
               --arch "${arch}" \
               --preflight true \
@@ -199,56 +194,84 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-      - name: Verify CloudCLI artifact reproducibility from two clean builds
+      - name: Require retained CloudCLI artifact and overlay inputs to remain unchanged
         if: matrix.variant == 'full' && matrix.arch == 'amd64'
-        timeout-minutes: 60
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          node scripts/build-cloudcli-account-management-artifact-container.mjs
-          git diff --exit-code -- \
+          baseline="20e9e10681aec9b091bb54da8755f8a1c59f69bb"
+          if ! git diff --quiet "${baseline}" -- \
             vendor/artifacts/cloudcli-account-management.manifest.json \
-            vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz
+            vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz \
+            vendor/locks/cloudcli-account-management-70e57859b6224ff0eb0539fcde7d13a3186c9c93.package-lock.json \
+            vendor/locks/cloudcli-web-terminal-6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d.package-lock.json \
+            vendor/patches/cloudcli-account-management \
+            scripts/build-cloudcli-account-management-artifact.mjs \
+            scripts/build-cloudcli-account-management-artifact-container.mjs \
+            scripts/patch-cloudcli-*.mjs \
+            scripts/verify-cloudcli-account-management-*.mjs; then
+            echo "Retained CloudCLI artifact, builder, patch, lock, or verification input changed" >&2
+            exit 1
+          fi
+          git show "${baseline}:Dockerfile" | grep '^ARG CLOUDCLI_' > "${RUNNER_TEMP}/cloudcli-args.baseline"
+          grep '^ARG CLOUDCLI_' Dockerfile > "${RUNNER_TEMP}/cloudcli-args.current"
+          cmp "${RUNNER_TEMP}/cloudcli-args.baseline" "${RUNNER_TEMP}/cloudcli-args.current"
+          extract_cloudcli() {
+            awk '/^ARG CLOUDCLI_VERSION=/{capture=1} capture && /^# ---------- Store variant/{exit} capture{print}' "$1"
+          }
+          git show "${baseline}:Dockerfile" > "${RUNNER_TEMP}/Dockerfile.baseline"
+          extract_cloudcli "${RUNNER_TEMP}/Dockerfile.baseline" > "${RUNNER_TEMP}/cloudcli-section.baseline"
+          extract_cloudcli Dockerfile > "${RUNNER_TEMP}/cloudcli-section.current"
+          python3 - "${RUNNER_TEMP}/cloudcli-section.baseline" "${RUNNER_TEMP}/cloudcli-section.current" <<'PY'
+          from pathlib import Path
+          import sys
 
-      - name: Verify FFmpeg artifacts from two empty-cache builds when inputs changed
+          baseline_path, current_path = map(Path, sys.argv[1:3])
+          baseline = baseline_path.read_text(encoding="utf-8")
+          current = current_path.read_text(encoding="utf-8")
+          backslash = chr(92)
+          deltas = (
+              (
+                  f'    test "$(npm --version)" = "12.0.2" && {backslash}\n',
+                  f'    test "$(npm --version)" = "12.2.0" && {backslash}\n',
+                  "npm version assertion",
+              ),
+              (
+                  f"      /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address {backslash}\n"
+                  f"      /usr/local/lib/node_modules/npm/node_modules/ip-address; {backslash}\n",
+                  f"      /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address; {backslash}\n",
+                  "npm ip-address overlay removal",
+              ),
+          )
+          for old, new, name in deltas:
+              if baseline.count(old) != 1 or current.count(new) != 1:
+                  raise SystemExit(f"expected exactly one reviewed {name} delta")
+              if baseline.count(new) != 0 or current.count(old) != 0:
+                  raise SystemExit(f"unexpected mixed {name} state")
+              baseline = baseline.replace(old, new)
+          baseline_path.write_text(baseline, encoding="utf-8")
+          PY
+          cmp "${RUNNER_TEMP}/cloudcli-section.baseline" "${RUNNER_TEMP}/cloudcli-section.current"
+          artifact_sha256="$(sha256sum vendor/artifacts/cloudcli-ai-cloudcli-1.37.3-holyclaude-account-management.tgz | cut -d' ' -f1)"
+          test "${artifact_sha256}" = "$(jq -r .artifact.sha256 vendor/artifacts/cloudcli-account-management.manifest.json)"
+
+      - name: Require retained FFmpeg builder and patch inputs to remain unchanged
         if: matrix.variant == 'full'
-        timeout-minutes: 180
         run: |
           set -euo pipefail
-          baseline="44e5a11d18269b877be2103235c790ab1c3c8e84"
-          if git diff --quiet "${baseline}" -- \
-            Dockerfile \
+          baseline="20e9e10681aec9b091bb54da8755f8a1c59f69bb"
+          if ! git diff --quiet "${baseline}" -- \
             scripts/build-ffmpeg-security-backport.sh \
             security/patches/ffmpeg; then
-            echo "FFmpeg build inputs are unchanged; independent rebuild is not required"
-            exit 0
+            echo "Retained FFmpeg builder script or patch input changed" >&2
+            exit 1
           fi
-          for build in a b; do
-            output="${RUNNER_TEMP}/ffmpeg-build-${build}"
-            image="holyclaude-ffmpeg-repro:${GITHUB_SHA}-${{ matrix.arch }}-${build}"
-            rm -rf "${output}"
-            mkdir -p "${output}"
-            docker buildx build \
-              --no-cache \
-              --platform "linux/${{ matrix.arch }}" \
-              --target ffmpeg-security-builder \
-              --build-arg "TARGETARCH=${{ matrix.arch }}" \
-              --build-arg VARIANT=full \
-              --load \
-              --tag "${image}" \
-              .
-            container="$(docker create "${image}")"
-            docker cp "${container}:/out/ffmpeg-security-backport" "${output}/ffmpeg-security-backport"
-            docker rm "${container}"
-            (cd "${output}/ffmpeg-security-backport" && sha256sum -c SHA256SUMS)
-          done
-          cmp \
-            "${RUNNER_TEMP}/ffmpeg-build-a/ffmpeg-security-backport/SHA256SUMS" \
-            "${RUNNER_TEMP}/ffmpeg-build-b/ffmpeg-security-backport/SHA256SUMS"
-          diff -ru \
-            "${RUNNER_TEMP}/ffmpeg-build-a/ffmpeg-security-backport" \
-            "${RUNNER_TEMP}/ffmpeg-build-b/ffmpeg-security-backport"
+          extract_ffmpeg_stage() {
+            awk '/^FROM .* AS ffmpeg-security-builder$/{capture=1} capture && /^FROM / && $0 !~ /ffmpeg-security-builder$/{exit} capture{print}' "$1"
+          }
+          git show "${baseline}:Dockerfile" > "${RUNNER_TEMP}/Dockerfile.baseline"
+          extract_ffmpeg_stage "${RUNNER_TEMP}/Dockerfile.baseline" > "${RUNNER_TEMP}/ffmpeg-stage.baseline"
+          extract_ffmpeg_stage Dockerfile > "${RUNNER_TEMP}/ffmpeg-stage.current"
+          cmp "${RUNNER_TEMP}/ffmpeg-stage.baseline" "${RUNNER_TEMP}/ffmpeg-stage.current"
 
       - name: Record cryptography reproducibility disposition
         if: matrix.variant == 'full' && matrix.arch == 'amd64'
@@ -614,7 +637,6 @@ jobs:
           evidence_dir="security-evidence/${{ matrix.variant }}-${{ matrix.arch }}"
           image="${{ steps.refs.outputs.dockerhub_ref }}@${{ steps.digests.outputs.dockerhub_digest }}"
           mkdir -p "${evidence_dir}"
-          cp security/openvex.json "${evidence_dir}/openvex.json"
           grype db status -o json > "${evidence_dir}/grype-db-status.json"
           GRYPE_DB_STATUS="${evidence_dir}/grype-db-status.json" python3 - <<'PY'
           import json
@@ -633,41 +655,38 @@ jobs:
               "built": status["built"],
               "source": status["from"],
               "checksum": checksum,
+              "valid": status["valid"],
           }
           with path.with_name("grype-db-evidence.json").open("w", encoding="utf-8") as handle:
               json.dump(evidence, handle, indent=2, sort_keys=True)
               handle.write("\n")
           PY
-          syft "${image}" --parallelism 1 \
+          syft "${image}" --from registry --parallelism 1 \
+            -o "syft-json=${evidence_dir}/sbom.syft.json" \
             -o "cyclonedx-json=${evidence_dir}/sbom.cyclonedx.syft.json" \
             -o "spdx-json=${evidence_dir}/sbom.spdx.json"
           node scripts/normalize-sbom-license-ids.mjs \
             --input "${evidence_dir}/sbom.cyclonedx.syft.json" \
             --output "${evidence_dir}/sbom.cyclonedx.json" \
             --evidence "${evidence_dir}/sbom-license-normalization.json"
-          sbom_sha256="$(sha256sum "${evidence_dir}/sbom.cyclonedx.json" | cut -d' ' -f1)"
           sbom-utility validate --input-file "${evidence_dir}/sbom.cyclonedx.json" --quiet
           sbom-utility validate --input-file "${evidence_dir}/sbom.spdx.json" --quiet
           printf '{}\n' > "${RUNNER_TEMP}/grype-empty.yaml"
           grype --config "${RUNNER_TEMP}/grype-empty.yaml" "sbom:${evidence_dir}/sbom.cyclonedx.json" -o json > "${evidence_dir}/grype.json"
-          node scripts/bind-security-authority-report.mjs \
-            --authority-evidence security/critical-exception-authority-evidence-${{ matrix.variant }}-${{ matrix.arch }}.json \
-            --report "${evidence_dir}/grype.json" \
-            --output "${evidence_dir}/critical-exception-authority-evidence.json"
           set +e
-          node scripts/evaluate-release-security-deferral.mjs \
-            --manifest security/v1.6.4-release-security-deferral.json \
-            --accepted-risk-manifest security/v1.6.4-accepted-risk.json \
+          node scripts/evaluate-upstream-dependency-report.mjs \
+            --policy security/upstream-dependency-policy.json \
             --release "${{ needs.validate-release-ref.outputs.release }}" \
             --report "${evidence_dir}/grype.json" \
-            --ledger security/advisory-reviews.json \
-            --authority-evidence "${evidence_dir}/critical-exception-authority-evidence.json" \
-            --vex security/openvex.json \
+            --sbom "${evidence_dir}/sbom.cyclonedx.json" \
+            --syft-json "${evidence_dir}/sbom.syft.json" \
+            --image-ref "${image}" \
+            --db-evidence "${evidence_dir}/grype-db-evidence.json" \
+            --immutable-inputs security/immutable-inputs.yml \
             --output-dir "${evidence_dir}" \
             --variant "${{ matrix.variant }}" \
             --arch "${{ matrix.arch }}" \
             --image-digest "${{ steps.digests.outputs.dockerhub_digest }}" \
-            --sbom-sha256 "${sbom_sha256}" \
             --as-of "$(date -u +%F)"
           policy_status=$?
           set -e
@@ -686,9 +705,6 @@ jobs:
           from pathlib import Path
 
           root = Path(os.environ["EVIDENCE_DIR"])
-          with (root / "grype.json").open(encoding="utf-8") as handle:
-              report = json.load(handle)
-
           with (root / "sbom.cyclonedx.json").open(encoding="utf-8") as handle:
               cyclonedx = json.load(handle)
           if cyclonedx.get("bomFormat") != "CycloneDX" or not cyclonedx.get("specVersion"):
@@ -746,12 +762,10 @@ jobs:
           if count_license_field(cyclonedx, "name") != normalization_count:
               raise SystemExit("normalized CycloneDX license name count mismatch")
 
-          policy_path = root / "policy.json"
-          if policy_path.exists():
-              with policy_path.open(encoding="utf-8") as handle:
-                  policy = json.load(handle)
-          else:
-              policy = {}
+          with (root / "policy.json").open(encoding="utf-8") as handle:
+              policy = json.load(handle)
+          with (root / "release-upstream-vulnerabilities.json").open(encoding="utf-8") as handle:
+              upstream = json.load(handle)
 
           if policy.get("imageDigest") != os.environ["DOCKERHUB_DIGEST"]:
               raise SystemExit("security policy imageDigest does not match the Docker Hub candidate")
@@ -760,72 +774,30 @@ jobs:
           if policy.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
               raise SystemExit("security policy sbomSha256 does not match the normalized CycloneDX SBOM")
 
-          policy_status = int(os.environ["POLICY_STATUS"])
-          accepted = {}
-          accepted_path = root / "release-accepted-risk.json"
-          if accepted_path.is_file():
-              with accepted_path.open(encoding="utf-8") as handle:
-                  accepted = json.load(handle)
-          deferral = {}
-          deferral_path = root / "release-security-deferral.json"
-          if deferral_path.is_file():
-              with deferral_path.open(encoding="utf-8") as handle:
-                  deferral = json.load(handle)
-          if policy_status == 0:
-              if not accepted_path.is_file():
-                  raise SystemExit("release accepted-risk evidence is missing")
-              if accepted.get("status") != "known_risk_accepted" or accepted.get("release") != os.environ["RELEASE"]:
-                  raise SystemExit("release accepted-risk evidence is invalid")
-              if accepted.get("variant") != os.environ["VARIANT"] or accepted.get("architecture") != os.environ["ARCH"]:
-                  raise SystemExit("release accepted-risk target mismatch")
-              if accepted.get("imageDigest") != os.environ["DOCKERHUB_DIGEST"]:
-                  raise SystemExit("release accepted-risk image digest mismatch")
-              if accepted.get("reportSha256") != hashlib.sha256((root / "grype.json").read_bytes()).hexdigest():
-                  raise SystemExit("release accepted-risk report hash mismatch")
-              if accepted.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
-                  raise SystemExit("release accepted-risk SBOM hash mismatch")
-              accepted_policy = policy.get("acceptedKnownRisk", {})
-              if policy.get("securityStatus") != "known_risk_accepted":
-                  raise SystemExit("security policy is missing the accepted-risk status")
-              for key in (
-                  "acceptedFindingCount",
-                  "acceptedCriticalCount",
-                  "acceptedHighCount",
-                  "manifestSha256",
-                  "approvedBy",
-                  "reviewedAt",
-                  "expiresAt",
-              ):
-                  if accepted_policy.get(key) != accepted.get(key):
-                      raise SystemExit(f"security policy accepted-risk {key} mismatch")
-
-              release_deferral = policy.get("releaseDeferral", {})
-              deferred_review_ids = release_deferral.get("usedReviewIds", [])
-              if deferred_review_ids:
-                  if not deferral_path.is_file():
-                      raise SystemExit("release security deferral evidence is missing")
-                  if deferral.get("status") != "deferred_not_fixed" or deferral.get("release") != os.environ["RELEASE"]:
-                      raise SystemExit("release security deferral evidence is invalid")
-                  if deferral.get("variant") != os.environ["VARIANT"] or deferral.get("architecture") != os.environ["ARCH"]:
-                      raise SystemExit("release security deferral target mismatch")
-                  if deferral.get("imageDigest") != os.environ["DOCKERHUB_DIGEST"]:
-                      raise SystemExit("release security deferral image digest mismatch")
-                  if deferral.get("reportSha256") != hashlib.sha256((root / "grype.json").read_bytes()).hexdigest():
-                      raise SystemExit("release security deferral report hash mismatch")
-                  if deferral.get("sbomSha256") != hashlib.sha256(normalized_path.read_bytes()).hexdigest():
-                      raise SystemExit("release security deferral SBOM hash mismatch")
-                  for key in (
-                      "status",
-                      "release",
-                      "manifestSha256",
-                      "approvedBy",
-                      "reviewedAt",
-                      "expiresAt",
-                      "deferredFindingCount",
-                      "usedReviewIds",
-                  ):
-                      if release_deferral.get(key) != deferral.get(key):
-                          raise SystemExit(f"security policy release deferral {key} mismatch")
+          expected_hashes = {
+              "policySha256": Path("security/upstream-dependency-policy.json"),
+              "retainedBaselineSha256": Path("security/retained-modified-third-party-baseline.json"),
+              "immutableInputsSha256": Path("security/immutable-inputs.yml"),
+              "reportSha256": root / "grype.json",
+              "sbomSha256": normalized_path,
+              "syftJsonSha256": root / "sbom.syft.json",
+              "databaseEvidenceSha256": root / "grype-db-evidence.json",
+          }
+          for key, path in expected_hashes.items():
+              if upstream.get(key) != hashlib.sha256(path.read_bytes()).hexdigest():
+                  raise SystemExit(f"upstream dependency evidence {key} mismatch")
+          if int(os.environ["POLICY_STATUS"]) != 0:
+              raise SystemExit("upstream dependency policy evaluator failed")
+          if upstream.get("status") != "accepted_upstream_vulnerability_not_fixed":
+              raise SystemExit("upstream dependency disposition is invalid")
+          if upstream.get("release") != os.environ["RELEASE"]:
+              raise SystemExit("upstream dependency release mismatch")
+          if (upstream.get("variant"), upstream.get("architecture")) != (os.environ["VARIANT"], os.environ["ARCH"]):
+              raise SystemExit("upstream dependency target mismatch")
+          if upstream.get("imageDigest") not in (os.environ["DOCKERHUB_DIGEST"], os.environ["GHCR_DIGEST"]):
+              raise SystemExit("upstream dependency image digest mismatch")
+          if policy.get("securityStatus") != upstream.get("status"):
+              raise SystemExit("security policy disposition mismatch")
 
           metadata = {
               "variant": os.environ["VARIANT"],
@@ -835,35 +807,22 @@ jobs:
               "ghcrDigest": os.environ["GHCR_DIGEST"],
               "imageDigest": policy.get("imageDigest"),
               "sbomSha256": policy.get("sbomSha256"),
-              "rawCriticalCount": policy.get("rawCriticalCount"),
-              "effectiveCriticalCount": policy.get("effectiveCriticalCount"),
-              "rawHighCount": policy.get("rawHighCount"),
-              "mappedHighCount": policy.get("mappedHighCount"),
               "securityStatus": policy.get("securityStatus"),
               "cycloneDxLicenseNormalizationCount": normalization_count,
-              "acceptedRiskStatus": accepted.get("status"),
-              "acceptedFindingCount": accepted.get("acceptedFindingCount"),
-              "acceptedCriticalCount": accepted.get("acceptedCriticalCount"),
-              "acceptedHighCount": accepted.get("acceptedHighCount"),
-              "acceptedRiskRelease": accepted.get("release"),
-              "acceptedRiskAsOf": accepted.get("asOf"),
-              "acceptedRiskManifestSha256": accepted.get("manifestSha256"),
-              "acceptedRiskReportSha256": accepted.get("reportSha256"),
-              "acceptedRiskImageDigest": accepted.get("imageDigest"),
-              "acceptedRiskSbomSha256": accepted.get("sbomSha256"),
-              "acceptedRiskApprovedBy": accepted.get("approvedBy"),
-              "acceptedRiskReviewedAt": accepted.get("reviewedAt"),
-              "acceptedRiskExpiresAt": accepted.get("expiresAt"),
-              "releaseSecurityDeferralStatus": deferral.get("status"),
-              "releaseSecurityDeferralApprovedBy": deferral.get("approvedBy"),
-              "releaseSecurityDeferralReviewedAt": deferral.get("reviewedAt"),
-              "releaseSecurityDeferralExpiresAt": deferral.get("expiresAt"),
-              "releaseSecurityDeferralManifestSha256": deferral.get("manifestSha256"),
-              "releaseSecurityDeferralReportSha256": deferral.get("reportSha256"),
-              "releaseSecurityDeferralImageDigest": deferral.get("imageDigest"),
-              "releaseSecurityDeferralSbomSha256": deferral.get("sbomSha256"),
-              "releaseSecurityDeferralFindingCount": deferral.get("deferredFindingCount"),
-              "releaseSecurityDeferralUsedReviewIds": deferral.get("usedReviewIds"),
+              "upstreamStatus": upstream.get("status"),
+              "upstreamPolicySha256": upstream.get("policySha256"),
+              "upstreamRetainedBaselineSha256": upstream.get("retainedBaselineSha256"),
+              "upstreamImmutableInputsSha256": upstream.get("immutableInputsSha256"),
+              "upstreamReportSha256": upstream.get("reportSha256"),
+              "upstreamSbomSha256": upstream.get("sbomSha256"),
+              "upstreamSyftJsonSha256": upstream.get("syftJsonSha256"),
+              "upstreamDatabaseEvidenceSha256": upstream.get("databaseEvidenceSha256"),
+              "upstreamImageDigest": upstream.get("imageDigest"),
+              "upstreamRelease": upstream.get("release"),
+              "upstreamAsOf": upstream.get("asOf"),
+              "upstreamFindingCount": upstream.get("rawMatchCount"),
+              "upstreamSeverityCounts": upstream.get("severityCounts"),
+              "upstreamIgnoredMatchCount": upstream.get("ignoredMatchCount"),
           }
           with (root / "metadata.json").open("w", encoding="utf-8") as handle:
               json.dump(metadata, handle, indent=2, sort_keys=True)
@@ -1126,77 +1085,36 @@ jobs:
               sbom_sha256 = hashlib.sha256(sbom_path.read_bytes()).hexdigest()
               if metadata.get("sbomSha256") != sbom_sha256:
                   raise SystemExit(f"security policy SBOM hash mismatch for {target}")
-              report_path = metadata_dirs[target] / "grype.json"
-              accepted_path = metadata_dirs[target] / "release-accepted-risk.json"
-              if not accepted_path.is_file():
-                  raise SystemExit(f"accepted-risk evidence is missing for {target}: {accepted_path}")
-              with accepted_path.open(encoding="utf-8") as handle:
-                  accepted = json.load(handle)
-              if accepted.get("status") != "known_risk_accepted":
-                  raise SystemExit(f"accepted-risk status is invalid for {target}")
-              if accepted.get("release") != record.get("release"):
-                  raise SystemExit(f"accepted-risk release mismatch for {target}")
-              if (accepted.get("variant"), accepted.get("architecture")) != target:
-                  raise SystemExit(f"accepted-risk target mismatch for {target}")
-              if accepted.get("imageDigest") != record["dockerhub_digest"]:
-                  raise SystemExit(f"accepted-risk image digest mismatch for {target}")
-              if accepted.get("reportSha256") != hashlib.sha256(report_path.read_bytes()).hexdigest():
-                  raise SystemExit(f"accepted-risk report hash mismatch for {target}")
-              if accepted.get("sbomSha256") != sbom_sha256:
-                  raise SystemExit(f"accepted-risk SBOM hash mismatch for {target}")
-              manifest_sha256 = hashlib.sha256(Path("security/v1.6.4-accepted-risk.json").read_bytes()).hexdigest()
-              if accepted.get("manifestSha256") != manifest_sha256:
-                  raise SystemExit(f"accepted-risk manifest hash mismatch for {target}")
-              metadata_fields = {
-                  "securityStatus": "known_risk_accepted",
-                  "acceptedRiskStatus": accepted.get("status"),
-                  "acceptedFindingCount": accepted.get("acceptedFindingCount"),
-                  "acceptedCriticalCount": accepted.get("acceptedCriticalCount"),
-                  "acceptedHighCount": accepted.get("acceptedHighCount"),
-                  "acceptedRiskRelease": accepted.get("release"),
-                  "acceptedRiskAsOf": accepted.get("asOf"),
-                  "acceptedRiskManifestSha256": accepted.get("manifestSha256"),
-                  "acceptedRiskReportSha256": accepted.get("reportSha256"),
-                  "acceptedRiskImageDigest": accepted.get("imageDigest"),
-                  "acceptedRiskSbomSha256": accepted.get("sbomSha256"),
-                  "acceptedRiskApprovedBy": accepted.get("approvedBy"),
-                  "acceptedRiskReviewedAt": accepted.get("reviewedAt"),
-                  "acceptedRiskExpiresAt": accepted.get("expiresAt"),
+              upstream_path = metadata_dirs[target] / "release-upstream-vulnerabilities.json"
+              with upstream_path.open(encoding="utf-8") as handle:
+                  upstream = json.load(handle)
+              if upstream.get("status") != "accepted_upstream_vulnerability_not_fixed":
+                  raise SystemExit(f"upstream dependency disposition is invalid for {target}")
+              if upstream.get("release") != record.get("release"):
+                  raise SystemExit(f"upstream dependency release mismatch for {target}")
+              if (upstream.get("variant"), upstream.get("architecture")) != target:
+                  raise SystemExit(f"upstream dependency target mismatch for {target}")
+              if upstream.get("imageDigest") != record["dockerhub_digest"]:
+                  raise SystemExit(f"upstream dependency image digest mismatch for {target}")
+              expected_hashes = {
+                  "policySha256": Path("security/upstream-dependency-policy.json"),
+                  "retainedBaselineSha256": Path("security/retained-modified-third-party-baseline.json"),
+                  "immutableInputsSha256": Path("security/immutable-inputs.yml"),
+                  "reportSha256": metadata_dirs[target] / "grype.json",
+                  "sbomSha256": sbom_path,
+                  "syftJsonSha256": metadata_dirs[target] / "sbom.syft.json",
+                  "databaseEvidenceSha256": metadata_dirs[target] / "grype-db-evidence.json",
               }
-              for key, expected in metadata_fields.items():
-                  if metadata.get(key) != expected:
-                      raise SystemExit(f"accepted-risk metadata {key} mismatch for {target}")
-              if metadata.get("releaseSecurityDeferralStatus"):
-                  deferral_path = metadata_dirs[target] / "release-security-deferral.json"
-                  if not deferral_path.is_file():
-                      raise SystemExit(f"release deferral evidence is missing for {target}: {deferral_path}")
-                  with deferral_path.open(encoding="utf-8") as handle:
-                      deferral = json.load(handle)
-                  if deferral.get("status") != "deferred_not_fixed":
-                      raise SystemExit(f"release deferral status is invalid for {target}")
-                  if (deferral.get("variant"), deferral.get("architecture")) != target:
-                      raise SystemExit(f"release deferral target mismatch for {target}")
-                  if deferral.get("imageDigest") != record["dockerhub_digest"]:
-                      raise SystemExit(f"release deferral image digest mismatch for {target}")
-                  if deferral.get("reportSha256") != hashlib.sha256(report_path.read_bytes()).hexdigest():
-                      raise SystemExit(f"release deferral report hash mismatch for {target}")
-                  if deferral.get("sbomSha256") != sbom_sha256:
-                      raise SystemExit(f"release deferral SBOM hash mismatch for {target}")
-                  deferral_metadata = {
-                      "releaseSecurityDeferralStatus": deferral.get("status"),
-                      "releaseSecurityDeferralApprovedBy": deferral.get("approvedBy"),
-                      "releaseSecurityDeferralReviewedAt": deferral.get("reviewedAt"),
-                      "releaseSecurityDeferralExpiresAt": deferral.get("expiresAt"),
-                      "releaseSecurityDeferralManifestSha256": deferral.get("manifestSha256"),
-                      "releaseSecurityDeferralReportSha256": deferral.get("reportSha256"),
-                      "releaseSecurityDeferralImageDigest": deferral.get("imageDigest"),
-                      "releaseSecurityDeferralSbomSha256": deferral.get("sbomSha256"),
-                      "releaseSecurityDeferralFindingCount": deferral.get("deferredFindingCount"),
-                      "releaseSecurityDeferralUsedReviewIds": deferral.get("usedReviewIds"),
-                  }
-                  for key, expected in deferral_metadata.items():
-                      if metadata.get(key) != expected:
-                          raise SystemExit(f"release deferral metadata {key} mismatch for {target}")
+              for key, path in expected_hashes.items():
+                  value = hashlib.sha256(path.read_bytes()).hexdigest()
+                  if upstream.get(key) != value or metadata.get(f"upstream{key[0].upper()}{key[1:]}") != value:
+                      raise SystemExit(f"upstream dependency {key} mismatch for {target}")
+              if metadata.get("securityStatus") != upstream.get("status") or metadata.get("upstreamStatus") != upstream.get("status"):
+                  raise SystemExit(f"upstream dependency status metadata mismatch for {target}")
+              if metadata.get("upstreamFindingCount") != upstream.get("rawMatchCount"):
+                  raise SystemExit(f"upstream dependency finding count mismatch for {target}")
+              if metadata.get("upstreamSeverityCounts") != upstream.get("severityCounts"):
+                  raise SystemExit(f"upstream dependency severity counts mismatch for {target}")
           PY
 
           rm -rf security-revalidation
@@ -1208,22 +1126,39 @@ jobs:
             variant="$(jq -r .variant "${metadata}")"
             arch="$(jq -r .arch "${metadata}")"
             image_digest="$(jq -r .imageDigest "${metadata}")"
-            sbom_sha256="$(jq -r .sbomSha256 "${metadata}")"
+            mapfile -t authenticated_image_refs < <(
+              jq -r --arg variant "${variant}" --arg arch "${arch}" \
+                'select(.variant == $variant and .arch == $arch) | .dockerhub_ref + "@" + .dockerhub_digest' \
+                evidence/*.json
+            )
+            if [[ "${#authenticated_image_refs[@]}" -ne 1 ]]; then
+              echo "Expected one authenticated candidate image reference for ${variant}/${arch}" >&2
+              exit 1
+            fi
+            image_ref="${authenticated_image_refs[0]}"
+            test "$(jq -r .image "${metadata}")" = "${image_ref}"
+            source_args=()
+            if jq -e '.scanner.source.type == "sbom-file"' "${evidence_dir}/release-upstream-vulnerabilities.json" >/dev/null; then
+              source_target="$(jq -r .scanner.source.target "${evidence_dir}/release-upstream-vulnerabilities.json")"
+              source_args=(--expected-source-target "${source_target}")
+            fi
             output="security-revalidation/${variant}-${arch}"
-            node scripts/evaluate-release-security-deferral.mjs \
-              --manifest security/v1.6.4-release-security-deferral.json \
-              --accepted-risk-manifest security/v1.6.4-accepted-risk.json \
+            node scripts/evaluate-upstream-dependency-report.mjs \
+              --policy security/upstream-dependency-policy.json \
               --release "${{ needs.validate-release-ref.outputs.release }}" \
               --report "${report}" \
-              --ledger security/advisory-reviews.json \
-              --authority-evidence "${evidence_dir}/critical-exception-authority-evidence.json" \
-              --vex security/openvex.json \
+              --sbom "${evidence_dir}/sbom.cyclonedx.json" \
+              --syft-json "${evidence_dir}/sbom.syft.json" \
+              --image-ref "${image_ref}" \
+              "${source_args[@]}" \
+              --db-evidence "${evidence_dir}/grype-db-evidence.json" \
+              --immutable-inputs security/immutable-inputs.yml \
               --output-dir "${output}" \
               --variant "${variant}" \
               --arch "${arch}" \
               --image-digest "${image_digest}" \
-              --sbom-sha256 "${sbom_sha256}" \
               --as-of "${as_of}"
+            cmp "${output}/release-upstream-vulnerabilities.json" "${evidence_dir}/release-upstream-vulnerabilities.json"
           done
 
       - name: Set up Docker Buildx

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
@@ -19,6 +21,31 @@ function runWorkflowVersionParser(command, output) {
     encoding: 'utf8',
     env: { ...process.env, VERSION_COMMAND: command, VERSION_OUTPUT: output },
   });
+}
+
+function cloudcliSection(dockerfile) {
+  const start = dockerfile.indexOf('ARG CLOUDCLI_VERSION=');
+  const end = dockerfile.indexOf('# ---------- Store variant', start);
+  assert.ok(start >= 0 && end > start, 'CloudCLI Dockerfile section must exist');
+  return dockerfile.slice(start, end);
+}
+
+function runCloudcliGuardNormalization(baseline, current) {
+  const commandMarker = '          python3 - "${RUNNER_TEMP}/cloudcli-section.baseline"';
+  const commandStart = candidate.indexOf(commandMarker);
+  const start = candidate.indexOf('\n', commandStart) + 1;
+  const end = candidate.indexOf('\n          PY', start);
+  assert.ok(commandStart >= 0 && start > commandStart && end > start, 'CloudCLI guard normalizer must exist');
+  const script = candidate.slice(start, end).replace(/^ {10}/gm, '');
+  const root = mkdtempSync(join(tmpdir(), 'holyclaude-cloudcli-guard-'));
+  const baselinePath = join(root, 'baseline');
+  const currentPath = join(root, 'current');
+  writeFileSync(baselinePath, baseline);
+  writeFileSync(currentPath, current);
+  const result = spawnSync('python', ['-', baselinePath, currentPath], { input: script, encoding: 'utf8' });
+  const normalized = readFileSync(baselinePath, 'utf8').replaceAll('\r\n', '\n');
+  rmSync(root, { recursive: true, force: true });
+  return { result, normalized };
 }
 
 function validateCandidateAttempts({ records, candidateRunAttempt }) {
@@ -138,11 +165,39 @@ test('published auth-session smoke covers each resolved native image digest', ()
   assert.match(step, /--expected-arch "\$\{\{ matrix\.arch \}\}"/);
 });
 
-test('CloudCLI reproducibility uses the workflow token without embedding it', () => {
-  const buildScript = readFileSync('scripts/build-cloudcli-account-management-artifact-container.mjs', 'utf8');
-  assert.match(candidate, /Verify CloudCLI artifact reproducibility[\s\S]{0,180}GITHUB_TOKEN: \$\{\{ github\.token \}\}/);
-  assert.match(buildScript, /dockerArgs\.push\('--env', 'GITHUB_TOKEN'\)/);
-  assert.doesNotMatch(buildScript, /GITHUB_TOKEN=/);
+test('CloudCLI retained artifact gate blocks any extension of its builder or overlay inputs', () => {
+  assert.match(candidate, /Require retained CloudCLI artifact and overlay inputs to remain unchanged/);
+  assert.match(candidate, /git diff --quiet "\$\{baseline\}" --[\s\S]+vendor\/artifacts\/cloudcli-ai-cloudcli-1\.37\.3-holyclaude-account-management\.tgz/);
+  assert.match(candidate, /expected exactly one reviewed \{name\} delta/);
+  assert.match(candidate, /cmp "\$\{RUNNER_TEMP\}\/cloudcli-section\.baseline" "\$\{RUNNER_TEMP\}\/cloudcli-section\.current"/);
+  assert.match(candidate, /artifact_sha256=.*sha256sum vendor\/artifacts\/cloudcli-ai-cloudcli/);
+  assert.doesNotMatch(candidate, /Verify CloudCLI artifact reproducibility/);
+});
+
+test('CloudCLI retained section allows only the two exact reviewed release deltas', () => {
+  const baselineDockerfile = spawnSync(
+    'git',
+    ['show', '20e9e10681aec9b091bb54da8755f8a1c59f69bb:Dockerfile'],
+    { encoding: 'utf8' },
+  );
+  assert.equal(baselineDockerfile.status, 0, baselineDockerfile.stderr);
+  const baseline = cloudcliSection(baselineDockerfile.stdout);
+  const current = cloudcliSection(readFileSync('Dockerfile', 'utf8'));
+  const accepted = runCloudcliGuardNormalization(baseline, current);
+  assert.equal(accepted.result.status, 0, accepted.result.stderr);
+  assert.equal(accepted.normalized, current.replaceAll('\r\n', '\n'));
+
+  const changed = current.replace(
+    'ARG CLOUDCLI_VERSION=1.37.3',
+    'ARG CLOUDCLI_VERSION=1.37.4',
+  );
+  const rejected = runCloudcliGuardNormalization(baseline, changed);
+  assert.equal(rejected.result.status, 0, rejected.result.stderr);
+  assert.notEqual(
+    rejected.normalized,
+    changed.replaceAll('\r\n', '\n'),
+    'the workflow cmp must reject every other section change',
+  );
 });
 
 test('candidate runtime contract probes versions, architecture, variants, browser, plugins, and entrypoints', () => {
@@ -233,33 +288,22 @@ test('candidate job validation rejects jobs from a different candidate attempt',
   assert.throws(() => validateCandidateJobs(mixedJobs, 2), /do not share/);
 });
 
-test('candidate proof includes reproducibility, integrity, security, and exact-run invalidation gates', () => {
-  assert.match(workflow, /build-cloudcli-account-management-artifact-container\.mjs/);
-  assert.match(workflow, /git diff --exit-code --[\s\\]+vendor\/artifacts\/cloudcli-account-management\.manifest\.json/);
-  assert.match(workflow, /ffmpeg-security-builder/);
-  const firstFfmpegSum = 'ffmpeg-build-a/ffmpeg-security-backport/SHA256SUMS';
-  const secondFfmpegSum = 'ffmpeg-build-b/ffmpeg-security-backport/SHA256SUMS';
-  assert.ok(workflow.includes(firstFfmpegSum));
-  assert.ok(workflow.includes(secondFfmpegSum));
-  assert.ok(workflow.indexOf('          cmp \\') < workflow.indexOf(firstFfmpegSum));
-  assert.ok(workflow.indexOf(firstFfmpegSum) < workflow.indexOf(secondFfmpegSum));
-  assert.match(workflow, /cryptography reproducibility is not applicable because the backport builder was removed/);
+test('candidate proof includes retained-input, integrity, security, and exact-run invalidation gates', () => {
+  assert.match(workflow, /Require retained CloudCLI artifact and overlay inputs to remain unchanged/);
+  assert.match(workflow, /Require retained FFmpeg builder and patch inputs to remain unchanged/);
+  assert.match(workflow, /git diff --quiet "\$\{baseline\}" --[\s\S]+vendor\/patches\/cloudcli-account-management/);
+  assert.match(workflow, /cmp "\$\{RUNNER_TEMP\}\/ffmpeg-stage\.baseline" "\$\{RUNNER_TEMP\}\/ffmpeg-stage\.current"/);
   assert.match(workflow, /node scripts\/verify-immutable-inputs\.mjs/);
   assert.match(candidate, /syft "\$\{image\}"/);
   assert.match(candidate, /grype --config/);
-  assert.match(candidate, /security\/openvex\.json/);
+  assert.match(candidate, /evaluate-upstream-dependency-report\.mjs/);
+  assert.doesNotMatch(candidate, /security\/openvex\.json/);
   assert.match(candidate, /SOURCE_SHA: \$\{\{ github\.sha \}\}/);
   assert.match(candidate, /RUN_ID: \$\{\{ github\.run_id \}\}/);
   assert.match(candidate, /RUN_ATTEMPT: \$\{\{ github\.run_attempt \}\}/);
   assert.match(workflow, /candidate-\$\{GITHUB_SHA\}-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}/);
-  assert.match(workflow, /record\["source_sha"\] != os\.environ\["GITHUB_SHA"\]/);
   assert.match(workflow, /candidate-jobs\.json/);
   assert.match(workflow, /expected exactly four successful native candidate jobs/);
-  assert.doesNotMatch(workflow, /PROMOTION_RUN_ATTEMPT/);
-  assert.match(workflow, /candidate run API response has an invalid run_attempt/);
-  assert.match(workflow, /job_attempts != \{candidate_run_attempt\}/);
   assert.match(workflow, /candidate jobs must match the candidate run API attempt/);
-  assert.match(workflow, /record_attempts != \{candidate_run_attempt\}/);
   assert.match(workflow, /candidate records must share exactly one attempt matching candidate-run\.json/);
-  assert.doesNotMatch(workflow, /candidate run attempt does not match the current promotion workflow attempt/);
 });

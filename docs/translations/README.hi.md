@@ -1106,7 +1106,7 @@ HolyClaude coding agents के साथ compete नहीं कर रहा 
 
 | स्थिति | Feature |
 |--------|---------|
-| 🔜 | **ARM-native builds** — optimized native ARM64 images, सिर्फ emulated नहीं |
+| ✅ | **ARM-native builds** — Full और Slim releases native ARM64 runners पर build और test होते हैं |
 | 🔜 | **VS Code tunnel integration** — VS Code desktop से connect करने के लिए built-in VS Code Server या tunnel |
 | 🔜 | **Notification routing** — event type के अनुसार अलग notification destinations (errors Telegram पर, completions Discord पर) |
 

@@ -17,6 +17,8 @@ assets/
 data/
 workspace/
 .omc/
+.omx/
+.sisyphus/
 .superpowers/
 evidence/
 .evidence/

@@ -8,11 +8,13 @@ import os
 import sys
 import argparse
 import re
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 
 FLAG_FILE = "/home/claude/.claude/notify-on"
 LEGACY_TELEGRAM_RE = re.compile(r"^tg://", re.IGNORECASE)
 SCHEME_RE = re.compile(r"^([a-z][a-z0-9+.-]*):\/\/", re.IGNORECASE)
+EMAIL_SCHEMES = {"mailto", "mailtos", "deltachat", "deltachats"}
 
 
 def sanitize(value, limit=120):
@@ -82,8 +84,26 @@ def provider_event(args):
 def normalize_notify_url(url):
     text = url.strip()
     if LEGACY_TELEGRAM_RE.match(text):
-        return LEGACY_TELEGRAM_RE.sub("tgram://", text, count=1)
-    return text
+        text = LEGACY_TELEGRAM_RE.sub("tgram://", text, count=1)
+
+    try:
+        parsed = urlsplit(text)
+    except ValueError:
+        return text
+    if parsed.scheme.lower() not in EMAIL_SCHEMES or not parsed.query:
+        return text
+
+    pairs = parse_qsl(parsed.query, keep_blank_values=True)
+    if not any(key == "pgpkey" for key, _value in pairs):
+        return text
+
+    has_canonical = any(key == "pgppub" for key, _value in pairs)
+    query = urlencode([
+        (("pgppub" if key == "pgpkey" else key), value)
+        for key, value in pairs
+        if not (has_canonical and key == "pgpkey")
+    ])
+    return urlunsplit(parsed._replace(query=query))
 
 
 def collect_notify_urls(environ):
@@ -119,7 +139,7 @@ def validate_notify_urls(urls):
     for url in urls:
         try:
             ap = apprise.Apprise()
-            accepted = bool(ap.add(url))
+            accepted = bool(ap.add(normalize_notify_url(url)))
             results.append((url, accepted, "accepted" if accepted else "rejected"))
         except Exception as exc:
             results.append((url, False, type(exc).__name__))
@@ -149,7 +169,7 @@ def send_notifications(urls, title, body, notify_type):
 
     ap = apprise.Apprise()
     for url in urls:
-        ap.add(url)
+        ap.add(normalize_notify_url(url))
     ap.notify(title=title, body=body, notify_type=notify_type)
 
 

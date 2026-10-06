@@ -4,6 +4,28 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.5] - 10/06/2026
+
+### Changed
+
+- Updated Node to 26.10.0 and compatible AI CLI, developer-tool and Python packages from official upstream releases.
+- Updated Vercel to official 62.4.0 and Apprise to 2.0.1. Kept legacy email encryption settings working in the notification integration.
+- Added source checks for pull requests and master, plus scheduled released-image dependency scans.
+- Added weekly Docker and GitHub Actions dependency update checks.
+- Kept the existing CloudCLI and plugin artifacts while official replacements lack the required account, reverse-proxy and notification features. See [deferred replacements](official-dependency-updates.md).
+
+### Fixed
+
+- Corrected the ARM-native build roadmap status and the optional Docker-client image examples.
+- Excluded local execution state from Git and Docker build contexts.
+- Kept the historical Junie applicability guard separate from current-release runtime checks.
+- Fixed Linux advisory checks that could fail when a library lookup closed its output pipe early.
+
+### Security
+
+- Dependency scans now retain accepted upstream vulnerabilities with raw severity, installed versions and available fixes. Acceptance does not mean fixed. Retained modified third-party components are identified separately from official releases.
+- Kept HolyClaude source checks, artifact integrity, native runtime tests and promotion checks blocking. Historical v1.6.4 approvals remain unchanged.
+
 ## [1.6.4] - 10/02/2026
 
 ### Changed
@@ -485,7 +507,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [1.2.2] - 04/10/2026
 
 ### Fixed
-- `/model <name>` in Chat tab now actually switches the active model — it persists to localStorage and survives page reload
+- `/model <name>` in Chat tab now actually switches the active model â€” it persists to localStorage and survives page reload
 
 ## [1.2.1] - 04/10/2026
 

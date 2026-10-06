@@ -8,7 +8,6 @@ import test from 'node:test';
 const script = 'scripts/patch-global-node-security-dependencies.mjs';
 
 const packages = [
-  ['usr/local/lib/node_modules/npm/node_modules/brace-expansion/package.json', 'brace-expansion', '5.0.7', '5.0.12'],
   [
     'home/claude/.local/share/cursor-agent/versions/2026.09.15-d2fe57e/node_modules/piscina/package.json',
     'piscina',
@@ -24,37 +23,14 @@ const packages = [
   ['usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json', 'nanoid', '3.3.8', '3.3.19'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/joi/package.json', 'joi', '17.11.0', '17.13.7'],
   ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.1', '4.3.2'],
-  ['usr/local/lib/node_modules/vercel/node_modules/js-yaml/package.json', 'js-yaml', '4.1.1', '4.3.2'],
-  ['usr/local/lib/node_modules/vercel/node_modules/smol-toml/package.json', 'smol-toml', '1.5.2', '1.8.0'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json',
     '@xmldom/xmldom',
     '0.9.10',
     '0.9.12',
   ],
-  ['usr/local/lib/node_modules/wrangler/node_modules/sharp/package.json', 'sharp', '0.35.4', '0.35.4'],
   ['usr/local/lib/node_modules/netlify-cli/node_modules/sharp/package.json', 'sharp', '0.34.5', '0.35.4'],
   ['usr/local/lib/node_modules/eas-cli/node_modules/minimatch/package.json', 'minimatch', '5.1.2', '5.1.9'],
-  ['usr/local/lib/node_modules/vercel/node_modules/minimatch/package.json', 'minimatch', '10.1.1', '10.2.6'],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/node/node_modules/path-to-regexp/package.json',
-    'path-to-regexp',
-    '6.1.0',
-    '6.3.0',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/remix-builder/node_modules/path-to-regexp/package.json',
-    'path-to-regexp',
-    '6.1.0',
-    '6.3.0',
-  ],
-  ['usr/local/lib/node_modules/vercel/node_modules/path-to-regexp/package.json', 'path-to-regexp', '8.3.0', '8.4.2'],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/node_modules/path-to-regexp/package.json',
-    'path-to-regexp',
-    '8.2.0',
-    '8.4.2',
-  ],
   ['usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws/package.json', 'ws', '8.18.0', '8.21.3'],
 ];
 
@@ -85,14 +61,6 @@ const dependencies = [
     '0.9.12',
   ],
   [
-    'usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json',
-    'miniflare',
-    '5.20261001.0-alpha',
-    'sharp',
-    '0.35.4',
-    '0.35.4',
-  ],
-  [
     'usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json',
     '@earendil-works/pi-coding-agent',
     '0.85.1',
@@ -111,31 +79,6 @@ const dependencies = [
     '17.13.7',
   ],
   ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'minimatch', '5.1.2', '5.1.9'],
-  ['usr/local/lib/node_modules/vercel/package.json', 'vercel', '59.23.1', 'smol-toml', '1.5.2', '1.8.0'],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json',
-    '@vercel/container',
-    '8.2.2',
-    'smol-toml',
-    '1.5.2',
-    '1.8.0',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
-    '@vercel/python-analysis',
-    '0.14.0',
-    'smol-toml',
-    '1.5.2',
-    '1.8.0',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/rust/package.json',
-    '@vercel/rust',
-    '9.0.1',
-    'smol-toml',
-    '1.5.2',
-    '1.8.0',
-  ],
   [
     'usr/local/lib/node_modules/netlify-cli/node_modules/ipx/package.json',
     'ipx',
@@ -143,70 +86,6 @@ const dependencies = [
     'sharp',
     '^0.34.3',
     '0.35.4',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
-    '@vercel/python-analysis',
-    '0.14.0',
-    'js-yaml',
-    '4.1.1',
-    '4.3.2',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json',
-    '@vercel/python-analysis',
-    '0.14.0',
-    'minimatch',
-    '10.1.1',
-    '10.2.6',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/backends/package.json',
-    '@vercel/backends',
-    '8.0.1',
-    'path-to-regexp',
-    '8.3.0',
-    '8.4.2',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/express/package.json',
-    '@vercel/express',
-    '8.0.1',
-    'path-to-regexp',
-    '8.3.0',
-    '8.4.2',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/hono/package.json',
-    '@vercel/hono',
-    '8.0.1',
-    'path-to-regexp',
-    '8.3.0',
-    '8.4.2',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/package.json',
-    '@vercel/fun',
-    '1.3.0',
-    'path-to-regexp',
-    '8.2.0',
-    '8.4.2',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/node/package.json',
-    '@vercel/node',
-    '13.0.1',
-    'path-to-regexp',
-    '6.1.0',
-    '6.3.0',
-  ],
-  [
-    'usr/local/lib/node_modules/vercel/node_modules/@vercel/remix-builder/package.json',
-    '@vercel/remix-builder',
-    '13.0.1',
-    'path-to-regexp',
-    '6.1.0',
-    '6.3.0',
   ],
   [
     'usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/miniflare/package.json',
@@ -279,10 +158,10 @@ test('accepts an already patched verified tree', () => {
 test('fails closed when an installed package drifts', () => {
   const root = fixture();
   const [path, name] = packages[0];
-  writeJson(join(root, path), { name, version: '5.0.8' });
+  writeJson(join(root, path), { name, version: '4.9.2' });
   const result = run(root, true);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected brace-expansion@5\.0\.7/);
+  assert.match(result.stderr, /expected piscina@4\.9\.3/);
 });
 
 test('fails closed when the raw Cursor piscina baseline drifts', () => {
@@ -311,10 +190,7 @@ test('fails closed when a reviewed full-image package baseline drifts', () => {
     packages.find(([path]) => path.endsWith('/eas-cli/node_modules/nanoid/package.json')),
     packages.find(([path]) => path.endsWith('/eas-cli/node_modules/joi/package.json')),
     packages.find(([path]) => path.endsWith('/pm2/node_modules/js-yaml/package.json')),
-    packages.find(([path]) => path.endsWith('/vercel/node_modules/js-yaml/package.json')),
-    packages.find(([path]) => path.endsWith('/vercel/node_modules/smol-toml/package.json')),
     packages.find(([path]) => path.endsWith('/marp-cli/node_modules/@xmldom/xmldom/package.json')),
-    packages.find(([path]) => path.endsWith('/wrangler/node_modules/sharp/package.json')),
     packages.find(([path]) => path.endsWith('/netlify-cli/node_modules/sharp/package.json')),
     packages.find(([path]) => path.endsWith('/next-on-pages/node_modules/ws/package.json')),
   ]) {
@@ -334,20 +210,9 @@ test('fails closed when a reviewed dependency owner version drifts', () => {
     dependencies.find(([path]) => path.endsWith('/@expo/eas-json/package.json')),
     dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
-    dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
-    dependencies.find(([path]) => path.endsWith('/vercel/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/container/package.json')),
-    dependencies.find(([path, , , dependency]) => path.endsWith('/@vercel/python-analysis/package.json') && dependency === 'smol-toml'),
-    dependencies.find(([path]) => path.endsWith('/@vercel/rust/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/node_modules/ipx/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/node_modules/@netlify/images/package.json')),
-    dependencies.find(([path, , , dependency]) => path.endsWith('/@vercel/python-analysis/package.json') && dependency === 'js-yaml'),
-    dependencies.find(([path]) => path.endsWith('/@vercel/backends/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/express/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/hono/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/node/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/remix-builder/package.json')),
   ]) {
     const root = fixture();
     const manifestPath = join(root, path);
@@ -360,18 +225,6 @@ test('fails closed when a reviewed dependency owner version drifts', () => {
   }
 });
 
-test('rejects the previous Wrangler Miniflare owner version', () => {
-  const root = fixture();
-  const [path, name] = dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json'));
-  const manifestPath = join(root, path);
-  const value = JSON.parse(readFileSync(manifestPath));
-  value.version = '5.20260911.1-alpha';
-  writeJson(manifestPath, value);
-  const result = run(root, true);
-  assert.notEqual(result.status, 0);
-  assert.match(result.stderr, new RegExp(`expected ${name}@5\\.20261001\\.0-alpha\\b`));
-});
-
 test('fails closed when a reviewed owner dependency baseline drifts', () => {
   for (const [path, , , dependency, , , dependencyGroup = 'dependencies'] of [
     dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
@@ -380,20 +233,9 @@ test('fails closed when a reviewed owner dependency baseline drifts', () => {
     dependencies.find(([path]) => path.endsWith('/@expo/eas-json/package.json')),
     dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
-    dependencies.find(([path]) => path.endsWith('/wrangler/node_modules/miniflare/package.json')),
-    dependencies.find(([path]) => path.endsWith('/vercel/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/container/package.json')),
-    dependencies.find(([path, , , dependency]) => path.endsWith('/@vercel/python-analysis/package.json') && dependency === 'smol-toml'),
-    dependencies.find(([path]) => path.endsWith('/@vercel/rust/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/node_modules/ipx/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/package.json')),
     dependencies.find(([path]) => path.endsWith('/netlify-cli/node_modules/@netlify/images/package.json')),
-    dependencies.find(([path, , , dependency]) => path.endsWith('/@vercel/python-analysis/package.json') && dependency === 'js-yaml'),
-    dependencies.find(([path]) => path.endsWith('/@vercel/backends/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/express/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/hono/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/node/package.json')),
-    dependencies.find(([path]) => path.endsWith('/@vercel/remix-builder/package.json')),
   ]) {
     const root = fixture();
     const manifestPath = join(root, path);

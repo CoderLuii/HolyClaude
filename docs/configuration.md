@@ -142,17 +142,17 @@ The stock Full and Slim images do not include Docker CLI or Docker Compose. If y
 Pull the released Full image, resolve its immutable `RepoDigests` value, then pass that digest to the recipe:
 
 ```bash
-FULL_IMAGE=coderluii/holyclaude:1.6.1
+FULL_IMAGE=coderluii/holyclaude:1.6.5
 docker pull "$FULL_IMAGE"
 BASE_IMAGE=$(docker image inspect "$FULL_IMAGE" --format '{{index .RepoDigests 0}}')
 docker build \
   --build-arg "BASE_IMAGE=$BASE_IMAGE" \
-  --tag holyclaude:1.6.1-docker-client \
+  --tag holyclaude:1.6.5-docker-client \
   --file examples/docker-client/Dockerfile \
   examples/docker-client
 ```
 
-Set `image: holyclaude:1.6.1-docker-client` on your existing Full Compose service, keep its current mounts, credentials, ports, and other settings, then recreate that service. Add `DOCKER_CONFIG=/home/claude/.claude/docker-client` to the same service's environment so a saved Docker context is still selected after a fresh container or terminal session.
+Set `image: holyclaude:1.6.5-docker-client` on your existing Full Compose service, keep its current mounts, credentials, ports, and other settings, then recreate that service. Add `DOCKER_CONFIG=/home/claude/.claude/docker-client` to the same service's environment so a saved Docker context is still selected after a fresh container or terminal session.
 
 Docker daemon access is host-level authority. Adding the client does not make a host socket safe, so do not mount `/var/run/docker.sock` into HolyClaude. For one shell session, point the client at an authenticated SSH endpoint:
 

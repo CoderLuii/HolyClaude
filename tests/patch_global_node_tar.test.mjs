@@ -15,15 +15,6 @@ function writeJson(path, value) {
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-node-tar-'));
   const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
-  writeJson(join(lib, 'npm', 'package.json'), {
-    name: 'npm',
-    version: '12.0.2',
-    dependencies: { tar: '^7.5.19' },
-  });
-  writeJson(join(lib, 'npm', 'node_modules', 'tar', 'package.json'), {
-    name: 'tar',
-    version: '7.5.19',
-  });
   writeJson(join(lib, 'eas-cli', 'package.json'), {
     name: 'eas-cli',
     version: '24.7.0',
@@ -35,56 +26,22 @@ function fixture() {
   });
   writeJson(join(lib, 'vercel', 'package.json'), {
     name: 'vercel',
-    version: '59.23.1',
+    version: '62.4.0',
+    dependencies: { 'smol-toml': '1.5.2' },
   });
   writeJson(join(lib, 'vercel', 'node_modules', '@vercel', 'container', 'package.json'), {
     name: '@vercel/container',
-    version: '8.2.2',
-    dependencies: { tar: '7.5.11' },
+    version: '16.0.0',
+    dependencies: { tar: '7.5.11', 'smol-toml': '1.5.2' },
   });
-  writeJson(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json'), {
-    name: '@vercel/fun',
-    version: '1.3.0',
-    dependencies: { tar: '7.5.7' },
-  });
-  writeJson(join(lib, 'vercel', 'node_modules', '@mapbox', 'node-pre-gyp', 'package.json'), {
-    name: '@mapbox/node-pre-gyp',
-    version: '2.0.3',
-    dependencies: { tar: '^7.4.0' },
-  });
-  writeJson(join(lib, 'vercel', 'node_modules', 'tar', 'package.json'), {
-    name: 'tar',
-    version: '7.5.11',
-  });
-  writeJson(
-    join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'node_modules', 'tar', 'package.json'),
-    {
-      name: 'tar',
-      version: '7.5.7',
-    },
-  );
   return root;
 }
 
 function installReplacement(root) {
-  const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
-  for (const path of [
-    join(lib, 'npm', 'node_modules', 'tar', 'package.json'),
-    join(lib, 'eas-cli', 'node_modules', 'tar', 'package.json'),
-    join(lib, 'vercel', 'node_modules', 'tar', 'package.json'),
-    join(
-      lib,
-      'vercel',
-      'node_modules',
-      '@vercel',
-      'fun',
-      'node_modules',
-      'tar',
-      'package.json',
-    ),
-  ]) {
-    writeJson(path, { name: 'tar', version: '7.5.22' });
-  }
+  writeJson(
+    join(root, 'usr', 'local', 'lib', 'node_modules', 'eas-cli', 'node_modules', 'tar', 'package.json'),
+    { name: 'tar', version: '7.5.22' },
+  );
 }
 
 function run(root, checkBaseline = false, variant = 'full') {
@@ -96,63 +53,10 @@ function run(root, checkBaseline = false, variant = 'full') {
   });
 }
 
-test('patches the verified npm, EAS, and Vercel tar dependency specs', () => {
+test('patches only the verified EAS tar dependency spec', () => {
   const root = fixture();
-  const baseline = run(root, true);
-  assert.equal(baseline.status, 0, baseline.stderr);
-  installReplacement(root);
-  const result = run(root);
-  assert.equal(result.status, 0, result.stderr);
-
-  const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
-  const npm = JSON.parse(readFileSync(join(lib, 'npm', 'package.json')));
-  const eas = JSON.parse(readFileSync(join(lib, 'eas-cli', 'package.json')));
-  const vercelFun = JSON.parse(
-    readFileSync(join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'package.json')),
-  );
-  const vercelContainer = JSON.parse(
-    readFileSync(join(lib, 'vercel', 'node_modules', '@vercel', 'container', 'package.json')),
-  );
-  const nodePreGyp = JSON.parse(
-    readFileSync(join(lib, 'vercel', 'node_modules', '@mapbox', 'node-pre-gyp', 'package.json')),
-  );
-  assert.equal(npm.dependencies.tar, '7.5.22');
-  assert.equal(eas.dependencies.tar, '7.5.22');
-  assert.equal(vercelContainer.dependencies.tar, '7.5.22');
-  assert.equal(vercelFun.dependencies.tar, '7.5.22');
-  assert.equal(nodePreGyp.dependencies.tar, '^7.4.0');
-});
-
-test('patches npm tar in the slim variant without requiring full-only packages', () => {
-  const root = fixture();
-  const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
-  rmSync(join(lib, 'eas-cli'), { recursive: true });
-  rmSync(join(lib, 'vercel'), { recursive: true });
-
-  const baseline = run(root, true, 'slim');
-  assert.equal(baseline.status, 0, baseline.stderr);
-  writeJson(join(lib, 'npm', 'node_modules', 'tar', 'package.json'), {
-    name: 'tar',
-    version: '7.5.22',
-  });
-  const result = run(root, false, 'slim');
-  assert.equal(result.status, 0, result.stderr);
-
-  const npm = JSON.parse(readFileSync(join(lib, 'npm', 'package.json')));
-  assert.equal(npm.dependencies.tar, '7.5.22');
-});
-
-test('accepts an already patched verified tree', () => {
-  const root = fixture();
-  installReplacement(root);
-  assert.equal(run(root).status, 0);
-  const result = run(root);
-  assert.equal(result.status, 0, result.stderr);
-});
-
-test('fails closed when an expected dependency spec drifts', () => {
-  const root = fixture();
-  const manifest = join(
+  const vercelManifest = join(root, 'usr', 'local', 'lib', 'node_modules', 'vercel', 'package.json');
+  const vercelContainerManifest = join(
     root,
     'usr',
     'local',
@@ -161,161 +65,90 @@ test('fails closed when an expected dependency spec drifts', () => {
     'vercel',
     'node_modules',
     '@vercel',
-    'fun',
+    'container',
     'package.json',
   );
+  const vercelBefore = readFileSync(vercelManifest, 'utf8');
+  const vercelContainerBefore = readFileSync(vercelContainerManifest, 'utf8');
+
+  try {
+    const baseline = run(root, true);
+    assert.equal(baseline.status, 0, baseline.stderr);
+    installReplacement(root);
+    const result = run(root);
+    assert.equal(result.status, 0, result.stderr);
+
+    const eas = JSON.parse(
+      readFileSync(join(root, 'usr', 'local', 'lib', 'node_modules', 'eas-cli', 'package.json')),
+    );
+    assert.equal(eas.dependencies.tar, '7.5.22');
+    assert.equal(readFileSync(vercelManifest, 'utf8'), vercelBefore);
+    assert.equal(readFileSync(vercelContainerManifest, 'utf8'), vercelContainerBefore);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('does nothing in the slim variant', () => {
+  const root = fixture();
+  const easManifest = join(root, 'usr', 'local', 'lib', 'node_modules', 'eas-cli', 'package.json');
+  const before = readFileSync(easManifest, 'utf8');
+
+  try {
+    assert.equal(run(root, true, 'slim').status, 0);
+    assert.equal(run(root, false, 'slim').status, 0);
+    assert.equal(readFileSync(easManifest, 'utf8'), before);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('accepts an already patched verified EAS tree', () => {
+  const root = fixture();
+  try {
+    installReplacement(root);
+    assert.equal(run(root).status, 0);
+    const result = run(root);
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('fails closed when the EAS dependency spec drifts', () => {
+  const root = fixture();
+  const manifest = join(root, 'usr', 'local', 'lib', 'node_modules', 'eas-cli', 'package.json');
   const value = JSON.parse(readFileSync(manifest));
-  value.dependencies.tar = '^7.5.7';
+  value.dependencies.tar = '^7.5.19';
   writeJson(manifest, value);
 
-  const result = run(root, true);
-  assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /unexpected baseline tar dependency/);
-});
-
-for (const [name, mutate, expectedError] of [
-  [
-    'the nested Vercel tar copy is missing',
-    (root) =>
-      rmSync(
-        join(
-          root,
-          'usr',
-          'local',
-          'lib',
-          'node_modules',
-          'vercel',
-          'node_modules',
-          '@vercel',
-          'fun',
-          'node_modules',
-          'tar',
-        ),
-        { recursive: true },
-      ),
-    /unexpected Vercel tar layout/,
-  ],
-  [
-    'the Vercel container tar spec drifts',
-    (root) => {
-      const path = join(
-        root,
-        'usr',
-        'local',
-        'lib',
-        'node_modules',
-        'vercel',
-        'node_modules',
-        '@vercel',
-        'container',
-        'package.json',
-      );
-      const value = JSON.parse(readFileSync(path));
-      value.dependencies.tar = '^7.5.11';
-      writeJson(path, value);
-    },
-    /unexpected baseline tar dependency/,
-  ],
-  [
-    'the Vercel tar copies swap locations',
-    (root) => {
-      const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
-      writeJson(join(lib, 'vercel', 'node_modules', 'tar', 'package.json'), {
-        name: 'tar',
-        version: '7.5.7',
-      });
-      writeJson(
-        join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'node_modules', 'tar', 'package.json'),
-        { name: 'tar', version: '7.5.11' },
-      );
-    },
-    /expected tar@7\.5\.11/,
-  ],
-  [
-    'an extra stale Vercel tar copy exists',
-    (root) =>
-      writeJson(
-        join(
-          root,
-          'usr',
-          'local',
-          'lib',
-          'node_modules',
-          'vercel',
-          'node_modules',
-          '@vercel',
-          'unexpected',
-          'node_modules',
-          'tar',
-          'package.json',
-        ),
-        { name: 'tar', version: '7.5.7' },
-      ),
-    /unexpected Vercel tar layout/,
-  ],
-  [
-    'a Vercel tar copy is relocated',
-    (root) => {
-      const lib = join(root, 'usr', 'local', 'lib', 'node_modules');
-      const nested = join(
-        lib,
-        'vercel',
-        'node_modules',
-        '@vercel',
-        'fun',
-        'node_modules',
-        'tar',
-      );
-      rmSync(nested, { recursive: true });
-      writeJson(
-        join(lib, 'vercel', 'node_modules', '@vercel', 'fun', 'vendor', 'tar', 'package.json'),
-        { name: 'tar', version: '7.5.7' },
-      );
-    },
-    /unexpected Vercel tar layout/,
-  ],
-]) {
-  test(`fails closed before mutation when ${name}`, () => {
-    const root = fixture();
-    mutate(root);
-    const before = readFileSync(
-      join(root, 'usr', 'local', 'lib', 'node_modules', 'npm', 'package.json'),
-      'utf8',
-    );
-
+  try {
     const result = run(root, true);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, expectedError);
-    assert.equal(
-      readFileSync(join(root, 'usr', 'local', 'lib', 'node_modules', 'npm', 'package.json'), 'utf8'),
-      before,
-    );
-  });
-}
-
-test('fails closed unless both installed baseline packages are exact', () => {
-  const root = fixture();
-  const tarManifest = join(
-    root,
-    'usr',
-    'local',
-    'lib',
-    'node_modules',
-    'eas-cli',
-    'node_modules',
-    'tar',
-    'package.json',
-  );
-  writeJson(tarManifest, { name: 'tar', version: '7.5.8' });
-
-  const result = run(root, true);
-  assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected tar@7\.5\.19/);
+    assert.match(result.stderr, /unexpected baseline tar dependency/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
-test('fails closed unless both replacement packages are exact', () => {
+test('fails closed when the EAS package version drifts', () => {
   const root = fixture();
-  installReplacement(root);
+  const manifest = join(root, 'usr', 'local', 'lib', 'node_modules', 'eas-cli', 'package.json');
+  const value = JSON.parse(readFileSync(manifest));
+  value.version = '24.7.1';
+  writeJson(manifest, value);
+
+  try {
+    const result = run(root, true);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /expected eas-cli@24\.7\.0/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('fails closed unless the installed baseline EAS tar is exact', () => {
+  const root = fixture();
   const tarManifest = join(
     root,
     'usr',
@@ -327,9 +160,37 @@ test('fails closed unless both replacement packages are exact', () => {
     'tar',
     'package.json',
   );
-  writeJson(tarManifest, { name: 'tar', version: '7.5.19' });
+  writeJson(tarManifest, { name: 'tar', version: '7.5.18' });
 
-  const result = run(root);
-  assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected tar 7\.5\.22/);
+  try {
+    const result = run(root, true);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /expected tar@7\.5\.19/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('fails closed unless the replacement EAS tar is exact', () => {
+  const root = fixture();
+  const tarManifest = join(
+    root,
+    'usr',
+    'local',
+    'lib',
+    'node_modules',
+    'eas-cli',
+    'node_modules',
+    'tar',
+    'package.json',
+  );
+  writeJson(tarManifest, { name: 'tar', version: '7.5.21' });
+
+  try {
+    const result = run(root);
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /expected tar 7\.5\.22/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

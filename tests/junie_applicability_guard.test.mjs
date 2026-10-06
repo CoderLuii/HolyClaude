@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -9,16 +9,141 @@ import { validateSecurityPolicy } from '../scripts/evaluate-security-report.mjs'
 
 const guardPath = 'tests/junie_applicability_guard.py';
 const harness = readFileSync('tests/full_additional_linux_advisory_runtime_checks.sh', 'utf8');
+const fullAdvisoryHarness = readFileSync('tests/full_linux_advisory_runtime_checks.sh', 'utf8');
+const slimAdvisoryHarness = readFileSync('tests/slim_linux_advisory_runtime_checks.sh', 'utf8');
+const dockerfile = readFileSync('Dockerfile', 'utf8');
+const immutableInputs = readFileSync('security/immutable-inputs.yml', 'utf8');
 const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
 const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8'));
 const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
 const python = process.platform === 'win32' ? 'python' : 'python3';
+const toBashPath = (path) => path.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replaceAll('\\', '/');
 
-test('runs the exact Junie guard at every native full-image advisory gate', () => {
-  const guard = readFileSync(guardPath, 'utf8');
-  assert.match(harness, /python3 \/tests\/junie_applicability_guard\.py/);
+test('binds current native Junie checks to the verified 3419.29 archive and CLI', () => {
+  assert.doesNotMatch(harness, /junie_applicability_guard\.py/);
+  assert.match(harness, /7efefd2f7a49a2aa55db90fd2ab2eec16c4bcf89258c9acf2f920dab59edbeb5  \/home\/claude\/\.local\/share\/junie\/current\/lib\/app\/junie-release-3419\.29\.jar' \| sha256sum -c -/);
+  assert.match(harness, /timeout 30s junie --version 2>&1/);
+  assert.match(harness, /Junie version: 26\.9\.22 \(3419\.29\)/);
+  assert.match(harness, /timeout 30s junie --help >\/dev\/null/);
   assert.equal((workflow.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
   assert.equal((workflow.match(/--init --network none --entrypoint bash[\s\S]*?full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
+  assert.match(dockerfile, /ARG JUNIE_VERSION=3419\.29/);
+  assert.match(dockerfile, /ARG JUNIE_ARCHIVE_SHA256_AMD64=7ac5d675d90305c65207f9ddaf4219a1bf78c34630b8e39423833d2716ce7b5e/);
+  assert.match(dockerfile, /ARG JUNIE_ARCHIVE_SHA256_ARM64=17338e32942ffb1eca2f8aab020495c10bd8ab92d3772e59b0ca67e791e242ad/);
+  assert.match(dockerfile, /github\.com\/jetbrains-junie\/junie\/releases\/download\/\$\{JUNIE_VERSION\}\/\$\{JUNIE_ARCHIVE\}/);
+  assert.match(dockerfile, /echo "\$JUNIE_ARCHIVE_SHA256  \/tmp\/\$\{JUNIE_ARCHIVE\}" \| sha256sum -c -/);
+  assert.match(immutableInputs, /- name: Junie\r?\n\s+version: "3419\.29"\r?\n\s+amd64-archive-sha256: 7ac5d675d90305c65207f9ddaf4219a1bf78c34630b8e39423833d2716ce7b5e\r?\n\s+arm64-archive-sha256: 17338e32942ffb1eca2f8aab020495c10bd8ab92d3772e59b0ca67e791e242ad/);
+});
+
+test('current Junie shell gate accepts only 3419.29 and propagates CLI failures', () => {
+  const check = harness.match(/junie_version="\$\(timeout 30s junie --version 2>&1\)"[\s\S]*?timeout 30s junie --help >\/dev\/null/)?.[0];
+  assert.ok(check, 'current Junie shell gate must remain extractable');
+  const root = mkdtempSync(join(tmpdir(), 'junie-current-'));
+  const executable = join(root, 'junie');
+  writeFileSync(executable, `#!/usr/bin/env bash
+set -eu
+case "\${1:-}" in
+  --version)
+    [ "\${JUNIE_VERSION_STATUS:-0}" = 0 ] || exit "$JUNIE_VERSION_STATUS"
+    printf '%s\\n' "\${JUNIE_VERSION_OUTPUT:-Junie version: 26.9.22 (3419.29)}"
+    ;;
+  --help)
+    [ "\${JUNIE_HELP_STATUS:-0}" = 0 ] || exit "$JUNIE_HELP_STATUS"
+    printf 'Junie help\\n'
+    ;;
+  *) exit 64 ;;
+esac
+`);
+  chmodSync(executable, 0o755);
+  const run = (overrides = {}) => spawnSync('bash', [
+    '-s', '--', toBashPath(root),
+    overrides.JUNIE_VERSION_OUTPUT ?? 'Junie version: 26.9.22 (3419.29)',
+    overrides.JUNIE_VERSION_STATUS ?? '0',
+    overrides.JUNIE_HELP_STATUS ?? '0',
+  ], {
+    encoding: 'utf8',
+    input: `set -Eeuo pipefail\nPATH="$1:$PATH"\nexport PATH\nexport JUNIE_VERSION_OUTPUT="$2" JUNIE_VERSION_STATUS="$3" JUNIE_HELP_STATUS="$4"\n${check}\n`,
+    env: process.env,
+    timeout: 10_000,
+  });
+  try {
+    assert.equal(run().status, 0);
+    for (const output of ['Junie 3419.29', 'Junie version: 26.9.21 (3419.29)', 'Junie version: 26.9.22 (3419.26)']) {
+      const result = run({ JUNIE_VERSION_OUTPUT: output });
+      assert.notEqual(result.status, 0, output);
+      assert.match(result.stderr, /unexpected Junie version output/);
+    }
+    assert.notEqual(run({ JUNIE_VERSION_STATUS: '9' }).status, 0);
+    assert.notEqual(run({ JUNIE_HELP_STATUS: '8' }).status, 0);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('ldconfig checks consume large output, preserve first matches, and propagate producer failures', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ldconfig-pipeline-'));
+  const executable = join(root, 'ldconfig');
+  writeFileSync(executable, `#!/usr/bin/env bash
+set -eu
+if [ "$LDCONFIG_MODE" != missing ]; then
+  printf '%s (libc6,x86-64) => /first/%s\\n' "$LDCONFIG_LIBRARY" "$LDCONFIG_LIBRARY"
+fi
+i=0
+while [ "$i" -lt 6000 ]; do
+  printf 'libfixture%s.so (libc6,x86-64) => /fixture/%s\\n' "$i" "$i"
+  i=$((i + 1))
+done
+if [ "$LDCONFIG_MODE" = matches ]; then
+  printf '%s (libc6,x86-64) => /second/%s\\n' "$LDCONFIG_LIBRARY" "$LDCONFIG_LIBRARY"
+fi
+[ "$LDCONFIG_MODE" != failure ] || exit 73
+`);
+  chmodSync(executable, 0o755);
+  const run = (body, mode, library, variable = '') => spawnSync('bash', [
+    '-s', '--', toBashPath(root), mode, library, variable,
+  ], {
+    encoding: 'utf8',
+    input: `set -Eeuo pipefail\nPATH="$1:$PATH"\nexport PATH LDCONFIG_MODE="$2" LDCONFIG_LIBRARY="$3"\n${body}\n`,
+    env: process.env,
+    timeout: 10_000,
+  });
+  try {
+    const lookups = [
+      [harness, 'libmount_path', 'libmount.so.1'],
+      [fullAdvisoryHarness, 'libevent_core_path', 'libevent_core-2.1.so.7'],
+      [fullAdvisoryHarness, 'libtiff_path', 'libtiff.so.6'],
+      [slimAdvisoryHarness, 'libevent_core_path', 'libevent_core-2.1.so.7'],
+      [slimAdvisoryHarness, 'libtiff_path', 'libtiff.so.6'],
+      [slimAdvisoryHarness, 'libmount_path', 'libmount.so.1'],
+    ];
+    for (const [source, variable, library] of lookups) {
+      const assignment = source.split(/\r?\n/).find((line) => line.startsWith(`${variable}="$(ldconfig -p | awk `));
+      assert.ok(assignment, `${variable} lookup must remain extractable`);
+      const body = `${assignment}\ntest -n "$${variable}"\nprintf '%s\\n' "\${!4}"`;
+      const matches = run(body, 'matches', library, variable);
+      assert.equal(matches.status, 0, `${variable}: ${matches.stderr}`);
+      assert.equal(matches.stdout, `/first/${library}\n`);
+      assert.notEqual(run(body, 'missing', library, variable).status, 0);
+      assert.equal(run(body, 'failure', library, variable).status, 73, variable);
+    }
+
+    for (const source of [fullAdvisoryHarness, slimAdvisoryHarness]) {
+      const presence = source.match(/ldconfig_output="\$\(ldconfig -p\)"\r?\nif grep -Fq 'libevent_extra' <<<"\$ldconfig_output"; then[\s\S]*?^fi/m)?.[0];
+      assert.ok(presence, 'libevent-extra rejection block must remain extractable');
+      assert.equal(run(presence, 'missing', 'libevent_extra').status, 0);
+      const present = run(presence, 'present', 'libevent_extra');
+      assert.equal(present.status, 1);
+      assert.match(present.stderr, /unexpected libevent_extra library/);
+      assert.equal(run(presence, 'failure', 'libevent_extra').status, 73);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('preserves the exact Junie 3419.26 applicability guard as historical evidence', () => {
+  const guard = readFileSync(guardPath, 'utf8');
+  const historicalRisk = readFileSync('security/v1.6.4-accepted-risk.json', 'utf8');
   assert.match(guard, /3419\.26/);
   assert.match(guard, /junie-release-\{VERSION\}\.jar/);
   assert.match(guard, /6e4994ce18e1d4744658c6fb7aec6c99fb5d9b241d27970c2371953f2a0e6295/);
@@ -39,6 +164,7 @@ test('runs the exact Junie guard at every native full-image advisory gate', () =
   assert.doesNotMatch(guard, /--gateway-status/);
   assert.doesNotMatch(guard, /run_probes|capture_client_hello|stop_gateway/);
   assert.match(workflow, /python3 -m unittest tests\/test_notify\.py tests\/junie_applicability_guard_unit\.py/);
+  assert.match(historicalRisk, /\/home\/claude\/\.local\/share\/junie\/versions\/3419\.26\/lib\/app\/junie-release-3419\.26\.jar/);
 });
 
 test('does not carry 3196.5 security dispositions into the 3419.26 artifact', () => {

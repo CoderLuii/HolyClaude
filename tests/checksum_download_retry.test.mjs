@@ -114,13 +114,13 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
   const replaceScopedDownloads = (dockerfile.match(/^\s+replace_scoped_node_module \S+/gm) ?? []).length;
   const replaceNestedDownloads = (dockerfile.match(/^\s+replace_nested_node_module \S+/gm) ?? []).length;
   const ffmpegDownloads = (ffmpegBuilder.match(/^download '/gm) ?? []).length;
-  assert.equal(replaceNodeDownloads, 14);
+  assert.equal(replaceNodeDownloads, 8);
   assert.equal(replaceScopedDownloads, 3);
   assert.equal(replaceNestedDownloads, 4);
   assert.equal(ffmpegDownloads, 4);
   const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 8
     + replaceNodeDownloads + replaceScopedDownloads + replaceNestedDownloads + ffmpegDownloads;
-  assert.equal(logicalDownloads, 39);
+  assert.equal(logicalDownloads, 33);
 
   const checksumDownloadSources = `${dockerfile}\n${ffmpegBuilder}`;
   assert.doesNotMatch(checksumDownloadSources, /--retry-delay/);

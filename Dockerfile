@@ -49,13 +49,13 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
 
 FROM python:3.14.8-slim-bookworm@sha256:c8137f4c460908c8763f281c8f22c431eb5c538514ba9553fc3a89c06b7cfb88 AS python-runtime
 
-FROM node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6
+FROM node:26.10.0-bookworm-slim@sha256:662933cf47f013bc8e4beb31a6116448427a82057ba7c42c97e4c5ba766504c2
 
 COPY --from=python-runtime /usr/local/ /usr/local/
 RUN test "$(python3 --version)" = "Python 3.14.8" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.6.4
+ARG HOLYCLAUDE_VERSION=1.6.5
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -75,13 +75,13 @@ ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=c10056d7f80dcb2a9dc384997ecd5fd3aec9fa5
 ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=338df7ca0323ad2e6c98f3d628381cfb762dca2d0bcc12dd7e5adcb4b005260c
 ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=b48372322890bfb88c32662a94ff3ec7088fb6ce026cf5d238534378a82eb4f8
 ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=18b827aee52af82fdba80e3acf00e07e529b6077d925dd4351c95b1d4829eaee
-ARG CLAUDE_CODE_VERSION=2.1.287
+ARG CLAUDE_CODE_VERSION=2.1.290
 ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-ARG CLAUDE_BINARY_SHA256_AMD64=3920489a5109cff5786a1a392c25277408ff22bc796d5edb9c16a60e5a1718f0
-ARG CLAUDE_BINARY_SHA256_ARM64=e4daf793d1e74fb0d9874dd09e98690bbfd7be515f78a87fd05b9e2b4bb33b03
-ARG JUNIE_VERSION=3419.26
-ARG JUNIE_ARCHIVE_SHA256_AMD64=52a0c255e70df2cf030b134d8e458d3013d6d8149f8ff47ef562a7eedef13d4f
-ARG JUNIE_ARCHIVE_SHA256_ARM64=db0967f44ec04e70069b137136f8c53fdda3c6a4607870a568fa9454b48ba005
+ARG CLAUDE_BINARY_SHA256_AMD64=ea38ee1a1f946eea9bc6e97fb912dbe71fc379b25cc605d91b308afa1ca08be7
+ARG CLAUDE_BINARY_SHA256_ARM64=24c31a685e363190c165353f10b4e8434fd22647c1dd76eb6d2a05634eb60b95
+ARG JUNIE_VERSION=3419.29
+ARG JUNIE_ARCHIVE_SHA256_AMD64=7ac5d675d90305c65207f9ddaf4219a1bf78c34630b8e39423833d2716ce7b5e
+ARG JUNIE_ARCHIVE_SHA256_ARM64=17338e32942ffb1eca2f8aab020495c10bd8ab92d3772e59b0ca67e791e242ad
 ARG CURSOR_BUILD_ID=2026.09.15-d2fe57e
 ARG CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97
 ARG CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d
@@ -92,18 +92,8 @@ ARG SETUPTOOLS_VERSION=84.0.0
 ARG SETUPTOOLS_WHEEL_SHA256=51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670
 ARG PISCINA_VERSION=4.9.4
 ARG PISCINA_ARCHIVE_SHA256=9ea03459396e46c626b8e1b8d73e827ecfbe48ac1e94fb9ba7235e6b25f9fc2f
-ARG BRACE_EXPANSION_VERSION=5.0.12
-ARG BRACE_EXPANSION_ARCHIVE_SHA256=ef8448ec78f20b692f04fa6d01f39b5ab34c66404bea3429f5a39c6c9e0be8b4
-ARG NPM_UNDICI_VERSION=6.28.1
-ARG NPM_UNDICI_ARCHIVE_SHA256=e18191aac9c0ff43dac7fe9b10b7041a22d07addb7b66a6e8ac14a52a5b69b74
 ARG MINIMATCH_5_VERSION=5.1.9
 ARG MINIMATCH_5_ARCHIVE_SHA256=67e7dacfba9fcabb6ac661620b67e6c22600b4aa56ffa14431cbdfdeebbd4cfe
-ARG MINIMATCH_10_VERSION=10.2.6
-ARG MINIMATCH_10_ARCHIVE_SHA256=5a3d2c8074a28229665727e47b8a1090941856a7962905efe05d20d3760355f8
-ARG PATH_TO_REGEXP_6_VERSION=6.3.0
-ARG PATH_TO_REGEXP_6_ARCHIVE_SHA256=da302284390341278d3dad1014f2043cf844f6a2163aa8dc5686d321d82742e6
-ARG PATH_TO_REGEXP_8_VERSION=8.4.2
-ARG PATH_TO_REGEXP_8_ARCHIVE_SHA256=e8712a9c53b0a2a27cfecc7b80c54df92afb4643c01351e2b2ebb7784bcabd78
 ARG WS_VERSION=8.21.3
 ARG WS_ARCHIVE_SHA256=df3454ef205791ce50b5b9241762dcf9bfe1aa9f7f01d3057229be7dac0c2dc3
 ARG CLOUDCLI_NANOID_VERSION=3.3.19
@@ -130,24 +120,22 @@ ARG FULL_JS_YAML_VERSION=4.3.2
 ARG FULL_JS_YAML_ARCHIVE_SHA256=c7b241d2224cf9253ff53854aa4cee87da91bd889c4d0fa3a3ffd1041ecee5b1
 ARG FULL_XMLDOM_VERSION=0.9.12
 ARG FULL_XMLDOM_ARCHIVE_SHA256=08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee
-ARG VERCEL_SMOL_TOML_VERSION=1.8.0
-ARG VERCEL_SMOL_TOML_ARCHIVE_SHA256=1fc995be91cdb777fc13e20c2edfebaaf60ef4e4d2d5331caef2837b04d37892
-ARG WRANGLER_SHARP_VERSION=0.35.4
-ARG WRANGLER_SHARP_ARCHIVE_SHA256=6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a
-ARG WRANGLER_SHARP_LIBVIPS_VERSION=1.3.3
-ARG WRANGLER_SHARP_LINUX_X64_ARCHIVE_SHA256=9fe2de0bf57643eb603f16d5ed237dceb1c1229ea76f5094aacab1e99162bf3b
-ARG WRANGLER_SHARP_LINUX_ARM64_ARCHIVE_SHA256=556157e2f5de993f0b022d2cce22fd8248daeb95610c37d5a7cb7cca41d5d467
-ARG WRANGLER_SHARP_LIBVIPS_LINUX_X64_ARCHIVE_SHA256=74b6fa0abb2e41a163853a00e2f247188df5ec1e25bf62c4c5a041f2042a1f6a
-ARG WRANGLER_SHARP_LIBVIPS_LINUX_ARM64_ARCHIVE_SHA256=b56f6488e113c385a463fd3be8134b043a17114228f544701fc9c040227e4a59
+ARG NETLIFY_SHARP_VERSION=0.35.4
+ARG NETLIFY_SHARP_ARCHIVE_SHA256=6ebef10290372c7309d9e22e3ecb9e32ca6a3aa6e07f3d83aa904df8ae4f6a5a
+ARG NETLIFY_SHARP_LIBVIPS_VERSION=1.3.3
+ARG NETLIFY_SHARP_LINUX_X64_ARCHIVE_SHA256=9fe2de0bf57643eb603f16d5ed237dceb1c1229ea76f5094aacab1e99162bf3b
+ARG NETLIFY_SHARP_LINUX_ARM64_ARCHIVE_SHA256=556157e2f5de993f0b022d2cce22fd8248daeb95610c37d5a7cb7cca41d5d467
+ARG NETLIFY_SHARP_LIBVIPS_LINUX_X64_ARCHIVE_SHA256=74b6fa0abb2e41a163853a00e2f247188df5ec1e25bf62c4c5a041f2042a1f6a
+ARG NETLIFY_SHARP_LIBVIPS_LINUX_ARM64_ARCHIVE_SHA256=b56f6488e113c385a463fd3be8134b043a17114228f544701fc9c040227e4a59
 ARG AZURE_CLI_VERSION=2.90.0-1~bookworm
 ARG AZURE_CLI_INSTALLER_SHA256=01fada4dafe903fa6edae138d3e3ca2e6e4295d7c8a35e48632bba4aa9dbe9d9
 ARG AZURE_CLI_PYJWT_VERSION=2.15.1
 ARG AZURE_CLI_PYJWT_WHEEL_SHA256=42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193
 ARG AZURE_CLI_URLLIB3_VERSION=2.8.0
 ARG AZURE_CLI_URLLIB3_WHEEL_SHA256=0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3
-ARG GITHUB_CLI_VERSION=2.101.0
-ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=f876a3b87bf67c94f773d17becca4dc7340b056dab901473a9260ee2a73e237b
-ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=9aec87f9a011b1521556b06cb003776e7e214144c8efd2144924a28d90c23057
+ARG GITHUB_CLI_VERSION=2.102.0
+ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
+ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=5006962696f01e1624b3fcf1f9d8e1a11547f24bf067dd2a0371b7b421945237
 ARG NODE_TAR_VERSION=7.5.22
 ARG NODE_TAR_SHA256=b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6
 ARG PRISMA_MYSQL2_VERSION=3.24.4
@@ -213,9 +201,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-ARG YQ_VERSION=4.53.6
-ARG YQ_SHA256_AMD64=c5f056448f973ae7d39b5401949648a78f2dc1947d6a8eb65be60d5c504b9385
-ARG YQ_SHA256_ARM64=88a1016bc1d657375a35864e4f44b6f333df8ff97b559f51bba0adcb2169df09
+ARG YQ_VERSION=4.54.1
+ARG YQ_SHA256_AMD64=8e34fc298390875de416e6a4afcb8cabeceb25d9aa8506c1a2f9353cf702ea5f
+ARG YQ_SHA256_ARM64=189088da0c6429ec5178dfaab1a114805f6cab0b61b165ab236efedf1d57a71b
 ARG ATUIN_VERSION=18.23.0
 ARG ATUIN_SHA256_AMD64=d1b40dd6e7cd3d823867ffe22b39a025bc420f7875926ae9ca974155378da14d
 ARG ATUIN_SHA256_ARM64=faf91adc71e6b661b21ed4f486babbd7af9d17363d4276da4a0251f83c72498d
@@ -371,15 +359,15 @@ RUN rm -f /home/claude/.claude.json
 ENV PATH="/home/claude/.local/bin:${PATH}"
 
 # ---------- npm global packages (slim — always installed) ----------
-RUN npm install -g npm@12.0.2 && \
-    test "$(npm --version)" = "12.0.2"
+RUN npm install -g npm@12.2.0 && \
+    test "$(npm --version)" = "12.2.0"
 
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.63.0 \
-    typescript@7.0.2 tsx@4.23.13 \
-    pnpm@12.6.0 \
-    vite@8.3.1 esbuild@0.28.2 \
-    eslint@10.11.0 prettier@3.9.9 \
+    typescript@7.0.2 tsx@4.23.15 \
+    pnpm@12.9.1 \
+    vite@8.3.2 esbuild@0.28.2 \
+    eslint@10.12.0 prettier@3.9.9 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.5 \
     dotenv-cli@11.0.0
 
@@ -387,9 +375,9 @@ RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
 RUN if [ "$VARIANT" = "full" ]; then \
     set -e; \
     npm i -g \
-      wrangler@4.146.0 vercel@59.23.1 netlify-cli@27.8.0 \
+      wrangler@4.147.0 vercel@62.4.0 netlify-cli@27.8.0 \
       pm2@7.0.4 \
-      prisma@7.10.0 drizzle-kit@0.31.10 \
+      prisma@7.10.0 drizzle-kit@0.31.11 \
       eas-cli@24.7.0 \
       lighthouse@13.4.1 @lhci/cli@0.15.1 \
       sharp-cli@6.1.0 json-server@0.17.4 http-server@14.1.1 \
@@ -434,40 +422,20 @@ RUN if [ "$VARIANT" = "full" ]; then \
       rm -f /tmp/prisma-mysql2.tgz; \
     fi
 
-# npm 12, EAS 24, and Vercel 59 retain tar below the reviewed security floor. Replace only their installed
-# copies, including Vercel's exact hoisted and @vercel/fun layouts, then update exact metadata.
+# Retain the checksum-bound EAS tar replacement; Vercel uses its official tree.
 COPY scripts/patch-global-node-tar.mjs /tmp/patch-global-node-tar.mjs
-RUN node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" --check-baseline && \
-    curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o /tmp/node-tar.tgz "https://registry.npmjs.org/tar/-/tar-${NODE_TAR_VERSION}.tgz" && \
-    echo "$NODE_TAR_SHA256  /tmp/node-tar.tgz" | sha256sum -c - && \
-    targets="/usr/local/lib/node_modules/npm/node_modules/tar" && \
-    if [ "$VARIANT" = "full" ]; then \
-      targets="$targets /usr/local/lib/node_modules/eas-cli/node_modules/tar /usr/local/lib/node_modules/vercel/node_modules/tar /usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/node_modules/tar"; \
-    fi && \
-    for target in $targets; do \
-        rm -rf "$target" && \
-        mkdir -p "$target" && \
-        tar -xzf /tmp/node-tar.tgz --strip-components=1 -C "$target"; \
-    done && \
-    node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" && \
-    test "$(node -p "require('/usr/local/lib/node_modules/npm/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
-    node -e "if (typeof require('/usr/local/lib/node_modules/npm/node_modules/tar').list !== 'function') throw new Error('invalid npm tar module')" && \
-    npm --prefix /usr/local/lib/node_modules/npm ls tar --all >/dev/null && \
-    if [ "$VARIANT" = "full" ]; then \
-      VERCEL_ROOT=/usr/local/lib/node_modules/vercel && \
+RUN if [ "$VARIANT" = "full" ]; then \
+      node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" --check-baseline && \
+      curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o /tmp/node-tar.tgz "https://registry.npmjs.org/tar/-/tar-${NODE_TAR_VERSION}.tgz" && \
+      echo "$NODE_TAR_SHA256  /tmp/node-tar.tgz" | sha256sum -c - && \
+      target=/usr/local/lib/node_modules/eas-cli/node_modules/tar && \
+      rm -rf "$target" && mkdir -p "$target" && \
+      tar -xzf /tmp/node-tar.tgz --strip-components=1 -C "$target" && \
+      node /tmp/patch-global-node-tar.mjs --root / --variant "$VARIANT" && \
       test "$(node -p "require('/usr/local/lib/node_modules/eas-cli/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
-      test "$(node -p "require('$VERCEL_ROOT/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
-      test "$(node -p "require('$VERCEL_ROOT/node_modules/@vercel/fun/node_modules/tar/package.json').version")" = "$NODE_TAR_VERSION" && \
-      test "$(node -p "require('$VERCEL_ROOT/node_modules/@vercel/container/package.json').dependencies.tar")" = "$NODE_TAR_VERSION" && \
-      test "$(node -p "require('$VERCEL_ROOT/node_modules/@vercel/fun/package.json').dependencies.tar")" = "$NODE_TAR_VERSION" && \
-      test "$(node -p "require('$VERCEL_ROOT/node_modules/@mapbox/node-pre-gyp/package.json').dependencies.tar")" = "^7.4.0" && \
-      node -e "for (const path of ['/usr/local/lib/node_modules/eas-cli/node_modules/tar', '$VERCEL_ROOT/node_modules/tar', '$VERCEL_ROOT/node_modules/@vercel/fun/node_modules/tar']) { if (typeof require(path).list !== 'function') throw new Error('invalid tar module at ' + path); }" && \
-      npm --prefix "$VERCEL_ROOT" ls tar --all >/dev/null && \
-      eas --version >/dev/null && \
-      vercel --version >/dev/null && \
-      vercel --help >/dev/null; \
-    fi && \
-    rm -f /tmp/node-tar.tgz
+      node -e "if (typeof require('/usr/local/lib/node_modules/eas-cli/node_modules/tar').list !== 'function') throw new Error('invalid EAS tar module')" && \
+      eas --version >/dev/null && vercel --version >/dev/null && vercel --help >/dev/null; \
+    fi && rm -f /tmp/node-tar.tgz
 
 # Netlify CLI 27.8.0 bundles an optional local Go/Rust functions proxy built
 # with Go 1.16.7. Keep the deployment CLI, but remove that stale executable.
@@ -524,14 +492,14 @@ RUN pip install --no-cache-dir --break-system-packages \
     Pillow==12.3.0 \
     pandas==3.0.6 numpy==2.5.3 \
     openpyxl==3.1.5 python-docx==1.2.0 \
-    jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.3 markdown==3.10.3 \
+    jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.4 markdown==3.11 \
     rich==15.0.0 click==8.5.0 tqdm==4.70.1 \
     desloppify==1.0 bandit==1.9.4 defusedxml==0.7.1 \
-    tree-sitter==0.26.0 tree-sitter-language-pack==1.20.0 stevedore==5.9.1 \
+    tree-sitter==0.26.0 tree-sitter-language-pack==1.21.0 stevedore==5.9.1 \
     playwright==1.63.0 \
-    apprise==1.13.1 \
-    pytest==9.1.1 pytest-asyncio==1.4.0 flake8==7.3.0 \
-    aiomqtt==2.5.1 aiohttp==3.14.3
+    apprise==2.0.1 \
+    pytest==9.1.1 pytest-asyncio==1.4.0 flake8==7.4.1 \
+    aiomqtt==2.5.1 aiohttp==3.14.4
 
 COPY scripts/holyclaude-chromium /usr/local/bin/holyclaude-chromium
 RUN CHROMIUM_DEBIAN_VERSION=$(case "$TARGETARCH" in amd64) echo "$CHROMIUM_DEBIAN_VERSION_AMD64";; arm64) echo "$CHROMIUM_DEBIAN_VERSION_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -551,11 +519,11 @@ RUN CHROMIUM_DEBIAN_VERSION=$(case "$TARGETARCH" in amd64) echo "$CHROMIUM_DEBIA
 # ---------- Python packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
     pip install --no-cache-dir --break-system-packages \
-      reportlab==5.0.1 weasyprint==70.0 cairosvg==2.9.1 fpdf2==2.8.8 PyMuPDF==1.28.2 img2pdf==0.6.3 \
+      reportlab==5.0.1 weasyprint==70.0 cairosvg==2.9.1 fpdf2==2.8.9 PyMuPDF==1.28.2 img2pdf==0.6.3 \
       xlsxwriter==3.2.9 xlrd==2.0.2 \
       matplotlib==3.11.2 seaborn==0.13.2 \
       python-pptx==1.0.2 \
-      fastapi==0.141.1 uvicorn==0.53.0; \
+      fastapi==0.142.2 uvicorn==0.54.0; \
     fi
 
 # Replace Bookworm's runtime setuptools copy after all image packages are built.
@@ -572,7 +540,7 @@ RUN curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on
     rm -f "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl"
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.61.0 @openai/codex@0.160.0 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.62.0 @openai/codex@0.160.1 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -597,7 +565,7 @@ RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "a
     rm -f "$CURSOR_DIR/node" && \
     ln -s /usr/local/bin/node "$CURSOR_DIR/node" && \
     test "$(readlink -f "$CURSOR_DIR/node")" = "$(readlink -f /usr/local/bin/node)" && \
-    test "$("$CURSOR_DIR/node" --version)" = "v26.9.0" && \
+    test "$("$CURSOR_DIR/node" --version)" = "v26.10.0" && \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
     cursor-agent --help >/dev/null && \
     rm -f /tmp/cursor-agent.tar.gz
@@ -632,8 +600,8 @@ USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --allow-scripts=opencode-ai opencode-ai@1.18.32; \
-    test "$(opencode --version)" = "1.18.32"; \
+    npm i -g --allow-scripts=opencode-ai opencode-ai@1.18.34; \
+    test "$(opencode --version)" = "1.18.34"; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
@@ -682,35 +650,28 @@ RUN set -eux; \
       rm -f "$archive"; \
     }; \
     node /tmp/patch-global-node-security-dependencies.mjs --root / --variant "$VARIANT" --check-baseline; \
-    test "$(node -p "require('/usr/local/lib/node_modules/npm/node_modules/undici/package.json').version")" = "6.27.0"; \
     replace_node_module piscina "$PISCINA_VERSION" "$PISCINA_ARCHIVE_SHA256" \
       "/home/claude/.local/share/cursor-agent/versions/$CURSOR_BUILD_ID/node_modules/piscina"; \
-    replace_node_module brace-expansion "$BRACE_EXPANSION_VERSION" "$BRACE_EXPANSION_ARCHIVE_SHA256" \
-      /usr/local/lib/node_modules/npm/node_modules/brace-expansion; \
-    replace_node_module undici "$NPM_UNDICI_VERSION" "$NPM_UNDICI_ARCHIVE_SHA256" \
-      /usr/local/lib/node_modules/npm/node_modules/undici; \
     if [ "$VARIANT" = "full" ]; then \
       case "$TARGETARCH" in \
         amd64) \
           SHARP_PLATFORM_PACKAGE="@img/sharp-linux-x64"; \
           SHARP_PLATFORM_DIRECTORY="sharp-linux-x64"; \
-          SHARP_PLATFORM_ARCHIVE_SHA256="$WRANGLER_SHARP_LINUX_X64_ARCHIVE_SHA256"; \
+          SHARP_PLATFORM_ARCHIVE_SHA256="$NETLIFY_SHARP_LINUX_X64_ARCHIVE_SHA256"; \
           SHARP_LIBVIPS_PACKAGE="@img/sharp-libvips-linux-x64"; \
           SHARP_LIBVIPS_DIRECTORY="sharp-libvips-linux-x64"; \
-          SHARP_LIBVIPS_ARCHIVE_SHA256="$WRANGLER_SHARP_LIBVIPS_LINUX_X64_ARCHIVE_SHA256"; \
+          SHARP_LIBVIPS_ARCHIVE_SHA256="$NETLIFY_SHARP_LIBVIPS_LINUX_X64_ARCHIVE_SHA256"; \
           ;; \
         arm64) \
           SHARP_PLATFORM_PACKAGE="@img/sharp-linux-arm64"; \
           SHARP_PLATFORM_DIRECTORY="sharp-linux-arm64"; \
-          SHARP_PLATFORM_ARCHIVE_SHA256="$WRANGLER_SHARP_LINUX_ARM64_ARCHIVE_SHA256"; \
+          SHARP_PLATFORM_ARCHIVE_SHA256="$NETLIFY_SHARP_LINUX_ARM64_ARCHIVE_SHA256"; \
           SHARP_LIBVIPS_PACKAGE="@img/sharp-libvips-linux-arm64"; \
           SHARP_LIBVIPS_DIRECTORY="sharp-libvips-linux-arm64"; \
-          SHARP_LIBVIPS_ARCHIVE_SHA256="$WRANGLER_SHARP_LIBVIPS_LINUX_ARM64_ARCHIVE_SHA256"; \
+          SHARP_LIBVIPS_ARCHIVE_SHA256="$NETLIFY_SHARP_LIBVIPS_LINUX_ARM64_ARCHIVE_SHA256"; \
           ;; \
-        *) echo "Unsupported TARGETARCH for Wrangler sharp: $TARGETARCH" >&2; exit 1 ;; \
+        *) echo "Unsupported TARGETARCH for Netlify sharp: $TARGETARCH" >&2; exit 1 ;; \
       esac; \
-      test "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/${SHARP_PLATFORM_PACKAGE}/package.json').version")" = "0.35.4"; \
-      test "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/${SHARP_LIBVIPS_PACKAGE}/package.json').version")" = "1.3.3"; \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/${SHARP_PLATFORM_PACKAGE}/package.json').name")" = "$SHARP_PLATFORM_PACKAGE"; \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/${SHARP_PLATFORM_PACKAGE}/package.json').version")" = "0.34.5"; \
       test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/${SHARP_LIBVIPS_PACKAGE}/package.json').name")" = "$SHARP_LIBVIPS_PACKAGE"; \
@@ -722,39 +683,22 @@ RUN set -eux; \
       replace_node_module joi "$EAS_JOI_VERSION" "$EAS_JOI_ARCHIVE_SHA256" \
         /usr/local/lib/node_modules/eas-cli/node_modules/joi; \
       replace_node_module js-yaml "$FULL_JS_YAML_VERSION" "$FULL_JS_YAML_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/pm2/node_modules/js-yaml \
-        /usr/local/lib/node_modules/vercel/node_modules/js-yaml; \
-      replace_node_module smol-toml "$VERCEL_SMOL_TOML_VERSION" "$VERCEL_SMOL_TOML_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/vercel/node_modules/smol-toml; \
+        /usr/local/lib/node_modules/pm2/node_modules/js-yaml; \
       replace_scoped_node_module "@xmldom/xmldom" "$FULL_XMLDOM_VERSION" "$FULL_XMLDOM_ARCHIVE_SHA256" xmldom \
         /usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom; \
-      replace_node_module sharp "$WRANGLER_SHARP_VERSION" "$WRANGLER_SHARP_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/wrangler/node_modules/sharp \
+      replace_node_module sharp "$NETLIFY_SHARP_VERSION" "$NETLIFY_SHARP_ARCHIVE_SHA256" \
         /usr/local/lib/node_modules/netlify-cli/node_modules/sharp; \
-      replace_scoped_node_module "$SHARP_PLATFORM_PACKAGE" "$WRANGLER_SHARP_VERSION" "$SHARP_PLATFORM_ARCHIVE_SHA256" "$SHARP_PLATFORM_DIRECTORY" \
-        "/usr/local/lib/node_modules/wrangler/node_modules/${SHARP_PLATFORM_PACKAGE}" \
+      replace_scoped_node_module "$SHARP_PLATFORM_PACKAGE" "$NETLIFY_SHARP_VERSION" "$SHARP_PLATFORM_ARCHIVE_SHA256" "$SHARP_PLATFORM_DIRECTORY" \
         "/usr/local/lib/node_modules/netlify-cli/node_modules/${SHARP_PLATFORM_PACKAGE}"; \
-      replace_scoped_node_module "$SHARP_LIBVIPS_PACKAGE" "$WRANGLER_SHARP_LIBVIPS_VERSION" "$SHARP_LIBVIPS_ARCHIVE_SHA256" "$SHARP_LIBVIPS_DIRECTORY" \
-        "/usr/local/lib/node_modules/wrangler/node_modules/${SHARP_LIBVIPS_PACKAGE}" \
+      replace_scoped_node_module "$SHARP_LIBVIPS_PACKAGE" "$NETLIFY_SHARP_LIBVIPS_VERSION" "$SHARP_LIBVIPS_ARCHIVE_SHA256" "$SHARP_LIBVIPS_DIRECTORY" \
         "/usr/local/lib/node_modules/netlify-cli/node_modules/${SHARP_LIBVIPS_PACKAGE}"; \
       replace_node_module minimatch "$MINIMATCH_5_VERSION" "$MINIMATCH_5_ARCHIVE_SHA256" \
         /usr/local/lib/node_modules/eas-cli/node_modules/minimatch; \
-      replace_node_module minimatch "$MINIMATCH_10_VERSION" "$MINIMATCH_10_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/vercel/node_modules/minimatch; \
-      replace_node_module path-to-regexp "$PATH_TO_REGEXP_6_VERSION" "$PATH_TO_REGEXP_6_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/vercel/node_modules/@vercel/node/node_modules/path-to-regexp \
-        /usr/local/lib/node_modules/vercel/node_modules/@vercel/remix-builder/node_modules/path-to-regexp; \
-      replace_node_module path-to-regexp "$PATH_TO_REGEXP_8_VERSION" "$PATH_TO_REGEXP_8_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/vercel/node_modules/path-to-regexp \
-        /usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/node_modules/path-to-regexp; \
       replace_node_module ws "$WS_VERSION" "$WS_ARCHIVE_SHA256" \
         /usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws; \
     fi; \
     node /tmp/patch-global-node-security-dependencies.mjs --root / --variant "$VARIANT"; \
-    test "$(node -p "require('/usr/local/lib/node_modules/npm/node_modules/undici/package.json').version")" = "$NPM_UNDICI_VERSION"; \
-    npm --prefix /usr/local/lib/node_modules/npm ls undici --all >/dev/null; \
-    node -e "const undici = require('/usr/local/lib/node_modules/npm/node_modules/undici'); if (typeof undici.request !== 'function') throw new Error('invalid npm undici request API')"; \
-    test "$(npm --version)" = "12.0.2"; \
+    test "$(npm --version)" = "12.2.0"; \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID"; \
     if [ "$VARIANT" = "full" ]; then \
       npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null; \
@@ -762,8 +706,20 @@ RUN set -eux; \
       npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/eas-cli ls joi --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all >/dev/null; \
-      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json').dependencies['smol-toml']")" = "$VERCEL_SMOL_TOML_VERSION"; \
       npm --prefix /usr/local/lib/node_modules/vercel ls smol-toml --all >/dev/null; \
+      VERCEL_NATIVE_ARCH=$(case "$TARGETARCH" in amd64) echo x64;; arm64) echo arm64;; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac); \
+      VERCEL_NATIVE_ROOT="/usr/local/lib/node_modules/vercel/node_modules/@vercel/vc-native-linux-${VERCEL_NATIVE_ARCH}"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/package.json').version")" = "62.4.0"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json').version")" = "16.0.0"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/container/package.json').dependencies.tar")" = "7.5.11"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/package.json').version")" = "1.3.6"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/fun/package.json').dependencies.tar")" = "7.5.22"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis/package.json').version")" = "0.14.0"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/rust/package.json').version")" = "17.0.0"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/@renovatebot/pep440/package.json').version")" = "4.2.1"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml/package.json').version")" = "1.5.2"; \
+      test "$(node -p "require('${VERCEL_NATIVE_ROOT}/package.json').version")" = "62.4.0"; \
+      "$VERCEL_NATIVE_ROOT/bin/vercel" --version | grep -Fx '62.4.0'; \
       node -e "const owner = '/usr/local/lib/node_modules/vercel/node_modules/@vercel/container'; const resolved = require.resolve('smol-toml', { paths: [owner] }); if (!resolved.startsWith('/usr/local/lib/node_modules/vercel/node_modules/smol-toml/')) throw new Error('unexpected @vercel/container smol-toml resolution: ' + resolved); if (typeof require(resolved).parse !== 'function') throw new Error('invalid @vercel/container smol-toml module');"; \
       npm --prefix /usr/local/lib/node_modules/@marp-team/marp-cli ls @xmldom/xmldom --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/wrangler ls sharp --all >/dev/null; \
@@ -774,7 +730,7 @@ RUN set -eux; \
       test "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/sharp').versions.vips")" = "8.18.6"; \
       test "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/sharp').versions.heif")" = "1.23.2"; \
       node -e "(async () => { const sharp = require('/usr/local/lib/node_modules/wrangler/node_modules/sharp'); const buffer = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#336699ff' } }).png().toBuffer(); if (buffer.subarray(1, 4).toString() !== 'PNG') throw new Error('invalid sharp PNG transform'); console.log('sharp_transform=ok'); })().catch((error) => { console.error(error); process.exit(1); })"; \
-      timeout 5s node -e "const { parse, TomlError } = require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml'); const value = parse('project = \\\"holyclaude\\\"\\n[build]\\ncommand = \\\"npm run build\\\"'); if (value.project !== 'holyclaude' || value.build.command !== 'npm run build') throw new Error('invalid TOML parse'); try { parse('a=[1 #'); throw new Error('malformed TOML was accepted'); } catch (error) { if (!(error instanceof TomlError)) throw error; } console.log('vercel_smol_toml=ok')"; \
+      timeout 5s node -e "const { parse } = require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml'); const value = parse('project = \\\"holyclaude\\\"\\n[build]\\ncommand = \\\"npm run build\\\"'); if (value.project !== 'holyclaude' || value.build.command !== 'npm run build') throw new Error('invalid TOML parse'); console.log('vercel_smol_toml=ok')"; \
       node -e "const Joi = require('/usr/local/lib/node_modules/eas-cli/node_modules/joi'); const schema = Joi.object({ platform: Joi.string().valid('android', 'ios').required(), profile: Joi.string().min(1).required() }); const valid = schema.validate({ platform: 'android', profile: 'production' }); if (valid.error) throw valid.error; const invalid = schema.validate({ platform: 'desktop', profile: '' }); if (!invalid.error) throw new Error('Joi accepted an invalid EAS profile'); console.log('eas_joi_validation=ok')"; \
       timeout 5s node -e "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require('node:fs'); const { tmpdir } = require('node:os'); const { join } = require('node:path'); (async () => { const root = mkdtempSync(join(tmpdir(), 'vercel-smol-toml-')); try { const python = join(root, 'python'); mkdirSync(python); writeFileSync(join(python, 'pyproject.toml'), '[project]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n'); const { discoverPythonPackage } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis'); const discovered = await discoverPythonPackage({ entrypointDir: python, rootDir: root }); if (discovered.manifest?.data?.project?.name !== 'smoke') throw new Error('python-analysis failed to parse pyproject.toml'); const rust = join(root, 'rust'); mkdirSync(join(rust, 'src'), { recursive: true }); writeFileSync(join(rust, 'Cargo.toml'), '[package]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n[dependencies]\\nvercel_runtime = \\\"1\\\"\\n'); writeFileSync(join(rust, 'src/main.rs'), 'fn main() {}\\n'); const { shouldServe } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/rust'); if (await shouldServe({ workPath: rust, entrypoint: 'src/main.rs', requestPath: 'different' })) throw new Error('rust failed to parse Cargo.toml runtime dependency'); console.log('vercel_smol_toml_consumers=ok'); } finally { rmSync(root, { recursive: true, force: true }); } })().catch((error) => { console.error(error); process.exit(1); })"; \
       node -e "(async () => { const sharp = require('/usr/local/lib/node_modules/netlify-cli/node_modules/sharp'); if (typeof sharp !== 'function' || typeof sharp.format !== 'object') throw new Error('invalid Netlify sharp exports'); if (sharp.versions.vips !== '8.18.6' || sharp.versions.heif !== '1.23.2') throw new Error('invalid Netlify sharp native versions'); const png = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#336699ff' } }).png().toBuffer(); if (png.subarray(1, 4).toString() !== 'PNG') throw new Error('invalid Netlify sharp PNG transform'); const avif = await sharp(png).avif().toBuffer(); const metadata = await sharp(avif).metadata(); if (metadata.format !== 'heif' || metadata.width !== 2 || metadata.height !== 2) throw new Error('invalid Netlify sharp AVIF decode'); console.log('netlify_sharp_build=ok'); })().catch((error) => { console.error(error); process.exit(1); })"; \
@@ -823,7 +779,7 @@ RUN echo "$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  /tmp/vendor/cloudcli-ai-
     cp -- npm-shrinkwrap.json package-lock.json && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap.json" | sha256sum -c - && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  package-lock.json" | sha256sum -c - && \
-    test "$(npm --version)" = "12.0.2" && \
+    test "$(npm --version)" = "12.2.0" && \
     TMPDIR="$CLOUDCLI_RIPGREP_CACHE_ROOT" npm ci --omit=dev --allow-remote=all --allow-file=none --allow-git=none --allow-directory=none && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap.json" | sha256sum -c - && \
     cmp -s npm-shrinkwrap.json package-lock.json && \
@@ -869,8 +825,7 @@ RUN set -eux; \
     replace_nested_node_module nanoid "$CLOUDCLI_NANOID_VERSION" "$CLOUDCLI_NANOID_ARCHIVE_SHA256" \
       /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/nanoid; \
     replace_nested_node_module ip-address "$NESTED_IP_ADDRESS_VERSION" "$NESTED_IP_ADDRESS_ARCHIVE_SHA256" \
-      /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address \
-      /usr/local/lib/node_modules/npm/node_modules/ip-address; \
+      /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address; \
     replace_nested_node_module fast-uri "$CLOUDCLI_FAST_URI_VERSION" "$CLOUDCLI_FAST_URI_ARCHIVE_SHA256" \
       /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/fast-uri; \
     test "$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').name")" = "@cloudcli-ai/cloudcli"; \

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -234,6 +234,8 @@ function runFixture(
         sbomSha256,
         '--as-of',
         asOf,
+        '--release',
+        'v1.6.4',
       ],
       { encoding: 'utf8' },
     );
@@ -673,16 +675,13 @@ test('validates only Critical exceptions for the authority evidence target', () 
   assert.equal(result.status, 0, result.stderr);
 });
 
-test('selects target-specific Critical authority evidence in the candidate workflow', () => {
+test('keeps target-specific Critical authority evidence historical for v1.6.4', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
-  assert.match(
-    workflow,
-    /node scripts\/bind-security-authority-report\.mjs[\s\S]+--authority-evidence security\/critical-exception-authority-evidence-\$\{\{ matrix\.variant \}\}-\$\{\{ matrix\.arch \}\}\.json[\s\S]+--report "\$\{evidence_dir\}\/grype\.json"[\s\S]+--output "\$\{evidence_dir\}\/critical-exception-authority-evidence\.json"/,
-  );
-  assert.equal(
-    (workflow.match(/--authority-evidence "\$\{evidence_dir\}\/critical-exception-authority-evidence\.json"/g) ?? []).length,
-    2,
-  );
+  assert.doesNotMatch(workflow, /bind-security-authority-report\.mjs/);
+  assert.match(workflow, /evaluate-upstream-dependency-report\.mjs/);
+  for (const target of ['full-amd64', 'full-arm64', 'slim-amd64', 'slim-arm64']) {
+    assert.equal(existsSync(`security/critical-exception-authority-evidence-${target}.json`), true);
+  }
 });
 
 test('commits exact target authority records without predicting runtime report bytes', () => {

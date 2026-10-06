@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "release": "v1.6.5",
+  "scope": "third_party_dependencies_only",
+  "disposition": "accepted_upstream_vulnerability_not_fixed",
+  "approvedBy": "CoderLuii",
+  "authorizedAt": "2026-10-05",
+  "officialReleasesOnly": true,
+  "retainedBaselineCommit": "20e9e10681aec9b091bb54da8755f8a1c59f69bb",
+  "retainedBaselineEvidence": "security/retained-modified-third-party-baseline.json",
+  "targets": [
+    {
+      "variant": "full",
+      "architecture": "amd64"
+    },
+    {
+      "variant": "full",
+      "architecture": "arm64"
+    },
+    {
+      "variant": "slim",
+      "architecture": "amd64"
+    },
+    {
+      "variant": "slim",
+      "architecture": "arm64"
+    }
+  ],
+  "officialInputs": [
+    {
+      "origin": "Debian Bookworm repositories",
+      "types": [
+        "deb"
+      ],
+      "purlPrefixes": [
+        "pkg:deb/debian/"
+      ],
+      "locationPrefixes": [
+        "/usr/",
+        "/var/lib/dpkg/"
+      ],
+      "locationPaths": [
+      ]
+    },
+    {
+      "origin": "npm registry packages",
+      "types": [
+        "npm"
+      ],
+      "purlPrefixes": [
+        "pkg:npm/"
+      ],
+      "locationPrefixes": [
+        "/usr/local/lib/node_modules/"
+      ],
+      "locationPaths": [
+      ]
+    },
+    {
+      "origin": "Python package indexes and distribution packages",
+      "types": [
+        "python"
+      ],
+      "purlPrefixes": [
+        "pkg:pypi/"
+      ],
+      "locationPrefixes": [
+        "/opt/",
+        "/usr/lib/python3/",
+        "/usr/local/lib/python"
+      ],
+      "locationPaths": [
+      ]
+    },
+    {
+      "origin": "bundled official Go module releases",
+      "types": [
+        "go-module"
+      ],
+      "purlPrefixes": [
+        "pkg:golang/"
+      ],
+      "locationPrefixes": [
+        "/usr/local/lib/node_modules/"
+      ],
+      "locationPaths": [
+        "/usr/local/bin/fzf",
+        "/usr/bin/gh"
+      ]
+    },
+    {
+      "origin": "JetBrains Junie official release",
+      "types": [
+        "binary",
+        "java-archive"
+      ],
+      "purlPrefixes": [
+        "pkg:generic/oracle/openjdk@",
+        "pkg:maven/"
+      ],
+      "locationPrefixes": [
+        "/home/claude/.local/share/junie/versions/"
+      ],
+      "locationPaths": [
+      ]
+    },
+    {
+      "origin": "Docker official Python image runtime",
+      "types": [
+        "binary"
+      ],
+      "purlPrefixes": [
+        "pkg:generic/python@"
+      ],
+      "locationPrefixes": [
+        "/usr/local/bin/python",
+        "/usr/local/lib/libpython"
+      ],
+      "locationPaths": [
+      ]
+    }
+  ],
+  "retainedModifiedInputs": [
+    {
+      "origin": "retained_modified_third_party: HolyClaude FFmpeg security backport",
+      "types": [
+        "deb"
+      ],
+      "purlPrefixes": [
+        "pkg:deb/debian/"
+      ],
+      "locationPrefixes": [
+        "/usr/",
+        "/var/lib/dpkg/"
+      ],
+      "versionContains": [
+        "+holyclaude"
+      ],
+      "inventoryAnchors": [
+        "FFmpeg Debian source",
+        "FFmpeg CVE-2026-70628 backport",
+        "FFmpeg CVE-2026-70632 backport",
+        "FFmpeg CVE-2026-75143 backport",
+        "FFmpeg reproducible PTX gzip backport"
+      ]
+    },
+    {
+      "origin": "retained_modified_third_party: CloudCLI account-management artifact and overlays",
+      "types": [
+        "npm",
+        "binary",
+        "go-module"
+      ],
+      "purlPrefixes": [
+        "pkg:npm/",
+        "pkg:generic/",
+        "pkg:golang/"
+      ],
+      "locationPrefixes": [
+        "/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json"
+      ],
+      "versionContains": [],
+      "inventoryAnchors": [
+        "CloudCLI HolyClaude account-management artifact",
+        "CloudCLI ripgrep prebuilt archive",
+        "CloudCLI nanoid nested package",
+        "CloudCLI ip-address nested package",
+        "CloudCLI fast-uri nested package",
+        "CloudCLI js-yaml nested package"
+      ]
+    },
+    {
+      "origin": "retained_modified_third_party: checksum-bound global dependency overlays",
+      "types": [
+        "npm"
+      ],
+      "purlPrefixes": [
+        "pkg:npm/"
+      ],
+      "locationPrefixes": [
+        "/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/nanoid/",
+        "/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address/",
+        "/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/fast-uri/",
+        "/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/js-yaml/",
+        "/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/",
+        "/usr/local/lib/node_modules/prisma/node_modules/mysql2/",
+        "/usr/local/lib/node_modules/eas-cli/node_modules/tar/",
+        "/usr/local/lib/node_modules/eas-cli/node_modules/joi/",
+        "/usr/local/lib/node_modules/eas-cli/node_modules/minimatch/",
+        "/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/",
+        "/usr/local/lib/node_modules/pm2/node_modules/js-yaml/",
+        "/usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws/",
+        "/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/",
+        "/usr/local/lib/node_modules/netlify-cli/node_modules/sharp/"
+      ],
+      "versionContains": [],
+      "inventoryAnchors": [
+        "node-tar npm package",
+        "Full-image undici 8 nested package",
+        "Full-image js-yaml nested package",
+        "Full-image xmldom nested package",
+        "Netlify sharp nested package",
+        "Full-image nanoid nested package",
+        "EAS CLI Joi security package"
+      ]
+    },
+    {
+      "origin": "retained_modified_third_party: rebuilt esbuild binaries and retained CloudCLI plugins",
+      "types": [
+        "npm",
+        "binary",
+        "go-module"
+      ],
+      "purlPrefixes": [
+        "pkg:npm/",
+        "pkg:generic/",
+        "pkg:golang/"
+      ],
+      "locationPrefixes": [
+        "/usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/esbuild/",
+        "/usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/esbuild-linux-",
+        "/usr/local/lib/node_modules/drizzle-kit/node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/",
+        "/usr/local/lib/node_modules/drizzle-kit/node_modules/@esbuild/",
+        "/home/claude/.claude-code-ui/plugins/project-stats/package.json",
+        "/home/claude/.claude-code-ui/plugins/web-terminal/package.json",
+        "/home/claude/.claude-code-ui/plugins/web-terminal/node_modules/esbuild/bin/esbuild",
+        "/home/claude/.claude-code-ui/plugins/web-terminal/node_modules/@esbuild/"
+      ],
+      "versionContains": [],
+      "inventoryAnchors": [
+        "Go esbuild builder",
+        "Project Stats",
+        "Web Terminal"
+      ]
+    },
+    {
+      "origin": "retained_modified_third_party: Cursor piscina overlay beside runtime Node symlink",
+      "types": [
+        "npm"
+      ],
+      "purlPrefixes": [
+        "pkg:npm/piscina@"
+      ],
+      "locationPrefixes": [
+        "/home/claude/.local/share/cursor-agent/versions/2026.09.15-d2fe57e/node_modules/piscina/"
+      ],
+      "versionContains": [],
+      "inventoryAnchors": [
+        "Cursor CLI"
+      ]
+    }
+  ],
+  "projectControlled": {
+    "purlPrefixes": [
+      "pkg:generic/holyclaude@",
+      "pkg:npm/holyclaude@",
+      "pkg:pypi/holyclaude@"
+    ],
+    "normalizedNames": [
+      "holyclaude"
+    ],
+    "namePrefixes": [
+      "@holyclaude/"
+    ],
+    "versionContains": [
+      "holyclaude-own-source"
+    ],
+    "locationPrefixes": [
+      "/usr/local/bin/holyclaude-",
+      "/usr/local/lib/holyclaude/",
+      "/etc/s6-overlay/s6-rc.d/"
+    ]
+  },
+  "rationale": "Record every valid third-party dependency finding without changing its raw severity or fix data. This standing authorization includes exact unchanged retained modified third-party artifacts bound to the immutable input inventory. It is not remediation and does not apply to HolyClaude-owned code, new or extended modifications, or unknown and unbound components.",
+  "monitoring": "Every release candidate and scheduled scan regenerates Syft, Grype, database, checksum, digest, and policy evidence. Official compatible upgrades remain required when available."
+}

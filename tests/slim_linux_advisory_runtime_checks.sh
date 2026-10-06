@@ -68,7 +68,8 @@ if dpkg-query -W -f='${Status}' libevent-dev 2>/dev/null | grep -Fq 'install ok 
   echo 'unexpected libevent-dev package' >&2
   exit 1
 fi
-if ldconfig -p | grep -Fq 'libevent_extra'; then
+ldconfig_output="$(ldconfig -p)"
+if grep -Fq 'libevent_extra' <<<"$ldconfig_output"; then
   echo 'unexpected libevent_extra library' >&2
   exit 1
 fi
@@ -80,7 +81,7 @@ for static_library in \
     exit 1
   fi
 done
-libevent_core_path="$(ldconfig -p | awk '/libevent_core-2\.1\.so\.7 / { print $NF; exit }')"
+libevent_core_path="$(ldconfig -p | awk '/libevent_core-2\.1\.so\.7 / && !found { path = $NF; found = 1 } END { if (found) print path }')"
 test -n "$libevent_core_path"
 test "$(sha256sum "$libevent_core_path" | cut -d' ' -f1)" = "$expected_libevent_core_sha256"
 if test "$architecture" = arm64; then
@@ -104,7 +105,7 @@ for command in tiffcrop tiffinfo tiffcp; do
     exit 1
   fi
 done
-libtiff_path="$(ldconfig -p | awk '/libtiff\.so\.6 / { print $NF; exit }')"
+libtiff_path="$(ldconfig -p | awk '/libtiff\.so\.6 / && !found { path = $NF; found = 1 } END { if (found) print path }')"
 test -n "$libtiff_path"
 if test "$architecture" = arm64; then
   test "$(readlink -f "$libtiff_path")" = "$library_dir/libtiff.so.6.0.0"
@@ -119,7 +120,7 @@ tiff_loader="$library_dir/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-tiff.so"
 test -f "$tiff_loader"
 readelf -d "$tiff_loader" | grep -Fq 'Shared library: [libtiff.so.6]'
 
-libmount_path="$(ldconfig -p | awk '/libmount\.so\.1 / { print $NF; exit }')"
+libmount_path="$(ldconfig -p | awk '/libmount\.so\.1 / && !found { path = $NF; found = 1 } END { if (found) print path }')"
 test -n "$libmount_path"
 for needle in 'MNT_STAGE_MOUNT_POST' 'X-mount.idmap' 'X-mount.owner'; do
   if grep -aFq -- "$needle" /usr/bin/mount "$libmount_path"; then

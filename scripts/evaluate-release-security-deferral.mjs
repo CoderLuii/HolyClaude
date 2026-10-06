@@ -560,6 +560,7 @@ function main() {
       '--image-digest', args['image-digest'],
       '--sbom-sha256', args['sbom-sha256'],
       '--as-of', args['as-of'],
+      '--release', EXPECTED_RELEASE,
     ];
     const result = spawnSync(process.execPath, evaluatorArgs, { encoding: 'utf8' });
     const outputDir = resolve(args['output-dir']);

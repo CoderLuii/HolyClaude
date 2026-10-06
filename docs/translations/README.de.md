@@ -1106,7 +1106,7 @@ Was als nächstes kommt:
 
 | Status | Feature |
 |--------|---------|
-| 🔜 | **ARM-native Builds** — optimierte native ARM64-Images, nicht nur emuliert |
+| ✅ | **ARM-native Builds** — Full- und Slim-Releases werden auf nativen ARM64-Runnern gebaut und getestet |
 | 🔜 | **VS Code-Tunnel-Integration** — eingebauter VS Code Server oder Tunnel für die Verbindung vom VS Code Desktop |
 | 🔜 | **Benachrichtigungs-Routing** — verschiedene Benachrichtigungsziele pro Ereignistyp (Fehler zu Telegram, Abschlüsse zu Discord) |
 

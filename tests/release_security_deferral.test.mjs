@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -276,24 +276,19 @@ test('committed deferral names only exact expired Debian tracker reviews', () =>
   }
 });
 
-test('workflow evaluates and revalidates the committed deferral without disabling scanners', () => {
+test('active workflow preserves scanners while leaving the v1.6.4 deferral historical', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   assert.match(workflow, /grype[^\n]*sbom:/);
-  assert.match(workflow, /evaluate-release-security-deferral\.mjs[\s\S]*?v1\.6\.4-release-security-deferral\.json/);
-  assert.equal((workflow.match(/evaluate-release-security-deferral\.mjs/g) ?? []).length, 3);
-  assert.equal((workflow.match(/evaluate-release-security-deferral\.mjs[\s\S]{0,300}?--release /g) ?? []).length, 3);
-  assert.doesNotMatch(workflow, /continue-on-error:\s*true[\s\S]{0,200}release security deferral/i);
+  assert.doesNotMatch(workflow, /evaluate-release-security-deferral\.mjs/);
+  assert.match(workflow, /evaluate-upstream-dependency-report\.mjs/);
+  assert.equal(existsSync('security/v1.6.4-release-security-deferral.json'), true);
 });
 
-test('workflow retains complete security evidence when the policy rejects a candidate', () => {
+test('active workflow retains raw evidence even when the upstream policy rejects a candidate', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
-  assert.match(workflow, /POLICY_STATUS="\$\{policy_status\}" \\\r?\n[\s\S]{0,200}?python3 - <<'PY'/);
-  assert.match(
-    workflow,
-    /policy_status = int\(os\.environ\["POLICY_STATUS"\]\)[\s\S]*?if policy_status == 0:[\s\S]*?release security deferral evidence is missing/,
-  );
-  assert.match(
-    workflow,
-    /with \(root \/ "metadata\.json"\)\.open[\s\S]*?PY\s*\(cd "\$\{evidence_dir\}" && sha256sum \.\/\*\.json > SHA256SUMS\)\s*exit "\$\{policy_status\}"/,
-  );
+  assert.match(workflow, /name: Upload security evidence[\s\S]{0,120}?if: always\(\)/);
+  assert.match(workflow, /if-no-files-found: error/);
+  assert.match(workflow, /grype\.json/);
+  assert.match(workflow, /sbom\.cyclonedx\.json/);
+  assert.match(workflow, /grype-db-evidence\.json/);
 });

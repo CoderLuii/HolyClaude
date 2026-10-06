@@ -4,6 +4,7 @@ import sys
 import tempfile
 import types
 import unittest
+from urllib.parse import parse_qsl, urlsplit
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -17,8 +18,11 @@ spec.loader.exec_module(notify)
 
 
 class FakeAppriseClient:
+    added_urls = []
+
     def add(self, url):
-        return url.startswith(("tgram://", "discord://"))
+        self.added_urls.append(url)
+        return "[" not in url and url.startswith(("tgram://", "discord://"))
 
     def notify(self, **_kwargs):
         return True
@@ -38,6 +42,9 @@ def fake_apprise():
 
 
 class NotifyTests(unittest.TestCase):
+    def setUp(self):
+        FakeAppriseClient.added_urls.clear()
+
     def test_normalizes_legacy_telegram_scheme(self):
         self.assertEqual(
             notify.normalize_notify_url("tg://123456:abcdef/987654"),
@@ -68,8 +75,55 @@ class NotifyTests(unittest.TestCase):
             ],
         )
 
+    def test_normalizes_legacy_email_pgpkey_for_apprise_2(self):
+        for scheme in ("mailto", "mailtos", "deltachat", "deltachats"):
+            with self.subTest(scheme=scheme):
+                normalized = notify.normalize_notify_url(
+                    f"{scheme}://user:secret@example.com?to=ops%40example.com&pgpkey=%2Fkeys%2Fold.asc&format=text"
+                )
+                self.assertEqual(
+                    parse_qsl(urlsplit(normalized).query, keep_blank_values=True),
+                    [
+                        ("to", "ops@example.com"),
+                        ("pgppub", "/keys/old.asc"),
+                        ("format", "text"),
+                    ],
+                )
+
+    def test_canonical_pgppub_takes_precedence_without_changing_other_query_pairs(self):
+        normalized = notify.normalize_notify_url(
+            "mailtos://user:secret@example.com?pgpkey=legacy.asc&to=first%40example.com&pgppub=current.asc&to=second%40example.com"
+        )
+        self.assertEqual(
+            parse_qsl(urlsplit(normalized).query, keep_blank_values=True),
+            [
+                ("to", "first@example.com"),
+                ("pgppub", "current.asc"),
+                ("to", "second@example.com"),
+            ],
+        )
+
+    def test_every_apprise_add_site_migrates_legacy_email_pgpkey(self):
+        legacy = "mailto://user:secret@example.com?pgpkey=legacy.asc"
+        with fake_apprise():
+            notify.validate_notify_urls([legacy])
+            notify.send_notifications([legacy], "title", "body", "info")
+
+        self.assertEqual(len(FakeAppriseClient.added_urls), 2)
+        for url in FakeAppriseClient.added_urls:
+            self.assertNotIn("pgpkey=", url)
+            self.assertIn("pgppub=legacy.asc", url)
+
     def test_empty_environment_has_no_notification_urls(self):
         self.assertEqual(notify.collect_notify_urls({"TZ": "UTC"}), [])
+
+    def test_collect_urls_preserves_malformed_urls_for_apprise_validation(self):
+        self.assertEqual(
+            notify.collect_notify_urls(
+                {"NOTIFY_URLS": " mailto://[, discord://[ "}
+            ),
+            ["mailto://[", "discord://["],
+        )
 
     def test_dry_run_reports_status_without_secret_values(self):
         with tempfile.NamedTemporaryFile() as flag_file, fake_apprise():
@@ -102,6 +156,25 @@ class NotifyTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 1)
         self.assertIn("[notify] urls: 0", stream.getvalue())
+
+    def test_dry_run_rejects_malformed_urls_without_crashing(self):
+        with tempfile.NamedTemporaryFile() as flag_file, fake_apprise():
+            stream = io.StringIO()
+            exit_code = notify.run_dry_run(
+                flag_file.name,
+                {"NOTIFY_URLS": "mailto://[,discord://["},
+                debug=True,
+                stream=stream,
+            )
+
+        output = stream.getvalue()
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            FakeAppriseClient.added_urls,
+            ["mailto://[", "discord://["],
+        )
+        self.assertIn("[notify] mailto: failed (rejected)", output)
+        self.assertIn("[notify] discord: failed (rejected)", output)
 
 
 if __name__ == "__main__":

@@ -27,9 +27,9 @@ case "$architecture:$multiarch" in
     ;;
 esac
 
-require_package gh '2.101.0' "$architecture"
+require_package gh '2.102.0' "$architecture"
 gh_version="$(gh --version)"
-grep -Fq 'gh version 2.101.0' <<<"$gh_version"
+grep -Fq 'gh version 2.102.0' <<<"$gh_version"
 
 for package in libaom3 libaom-dev; do
   require_package "$package" '3.6.0-1+deb12u3' "$architecture"
@@ -51,14 +51,20 @@ for package in bind9-dnsutils bind9-host bind9-libs; do
 done
 require_package dnsutils '1:9.18.49-1~deb12u2' all
 
-python3 /tests/junie_applicability_guard.py
+echo '7efefd2f7a49a2aa55db90fd2ab2eec16c4bcf89258c9acf2f920dab59edbeb5  /home/claude/.local/share/junie/current/lib/app/junie-release-3419.29.jar' | sha256sum -c -
+junie_version="$(timeout 30s junie --version 2>&1)"
+if [ "$junie_version" != 'Junie version: 26.9.22 (3419.29)' ]; then
+  echo "unexpected Junie version output: $junie_version" >&2
+  exit 1
+fi
+timeout 30s junie --help >/dev/null
 
 if nsenter --help 2>&1 | grep -Fq -- '--join-cgroup'; then
   echo 'unexpected nsenter --join-cgroup support' >&2
   exit 1
 fi
 
-libmount_path="$(ldconfig -p | awk '/libmount\.so\.1 / { print $NF; exit }')"
+libmount_path="$(ldconfig -p | awk '/libmount\.so\.1 / && !found { path = $NF; found = 1 } END { if (found) print path }')"
 test -n "$libmount_path"
 for needle in 'MNT_STAGE_MOUNT_POST' 'X-mount.idmap' 'X-mount.owner' 'hook_subdir'; do
   if grep -aFq -- "$needle" /usr/bin/mount "$libmount_path"; then

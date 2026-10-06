@@ -235,7 +235,7 @@ function validateIgnoredMatches(report) {
   }
 }
 
-function validateReport(report) {
+export function validateReport(report, expectedGrypeVersion = EXPECTED_GRYPE_VERSION) {
   if (!isRecord(report)) throw new Error('Grype report must be an object');
   if (!Array.isArray(report.matches)) throw new Error('Grype report matches must be an array');
   if (!Array.isArray(report.ignoredMatches)) throw new Error('Grype report ignoredMatches must be an array');
@@ -246,8 +246,8 @@ function validateReport(report) {
   if (!isRecord(report.descriptor) || report.descriptor.name !== 'grype' || !report.descriptor.version) {
     throw new Error('Grype report descriptor is incomplete');
   }
-  if (report.descriptor.version !== EXPECTED_GRYPE_VERSION) {
-    throw new Error(`expected Grype ${EXPECTED_GRYPE_VERSION}, found ${report.descriptor.version}`);
+  if (report.descriptor.version !== expectedGrypeVersion) {
+    throw new Error(`expected Grype ${expectedGrypeVersion}, found ${report.descriptor.version}`);
   }
   validateIgnoredMatches(report);
   for (const [index, match] of report.matches.entries()) {
@@ -868,7 +868,7 @@ function validateVexProduct(product, statementId) {
   return purls.sort();
 }
 
-function validateVex(vex, reviews, variant, arch, imageDigest) {
+function validateVex(vex, reviews, variant, arch, imageDigest, evaluatedDockerVersion) {
   if (vex['@context'] !== 'https://openvex.dev/ns/v0.2.0') throw new Error('OpenVEX context must be v0.2.0');
   const statements = vex.statements;
   const ids = new Set();
@@ -914,12 +914,12 @@ function validateVex(vex, reviews, variant, arch, imageDigest) {
     const reviewVariants = review.variants ?? [...ALLOWED_VARIANTS];
     const reviewArchitectures = review.architectures ?? [...ALLOWED_ARCHITECTURES];
     const expectedProductIds = reviewVariants.flatMap((reviewVariant) => [
-      `pkg:oci/ghcr.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`,
-      `pkg:oci/docker.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`,
+      `pkg:oci/ghcr.io/coderluii/holyclaude@${evaluatedDockerVersion}?variant=${reviewVariant}`,
+      `pkg:oci/docker.io/coderluii/holyclaude@${evaluatedDockerVersion}?variant=${reviewVariant}`,
     ]).sort();
     for (const reviewVariant of reviewVariants) {
-      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`;
-      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@${releaseDockerVersion}?variant=${reviewVariant}`;
+      const ghcrProduct = `pkg:oci/ghcr.io/coderluii/holyclaude@${evaluatedDockerVersion}?variant=${reviewVariant}`;
+      const dockerHubProduct = `pkg:oci/docker.io/coderluii/holyclaude@${evaluatedDockerVersion}?variant=${reviewVariant}`;
       if (!productIds.includes(ghcrProduct)) {
         throw new Error(`${statement['@id']}: missing exact ${reviewVariant} product`);
       }
@@ -977,7 +977,9 @@ export function validateSecurityPolicy({
   imageDigest = `sha256:${'0'.repeat(64)}`,
   reportSha256,
   report,
+  release = `v${releaseDockerVersion}`,
 }) {
+  if (!/^v\d+\.\d+\.\d+$/.test(release)) throw new Error('release must use vX.Y.Z');
   const asOf = parseDate(asOfText, 'as-of');
   validateLedger(ledger);
   validateVexDocument(vex);
@@ -992,7 +994,7 @@ export function validateSecurityPolicy({
   );
   return {
     reviews,
-    targetVex: validateVex(vex, reviews, variant, arch, imageDigest),
+    targetVex: validateVex(vex, reviews, variant, arch, imageDigest, release.slice(1)),
   };
 }
 
@@ -1060,6 +1062,7 @@ function main() {
     imageDigest: args['image-digest'],
     reportSha256: createHash('sha256').update(reportText).digest('hex'),
     report,
+    release: args.release ?? `v${releaseDockerVersion}`,
   });
 
   const rawCritical = report.matches.filter((match) => match.vulnerability.severity === 'Critical');

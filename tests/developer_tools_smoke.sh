@@ -52,7 +52,7 @@ timeout --foreground 90s env \
 import importlib.metadata
 
 assert importlib.metadata.version('tree-sitter') == '0.26.0'
-assert importlib.metadata.version('tree-sitter-language-pack') == '1.20.0'
+assert importlib.metadata.version('tree-sitter-language-pack') == '1.21.0'
 
 from tree_sitter_language_pack import downloaded_languages, get_parser
 
@@ -71,6 +71,7 @@ if [ "$(cat /etc/holyclaude-variant)" = full ]; then
 const assert = require('node:assert/strict');
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const {
   EasJsonAccessor,
@@ -84,9 +85,10 @@ const readPackage = name => JSON.parse(fs.readFileSync(path.join(moduleRoot, nam
 const vercelPackage = JSON.parse(fs.readFileSync(path.join(vercelRoot, 'package.json'), 'utf8'));
 const vercelContainerPackage = readPackage('@vercel/container');
 const vercelFunPackage = readPackage('@vercel/fun');
-const nodePreGypPackage = readPackage('@mapbox/node-pre-gyp');
 const pythonAnalysisPackage = readPackage('@vercel/python-analysis');
+const rustPackage = readPackage('@vercel/rust');
 const pep440Package = readPackage('@renovatebot/pep440');
+const smolTomlPackage = readPackage('smol-toml');
 const vercelTarPackage = readPackage('tar');
 const vercelFunTarRoot = path.join(moduleRoot, '@vercel/fun/node_modules/tar');
 const vercelFunTarPackage = JSON.parse(fs.readFileSync(path.join(vercelFunTarRoot, 'package.json'), 'utf8'));
@@ -96,9 +98,13 @@ const vercelContainerRoot = path.join(moduleRoot, '@vercel/container');
 const vercelContainerSmolTomlPath = require.resolve('smol-toml', { paths: [vercelContainerRoot] });
 const vercelContainerSmolToml = require(vercelContainerSmolTomlPath);
 const pythonAnalysis = require(path.join(moduleRoot, '@vercel/python-analysis'));
+const rust = require(path.join(moduleRoot, '@vercel/rust'));
 const pep440 = require(path.join(moduleRoot, '@renovatebot/pep440'));
 const pep440Version = require(path.join(moduleRoot, '@renovatebot/pep440/lib/version'));
 const pep440Specifier = require(path.join(moduleRoot, '@renovatebot/pep440/lib/specifier'));
+const nativePackageName = `@vercel/vc-native-linux-${process.arch}`;
+const nativePackage = readPackage(nativePackageName);
+const nativeBinary = path.join(moduleRoot, nativePackageName, 'bin', 'vercel');
 
 function pythonBuild(major, minor, patch, prerelease) {
   return {
@@ -113,28 +119,34 @@ function pythonBuild(major, minor, patch, prerelease) {
 
 async function main() {
   const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  assert.equal(process.version, 'v26.9.0', 'unexpected Node version');
-  assert.equal(installedNpmVersion, '12.0.2', 'unexpected npm version');
-  assert.equal(vercelPackage.version, '59.23.1', 'unexpected Vercel version');
-  assert.equal(vercelContainerPackage.version, '8.2.2', 'unexpected @vercel/container version');
-  assert.equal(vercelContainerPackage.dependencies.tar, '7.5.22', 'unexpected @vercel/container tar dependency');
-  assert.equal(vercelContainerPackage.dependencies['smol-toml'], '1.8.0', 'unexpected @vercel/container smol-toml dependency');
+  assert.equal(process.version, 'v26.10.0', 'unexpected Node version');
+  assert.equal(installedNpmVersion, '12.2.0', 'unexpected npm version');
+  assert.equal(vercelPackage.version, '62.4.0', 'unexpected Vercel version');
+  assert.equal(vercelContainerPackage.version, '16.0.0', 'unexpected @vercel/container version');
+  assert.equal(vercelContainerPackage.dependencies.tar, '7.5.11', 'unexpected official @vercel/container tar dependency');
+  assert.equal(vercelContainerPackage.dependencies['smol-toml'], '1.5.2', 'unexpected @vercel/container smol-toml dependency');
   assert.ok(vercelContainerSmolTomlPath.startsWith(path.join(moduleRoot, 'smol-toml') + path.sep), 'unexpected @vercel/container smol-toml resolution');
   assert.equal(typeof vercelContainerSmolToml.parse, 'function', 'invalid @vercel/container smol-toml module');
-  assert.equal(vercelFunPackage.version, '1.3.0', 'unexpected @vercel/fun version');
-  assert.equal(vercelFunPackage.dependencies.tar, '7.5.22', 'unexpected @vercel/fun tar dependency');
-  assert.equal(nodePreGypPackage.version, '2.0.3', 'unexpected @mapbox/node-pre-gyp version');
-  assert.equal(nodePreGypPackage.dependencies.tar, '^7.4.0', 'unexpected @mapbox/node-pre-gyp tar dependency');
-  assert.equal(vercelTarPackage.version, '7.5.22', 'unexpected hoisted Vercel tar version');
+  assert.equal(vercelFunPackage.version, '1.3.6', 'unexpected @vercel/fun version');
+  assert.equal(vercelFunPackage.dependencies.tar, '7.5.22', 'unexpected official @vercel/fun tar dependency');
+  assert.equal(vercelTarPackage.version, '7.5.11', 'unexpected official hoisted Vercel tar version');
   assert.equal(vercelFunTarPackage.version, '7.5.22', 'unexpected nested @vercel/fun tar version');
   assert.equal(typeof vercelTar.list, 'function', 'invalid hoisted Vercel tar module');
   assert.equal(typeof vercelFunTar.list, 'function', 'invalid nested @vercel/fun tar module');
   execFileSync('npm', ['--prefix', vercelRoot, 'ls', 'tar', '--all'], { stdio: 'ignore' });
   execFileSync('vercel', ['--version'], { stdio: 'ignore' });
   execFileSync('vercel', ['--help'], { stdio: 'ignore' });
+  assert.equal(nativePackage.version, '62.4.0', 'unexpected Vercel native package version');
+  assert.equal(execFileSync(nativeBinary, ['--version'], { encoding: 'utf8' }).trim(), '62.4.0');
   assert.equal(pythonAnalysisPackage.version, '0.14.0', 'unexpected @vercel/python-analysis version');
+  assert.equal(rustPackage.version, '17.0.0', 'unexpected @vercel/rust version');
   assert.equal(pythonAnalysisPackage.dependencies['@renovatebot/pep440'], '4.2.1', 'unexpected published pep440 pin');
   assert.equal(pep440Package.version, '4.2.1', 'unexpected installed pep440 version');
+  assert.equal(smolTomlPackage.version, '1.5.2', 'unexpected smol-toml version');
+
+  const parsedToml = vercelContainerSmolToml.parse('project = "holyclaude"\n[build]\ncommand = "npm run build"');
+  assert.equal(parsedToml.project, 'holyclaude');
+  assert.equal(parsedToml.build.command, 'npm run build');
 
   const parsedPrerelease = pep440.parse('3.12.0rc1');
   assert.ok(parsedPrerelease);
@@ -171,6 +183,39 @@ async function main() {
     defaultBuild: builds[0],
   });
   assert.deepEqual(impossible.invalidConstraint, { versionString: '>=4' });
+
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'vercel-runtime-smoke-'));
+  try {
+    const pythonRoot = path.join(fixtureRoot, 'python');
+    fs.mkdirSync(pythonRoot);
+    fs.writeFileSync(
+      path.join(pythonRoot, 'pyproject.toml'),
+      '[project]\nname = "smoke"\nversion = "0.1.0"\nrequires-python = ">=3.12,<3.13"\n',
+    );
+    const discovered = await pythonAnalysis.discoverPythonPackage({
+      entrypointDir: pythonRoot,
+      rootDir: fixtureRoot,
+    });
+    assert.equal(discovered.manifest?.data?.project?.name, 'smoke');
+
+    const rustRoot = path.join(fixtureRoot, 'rust');
+    fs.mkdirSync(path.join(rustRoot, 'src'), { recursive: true });
+    fs.writeFileSync(
+      path.join(rustRoot, 'Cargo.toml'),
+      '[package]\nname = "smoke"\nversion = "0.1.0"\n[dependencies]\nvercel_runtime = "1"\n',
+    );
+    fs.writeFileSync(path.join(rustRoot, 'src', 'main.rs'), 'fn main() {}\n');
+    assert.equal(
+      await rust.shouldServe({
+        workPath: rustRoot,
+        entrypoint: 'src/main.rs',
+        requestPath: 'different',
+      }),
+      false,
+    );
+  } finally {
+    fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  }
 
   await assert.rejects(
     EasJsonUtils.getBuildProfileAsync(
@@ -209,7 +254,7 @@ main().catch(error => {
 NODE
 fi
 
-test "$(pnpm --version)" = 12.6.0
+test "$(pnpm --version)" = 12.9.1
 mkdir "$test_dir/dep" "$test_dir/project"
 printf '%s\n' '{"name":"local-smoke-dep","version":"1.0.0","main":"index.js"}' > "$test_dir/dep/package.json"
 printf '%s\n' 'module.exports = 42;' > "$test_dir/dep/index.js"
