@@ -93,7 +93,7 @@ function reportForApprovedFindings() {
   return {
     source: { type: 'sbom', target: 'v160-approved-high-fixture.cdx.json' },
     distro: { name: 'debian', version: '12.15', idLike: ['debian'] },
-    descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
+    descriptor: { name: 'grype', version: '0.120.1', configuration: {} },
     ignoredMatches: [],
     matches,
   };

@@ -572,7 +572,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Развёртывание Cloudflare Workers |
 | `vercel` | Развёртывание Vercel |
-| `netlify-cli` | Развёртывание Netlify; необязательный локальный прокси для функций Go/Rust не включён |
+| `netlify-cli` | Развёртывание Netlify|
 | `az` | Azure CLI для облачного развёртывания и управления |
 | `prisma`, `drizzle-kit` | Два самых популярных Node.js ORM |
 | `pm2` | Менеджер процессов для продакшена |

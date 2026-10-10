@@ -90,7 +90,7 @@ function fixture() {
     report: {
       source: { type: 'sbom', target: 'fixture.cdx.json' },
       distro: { name: 'debian', version: '12', idLike: ['debian'] },
-      descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
+      descriptor: { name: 'grype', version: '0.120.1', configuration: {} },
       ignoredMatches: [],
       matches: [
         {
@@ -1061,7 +1061,7 @@ for (const [name, mutate, expected] of [
   ['Grype report without matches', ({ report }) => delete report.matches, 'Grype report matches must be an array'],
   ['Grype report without source', ({ report }) => delete report.source, 'Grype report source is incomplete'],
   ['Grype report without descriptor', ({ report }) => delete report.descriptor, 'Grype report descriptor is incomplete'],
-  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.116.1'), 'expected Grype 0.119.0'],
+  ['unexpected Grype version', ({ report }) => (report.descriptor.version = '0.116.1'), 'expected Grype 0.120.1'],
   ['Grype report without ignored matches', ({ report }) => delete report.ignoredMatches, 'ignoredMatches must be an array'],
   ['Grype report with arbitrary ignored findings', ({ report }) => report.ignoredMatches.push(structuredClone(report.matches[0])), 'Grype ignored matches require'],
   ['noncanonical Grype severity', ({ report }) => (report.matches[0].vulnerability.severity = 'critical'), 'invalid severity'],

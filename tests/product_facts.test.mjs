@@ -36,14 +36,14 @@ function assertBuildCandidateDependsOnValidation(source) {
 
 test('accepts the committed product facts and runtime sources', () => {
   assert.doesNotThrow(() => validateProductFacts(facts, schema));
-  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.6.5'));
+  assert.doesNotThrow(() => validateExpectedRelease(facts, 'v1.6.6'));
   assert.doesNotThrow(() => verifyProductSources(facts, process.cwd()));
 });
 
 test('rejects product facts for another release ref', () => {
   assert.throws(
     () => validateExpectedRelease(facts, 'v1.5.4'),
-    /release v1\.6\.5 does not match expected v1\.5\.4/,
+    /release v1\.6\.6 does not match expected v1\.5\.4/,
   );
 });
 
@@ -177,10 +177,10 @@ test('release workflow gates candidates and does not run on master', () => {
   assert.match(triggers, /branches:\s*\n\s*- "release\/\*\*"/);
   assert.match(triggers, /tags:\s*\n\s*- "v\*"/);
   assert.doesNotMatch(triggers, /\bmaster\b/);
-  assert.match(validationJob, /baseline="20e9e10681aec9b091bb54da8755f8a1c59f69bb"/);
+  assert.match(validationJob, /baseline="e10b9ff220716f934f826bc2e58f12b08f65a4ad"/);
   assert.match(validationJob, /grep -Eq "\^## \\\[\$\{release#v\}\\\] - \[0-9\]\{2\}/);
   assert.match(validationJob, /git cat-file -p HEAD \| grep -c '\^parent '/);
-  assert.match(validationJob, /git rev-parse 'v1\.6\.4\^\{commit\}'/);
+  assert.match(validationJob, /git rev-parse 'v1\.6\.5\^\{commit\}'/);
   assert.match(validationJob, /node scripts\/verify-product-facts\.mjs --release "\$\{\{ steps\.source\.outputs\.release \}\}"/);
   assertBuildCandidateDependsOnValidation(workflow);
 });
@@ -208,9 +208,9 @@ test('public documentation matches the product facts contract', () => {
   const memories = memoryFiles.join('\n');
 
   assert.match(readme, /contracts\/product-facts\.json/);
-  assert.match(readme, /v1\.6\.5 updates the bundled AI CLIs and developer tools using official upstream releases/);
-  assert.match(readme, /\| \*\*Claude Code\*\* \| `claude` \| 2\.1\.290 \|/);
-  assert.match(readme, /\| \*\*OpenAI Codex\*\* \| `codex` \| 0\.160\.1 \|/);
+  assert.match(readme, /v1\.6\.6 updates the bundled AI CLIs and developer tools using official upstream releases/);
+  assert.match(readme, /\| \*\*Claude Code\*\* \| `claude` \| 2\.1\.296 \|/);
+  assert.match(readme, /\| \*\*OpenAI Codex\*\* \| `codex` \| 0\.162\.1 \|/);
   assert.match(readme, /\| \*\*Cursor\*\* \| `cursor` \| `2026\.09\.15-d2fe57e` \|/);
   assert.match(readme, /Python and Node 1\.63\.0 are baked into both images/);
   assert.doesNotMatch(readme, /Playwright 1\.61\.0, baked at build time/);

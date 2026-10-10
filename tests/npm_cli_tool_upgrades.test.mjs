@@ -9,14 +9,14 @@ const productFacts = JSON.parse(readFileSync('contracts/product-facts.json', 'ut
 const upgradedPackages = new Map([
   ['npm', '12.2.0'],
   ['tsx', '4.23.15'],
-  ['pnpm', '12.9.1'],
-  ['vite', '8.3.2'],
+  ['pnpm', '12.10.1'],
+  ['vite', '8.3.4'],
   ['eslint', '10.12.0'],
   ['prettier', '3.9.9'],
-  ['@google/gemini-cli', '0.62.0'],
-  ['@openai/codex', '0.160.1'],
-  ['opencode-ai', '1.18.34'],
-  ['wrangler', '4.147.0'],
+  ['@google/gemini-cli', '0.63.0'],
+  ['@openai/codex', '0.162.1'],
+  ['opencode-ai', '1.18.35'],
+  ['wrangler', '4.149.0'],
   ['drizzle-kit', '0.31.11'],
 ]);
 
@@ -38,15 +38,15 @@ test('pins the reviewed npm CLI and developer tool upgrades', () => {
 });
 
 test('keeps public AI CLI facts synchronized with the image pins', () => {
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'gemini-cli')?.version, '0.62.0');
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'openai-codex')?.version, '0.160.1');
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'opencode')?.version, '1.18.34');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'gemini-cli')?.version, '0.63.0');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'openai-codex')?.version, '0.162.1');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'opencode')?.version, '1.18.35');
 });
 
-test('retains overlay-bound tools at their reviewed owner versions', () => {
+test('pins reviewed overlay owner versions', () => {
   for (const [name, version] of [
-    ['vercel', '62.4.0'],
-    ['netlify-cli', '27.8.0'],
+    ['vercel', '63.1.2'],
+    ['netlify-cli', '27.12.0'],
     ['@earendil-works/pi-coding-agent', '0.85.1'],
   ]) {
     assert.ok(dockerfile.includes(`${name}@${version}`), `${name} should stay at reviewed overlay owner ${version}`);

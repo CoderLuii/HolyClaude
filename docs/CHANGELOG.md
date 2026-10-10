@@ -4,6 +4,25 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.6] - 10/10/2026
+
+### Changed
+
+- Updated Node to 26.11.1, Claude Code to 2.1.296, Gemini CLI to 0.63.0, Codex to 0.162.1, Junie to stable 3579.5 and OpenCode to 1.18.35.
+- Updated compatible developer and deployment tools from official upstream packages.
+- Retired EAS and Netlify dependency replacements. Both tools keep their official package trees.
+- Updated Syft to 1.54.1, Grype to 0.120.1 and the artifact upload and download actions to 7.0.2 and 8.0.2.
+- Kept CloudCLI account controls, session revocation, reverse-proxy paths, notifications and existing plugin artifacts unchanged. See [deferred replacements](official-dependency-updates.md).
+
+### Fixed
+
+- Bound release validation to the published v1.6.5 parent while preserving the separate v1.6.4 retained-artifact checks.
+- Corrected the contributor guide to describe the Dockerfile's multiple build stages.
+
+### Security
+
+- Continued dependency scans with accepted upstream findings reported as unresolved. Source checks, native runtime tests, artifact integrity and promotion checks remain blocking.
+
 ## [1.6.5] - 10/06/2026
 
 ### Changed

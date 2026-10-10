@@ -323,7 +323,7 @@ test('configuration guide keeps Docker access opt-in and documents authenticated
   assert.match(section, /Docker CLI 29\.8\.1/);
   assert.match(section, /Compose 5\.5\.1/);
   assert.match(section, /existing Full Compose service/i);
-  assert.match(section, /image: holyclaude:1\.6\.5-docker-client/);
+  assert.match(section, /image: holyclaude:1\.6\.6-docker-client/);
   assert.match(section, /DOCKER_CONFIG=\/home\/claude\/\.claude\/docker-client/);
   assert.match(section, /container's terminal/i);
   assert.match(section, /native release workflow[\s\S]*amd64[\s\S]*arm64/i);

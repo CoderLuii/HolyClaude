@@ -348,10 +348,10 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
-  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.10\.0'/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.11\.1'/);
   assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.0'/);
-  assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '62\.4\.0'/);
-  assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.version, '16\.0\.0'/);
+  assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '63\.1\.2'/);
+  assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.version, '18\.0\.1'/);
   assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.dependencies\.tar, '7\.5\.11'/);
   assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.dependencies\['smol-toml'\], '1\.5\.2'/);
   assert.match(developerTools, /require\.resolve\('smol-toml', \{ paths: \[vercelContainerRoot\] \}\)/);
@@ -360,10 +360,10 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /assert\.equal\(vercelTarPackage\.version, '7\.5\.11'/);
   assert.match(developerTools, /@vercel\/fun\/node_modules\/tar/);
   assert.match(developerTools, /execFileSync\('npm', \['--prefix', vercelRoot, 'ls', 'tar', '--all'\]/);
-  assert.match(developerTools, /assert\.equal\(nativePackage\.version, '62\.4\.0'/);
+  assert.match(developerTools, /assert\.equal\(nativePackage\.version, '63\.1\.2'/);
   assert.match(developerTools, /execFileSync\(nativeBinary, \['--version'\]/);
   assert.match(developerTools, /assert\.equal\(pythonAnalysisPackage\.version, '0\.14\.0'/);
-  assert.match(developerTools, /assert\.equal\(rustPackage\.version, '17\.0\.0'/);
+  assert.match(developerTools, /assert\.equal\(rustPackage\.version, '19\.0\.1'/);
   assert.match(developerTools, /assert\.equal\(pythonAnalysisPackage\.dependencies\['@renovatebot\/pep440'\], '4\.2\.1'/);
   assert.match(developerTools, /assert\.equal\(pep440Package\.version, '4\.2\.1'/);
   assert.match(developerTools, /assert\.equal\(smolTomlPackage\.version, '1\.5\.2'/);

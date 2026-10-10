@@ -16,7 +16,7 @@ HolyClaude stores raw Syft and Grype output for every release candidate. Raw sca
 
 Temporary Critical findings and High findings remain in the release evidence with their package, version, path, owner, authority, approval, expiry, fix availability, and rationale. A mapped finding is not a claim that it is harmless.
 
-## v1.6.5 upstream dependency advisory policy
+## v1.6.6 upstream dependency advisory policy
 
 `security/upstream-dependency-policy.json` records the standing maintainer decision for third-party dependency findings. It applies to all severities and does not use a vulnerability allowlist or an invented expiry date.
 
@@ -27,10 +27,10 @@ Temporary Critical findings and High findings remain in the release evidence wit
 - Exact retained modified third-party artifacts, including the unchanged HolyClaude FFmpeg backport, CloudCLI account-management artifact and overlays, rebuilt esbuild binaries, retained CloudCLI plugins, and Cursor runtime symlink arrangement, remain third-party for vulnerability disposition. They are labeled `retained_modified_third_party`, never official.
 - Every retained modified origin names exact immutable inventory records whose canonical SHA-256 values reproduce from commit `20e9e10681aec9b091bb54da8755f8a1c59f69bb`. The single CloudCLI ip-address description rename is explicit; every version, source, digest, integrity value, and nested attribute remains byte-identical. Changing, removing, or duplicating a record invalidates the policy evaluation. New or extended patches, custom builds, and vendored modifications require their own source review and cannot inherit the retained classification.
 - HolyClaude-owned source, integration code, service definitions, helper binaries, npm packages, scoped npm packages, and normalized PyPI names stay blocking. The evaluator checks that boundary before any retained or official third-party rule. Unknown and unbound components also block.
-- Checksums, action pins, image digests, SBOM identity and provenance, scanner database evidence, and immutable input verification remain release gates. Grype 0.120.0 evidence must use the exact `v6.1.10` schema, the official `grype.anchore.io/databases/` source, and a source query checksum equal to the recorded checksum. The advisory decision does not weaken those controls.
-- Pull requests and `master` run source validation. Scheduled and manual monitoring rescans the published v1.6.5 images without publishing or promoting image tags.
+- Checksums, action pins, image digests, SBOM identity and provenance, scanner database evidence, and immutable input verification remain release gates. Grype 0.120.1 evidence must use the exact `v6.1.10` schema, the official `grype.anchore.io/databases/` source, and a source query checksum equal to the recorded checksum. The advisory decision does not weaken those controls.
+- Pull requests and `master` run source validation. Scheduled and manual monitoring rescans the published v1.6.6 images without publishing or promoting image tags.
 
-The older advisory ledger remains useful for release-specific historical decisions. It is not used to relabel v1.6.5 findings as fixed or not affected.
+The older advisory ledger remains useful for release-specific historical decisions. It is not used to relabel v1.6.6 findings as fixed or not affected.
 
 ## v1.6.4 release deferral
 

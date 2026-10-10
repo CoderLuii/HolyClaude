@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "release": "v1.6.5",
+  "release": "v1.6.6",
   "scope": "third_party_dependencies_only",
   "disposition": "accepted_upstream_vulnerability_not_fixed",
   "approvedBy": "CoderLuii",
-  "authorizedAt": "2026-10-05",
+  "authorizedAt": "2026-10-10",
   "officialReleasesOnly": true,
   "retainedBaselineCommit": "20e9e10681aec9b091bb54da8755f8a1c59f69bb",
   "retainedBaselineEvidence": "security/retained-modified-third-party-baseline.json",
@@ -39,8 +39,7 @@
         "/usr/",
         "/var/lib/dpkg/"
       ],
-      "locationPaths": [
-      ]
+      "locationPaths": []
     },
     {
       "origin": "npm registry packages",
@@ -53,8 +52,7 @@
       "locationPrefixes": [
         "/usr/local/lib/node_modules/"
       ],
-      "locationPaths": [
-      ]
+      "locationPaths": []
     },
     {
       "origin": "Python package indexes and distribution packages",
@@ -69,8 +67,7 @@
         "/usr/lib/python3/",
         "/usr/local/lib/python"
       ],
-      "locationPaths": [
-      ]
+      "locationPaths": []
     },
     {
       "origin": "bundled official Go module releases",
@@ -85,6 +82,7 @@
       ],
       "locationPaths": [
         "/usr/local/bin/fzf",
+        "/usr/local/bin/yq",
         "/usr/bin/gh"
       ]
     },
@@ -101,8 +99,7 @@
       "locationPrefixes": [
         "/home/claude/.local/share/junie/versions/"
       ],
-      "locationPaths": [
-      ]
+      "locationPaths": []
     },
     {
       "origin": "Docker official Python image runtime",
@@ -116,8 +113,7 @@
         "/usr/local/bin/python",
         "/usr/local/lib/libpython"
       ],
-      "locationPaths": [
-      ]
+      "locationPaths": []
     }
   ],
   "retainedModifiedInputs": [
@@ -184,21 +180,16 @@
         "/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/js-yaml/",
         "/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/",
         "/usr/local/lib/node_modules/prisma/node_modules/mysql2/",
-        "/usr/local/lib/node_modules/eas-cli/node_modules/tar/",
-        "/usr/local/lib/node_modules/eas-cli/node_modules/joi/",
-        "/usr/local/lib/node_modules/eas-cli/node_modules/minimatch/",
-        "/usr/local/lib/node_modules/eas-cli/node_modules/nanoid/",
         "/usr/local/lib/node_modules/pm2/node_modules/js-yaml/",
         "/usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws/",
-        "/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/",
-        "/usr/local/lib/node_modules/netlify-cli/node_modules/sharp/"
+        "/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/"
       ],
       "versionContains": [],
       "inventoryAnchors": [
-        "node-tar npm package",
         "Full-image undici 8 nested package",
         "Full-image js-yaml nested package",
         "Full-image xmldom nested package",
+        "node-tar npm package",
         "Netlify sharp nested package",
         "Full-image nanoid nested package",
         "EAS CLI Joi security package"

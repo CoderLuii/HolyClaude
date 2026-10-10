@@ -17,8 +17,6 @@ const FULL_PACKAGES = [
     '8.9.0',
     '8.10.2',
   ],
-  ['usr/local/lib/node_modules/eas-cli/node_modules/nanoid/package.json', 'nanoid', '3.3.8', '3.3.19'],
-  ['usr/local/lib/node_modules/eas-cli/node_modules/joi/package.json', 'joi', '17.11.0', '17.13.7'],
   ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.1', '4.3.2'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json',
@@ -26,28 +24,10 @@ const FULL_PACKAGES = [
     '0.9.10',
     '0.9.12',
   ],
-  ['usr/local/lib/node_modules/netlify-cli/node_modules/sharp/package.json', 'sharp', '0.34.5', '0.35.4'],
-  ['usr/local/lib/node_modules/eas-cli/node_modules/minimatch/package.json', 'minimatch', '5.1.2', '5.1.9'],
   ['usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws/package.json', 'ws', '8.18.0', '8.21.3'],
 ];
 
 const FULL_DEPENDENCIES = [
-  [
-    'usr/local/lib/node_modules/netlify-cli/package.json',
-    'netlify-cli',
-    '27.8.0',
-    '@netlify/images',
-    '^2.0.1',
-    '^2.0.1',
-  ],
-  [
-    'usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/images/package.json',
-    '@netlify/images',
-    '2.0.3',
-    'ipx',
-    '^3.1.1',
-    '^3.1.1',
-  ],
   ['usr/local/lib/node_modules/pm2/package.json', 'pm2', '7.0.4', 'js-yaml', '4.3.1', '4.3.2'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/speech-rule-engine/package.json',
@@ -64,25 +44,6 @@ const FULL_DEPENDENCIES = [
     'undici',
     '8.9.0',
     '8.10.2',
-  ],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'nanoid', '3.3.8', '3.3.19'],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'joi', '17.11.0', '17.13.7'],
-  [
-    'usr/local/lib/node_modules/eas-cli/node_modules/@expo/eas-json/package.json',
-    '@expo/eas-json',
-    '24.5.0',
-    'joi',
-    '17.11.0',
-    '17.13.7',
-  ],
-  ['usr/local/lib/node_modules/eas-cli/package.json', 'eas-cli', '24.7.0', 'minimatch', '5.1.2', '5.1.9'],
-  [
-    'usr/local/lib/node_modules/netlify-cli/node_modules/ipx/package.json',
-    'ipx',
-    '3.1.1',
-    'sharp',
-    '^0.34.3',
-    '0.35.4',
   ],
   [
     'usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/miniflare/package.json',

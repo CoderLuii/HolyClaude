@@ -857,12 +857,6 @@ After scanning, add `.desloppify/` to that project's `.gitignore`.
 
 ---
 
-## Netlify Local Go/Rust Functions
-
-The full image includes `netlify-cli` for deployments, but does not include its optional `local-functions-proxy` executable. The current upstream architecture package still ships that helper with Go 1.16.7, so HolyClaude removes the executable during the image build.
-
-Commands such as `netlify deploy` remain available. Local Go or Rust function emulation that depends on `local-functions-proxy` is not supported in this release. Run that workflow in a separate current Netlify development environment until upstream publishes a rebuilt helper.
-
 ---
 
 ## SMB/CIFS Gotchas

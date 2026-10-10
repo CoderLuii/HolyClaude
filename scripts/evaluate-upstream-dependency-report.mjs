@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { validateReport } from './evaluate-security-report.mjs';
 
-const EXPECTED_RELEASE = 'v1.6.5';
-const EXPECTED_SYFT_VERSION = '1.54.0';
-const EXPECTED_GRYPE_VERSION = '0.120.0';
+const EXPECTED_RELEASE = 'v1.6.6';
+const EXPECTED_SYFT_VERSION = '1.54.1';
+const EXPECTED_GRYPE_VERSION = '0.120.1';
 const EXPECTED_GRYPE_DB_SCHEMA_VERSION = 'v6.1.10';
 const SEVERITIES = ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical'];
 const TYPES = new Set(['binary', 'deb', 'go-module', 'java-archive', 'npm', 'python']);

@@ -572,7 +572,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Cloudflare Workers デプロイ |
 | `vercel` | Vercel デプロイ |
-| `netlify-cli` | Netlify デプロイ（オプションのローカル Go/Rust 関数プロキシは含まれません） |
+| `netlify-cli` | Netlify デプロイ|
 | `az` | クラウドデプロイと管理のための Azure CLI |
 | `prisma`, `drizzle-kit` | 最も人気の 2 つの Node.js ORM |
 | `pm2` | 本番プロセスマネージャー |

@@ -119,10 +119,10 @@ function pythonBuild(major, minor, patch, prerelease) {
 
 async function main() {
   const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  assert.equal(process.version, 'v26.10.0', 'unexpected Node version');
+  assert.equal(process.version, 'v26.11.1', 'unexpected Node version');
   assert.equal(installedNpmVersion, '12.2.0', 'unexpected npm version');
-  assert.equal(vercelPackage.version, '62.4.0', 'unexpected Vercel version');
-  assert.equal(vercelContainerPackage.version, '16.0.0', 'unexpected @vercel/container version');
+  assert.equal(vercelPackage.version, '63.1.2', 'unexpected Vercel version');
+  assert.equal(vercelContainerPackage.version, '18.0.1', 'unexpected @vercel/container version');
   assert.equal(vercelContainerPackage.dependencies.tar, '7.5.11', 'unexpected official @vercel/container tar dependency');
   assert.equal(vercelContainerPackage.dependencies['smol-toml'], '1.5.2', 'unexpected @vercel/container smol-toml dependency');
   assert.ok(vercelContainerSmolTomlPath.startsWith(path.join(moduleRoot, 'smol-toml') + path.sep), 'unexpected @vercel/container smol-toml resolution');
@@ -136,10 +136,10 @@ async function main() {
   execFileSync('npm', ['--prefix', vercelRoot, 'ls', 'tar', '--all'], { stdio: 'ignore' });
   execFileSync('vercel', ['--version'], { stdio: 'ignore' });
   execFileSync('vercel', ['--help'], { stdio: 'ignore' });
-  assert.equal(nativePackage.version, '62.4.0', 'unexpected Vercel native package version');
-  assert.equal(execFileSync(nativeBinary, ['--version'], { encoding: 'utf8' }).trim(), '62.4.0');
+  assert.equal(nativePackage.version, '63.1.2', 'unexpected Vercel native package version');
+  assert.equal(execFileSync(nativeBinary, ['--version'], { encoding: 'utf8' }).trim(), '63.1.2');
   assert.equal(pythonAnalysisPackage.version, '0.14.0', 'unexpected @vercel/python-analysis version');
-  assert.equal(rustPackage.version, '17.0.0', 'unexpected @vercel/rust version');
+  assert.equal(rustPackage.version, '19.0.1', 'unexpected @vercel/rust version');
   assert.equal(pythonAnalysisPackage.dependencies['@renovatebot/pep440'], '4.2.1', 'unexpected published pep440 pin');
   assert.equal(pep440Package.version, '4.2.1', 'unexpected installed pep440 version');
   assert.equal(smolTomlPackage.version, '1.5.2', 'unexpected smol-toml version');
@@ -254,7 +254,7 @@ main().catch(error => {
 NODE
 fi
 
-test "$(pnpm --version)" = 12.9.1
+test "$(pnpm --version)" = 12.10.1
 mkdir "$test_dir/dep" "$test_dir/project"
 printf '%s\n' '{"name":"local-smoke-dep","version":"1.0.0","main":"index.js"}' > "$test_dir/dep/package.json"
 printf '%s\n' 'module.exports = 42;' > "$test_dir/dep/index.js"

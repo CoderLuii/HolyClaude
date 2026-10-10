@@ -5,7 +5,7 @@ import test from 'node:test';
 const releaseWorkflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8').replaceAll('\r\n', '\n');
 const monitorWorkflow = readFileSync('.github/workflows/source-security.yml', 'utf8').replaceAll('\r\n', '\n');
 
-test('v1.6.5 release workflow evaluates the standing policy at source, candidate, and promotion', () => {
+test('v1.6.6 release workflow evaluates the standing policy at source, candidate, and promotion', () => {
   assert.equal((releaseWorkflow.match(/evaluate-upstream-dependency-report\.mjs/g) ?? []).length, 3);
   assert.equal((releaseWorkflow.match(/--policy security\/upstream-dependency-policy\.json/g) ?? []).length, 3);
   assert.match(releaseWorkflow, /--preflight true/);
@@ -50,6 +50,11 @@ test('source workflow validates PR and master changes and scheduled scans cannot
   assert.match(monitorWorkflow, /schedule:/);
   assert.match(monitorWorkflow, /published scan \(\$\{\{ matrix\.variant \}\}, \$\{\{ matrix\.arch \}\}\)/);
   assert.match(monitorWorkflow, /ubuntu-24\.04-arm/);
+  const release = JSON.parse(readFileSync('contracts/product-facts.json', 'utf8')).release.dockerVersion;
+  for (const variant of ['full', 'slim']) {
+    const tag = variant === 'full' ? release : `${release}-slim`;
+    assert.equal(monitorWorkflow.split(`tag: "${tag}"`).length - 1, 2);
+  }
   assert.match(monitorWorkflow, /name: Checkout\n\s+uses: actions\/checkout@[a-f0-9]{40}[^\n]*\n\s+with:\n\s+fetch-depth: 0/);
   assert.equal((monitorWorkflow.match(/evaluate-upstream-dependency-report\.mjs/g) ?? []).length, 2);
   assert.doesNotMatch(monitorWorkflow, /docker\/build-push-action/);
@@ -68,11 +73,11 @@ test('source workflow validates PR and master changes and scheduled scans cannot
 
 test('both workflows pin accepted Syft and Grype versions and architecture checksums', () => {
   for (const workflow of [releaseWorkflow, monitorWorkflow]) {
-    assert.match(workflow, /SYFT_VERSION: 1\.54\.0/);
-    assert.match(workflow, /GRYPE_VERSION: 0\.120\.0/);
-    assert.match(workflow, /54a87372498168b2d033e876fd41fa4e8035b872699e525a57046e1f2f09c860/);
-    assert.match(workflow, /ee6d4566373a05b344bc6b5f1706f14419bf9338ba39ff686e247deefe9b8818/);
-    assert.match(workflow, /a5a1218dce63acdac152a6b3b5bb366e7267e36f4069848cf455543b3fa5700e/);
-    assert.match(workflow, /bc0e52b1a0de37e2ff021c4924d689dce7dcff2e7d74b39aea16c0453e69be18/);
+    assert.match(workflow, /SYFT_VERSION: 1\.54\.1/);
+    assert.match(workflow, /GRYPE_VERSION: 0\.120\.1/);
+    assert.match(workflow, /c069905b391cc4c20a5ba65ad5c10be2a7ba074f8ea6ad203e24d14e303dad47/);
+    assert.match(workflow, /dfdf0537610113edbefe1f1fc6548bc957b2d77439636ec824fcf0e10d46d054/);
+    assert.match(workflow, /0a9ee97ef5ae2ee953b0a80098105052e846cdbe319a57d808b519c33cd1343d/);
+    assert.match(workflow, /29f47391dc283aa79fcc38e65224cd61f64dec0ecfd0db7074128ebf8ff23514/);
   }
 });

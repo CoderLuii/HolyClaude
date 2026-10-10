@@ -69,7 +69,7 @@ function runFixture({ includeAcceptedRisk = true, mutate = () => {} } = {}) {
       ignoredMatches: [],
       source: { type: 'image', target: { userInput: 'fixture' } },
       distro: { name: 'debian', version: '12.15' },
-      descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
+      descriptor: { name: 'grype', version: '0.120.1', configuration: {} },
     },
     deferral: {
       schemaVersion: 1,

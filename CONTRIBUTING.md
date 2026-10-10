@@ -61,7 +61,7 @@ If you're adding a new tool or package, decide which variant it belongs to. Full
 
 | File | What it does |
 |------|-------------|
-| `Dockerfile` | Single-stage build with full/slim split via `VARIANT` build arg |
+| `Dockerfile` | Multi-stage build with a shared full/slim runtime selected by the `VARIANT` build arg |
 | `docker-compose.yaml` | Minimal quick-start compose |
 | `docker-compose.full.yaml` | Full compose with all options documented |
 | `docker-compose.podman-rootless.yaml` | Rootless Podman keep-id compose for SELinux hosts |

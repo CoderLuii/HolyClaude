@@ -17,12 +17,12 @@ permissions:
   contents: read
 
 env:
-  SYFT_VERSION: 1.54.0
-  GRYPE_VERSION: 0.120.0
-  SYFT_SHA256_AMD64: 54a87372498168b2d033e876fd41fa4e8035b872699e525a57046e1f2f09c860
-  SYFT_SHA256_ARM64: ee6d4566373a05b344bc6b5f1706f14419bf9338ba39ff686e247deefe9b8818
-  GRYPE_SHA256_AMD64: a5a1218dce63acdac152a6b3b5bb366e7267e36f4069848cf455543b3fa5700e
-  GRYPE_SHA256_ARM64: bc0e52b1a0de37e2ff021c4924d689dce7dcff2e7d74b39aea16c0453e69be18
+  SYFT_VERSION: 1.54.1
+  GRYPE_VERSION: 0.120.1
+  SYFT_SHA256_AMD64: c069905b391cc4c20a5ba65ad5c10be2a7ba074f8ea6ad203e24d14e303dad47
+  SYFT_SHA256_ARM64: dfdf0537610113edbefe1f1fc6548bc957b2d77439636ec824fcf0e10d46d054
+  GRYPE_SHA256_AMD64: 0a9ee97ef5ae2ee953b0a80098105052e846cdbe319a57d808b519c33cd1343d
+  GRYPE_SHA256_ARM64: 29f47391dc283aa79fcc38e65224cd61f64dec0ecfd0db7074128ebf8ff23514
 
 jobs:
   source-validation:
@@ -44,15 +44,15 @@ jobs:
           for file in scripts/holyclaude-chromium scripts/holyclaude-mosh-server; do sh -n "${file}"; done
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
           PYTHONPYCACHEPREFIX="${RUNNER_TEMP}/pycache" python3 -m py_compile scripts/secure-cli-persistence.py
-          node scripts/verify-product-facts.mjs --release v1.6.5
+          node scripts/verify-product-facts.mjs --release v1.6.6
           node --test tests/*.test.mjs
           python3 -m unittest tests/test_notify.py tests/junie_applicability_guard_unit.py tests/libxml2_python_binding_guard_unit.py
           as_of="$(date -u +%F)"
-          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${as_of}" --release v1.6.5
+          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${as_of}" --release v1.6.6
           for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
             node scripts/evaluate-upstream-dependency-report.mjs \
               --policy security/upstream-dependency-policy.json \
-              --release v1.6.5 \
+              --release v1.6.6 \
               --variant "${target%-*}" \
               --arch "${target#*-}" \
               --preflight true \
@@ -73,19 +73,19 @@ jobs:
           - variant: full
             arch: amd64
             runner: ubuntu-24.04
-            tag: "1.6.5"
+            tag: "1.6.6"
           - variant: full
             arch: arm64
             runner: ubuntu-24.04-arm
-            tag: "1.6.5"
+            tag: "1.6.6"
           - variant: slim
             arch: amd64
             runner: ubuntu-24.04
-            tag: "1.6.5-slim"
+            tag: "1.6.6-slim"
           - variant: slim
             arch: arm64
             runner: ubuntu-24.04-arm
-            tag: "1.6.5-slim"
+            tag: "1.6.6-slim"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -151,7 +151,7 @@ jobs:
           grype --config "${RUNNER_TEMP}/grype-empty.yaml" sbom:evidence/sbom.cyclonedx.json -o json > evidence/grype.json
           node scripts/evaluate-upstream-dependency-report.mjs \
             --policy security/upstream-dependency-policy.json \
-            --release v1.6.5 \
+            --release v1.6.6 \
             --report evidence/grype.json \
             --sbom evidence/sbom.cyclonedx.json \
             --syft-json evidence/sbom.syft.json \
@@ -167,7 +167,7 @@ jobs:
 
       - name: Upload monitoring evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: published-security-${{ matrix.variant }}-${{ matrix.arch }}
           path: evidence/

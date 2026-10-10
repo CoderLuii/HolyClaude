@@ -5,7 +5,7 @@ import test from 'node:test';
 const dockerfile = readFileSync('Dockerfile', 'utf8');
 
 test('Vercel uses the selected official release without dependency replacements', () => {
-  assert.match(dockerfile, /vercel@62\.4\.0\b/);
+  assert.match(dockerfile, /vercel@63\.1\.2\b/);
   for (const path of [
     'scripts/patch-global-node-tar.mjs',
     'scripts/patch-global-node-security-dependencies.mjs',
@@ -19,6 +19,6 @@ test('Vercel uses the selected official release without dependency replacements'
 
 test('official Vercel package provenance stays in the immutable inventory', () => {
   const inputs = readFileSync('security/immutable-inputs.yml', 'utf8');
-  assert.match(inputs, /name: Vercel CLI[\s\S]*?version: 62\.4\.0[\s\S]*?npm-integrity: "sha512-5GCsUgVxZRS8o3REvA5hwn6hnw4PaSxGeKo1okEBM1X4Xw60ZcDZt22IxHGFx9mAfoa3jg\+a3Gtp8ZZFJNYyaA=="/);
+  assert.match(inputs, /name: Vercel CLI[\s\S]*?version: 63\.1\.2[\s\S]*?npm-integrity: "sha512-kD\/AKQVTV5Lwlg69fUNaW0OBGh6iSX42UTRrka10CtbOJDcxcqE8VoDRIuAsduGHiD3Hf90Ak9dX39nNzq8srA=="/);
   assert.doesNotMatch(inputs, /name: Vercel smol-toml nested package/);
 });

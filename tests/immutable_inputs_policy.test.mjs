@@ -7,8 +7,8 @@ import test from 'node:test';
 
 const validator = resolve('scripts/verify-immutable-inputs.mjs');
 const committedEvidence = readFileSync(resolve('security/immutable-inputs.yml'), 'utf8');
-const asOf = '2026-10-05';
-const reviewedAt = '2026-10-05';
+const asOf = '2026-10-10';
+const reviewedAt = '2026-10-10';
 
 function runFixture(mutate = (value) => value) {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-immutable-inputs-'));
@@ -20,7 +20,7 @@ function runFixture(mutate = (value) => value) {
     );
     return spawnSync(
       process.execPath,
-      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.6.5'],
+      [validator, '--file', input, '--as-of', asOf, '--release', 'v1.6.6'],
       { encoding: 'utf8' },
     );
   } finally {
@@ -41,16 +41,16 @@ test('rejects immutable input evidence expired before the deterministic as-of da
   const result = runFixture((value) =>
     value
       .replace(`reviewed-at: ${reviewedAt}`, 'reviewed-at: 2026-06-20')
-      .replace('expires-at: 2026-10-19', 'expires-at: 2026-07-20'),
+      .replace('expires-at: 2026-10-24', 'expires-at: 2026-07-20'),
   );
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /expired on 2026-07-20/);
 });
 
 test('rejects immutable input evidence for another release', () => {
-  const result = runFixture((value) => value.replace('release: v1.6.5', 'release: v1.5.1'));
+  const result = runFixture((value) => value.replace('release: v1.6.6', 'release: v1.5.1'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected release v1\.6\.5/);
+  assert.match(result.stderr, /expected release v1\.6\.6/);
 });
 
 test('rejects an invalid review date', () => {
@@ -60,9 +60,9 @@ test('rejects an invalid review date', () => {
 });
 
 test('rejects immutable input evidence reviewed after the deterministic as-of date', () => {
-  const result = runFixture((value) => value.replace(`reviewed-at: ${reviewedAt}`, 'reviewed-at: 2026-10-06'));
+  const result = runFixture((value) => value.replace(`reviewed-at: ${reviewedAt}`, 'reviewed-at: 2026-10-11'));
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /reviewed-at 2026-10-06 is after as-of 2026-10-05/);
+  assert.match(result.stderr, /reviewed-at 2026-10-11 is after as-of 2026-10-10/);
 });
 
 for (const category of [
@@ -195,7 +195,7 @@ test('verifies a referenced manifest hash when one is supplied', () => {
 });
 
 test('rejects duplicate top-level keys instead of silently overriding them', () => {
-  const result = runFixture((value) => `release: v1.6.5\n${value}`);
+  const result = runFixture((value) => `release: v1.6.6\n${value}`);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /duplicate top-level key release/);
 });

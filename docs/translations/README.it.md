@@ -572,7 +572,7 @@ L'immagine full include tutto quanto sopra, più:
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Deployment Cloudflare Workers |
 | `vercel` | Deployment Vercel |
-| `netlify-cli` | Deployment Netlify; il proxy locale opzionale per funzioni Go/Rust non è incluso |
+| `netlify-cli` | Deployment Netlify|
 | `az` | Azure CLI per deployment e gestione cloud |
 | `prisma`, `drizzle-kit` | I due ORM Node.js più popolari |
 | `pm2` | Process manager per produzione |

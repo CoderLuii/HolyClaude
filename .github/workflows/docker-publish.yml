@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.6.5
+run-name: v1.6.6
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.6.5"
+        default: "1.6.6"
         type: string
   push:
     branches:
@@ -26,12 +26,12 @@ permissions:
 env:
   DOCKERHUB_IMAGE: coderluii/holyclaude
   GHCR_IMAGE: ghcr.io/coderluii/holyclaude
-  SYFT_VERSION: 1.54.0
-  GRYPE_VERSION: 0.120.0
-  SYFT_SHA256_AMD64: 54a87372498168b2d033e876fd41fa4e8035b872699e525a57046e1f2f09c860
-  SYFT_SHA256_ARM64: ee6d4566373a05b344bc6b5f1706f14419bf9338ba39ff686e247deefe9b8818
-  GRYPE_SHA256_AMD64: a5a1218dce63acdac152a6b3b5bb366e7267e36f4069848cf455543b3fa5700e
-  GRYPE_SHA256_ARM64: bc0e52b1a0de37e2ff021c4924d689dce7dcff2e7d74b39aea16c0453e69be18
+  SYFT_VERSION: 1.54.1
+  GRYPE_VERSION: 0.120.1
+  SYFT_SHA256_AMD64: c069905b391cc4c20a5ba65ad5c10be2a7ba074f8ea6ad203e24d14e303dad47
+  SYFT_SHA256_ARM64: dfdf0537610113edbefe1f1fc6548bc957b2d77439636ec824fcf0e10d46d054
+  GRYPE_SHA256_AMD64: 0a9ee97ef5ae2ee953b0a80098105052e846cdbe319a57d808b519c33cd1343d
+  GRYPE_SHA256_ARM64: 29f47391dc283aa79fcc38e65224cd61f64dec0ecfd0db7074128ebf8ff23514
   SBOM_UTILITY_VERSION: 0.19.2
   SBOM_UTILITY_SHA256_AMD64: e0cd37e6e67b1d0e44dbb7b38e055a4e2ee66db590bb8e7f89e2d9b650f4490b
   SBOM_UTILITY_SHA256_ARM64: e508ebd95414887551c241cdfff4f5abbc2fd108b8c16abfdadbd2c51d2d3a0c
@@ -85,10 +85,10 @@ jobs:
           grep -Eq "^## \[${release#v}\] - [0-9]{2}/[0-9]{2}/[0-9]{4}$" docs/CHANGELOG.md
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           test "$(jq -r .release security/upstream-dependency-policy.json)" = "${release}"
-          baseline="20e9e10681aec9b091bb54da8755f8a1c59f69bb"
+          baseline="e10b9ff220716f934f826bc2e58f12b08f65a4ad"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.6.4^{commit}')" = "20e9e10681aec9b091bb54da8755f8a1c59f69bb"
+          test "$(git rev-parse 'v1.6.5^{commit}')" = "e10b9ff220716f934f826bc2e58f12b08f65a4ad"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -467,8 +467,23 @@ jobs:
           probe_version() {
             command="$1"
             expected="$(expected_version "$command")"
-            output="$("$command" --version 2>&1)"
+            version_stderr=
+            if [ "$command" = junie ]; then
+              version_stderr="$(mktemp)"
+              set +e
+              output="$("$command" --version 2>"$version_stderr")"
+              version_status=$?
+              set -e
+              if [ "$version_status" -ne 0 ]; then
+                cat "$version_stderr" >&2
+                rm -f "$version_stderr"
+                return "$version_status"
+              fi
+            else
+              output="$("$command" --version 2>&1)"
+            fi
             printf '%s: %s\n' "$command" "$output"
+            set +e
             reported="$(VERSION_COMMAND="$command" VERSION_OUTPUT="$output" node <<'NODE'
           const command = process.env.VERSION_COMMAND;
           const output = process.env.VERSION_OUTPUT.trim();
@@ -476,10 +491,10 @@ jobs:
             cursor: /(?:^|[^0-9A-Za-z])(\d{4}\.\d{2}\.\d{2}-[0-9a-f]+)(?=$|[^0-9A-Za-z])/g,
           };
           const junieMatch = command === 'junie'
-            ? output.match(/^(?:Junie version: \d+\.\d+\.\d+ \((\d+\.\d+)\)|Junie (\d+\.\d+))$/)
+            ? output.match(/^Junie version: 26\.10\.5 \((\d+\.\d+)\)$/)
             : null;
           const matches = command === 'junie'
-            ? (junieMatch ? [junieMatch[1] ?? junieMatch[2]] : [])
+            ? (junieMatch ? [junieMatch[1]] : [])
             : [...output.matchAll(patterns[command]
               ?? /(?:^|[^0-9A-Za-z])(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?=$|[^0-9A-Za-z])/g)]
               .map((match) => match[1]);
@@ -490,6 +505,21 @@ jobs:
           process.stdout.write(matches[0]);
           NODE
           )"
+            parser_status=$?
+            set -e
+            if [ "$parser_status" -ne 0 ]; then
+              if [ -n "$version_stderr" ]; then
+                cat "$version_stderr" >&2
+                rm -f "$version_stderr"
+              fi
+              return "$parser_status"
+            fi
+            if [ -n "$version_stderr" ]; then
+              if [ "$reported" != "$expected" ]; then
+                cat "$version_stderr" >&2
+              fi
+              rm -f "$version_stderr"
+            fi
             require_eq "$command version" "$reported" "$expected"
           }
 
@@ -871,7 +901,7 @@ jobs:
           GHCR_DIGEST: ${{ steps.digests.outputs.ghcr_digest }}
 
       - name: Upload candidate evidence
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: candidate-evidence-${{ matrix.variant }}-${{ matrix.arch }}
           path: evidence/${{ matrix.variant }}-${{ matrix.arch }}.json
@@ -881,7 +911,7 @@ jobs:
 
       - name: Upload security evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: security-evidence-${{ matrix.variant }}-${{ matrix.arch }}
           path: security-evidence/${{ matrix.variant }}-${{ matrix.arch }}
@@ -943,7 +973,7 @@ jobs:
           persist-credentials: false
 
       - name: Download candidate evidence
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: candidate-evidence-*
           path: evidence
@@ -952,7 +982,7 @@ jobs:
           github-token: ${{ github.token }}
 
       - name: Download candidate security evidence
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: security-evidence-*
           path: security-evidence
@@ -1428,7 +1458,7 @@ jobs:
         run: touch promotion/rollback-required
 
       - name: Upload rollback evidence
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rollback-evidence
           path: |
@@ -1582,7 +1612,7 @@ jobs:
 
       - name: Upload promotion evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: promotion-evidence
           path: |
@@ -1653,7 +1683,7 @@ jobs:
           persist-credentials: false
 
       - name: Download promotion evidence
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: promotion-evidence
           path: .
@@ -1799,7 +1829,7 @@ jobs:
       - name: Download rollback evidence
         id: rollback-evidence
         continue-on-error: true
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: rollback-evidence
           path: promotion

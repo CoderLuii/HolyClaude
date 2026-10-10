@@ -42,7 +42,7 @@ That's it. Open your browser, sign in, start building.
 
 ## What's Inside
 
-🤖 **8 AI CLIs** — Claude Code 2.1.290, Gemini CLI 0.62.0, OpenAI Codex 0.160.1, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 3419.29, OpenCode 1.18.34, Pi Coding Agent 0.85.1
+🤖 **8 AI CLIs** — Claude Code 2.1.296, Gemini CLI 0.63.0, OpenAI Codex 0.162.1, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 3579.5, OpenCode 1.18.35, Pi Coding Agent 0.85.1
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 
@@ -50,7 +50,7 @@ That's it. Open your browser, sign in, start building.
 
 📊 **Lighthouse** — Full image only
 
-🛠️ **50+ Dev Tools** — Node.js 26, Python 3, TypeScript, git, GitHub CLI, database clients (PostgreSQL, SQLite, Redis), deployment CLIs (Vercel, Wrangler, Netlify, Azure), and more. Netlify deployment remains available; its optional local Go/Rust functions proxy is omitted because the current upstream binary uses an outdated Go runtime.
+🛠️ **50+ Dev Tools** — Node.js 26, Python 3, TypeScript, git, GitHub CLI, database clients (PostgreSQL, SQLite, Redis), deployment CLIs (Vercel, Wrangler, Netlify, Azure), and more. Netlify deployment remains available with its official dependency tree, including the optional architecture-specific local functions proxy.
 
 🔐 **Optional SSH/Mosh** — Key-only `sshd` and Mosh are installed in both variants, disabled by default, and meant for localhost/VPN/Tailscale access only
 

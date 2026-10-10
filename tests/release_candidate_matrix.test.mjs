@@ -42,7 +42,7 @@ function runCloudcliGuardNormalization(baseline, current) {
   const currentPath = join(root, 'current');
   writeFileSync(baselinePath, baseline);
   writeFileSync(currentPath, current);
-  const result = spawnSync('python', ['-', baselinePath, currentPath], { input: script, encoding: 'utf8' });
+  const result = spawnSync(process.platform === 'win32' ? 'python' : 'python3', ['-', baselinePath, currentPath], { input: script, encoding: 'utf8' });
   const normalized = readFileSync(baselinePath, 'utf8').replaceAll('\r\n', '\n');
   rmSync(root, { recursive: true, force: true });
   return { result, normalized };
@@ -214,7 +214,9 @@ test('candidate runtime contract probes versions, architecture, variants, browse
   assert.match(candidate, /chromium.*product-facts\.json/s);
   assert.match(candidate, /project-stats web-terminal/);
   assert.match(candidate, /test -x \/usr\/local\/bin\/entrypoint\.sh/);
-  assert.match(candidate, /output\.match\(\/\^\(\?:Junie version:/);
+  assert.match(candidate, /output\.match\(\/\^Junie version: 26\\\.10\\\.5/);
+  assert.match(candidate, /junie[\s\S]+--version 2>"\$version_stderr"/);
+  assert.match(candidate, /cat "\$version_stderr" >&2/);
   assert.match(candidate, /output\.matchAll\(patterns\[command\]/);
   assert.match(candidate, /require_eq "\$command version" "\$reported" "\$expected"/);
   assert.doesNotMatch(candidate, /grep -F "\$expected"/);
@@ -226,8 +228,7 @@ test('version normalization rejects substring, boundary, and ambiguous-version f
     ['claude', '2.1.258 (Claude Code)', '2.1.258'],
     ['codex', 'codex-cli 0.152.1', '0.152.1'],
     ['cursor', '2026.08.31-4057e58', '2026.08.31-4057e58'],
-    ['junie', 'Junie 3126.1', '3126.1'],
-    ['junie', 'Junie version: 26.9.14 (3196.5)', '3196.5'],
+    ['junie', 'Junie version: 26.10.5 (3579.5)', '3579.5'],
   ]) {
     const result = runWorkflowVersionParser(command, output);
     assert.equal(result.status, 0, result.stderr);
@@ -245,13 +246,15 @@ test('Junie normalization fails closed on malformed, extra, ambiguous, and wrong
   for (const output of [
     'Junie version: 26.9.14 3196.5',
     'Junie version: 26.9.14 (3196.5) extra',
-    'Junie version: 26.9.14 (3196.5)\nJunie 3126.1',
-    'Junie version: 26.9.14 (3196.5) (3126.1)',
+    'Junie version: 26.10.5 (3579.5)\nJunie 26.10.5 (3579.5) (pid=1): log file: /tmp/log',
+    'Junie version: 26.10.5 (3579.5) (3419.26)',
+    'Junie version: 26.10.4 (3579.5)',
+    'Junie 3579.5',
   ]) assert.notEqual(runWorkflowVersionParser('junie', output).status, 0);
 
-  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.9.14 (3196.3)');
+  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.10.5 (3579.3)');
   assert.equal(wrongBuild.status, 0, wrongBuild.stderr);
-  assert.notEqual(wrongBuild.stdout, '3196.5');
+  assert.notEqual(wrongBuild.stdout, '3579.5');
 });
 
 test('candidate attempt validation treats promotion workflow attempts as independent', () => {

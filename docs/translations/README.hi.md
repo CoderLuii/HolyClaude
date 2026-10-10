@@ -572,7 +572,7 @@ Full image में ऊपर सब कुछ, plus:
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Cloudflare Workers deployment |
 | `vercel` | Vercel deployment |
-| `netlify-cli` | Netlify deployment; वैकल्पिक local Go/Rust functions proxy शामिल नहीं है |
+| `netlify-cli` | Netlify deployment|
 | `az` | Cloud deployment और management के लिए Azure CLI |
 | `prisma`, `drizzle-kit` | दो सबसे popular Node.js ORMs |
 | `pm2` | Production process manager |

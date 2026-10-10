@@ -51,12 +51,24 @@ for package in bind9-dnsutils bind9-host bind9-libs; do
 done
 require_package dnsutils '1:9.18.49-1~deb12u2' all
 
-echo '7efefd2f7a49a2aa55db90fd2ab2eec16c4bcf89258c9acf2f920dab59edbeb5  /home/claude/.local/share/junie/current/lib/app/junie-release-3419.29.jar' | sha256sum -c -
-junie_version="$(timeout 30s junie --version 2>&1)"
-if [ "$junie_version" != 'Junie version: 26.9.22 (3419.29)' ]; then
+echo '7ab78239925a001633181ba823ed1046a66ad6da4221a4935bea5ae22c4710a3  /home/claude/.local/share/junie/current/lib/app/junie-release-3579.5.jar' | sha256sum -c -
+junie_version_stderr="$(mktemp)"
+set +e
+junie_version="$(timeout 30s junie --version 2>"$junie_version_stderr")"
+junie_version_status=$?
+set -e
+if [ "$junie_version_status" -ne 0 ]; then
+  cat "$junie_version_stderr" >&2
+  rm -f "$junie_version_stderr"
+  exit "$junie_version_status"
+fi
+if [ "$junie_version" != 'Junie version: 26.10.5 (3579.5)' ]; then
+  cat "$junie_version_stderr" >&2
+  rm -f "$junie_version_stderr"
   echo "unexpected Junie version output: $junie_version" >&2
   exit 1
 fi
+rm -f "$junie_version_stderr"
 timeout 30s junie --help >/dev/null
 
 if nsenter --help 2>&1 | grep -Fq -- '--join-cgroup'; then

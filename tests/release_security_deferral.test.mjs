@@ -86,7 +86,7 @@ function runFixture(mutate = () => {}, { extraArgs = [], mutateBound = () => {},
       ignoredMatches: [],
       source: { type: 'image', target: { userInput: 'fixture' } },
       distro: { name: 'debian', version: '12.15' },
-      descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
+      descriptor: { name: 'grype', version: '0.120.1', configuration: {} },
     },
     manifest: {
       schemaVersion: 1,
@@ -255,7 +255,7 @@ test('does not treat malformed scanner evidence as deferrable', () => {
     report.descriptor.version = '0.118.0';
   });
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /expected Grype 0\.119\.0/);
+  assert.match(result.stderr, /expected Grype 0\.120\.1/);
 });
 
 test('committed deferral names only exact expired Debian tracker reviews', () => {

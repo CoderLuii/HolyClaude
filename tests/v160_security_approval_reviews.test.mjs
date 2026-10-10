@@ -199,7 +199,7 @@ if (process.env.HOLYCLAUDE_PORTABILITY_CHILD !== '1') {
       const report = {
         source: { type: 'sbom', target: 'fixture.cdx.json' },
         distro: { name: 'debian', version: '12', idLike: ['debian'] },
-        descriptor: { name: 'grype', version: '0.119.0', configuration: {} },
+        descriptor: { name: 'grype', version: '0.120.1', configuration: {} },
         ignoredMatches: [],
         matches: findings.map(({ vulnerability, severity }, index) => ({
           vulnerability: { id: vulnerability, severity, fix: { versions: [], state: 'not-fixed' } },

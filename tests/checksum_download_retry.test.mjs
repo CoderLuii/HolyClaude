@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import test from 'node:test';
 
 const dockerfile = readFileSync('Dockerfile', 'utf8');
@@ -93,7 +94,6 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
     `${productionCurlPrefix} /tmp/azure-cli-install.sh`,
     `${productionCurlPrefix} "/tmp/\${GITHUB_CLI_PACKAGE}"`,
     `${productionCurlPrefix} /tmp/claude-install.sh`,
-    `${productionCurlPrefix} /tmp/node-tar.tgz`,
     `${productionCurlPrefix} /tmp/prisma-mysql2.tgz`,
     `${productionCurlPrefix} "/tmp/setuptools-\${SETUPTOOLS_VERSION}-py3-none-any.whl"`,
     `${productionCurlPrefix} /tmp/cursor-agent.tar.gz`,
@@ -106,21 +106,21 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
   assert.equal(dockerfile.split(`${productionCurlPrefix} "$archive"`).length - 1, 3);
   const dockerfileTemplateCount = dockerfile.split(productionCurlPrefix).length - 1;
   const ffmpegTemplateCount = ffmpegBuilder.split(productionCurlPrefix).length - 1;
-  assert.equal(dockerfileTemplateCount, 15);
+  assert.equal(dockerfileTemplateCount, 14);
   assert.equal(ffmpegTemplateCount, 1);
-  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 16);
+  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 15);
 
   const replaceNodeDownloads = (dockerfile.match(/^\s+replace_node_module \S+/gm) ?? []).length;
   const replaceScopedDownloads = (dockerfile.match(/^\s+replace_scoped_node_module \S+/gm) ?? []).length;
   const replaceNestedDownloads = (dockerfile.match(/^\s+replace_nested_node_module \S+/gm) ?? []).length;
   const ffmpegDownloads = (ffmpegBuilder.match(/^download '/gm) ?? []).length;
-  assert.equal(replaceNodeDownloads, 8);
-  assert.equal(replaceScopedDownloads, 3);
+  assert.equal(replaceNodeDownloads, 4);
+  assert.equal(replaceScopedDownloads, 1);
   assert.equal(replaceNestedDownloads, 4);
   assert.equal(ffmpegDownloads, 4);
   const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 8
     + replaceNodeDownloads + replaceScopedDownloads + replaceNestedDownloads + ffmpegDownloads;
-  assert.equal(logicalDownloads, 33);
+  assert.equal(logicalDownloads, 27);
 
   const checksumDownloadSources = `${dockerfile}\n${ffmpegBuilder}`;
   assert.doesNotMatch(checksumDownloadSources, /--retry-delay/);
@@ -158,7 +158,7 @@ test('curl recovers from connection reset and HTTP 503 with default backoff', as
   const requestTimes = [];
   const payload = Buffer.from('retry recovered\n');
   const server = createServer((request, response) => {
-    requestTimes.push(Date.now());
+    requestTimes.push(performance.now());
     if (requestTimes.length === 1) {
       request.socket.resetAndDestroy();
       return;
@@ -237,12 +237,12 @@ test('retry exhaustion is bounded and removes a partial output', async () => {
   try {
     await listen(server);
     const { port } = server.address();
-    const started = Date.now();
+    const started = performance.now();
     const result = await runCurl(`http://127.0.0.1:${port}/asset`, output, {
       retryMaxTime: '3',
       maxTime: '1',
     });
-    const elapsed = Date.now() - started;
+    const elapsed = performance.now() - started;
     assert.notEqual(result.status, 0);
     assert.equal(existsSync(output), false);
     assert.ok(requestCount >= 2 && requestCount <= 3, `unexpected request count: ${requestCount}`);

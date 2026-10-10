@@ -572,7 +572,7 @@ HOLYCLAUDE_HOST_WORKSPACE_DIR=./workspace
 |---------|---------------|
 | `wrangler`, `@cloudflare/next-on-pages` | Cloudflare Workers 部署 |
 | `vercel` | Vercel 部署 |
-| `netlify-cli` | Netlify 部署（不包含可选的本地 Go/Rust 函数代理） |
+| `netlify-cli` | Netlify 部署|
 | `az` | Azure CLI，用于云部署和管理 |
 | `prisma`, `drizzle-kit` | 两个最流行的 Node.js ORM |
 | `pm2` | 生产环境进程管理器 |
