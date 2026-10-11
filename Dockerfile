@@ -47,7 +47,7 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
     TARGETARCH="$TARGETARCH" /usr/local/bin/build-ffmpeg-security-backport.sh; \
     fi
 
-FROM python:3.14.8-slim-bookworm@sha256:c8137f4c460908c8763f281c8f22c431eb5c538514ba9553fc3a89c06b7cfb88 AS python-runtime
+FROM python:3.14.8-slim-bookworm@sha256:48b13b003dda20b16f9442b8475aa05fe21bf6579a8c881db92ffb4d8fd20f83 AS python-runtime
 
 FROM node:26.11.1-bookworm-slim@sha256:86f07bc9c5dce4578cf37e5a418b7bfc7f817cda25cde66e2b66e95ed86c4567
 
