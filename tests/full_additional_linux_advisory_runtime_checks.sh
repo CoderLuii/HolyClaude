@@ -51,7 +51,7 @@ for package in bind9-dnsutils bind9-host bind9-libs; do
 done
 require_package dnsutils '1:9.18.49-1~deb12u2' all
 
-echo '7ab78239925a001633181ba823ed1046a66ad6da4221a4935bea5ae22c4710a3  /home/claude/.local/share/junie/current/lib/app/junie-release-3579.5.jar' | sha256sum -c -
+echo '4f227d20b24f9d9ba953802e850d6a606372c4d2d731d1d3fb4ba981f0b2860e  /home/claude/.local/share/junie/current/lib/app/junie-release-3659.4.jar' | sha256sum -c -
 junie_version_stderr="$(mktemp)"
 set +e
 junie_version="$(timeout 30s junie --version 2>"$junie_version_stderr")"
@@ -62,7 +62,7 @@ if [ "$junie_version_status" -ne 0 ]; then
   rm -f "$junie_version_stderr"
   exit "$junie_version_status"
 fi
-if [ "$junie_version" != 'Junie version: 26.10.5 (3579.5)' ]; then
+if [ "$junie_version" != 'Junie version: 26.10.12 (3659.4)' ]; then
   cat "$junie_version_stderr" >&2
   rm -f "$junie_version_stderr"
   echo "unexpected Junie version output: $junie_version" >&2

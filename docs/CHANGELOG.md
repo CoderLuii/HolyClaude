@@ -4,6 +4,26 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.7] - 10/14/2026
+
+### Changed
+
+- Updated Node to 26.12.0, Claude Code to 2.1.300, Gemini CLI to 0.64.0, Junie to stable 3659.4 and OpenCode to 1.19.0.
+- Updated Chromium to 155.0.8059.39 and aligned Node and Python Playwright at 1.64.0.
+- Updated compatible developer, deployment, Python and optional Docker client tools from official upstream packages.
+- Added disk and swap capacity preparation to published Full-image monitoring before scanner installation, with disk and memory diagnostics retained in the job log.
+- Updated Azure CLI to 2.91.0 while retaining its strict embedded-runtime probes.
+- Kept Go, CloudCLI, Vercel CLI and Pi Coding Agent at their qualified compatibility baselines. See [deferred replacements](official-dependency-updates.md).
+
+### Security
+
+- Renewed immutable input bindings for v1.6.7 while preserving accepted upstream findings as unresolved until fresh candidate scans evaluate the new images.
+- Kept historical Chromium review decisions bound to their original package version instead of carrying them into Chromium 155.
+
+### Fixed
+
+- Made immutable-input validation reject stale or untracked Docker and workflow references, including mismatched GitHub Action versions and commit pins.
+
 ## [1.6.6] - 10/10/2026
 
 ### Changed

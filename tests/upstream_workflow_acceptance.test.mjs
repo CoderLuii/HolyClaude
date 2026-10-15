@@ -5,7 +5,7 @@ import test from 'node:test';
 const releaseWorkflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8').replaceAll('\r\n', '\n');
 const monitorWorkflow = readFileSync('.github/workflows/source-security.yml', 'utf8').replaceAll('\r\n', '\n');
 
-test('v1.6.6 release workflow evaluates the standing policy at source, candidate, and promotion', () => {
+test('v1.6.7 release workflow evaluates the standing policy at source, candidate, and promotion', () => {
   assert.equal((releaseWorkflow.match(/evaluate-upstream-dependency-report\.mjs/g) ?? []).length, 3);
   assert.equal((releaseWorkflow.match(/--policy security\/upstream-dependency-policy\.json/g) ?? []).length, 3);
   assert.match(releaseWorkflow, /--preflight true/);
@@ -69,6 +69,22 @@ test('source workflow validates PR and master changes and scheduled scans cannot
   assert.match(monitorWorkflow, /--syft-json evidence\/sbom\.syft\.json/);
   assert.match(monitorWorkflow, /syft "\$\{image\}@\$\{digest\}" --from registry/);
   assert.match(monitorWorkflow, /--image-ref "\$\{image\}@\$\{digest\}"/);
+});
+
+test('published Full-image monitoring provisions scanner capacity before installing scanners', () => {
+  const disk = monitorWorkflow.indexOf('      - name: Free up monitoring disk space');
+  const swap = monitorWorkflow.indexOf('      - name: Provision full-image scanner swap');
+  const scanners = monitorWorkflow.indexOf('      - name: Install checksum-pinned scanners');
+  assert.ok(disk >= 0 && disk < swap && swap < scanners);
+
+  const capacity = monitorWorkflow.slice(disk, scanners);
+  assert.match(capacity, /if: matrix\.variant == 'full'/);
+  assert.match(capacity, /sudo fallocate -l 16G "\$\{swap_file\}"/);
+  assert.match(capacity, /swapon --show --bytes \| grep -F "\$\{swap_file\}"/);
+  assert.match(capacity, /if \[\[ "\$\{RUNNER_ENVIRONMENT:-\}" == "github-hosted" \]\]/);
+  assert.match(capacity, /sudo rm -rf \/usr\/share\/dotnet \/usr\/local\/lib\/android \/opt\/ghc \/opt\/hostedtoolcache/);
+  assert.match(capacity, /df -h/);
+  assert.match(capacity, /free -h/);
 });
 
 test('both workflows pin accepted Syft and Grype versions and architecture checksums', () => {

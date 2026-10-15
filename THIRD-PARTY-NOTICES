@@ -115,7 +115,7 @@ HolyClaude includes overlays for selected copies of setuptools, Piscina, brace-e
 js-yaml, minimatch, Nanoid, path-to-regexp, Sharp, Undici, ws, and xmldom. The full image uses js-yaml 4.3.2 in PM2. Updated npm, Wrangler, Vercel, EAS and Netlify retain their official dependency trees. Marp's speech-rule-engine
 uses xmldom 0.9.12; EAS's separate xmldom 0.8.15 copy is unchanged. CloudCLI retains its
 separate js-yaml 3.15.2 overlay. Cursor Agent uses
-HolyClaude's Node 26.11.1 runtime instead of its bundled Node binary.
+HolyClaude's Node 26.12.0 runtime instead of its bundled Node binary.
 
 These packages retain their upstream licenses. The exact versions, archive
 hashes, owning paths, and fail-closed patch checks are recorded in the
@@ -126,7 +126,7 @@ Dockerfile, `security/immutable-inputs.yml`, and the release source.
 - License: BSD-3-Clause and other open-source licenses listed by Chromium
 - Source: https://www.chromium.org/Home/
 - Debian source package: https://packages.debian.org/source/bookworm/chromium
-- Version: 154.0.8037 (architecture-specific Bookworm security package revisions)
+- Version: 155.0.8059 (architecture-specific Bookworm security package revisions)
 
 ## OpenSSH
 
@@ -150,14 +150,14 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 
 - License: MIT
 - Source: https://github.com/nodejs/node
-- Version: 26.11.1 base image
+- Version: 26.12.0 base image
 
 ## Netlify CLI
 
 - License: MIT
 - Source: https://github.com/netlify/cli
 - npm: https://www.npmjs.com/package/netlify-cli
-- Version: 27.12.0, installed in the full image only
+- Version: 27.12.1, installed in the full image only
 
 HolyClaude installs the official Netlify CLI package and its dependency tree without downstream replacements or binary removal.
 

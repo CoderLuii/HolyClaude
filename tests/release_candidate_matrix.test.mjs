@@ -174,7 +174,7 @@ test('CloudCLI retained artifact gate blocks any extension of its builder or ove
   assert.doesNotMatch(candidate, /Verify CloudCLI artifact reproducibility/);
 });
 
-test('CloudCLI retained section allows only the two exact reviewed release deltas', () => {
+test('CloudCLI retained section allows only the three exact reviewed release deltas', () => {
   const baselineDockerfile = spawnSync(
     'git',
     ['show', '20e9e10681aec9b091bb54da8755f8a1c59f69bb:Dockerfile'],
@@ -186,6 +186,22 @@ test('CloudCLI retained section allows only the two exact reviewed release delta
   const accepted = runCloudcliGuardNormalization(baseline, current);
   assert.equal(accepted.result.status, 0, accepted.result.stderr);
   assert.equal(accepted.normalized, current.replaceAll('\r\n', '\n'));
+
+  for (const [label, changed] of [
+    ['stale CloudCLI Playwright version', current.replace("version !== '1.64.0'", "version !== '1.63.0'")],
+    ['wrong CloudCLI Playwright version', current.replace("version !== '1.64.0'", "version !== '1.64.1'")],
+    [
+      'wrong CloudCLI Playwright resolution path',
+      current.replace(
+        "packagePath !== '/usr/local/lib/node_modules/playwright/package.json'",
+        "packagePath !== '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/playwright/package.json'",
+      ),
+    ],
+  ]) {
+    assert.notEqual(changed, current, `${label} mutation must change the fixture`);
+    const rejectedReviewedDelta = runCloudcliGuardNormalization(baseline, changed);
+    assert.notEqual(rejectedReviewedDelta.result.status, 0, `${label} must fail normalization`);
+  }
 
   const changed = current.replace(
     'ARG CLOUDCLI_VERSION=1.37.3',
@@ -214,7 +230,7 @@ test('candidate runtime contract probes versions, architecture, variants, browse
   assert.match(candidate, /chromium.*product-facts\.json/s);
   assert.match(candidate, /project-stats web-terminal/);
   assert.match(candidate, /test -x \/usr\/local\/bin\/entrypoint\.sh/);
-  assert.match(candidate, /output\.match\(\/\^Junie version: 26\\\.10\\\.5/);
+  assert.match(candidate, /output\.match\(\/\^Junie version: 26\\\.10\\\.12/);
   assert.match(candidate, /junie[\s\S]+--version 2>"\$version_stderr"/);
   assert.match(candidate, /cat "\$version_stderr" >&2/);
   assert.match(candidate, /output\.matchAll\(patterns\[command\]/);
@@ -228,7 +244,7 @@ test('version normalization rejects substring, boundary, and ambiguous-version f
     ['claude', '2.1.258 (Claude Code)', '2.1.258'],
     ['codex', 'codex-cli 0.152.1', '0.152.1'],
     ['cursor', '2026.08.31-4057e58', '2026.08.31-4057e58'],
-    ['junie', 'Junie version: 26.10.5 (3579.5)', '3579.5'],
+    ['junie', 'Junie version: 26.10.12 (3659.4)', '3659.4'],
   ]) {
     const result = runWorkflowVersionParser(command, output);
     assert.equal(result.status, 0, result.stderr);
@@ -246,15 +262,15 @@ test('Junie normalization fails closed on malformed, extra, ambiguous, and wrong
   for (const output of [
     'Junie version: 26.9.14 3196.5',
     'Junie version: 26.9.14 (3196.5) extra',
-    'Junie version: 26.10.5 (3579.5)\nJunie 26.10.5 (3579.5) (pid=1): log file: /tmp/log',
-    'Junie version: 26.10.5 (3579.5) (3419.26)',
-    'Junie version: 26.10.4 (3579.5)',
-    'Junie 3579.5',
+    'Junie version: 26.10.12 (3659.4)\nJunie 26.10.12 (3659.4) (pid=1): log file: /tmp/log',
+    'Junie version: 26.10.12 (3659.4) (3579.5)',
+    'Junie version: 26.10.11 (3659.4)',
+    'Junie 3659.4',
   ]) assert.notEqual(runWorkflowVersionParser('junie', output).status, 0);
 
-  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.10.5 (3579.3)');
+  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.10.12 (3659.3)');
   assert.equal(wrongBuild.status, 0, wrongBuild.stderr);
-  assert.notEqual(wrongBuild.stdout, '3579.5');
+  assert.notEqual(wrongBuild.stdout, '3659.4');
 });
 
 test('candidate attempt validation treats promotion workflow attempts as independent', () => {

@@ -1,6 +1,6 @@
 name: HolyClaude - Docker release
 
-run-name: v1.6.6
+run-name: v1.6.7
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       published_version:
         description: "Published HolyClaude version to smoke-test"
         required: true
-        default: "1.6.6"
+        default: "1.6.7"
         type: string
   push:
     branches:
@@ -85,10 +85,10 @@ jobs:
           grep -Eq "^## \[${release#v}\] - [0-9]{2}/[0-9]{2}/[0-9]{4}$" docs/CHANGELOG.md
           grep -Fq "release: ${release}" security/immutable-inputs.yml
           test "$(jq -r .release security/upstream-dependency-policy.json)" = "${release}"
-          baseline="e10b9ff220716f934f826bc2e58f12b08f65a4ad"
+          baseline="762bf704da5a3fd12a3afc4ed6d169357ddfd439"
           test "$(git cat-file -p HEAD | grep -c '^parent ')" -eq 1
           test "$(git rev-parse HEAD^)" = "${baseline}"
-          test "$(git rev-parse 'v1.6.5^{commit}')" = "e10b9ff220716f934f826bc2e58f12b08f65a4ad"
+          test "$(git rev-parse 'v1.6.6^{commit}')" = "762bf704da5a3fd12a3afc4ed6d169357ddfd439"
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             git fetch --no-tags origin master
             test "$(git rev-parse origin/master)" = "${GITHUB_SHA}"
@@ -240,6 +240,11 @@ jobs:
                   f"      /usr/local/lib/node_modules/npm/node_modules/ip-address; {backslash}\n",
                   f"      /usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/ip-address; {backslash}\n",
                   "npm ip-address overlay removal",
+              ),
+              (
+                  f'''RUN test "$(node --input-type=module -e "import {{ createRequire }} from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); process.stdout.write(require('playwright/package.json').version);")" = "1.63.0" && {backslash}\n''',
+                  f'''RUN node --input-type=module -e "import {{ createRequire }} from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); const packagePath = require.resolve('playwright/package.json'); if (packagePath !== '/usr/local/lib/node_modules/playwright/package.json') throw new Error('CloudCLI resolved unexpected Playwright package: ' + packagePath); const {{ version }} = require(packagePath); if (version !== '1.64.0') throw new Error('CloudCLI resolved unexpected Playwright version: ' + version);" && {backslash}\n''',
+                  "HolyClaude-owned CloudCLI Playwright integration assertion",
               ),
           )
           for old, new, name in deltas:
@@ -491,7 +496,7 @@ jobs:
             cursor: /(?:^|[^0-9A-Za-z])(\d{4}\.\d{2}\.\d{2}-[0-9a-f]+)(?=$|[^0-9A-Za-z])/g,
           };
           const junieMatch = command === 'junie'
-            ? output.match(/^Junie version: 26\.10\.5 \((\d+\.\d+)\)$/)
+            ? output.match(/^Junie version: 26\.10\.12 \((\d+\.\d+)\)$/)
             : null;
           const matches = command === 'junie'
             ? (junieMatch ? [junieMatch[1]] : [])

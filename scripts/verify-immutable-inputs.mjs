@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
 
 const REQUIRED_CATEGORIES = [
@@ -199,6 +199,120 @@ function verifyReferencedHash(category, record, field, path, hashField) {
   }
 }
 
+function readWorkflowSource() {
+  const workflowDirectory = resolve('.github/workflows');
+  return readdirSync(workflowDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /\.ya?ml$/i.test(entry.name))
+    .map((entry) => readFileSync(resolve(workflowDirectory, entry.name), 'utf8'))
+    .join('\n');
+}
+
+// The action inventory accepts the repository's plain-key block style only. Unsupported
+// YAML key forms fail closed outside literal blocks so an action cannot evade inventory.
+function workflowStructuralLines(source) {
+  const structuralLines = [];
+  let literalIndent = null;
+
+  for (const line of source.split(/\r?\n/)) {
+    const indent = /^ */.exec(line)[0].length;
+    if (literalIndent !== null) {
+      if (!line.trim() || indent > literalIndent) continue;
+      literalIndent = null;
+    }
+
+    if (!line.trim() || /^\s*#/.test(line)) continue;
+    if (line.includes('\t')) throw new Error(`github-actions source has unsupported tab indentation: ${line.trim()}`);
+
+    const structural = line.trimStart();
+    if (/^(?:-\s*)?(?:"(?:[^"\\]|\\.)*"|'(?:[^']|'')*')\s*:/.test(structural)) {
+      throw new Error(`github-actions source has unsupported quoted mapping key: ${line.trim()}`);
+    }
+    if (/^(?:-\s*)?[\[{]/.test(structural) ||
+        /^(?:-\s*)?[a-zA-Z_][a-zA-Z0-9_-]*\s*:\s*[\[{]/.test(structural)) {
+      throw new Error(`github-actions source has unsupported flow collection: ${line.trim()}`);
+    }
+    if (/^(?:-\s*)?[?&*!]/.test(structural)) {
+      throw new Error(`github-actions source has unsupported complex mapping key: ${line.trim()}`);
+    }
+    if (/^(?:-\s*)?[a-zA-Z_][a-zA-Z0-9_-]*\s*:\s*[?&*!]/.test(structural)) {
+      throw new Error(`github-actions source has unsupported complex structure: ${line.trim()}`);
+    }
+
+    structuralLines.push(line);
+    if (/^\s*(?:-\s*)?[a-zA-Z_][a-zA-Z0-9_-]*\s*:\s*[|>][1-9+-]{0,2}\s*(?:#.*)?$/.test(line)) {
+      literalIndent = indent;
+    }
+  }
+
+  return structuralLines;
+}
+
+function collectWorkflowActions(source) {
+  const actions = new Map();
+  for (const line of workflowStructuralLines(source)) {
+    if (!/^\s*(?:-\s*)?uses\s*:/.test(line)) continue;
+    const match = /^\s*(?:-\s*)?uses:\s*(\S+?)(?:\s+#\s*(\S+))?\s*$/.exec(line);
+    if (!match) throw new Error(`github-actions source has unsupported uses instruction: ${line.trim()}`);
+    const [, target, version = '<missing>'] = match;
+    if (target.startsWith('./')) continue;
+    const remote = /^([^@\s]+)@([^\s]+)$/.exec(target);
+    if (!remote) throw new Error(`github-actions source has unsupported uses instruction: ${line.trim()}`);
+    const [, name, commit] = remote;
+    if (!actions.has(name)) actions.set(name, new Set());
+    actions.get(name).add(`${version}@${commit}`);
+  }
+  return actions;
+}
+
+function collectDockerfileImages(source) {
+  const images = new Map();
+  for (const line of source.split(/\r?\n/)) {
+    if (!/^\s*FROM\b/i.test(line)) continue;
+    const match = /^\s*FROM(?:\s+--platform=\S+)?\s+(\S+)@(sha256:[a-f0-9]{64})(?:\s+AS\s+\S+)?\s*$/i.exec(line);
+    if (!match) throw new Error(`base-images source has unsupported or unpinned FROM instruction: ${line.trim()}`);
+    const [, reference, digest] = match;
+    if (!images.has(reference)) images.set(reference, new Set());
+    const digests = images.get(reference);
+    digests.add(digest);
+    if (digests.size > 1) throw new Error(`base-images source has conflicting digests for ${reference}`);
+  }
+  return images;
+}
+
+function collectWorkflowImages(source) {
+  const images = new Map();
+  const lines = source.split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (/^\s*#/.test(line)) continue;
+    const executable = line.replace(/\s+#.*$/, '');
+    if (!executable.includes('@sha256:')) continue;
+    const match = /^\s*([a-z0-9][a-z0-9._/:-]*)@(sha256:[a-f0-9]{64})\s*$/i.exec(executable);
+    if (!match) throw new Error(`base-images source has unsupported workflow image instruction: ${line.trim()}`);
+
+    const command = [];
+    for (let previous = index - 1; previous >= 0; previous -= 1) {
+      const commandLine = lines[previous].trim();
+      command.unshift(commandLine);
+      if (!commandLine.endsWith('\\')) break;
+    }
+    if (!command.some((commandLine) => /\bdocker\s+run\b/.test(commandLine))) {
+      throw new Error(`base-images workflow image is not attached to docker run: ${line.trim()}`);
+    }
+
+    const [, reference, digest] = match;
+    if (!images.has(reference)) images.set(reference, new Set());
+    images.get(reference).add(digest);
+  }
+  return images;
+}
+
+function imageRepository(reference) {
+  const lastSlash = reference.lastIndexOf('/');
+  const lastColon = reference.lastIndexOf(':');
+  return lastColon > lastSlash ? reference.slice(0, lastColon) : reference;
+}
+
 function validateDocument(document, args) {
   if (document['schema-version'] !== '1') throw new Error('schema-version must be 1');
   if (document.release !== args.release) {
@@ -218,9 +332,35 @@ function validateDocument(document, args) {
   if (reviewedAt > asOf) throw new Error(`reviewed-at ${document['reviewed-at']} is after as-of ${args['as-of']}`);
   if (expiresAt < asOf) throw new Error(`immutable input evidence expired on ${document['expires-at']}`);
 
+  const dockerfile = readFileSync(resolve('Dockerfile'), 'utf8');
+  const workflowSource = readWorkflowSource();
+  const dockerfileImages = collectDockerfileImages(dockerfile);
+  const workflowImages = collectWorkflowImages(workflowSource);
   for (const record of document['base-images']) {
     requireFields('base-images', record, ['name', 'reference', 'digest', 'status']);
     if (!IMAGE_DIGEST.test(record.digest)) throw new Error(`base-images ${record.name}: digest must be sha256:<64 hex>`);
+    const repository = imageRepository(record.reference);
+    const matchesDockerfile = dockerfileImages.get(record.reference)?.has(record.digest);
+    const matchesWorkflowContainer = workflowImages.get(record.reference)?.has(record.digest) ||
+      workflowImages.get(repository)?.has(record.digest);
+    if (!matchesDockerfile && !matchesWorkflowContainer) {
+      throw new Error(`base-images ${record.name}: reference and digest do not match source`);
+    }
+  }
+  for (const [reference, digests] of dockerfileImages) {
+    for (const digest of digests) {
+      if (!document['base-images'].some((record) => record.reference === reference && record.digest === digest)) {
+        throw new Error(`base-images source uses untracked image ${reference}@${digest}`);
+      }
+    }
+  }
+  for (const [reference, digests] of workflowImages) {
+    for (const digest of digests) {
+      if (!document['base-images'].some((record) =>
+        (record.reference === reference || imageRepository(record.reference) === reference) && record.digest === digest)) {
+        throw new Error(`base-images source uses untracked image ${reference}@${digest}`);
+      }
+    }
   }
   for (const record of document['release-assets']) {
     requireFields('release-assets', record, ['name', 'version', 'verification', 'verification-mode', 'status']);
@@ -277,10 +417,19 @@ function validateDocument(document, args) {
       validateJsonFile('plugins', record, 'lock', lock);
     }
   }
+  const workflowActions = collectWorkflowActions(workflowSource);
+  const inventoriedActions = new Set(document['github-actions'].map((record) => record.name));
+  for (const action of workflowActions.keys()) {
+    if (!inventoriedActions.has(action)) throw new Error(`github-actions source uses untracked action ${action}`);
+  }
   for (const record of document['github-actions']) {
     requireFields('github-actions', record, ['name', 'version', 'commit']);
     if (!COMMIT_SHA.test(record.commit)) {
       throw new Error(`github-actions ${record.name}: commit must be a full 40-character SHA`);
+    }
+    const sourcePins = workflowActions.get(record.name);
+    if (!sourcePins || sourcePins.size !== 1 || !sourcePins.has(`${record.version}@${record.commit}`)) {
+      throw new Error(`github-actions ${record.name}: version and commit do not match source`);
     }
   }
 }

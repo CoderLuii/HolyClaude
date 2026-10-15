@@ -9,7 +9,7 @@ import test from 'node:test';
 const evaluator = 'scripts/evaluate-upstream-dependency-report.mjs';
 const sourceLabels = {
   'org.opencontainers.image.revision': 'fixture-sha',
-  'org.opencontainers.image.version': 'v1.6.6',
+  'org.opencontainers.image.version': 'v1.6.7',
 };
 const layerId = `sha256:${'4'.repeat(64)}`;
 const configText = JSON.stringify({
@@ -124,7 +124,7 @@ function fixture() {
         component: { 'bom-ref': '5b7642aa89f8ce21', type: 'container', name: 'coderluii/holyclaude', version: 'fixture-image' },
         properties: [
           { name: 'syft:image:labels:org.opencontainers.image.revision', value: 'fixture-sha' },
-          { name: 'syft:image:labels:org.opencontainers.image.version', value: 'v1.6.6' },
+          { name: 'syft:image:labels:org.opencontainers.image.version', value: 'v1.6.7' },
         ],
       },
       components: [fixtureComponent],
@@ -246,7 +246,7 @@ function useCycloneDxImageProjection(data) {
 }
 
 function runFixture(mutate = () => {}, {
-  preflight = false, release = 'v1.6.6', variant = 'full', arch = 'amd64', syncSyft = true,
+  preflight = false, release = 'v1.6.7', variant = 'full', arch = 'amd64', syncSyft = true,
 } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-upstream-policy-'));
   const output = join(root, 'output');
@@ -264,7 +264,7 @@ function runFixture(mutate = () => {}, {
     '--release', release,
     '--variant', variant,
     '--arch', arch,
-    '--as-of', '2026-10-10',
+    '--as-of', '2026-10-14',
   ];
   if (preflight) {
     args.push('--preflight', 'true');
@@ -297,13 +297,13 @@ function rerunRelocated(run, sourceTarget) {
   }
   return spawnSync(process.execPath, [
     evaluator,
-    '--policy', join(relocated, 'policy.json'), '--release', 'v1.6.6',
+    '--policy', join(relocated, 'policy.json'), '--release', 'v1.6.7',
     '--report', join(relocated, 'report.json'), '--sbom', join(relocated, 'sbom.json'),
     '--syft-json', join(relocated, 'syft.json'), '--image-ref', imageRef,
     '--expected-source-target', sourceTarget,
     '--db-evidence', join(relocated, 'database.json'), '--immutable-inputs', join(relocated, 'immutable-inputs.yml'),
     '--output-dir', output, '--variant', 'full', '--arch', 'amd64',
-    '--image-digest', imageDigest, '--as-of', '2026-10-10',
+    '--image-digest', imageDigest, '--as-of', '2026-10-14',
   ], { cwd: process.cwd(), encoding: 'utf8' });
 }
 
@@ -359,7 +359,7 @@ test('accepts the exact Grype image projection emitted from a Syft CycloneDX SBO
   const run = runFixture((data) => {
     useCycloneDxImageProjection(data);
     data.syft.source.metadata.labels = {
-      'org.opencontainers.image.version': 'v1.6.6',
+      'org.opencontainers.image.version': 'v1.6.7',
       'org.opencontainers.image.revision': 'fixture-sha',
     };
   });
@@ -534,8 +534,8 @@ test('rejects retained modified classification when immutable inventory records 
 
 test('rejects HolyClaude-owned and unclassified components', (t) => {
   const owned = runFixture(({ report, sbom }) => {
-    report.matches[0] = match({ artifactId: 'pkg:generic/holyclaude@1.6.6?package-id=fixture', purl: 'pkg:generic/holyclaude@1.6.6', name: 'holyclaude', version: '1.6.6', type: 'binary', path: '/usr/local/bin/holyclaude-helper' });
-    sbom.components[0] = component({ id: report.matches[0].artifact.id, purl: report.matches[0].artifact.purl, name: 'holyclaude', version: '1.6.6', path: '/usr/local/bin/holyclaude-helper' });
+    report.matches[0] = match({ artifactId: 'pkg:generic/holyclaude@1.6.7?package-id=fixture', purl: 'pkg:generic/holyclaude@1.6.7', name: 'holyclaude', version: '1.6.7', type: 'binary', path: '/usr/local/bin/holyclaude-helper' });
+    sbom.components[0] = component({ id: report.matches[0].artifact.id, purl: report.matches[0].artifact.purl, name: 'holyclaude', version: '1.6.7', path: '/usr/local/bin/holyclaude-helper' });
   });
   cleanup(t, owned.root);
   assert.notEqual(owned.result.status, 0);
@@ -554,14 +554,14 @@ test('rejects HolyClaude-owned and unclassified components', (t) => {
 });
 
 for (const [label, type, purl, name, path] of [
-  ['npm name', 'npm', 'pkg:npm/holyclaude@1.6.6', 'holyclaude', '/usr/local/lib/node_modules/holyclaude/package.json'],
-  ['scoped npm name', 'npm', 'pkg:npm/%40holyclaude/helper@1.6.6', '@holyclaude/helper', '/usr/local/lib/node_modules/@holyclaude/helper/package.json'],
-  ['normalized PyPI name', 'python', 'pkg:pypi/holy_claude@1.6.6', 'Holy.Claude', '/opt/venv/lib/python3.14/site-packages/holy_claude/__init__.py'],
+  ['npm name', 'npm', 'pkg:npm/holyclaude@1.6.7', 'holyclaude', '/usr/local/lib/node_modules/holyclaude/package.json'],
+  ['scoped npm name', 'npm', 'pkg:npm/%40holyclaude/helper@1.6.7', '@holyclaude/helper', '/usr/local/lib/node_modules/@holyclaude/helper/package.json'],
+  ['normalized PyPI name', 'python', 'pkg:pypi/holy_claude@1.6.7', 'Holy.Claude', '/opt/venv/lib/python3.14/site-packages/holy_claude/__init__.py'],
 ]) {
   test(`rejects project-controlled ${label} at an ordinary official dependency path`, (t) => {
     const run = runFixture(({ report, sbom }) => {
-      report.matches[0] = match({ artifactId: `${purl}?package-id=owned`, purl, name, version: '1.6.6', type, path });
-      sbom.components[0] = component({ id: report.matches[0].artifact.id, purl, name, version: '1.6.6', path });
+      report.matches[0] = match({ artifactId: `${purl}?package-id=owned`, purl, name, version: '1.6.7', type, path });
+      sbom.components[0] = component({ id: report.matches[0].artifact.id, purl, name, version: '1.6.7', path });
     });
     cleanup(t, run.root);
     assert.notEqual(run.result.status, 0);
@@ -571,7 +571,7 @@ for (const [label, type, purl, name, path] of [
 
 for (const [label, options, expected] of [
   ['unbound ignored artifact', { purl: 'pkg:generic/unbound@6.1.0' }, /matched 0 official input origins/],
-  ['project-controlled ignored artifact', { purl: 'pkg:generic/holyclaude@1.6.6' }, /project-controlled component/],
+  ['project-controlled ignored artifact', { purl: 'pkg:generic/holyclaude@1.6.7' }, /project-controlled component/],
   ['mixed-location ignored artifact', { extraPath: '/usr/local/lib/holyclaude/linux-libc-dev' }, /project-controlled component/],
 ]) {
   test(`rejects ${label} before advisory acceptance`, (t) => {
@@ -583,19 +583,19 @@ for (const [label, options, expected] of [
 }
 
 for (const [type, purl, path] of [
-  ['binary', 'pkg:generic/holyclaude@1.6.6', '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/holyclaude'],
-  ['go-module', 'pkg:golang/example.com/holyclaude@v1.6.6', '/home/claude/.claude-code-ui/plugins/project-stats/holyclaude'],
+  ['binary', 'pkg:generic/holyclaude@1.6.7', '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/holyclaude'],
+  ['go-module', 'pkg:golang/example.com/holyclaude@v1.6.7', '/home/claude/.claude-code-ui/plugins/project-stats/holyclaude'],
 ]) {
   test(`project-controlled identity blocks before retained ${type} path classification`, (t) => {
     const run = runFixture(({ policy, report, sbom }) => {
       policy.projectControlled.versionContains.push('holyclaude-owned');
       report.matches[0] = match({
         artifactId: `${purl}?package-id=owned`, purl, name: 'holyclaude-owned',
-        version: '1.6.6-holyclaude-owned', type, path,
+        version: '1.6.7-holyclaude-owned', type, path,
       });
       sbom.components[0] = component({
         id: report.matches[0].artifact.id, purl, name: 'holyclaude-owned',
-        version: '1.6.6-holyclaude-owned', path,
+        version: '1.6.7-holyclaude-owned', path,
       });
     });
     cleanup(t, run.root);
@@ -684,7 +684,7 @@ test('rejects wrong release, target, and image digest', (t) => {
   const wrongRelease = runFixture(() => {}, { release: 'v1.6.4', preflight: true });
   cleanup(t, wrongRelease.root);
   assert.notEqual(wrongRelease.result.status, 0);
-  assert.match(wrongRelease.result.stderr, /must target v1\.6\.6/);
+  assert.match(wrongRelease.result.stderr, /must target v1\.6\.7/);
 
   const wrongTarget = runFixture(() => {}, { arch: 'ppc64le', preflight: true });
   cleanup(t, wrongTarget.root);
@@ -694,8 +694,8 @@ test('rejects wrong release, target, and image digest', (t) => {
   const invalidDigest = runFixture(() => {});
   cleanup(t, invalidDigest.root);
   const rerun = spawnSync(process.execPath, [
-    evaluator, '--policy', join(invalidDigest.root, 'policy.json'), '--release', 'v1.6.6',
-    '--variant', 'full', '--arch', 'amd64', '--as-of', '2026-10-10',
+    evaluator, '--policy', join(invalidDigest.root, 'policy.json'), '--release', 'v1.6.7',
+    '--variant', 'full', '--arch', 'amd64', '--as-of', '2026-10-14',
     '--report', join(invalidDigest.root, 'report.json'), '--sbom', join(invalidDigest.root, 'sbom.json'),
     '--syft-json', join(invalidDigest.root, 'syft.json'), '--image-ref', imageRef,
     '--db-evidence', join(invalidDigest.root, 'database.json'), '--immutable-inputs', join(invalidDigest.root, 'immutable-inputs.yml'),
@@ -733,8 +733,8 @@ test('changed raw evidence requires a regenerated acceptance record', (t) => {
 test('committed policy preflight has standing authorization and all native targets', () => {
   for (const [variant, arch] of [['full', 'amd64'], ['full', 'arm64'], ['slim', 'amd64'], ['slim', 'arm64']]) {
     const result = spawnSync(process.execPath, [
-      evaluator, '--policy', 'security/upstream-dependency-policy.json', '--release', 'v1.6.6',
-      '--variant', variant, '--arch', arch, '--as-of', '2026-10-10', '--preflight', 'true',
+      evaluator, '--policy', 'security/upstream-dependency-policy.json', '--release', 'v1.6.7',
+      '--variant', variant, '--arch', arch, '--as-of', '2026-10-14', '--preflight', 'true',
     ], { cwd: process.cwd(), encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
   }

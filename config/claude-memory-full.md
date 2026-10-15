@@ -121,8 +121,8 @@ The `--break-system-packages` flag is required (no venv in container context).
 
 ### Browser:
 - **Chromium** at `/usr/bin/chromium` — supported wrapper; `CHROME_PATH` and `PUPPETEER_EXECUTABLE_PATH` stay pointed here
-- **Node and Python Playwright 1.63.0** — baked at build time, no runtime browser download
-- **Debian Chromium 154.0.8037** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
+- **Node and Python Playwright 1.64.0** — baked at build time, no runtime browser download
+- **Debian Chromium 155.0.8059** at `/usr/bin/chromium` is shared by both Playwright bindings and CloudCLI; pass `/usr/bin/chromium` as `executablePath` (Node) or `executable_path` (Python) when launching Playwright directly. CloudCLI applies this path automatically.
 - Xvfb provides a compatibility display at `:99` for tools that use a headed display
 - Flags preset: `--no-sandbox --disable-gpu --disable-dev-shm-usage`
 - Lighthouse and `@lhci/cli` are full-image tools

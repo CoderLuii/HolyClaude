@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.6.6 updates the bundled AI CLIs and developer tools using official upstream releases. Debian Chromium stays at 154.0.8037.92 for AMD64 and ARM64. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it. See the [deferred replacements](docs/official-dependency-updates.md) for integrations that still need an equivalent official release.
+v1.6.7 updates the bundled AI CLIs and developer tools using official upstream releases. Debian Chromium stays at 155.0.8059.39 for AMD64 and ARM64. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it. See the [deferred replacements](docs/official-dependency-updates.md) for integrations that still need an equivalent official release.
 
 > [!WARNING]
 > Dependency scans still run. Accepted upstream vulnerabilities remain listed with their installed versions, raw severity and available fixes; acceptance does not mean fixed. Retained modified third-party artifacts are identified separately from official releases. HolyClaude source checks, artifact integrity and runtime tests still block delivery. See the [dependency policy](security/upstream-dependency-policy.json) and the release's scan evidence before deploying.
@@ -583,7 +583,7 @@ This is not a minimal container. This is an entire development workstation.
 | `pyyaml`, `python-dotenv` | Config file parsing |
 | `rich`, `click`, `tqdm` | Beautiful CLIs and progress bars |
 | `desloppify`, `bandit`, `tree-sitter` | Code-quality scans, Python security checks, parser-backed code analysis |
-| `playwright` | Browser automation (Python and Node 1.63.0 are baked into both images) |
+| `playwright` | Browser automation (Python and Node 1.64.0 are baked into both images) |
 | `pytest`, `pytest-asyncio`, `flake8` | Python tests, async tests, and linting |
 | `aiomqtt`, `aiohttp` | Async MQTT and HTTP clients |
 
@@ -615,8 +615,8 @@ This is not a minimal container. This is an entire development workstation.
 
 | CLI | Command | Version | What it's for |
 |-----|---------|---------|---------------|
-| **Claude Code** | `claude` | 2.1.296 | The main event — you're running inside this |
-| **Gemini CLI** | `gemini` | 0.63.0 | Google's AI coding agent |
+| **Claude Code** | `claude` | 2.1.300 | The main event — you're running inside this |
+| **Gemini CLI** | `gemini` | 0.64.0 | Google's AI coding agent |
 | **OpenAI Codex** | `codex` | 0.162.1 | OpenAI's coding agent |
 | **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Cursor's AI agent |
 | **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and orchestration |
@@ -634,8 +634,8 @@ The full image includes everything above, plus:
 
 | CLI | Command | Version | What it's for |
 |-----|---------|---------|---------------|
-| **Junie** | `junie` | 3579.5 | JetBrains' AI coding agent |
-| **OpenCode** | `opencode` | 1.18.35 | Open source AI agent (OpenRouter and other providers) |
+| **Junie** | `junie` | 3659.4 | JetBrains' AI coding agent |
+| **OpenCode** | `opencode` | 1.19.0 | Open source AI agent (OpenRouter and other providers) |
 | **Pi Coding Agent** | `pi` | 0.85.1 | Minimal agent harness (multiple providers) |
 
 </details>

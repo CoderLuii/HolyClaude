@@ -348,8 +348,9 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
-  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.11\.1'/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.12\.0'/);
   assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.0'/);
+  assert.match(developerTools, /assert\.equal\(easPackage\.version, '24\.14\.0'/);
   assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '63\.1\.2'/);
   assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.version, '18\.0\.1'/);
   assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.dependencies\.tar, '7\.5\.11'/);
@@ -377,6 +378,8 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.doesNotMatch(developerTools, /parse\('a=\[1 #'/);
   assert.match(developerTools, /TREE_SITTER_LANGUAGE_PACK_MANIFEST_URL/);
   assert.match(developerTools, /a78386c99e08bc1c88e2fcd3c036a48b2c4c62088628a3aab3a3aad1ed3715a9/);
+  assert.match(developerTools, /importlib\.metadata\.version\('tree-sitter'\) == '0\.26\.0'/);
+  assert.match(developerTools, /importlib\.metadata\.version\('tree-sitter-language-pack'\) == '1\.22\.1'/);
   assert.match(developerTools, /get_parser\(['"]python['"]\)/);
   assert.match(developerTools, /root\.has_error/);
   assert.match(developerTools, /timeout --foreground [0-9]+s env/);

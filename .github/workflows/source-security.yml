@@ -44,15 +44,15 @@ jobs:
           for file in scripts/holyclaude-chromium scripts/holyclaude-mosh-server; do sh -n "${file}"; done
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
           PYTHONPYCACHEPREFIX="${RUNNER_TEMP}/pycache" python3 -m py_compile scripts/secure-cli-persistence.py
-          node scripts/verify-product-facts.mjs --release v1.6.6
+          node scripts/verify-product-facts.mjs --release v1.6.7
           node --test tests/*.test.mjs
           python3 -m unittest tests/test_notify.py tests/junie_applicability_guard_unit.py tests/libxml2_python_binding_guard_unit.py
           as_of="$(date -u +%F)"
-          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${as_of}" --release v1.6.6
+          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${as_of}" --release v1.6.7
           for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
             node scripts/evaluate-upstream-dependency-report.mjs \
               --policy security/upstream-dependency-policy.json \
-              --release v1.6.6 \
+              --release v1.6.7 \
               --variant "${target%-*}" \
               --arch "${target#*-}" \
               --preflight true \
@@ -73,19 +73,19 @@ jobs:
           - variant: full
             arch: amd64
             runner: ubuntu-24.04
-            tag: "1.6.6"
+            tag: "1.6.7"
           - variant: full
             arch: arm64
             runner: ubuntu-24.04-arm
-            tag: "1.6.6"
+            tag: "1.6.7"
           - variant: slim
             arch: amd64
             runner: ubuntu-24.04
-            tag: "1.6.6-slim"
+            tag: "1.6.7-slim"
           - variant: slim
             arch: arm64
             runner: ubuntu-24.04-arm
-            tag: "1.6.6-slim"
+            tag: "1.6.7-slim"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -95,6 +95,31 @@ jobs:
       - name: Prepare monitoring evidence directory
         shell: bash
         run: mkdir -p evidence
+
+      - name: Free up monitoring disk space
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${RUNNER_ENVIRONMENT:-}" == "github-hosted" ]]; then
+            sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
+            sudo apt-get clean
+            docker system prune -af --volumes
+          fi
+          df -h
+
+      - name: Provision full-image scanner swap
+        if: matrix.variant == 'full'
+        shell: bash
+        run: |
+          set -euo pipefail
+          swap_file=/holyclaude-scanner.swap
+          test ! -e "${swap_file}"
+          sudo fallocate -l 16G "${swap_file}"
+          sudo chmod 600 "${swap_file}"
+          sudo mkswap "${swap_file}"
+          sudo swapon "${swap_file}"
+          free -h
+          swapon --show --bytes | grep -F "${swap_file}"
 
       - name: Install checksum-pinned scanners
         shell: bash
@@ -151,7 +176,7 @@ jobs:
           grype --config "${RUNNER_TEMP}/grype-empty.yaml" sbom:evidence/sbom.cyclonedx.json -o json > evidence/grype.json
           node scripts/evaluate-upstream-dependency-report.mjs \
             --policy security/upstream-dependency-policy.json \
-            --release v1.6.6 \
+            --release v1.6.7 \
             --report evidence/grype.json \
             --sbom evidence/sbom.cyclonedx.json \
             --syft-json evidence/sbom.syft.json \

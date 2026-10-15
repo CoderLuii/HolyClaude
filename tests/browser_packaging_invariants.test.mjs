@@ -6,8 +6,8 @@ const dockerfile = readFileSync('Dockerfile', 'utf8');
 const wrapper = readFileSync('scripts/holyclaude-chromium', 'utf8');
 
 test('Dockerfile uses pinned Playwright bindings and the canonical browser path', () => {
-  assert.match(dockerfile, /playwright@1\.63\.0/);
-  assert.match(dockerfile, /playwright==1\.63\.0/);
+  assert.match(dockerfile, /playwright@1\.64\.0/);
+  assert.match(dockerfile, /playwright==1\.64\.0/);
   assert.doesNotMatch(dockerfile, /PLAYWRIGHT_BROWSERS_PATH=/);
   assert.match(dockerfile, /NODE_PATH=\/usr\/local\/lib\/node_modules/);
   assert.match(dockerfile, /CHROME_PATH=\/usr\/bin\/chromium/);
@@ -15,8 +15,8 @@ test('Dockerfile uses pinned Playwright bindings and the canonical browser path'
 });
 
 test('Dockerfile pins the Bookworm security Chromium packages', () => {
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_AMD64=154\.0\.8037\.92-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_ARM64=154\.0\.8037\.92-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_AMD64=155\.0\.8059\.39-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_ARM64=155\.0\.8059\.39-1~deb12u1/);
   for (const packageName of ['CHROMIUM_PACKAGE', 'CHROMIUM_COMMON_PACKAGE', 'CHROMIUM_SANDBOX_PACKAGE']) {
     assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_AMD64=[0-9a-f]{64}`));
     assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_ARM64=[0-9a-f]{64}`));
@@ -40,7 +40,12 @@ test('Dockerfile verifies both Playwright bindings and CloudCLI use the system b
   assert.match(dockerfile, /require\('\/usr\/local\/lib\/node_modules\/playwright\/package\.json'\)\.version/);
   assert.match(dockerfile, /importlib\.metadata\.version\('playwright'\)/);
   assert.match(dockerfile, /createRequire\('file:\/\/\/usr\/local\/lib\/node_modules\/@cloudcli-ai\/cloudcli\/dist-server\/server\/index\.js'\)/);
-  assert.match(dockerfile, /require\('playwright\/package\.json'\)\.version/);
+  const cloudCliPlaywrightContract = dockerfile.split('\n').find((line) =>
+    line.startsWith('RUN node --input-type=module') && line.includes("require.resolve('playwright/package.json')"));
+  assert.ok(cloudCliPlaywrightContract, 'missing CloudCLI Playwright resolution contract');
+  assert.match(cloudCliPlaywrightContract, /packagePath !== '\/usr\/local\/lib\/node_modules\/playwright\/package\.json'/);
+  assert.match(cloudCliPlaywrightContract, /version !== '1\.64\.0'/);
+  assert.doesNotMatch(cloudCliPlaywrightContract, /1\.63\.0/);
   assert.match(dockerfile, /test -x \/usr\/bin\/chromium/);
 });
 

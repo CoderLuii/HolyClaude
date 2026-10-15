@@ -19,7 +19,7 @@ FFmpeg build stay unchanged while their official replacements are evaluated.
 This maintenance does not add or extend their patches. Their modification
 notices remain in [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES).
 
-Vercel CLI 63.1.2, EAS CLI 24.12.1 and Netlify CLI 27.12.0 keep their official npm dependency trees. Their upstream vulnerability findings remain visible to the release scanners and are accepted as upstream findings rather than replaced downstream.
+Vercel CLI 63.1.2, EAS CLI 24.14.0 and Netlify CLI 27.12.1 keep their official npm dependency trees. Their upstream vulnerability findings remain visible to the release scanners and are accepted as upstream findings rather than replaced downstream.
 
 Official Vercel 63.1.2 includes `smol-toml` 1.5.2, affected by
 [CVE-2026-85730 / GHSA-7w5x-hrqm-74c2](https://github.com/advisories/GHSA-7w5x-hrqm-74c2).
@@ -31,13 +31,14 @@ The same installed version is affected by
 a quadratic-time parser issue fixed upstream in 1.9.0. This finding is also
 accepted and unresolved.
 
-Official EAS CLI 24.12.1 includes `tar` 7.5.19, affected by
+Official EAS CLI 24.14.0 includes `tar` 7.5.19, affected by
 [CVE-2026-73566 / GHSA-r292-9mhp-454m](https://github.com/advisories/GHSA-r292-9mhp-454m).
 The upstream fix starts at 7.5.21. This remains an accepted upstream
 vulnerability; npm's separate bundled `tar` 7.5.22 is unchanged.
 
-Wrangler's Miniflare dependency includes official Sharp 0.35.5 with libheif
-1.23.5. [libheif 1.23.6](https://github.com/strukturag/libheif/releases/tag/v1.23.6)
+Wrangler 4.151.0 declares Miniflare 5.20261012.0-beta and workerd 1.20261012.1.
+That Miniflare release declares the same workerd, Undici 7.29.1, and official
+Sharp 0.35.5 with libheif 1.23.5. [libheif 1.23.6](https://github.com/strukturag/libheif/releases/tag/v1.23.6)
 contains security fixes that this official Sharp prebuild does not yet include.
 Those upstream findings remain accepted and unresolved; HolyClaude does not
 replace the bundled native library.
@@ -56,11 +57,16 @@ and existing-session migration. A transparent upgrade would require rewriting
 user-installed extensions and Azure configuration, so Pi 1.x needs a dedicated
 compatibility path.
 
-Playwright stays at 1.63.0 for both Node and Python. The official Node package
-has a 1.64.0 release, but the matching official Python package is not available
-on PyPI. HolyClaude keeps the bindings aligned until both official packages can
-move together. Junie is updated to the newest stable release, 3579.5. The newer
-3750.1 asset is explicitly named Junie Nightly and is not used by the stable image.
+Playwright is updated to 1.64.0 for both Node and Python now that matching
+official releases are available. Junie is updated to stable 3659.4.
+
+Go stays at 1.27.1. The 1.27.2 runtime would require rebuilding the retained
+modified esbuild baseline, so it remains frozen until that compatibility work
+can be qualified without changing the retained artifact boundary.
+
+Azure CLI is updated to 2.91.0 from Microsoft's signed Bookworm repository.
+Its existing embedded Python, cryptography, PyJWT, urllib3, pip and command
+probes remain strict for native Full-image qualification on both architectures.
 
 A deferred replacement is not a verified fix, and its vulnerability findings
 remain visible.

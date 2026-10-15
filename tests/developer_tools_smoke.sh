@@ -52,7 +52,7 @@ timeout --foreground 90s env \
 import importlib.metadata
 
 assert importlib.metadata.version('tree-sitter') == '0.26.0'
-assert importlib.metadata.version('tree-sitter-language-pack') == '1.21.0'
+assert importlib.metadata.version('tree-sitter-language-pack') == '1.22.1'
 
 from tree_sitter_language_pack import downloaded_languages, get_parser
 
@@ -73,12 +73,14 @@ const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const easRoot = '/usr/local/lib/node_modules/eas-cli';
 const {
   EasJsonAccessor,
   EasJsonUtils,
   Platform,
 } = require('/usr/local/lib/node_modules/eas-cli/node_modules/@expo/eas-json');
 
+const easPackage = JSON.parse(fs.readFileSync(path.join(easRoot, 'package.json'), 'utf8'));
 const vercelRoot = '/usr/local/lib/node_modules/vercel';
 const moduleRoot = path.join(vercelRoot, 'node_modules');
 const readPackage = name => JSON.parse(fs.readFileSync(path.join(moduleRoot, name, 'package.json'), 'utf8'));
@@ -119,8 +121,9 @@ function pythonBuild(major, minor, patch, prerelease) {
 
 async function main() {
   const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  assert.equal(process.version, 'v26.11.1', 'unexpected Node version');
+  assert.equal(process.version, 'v26.12.0', 'unexpected Node version');
   assert.equal(installedNpmVersion, '12.2.0', 'unexpected npm version');
+  assert.equal(easPackage.version, '24.14.0', 'unexpected EAS version');
   assert.equal(vercelPackage.version, '63.1.2', 'unexpected Vercel version');
   assert.equal(vercelContainerPackage.version, '18.0.1', 'unexpected @vercel/container version');
   assert.equal(vercelContainerPackage.dependencies.tar, '7.5.11', 'unexpected official @vercel/container tar dependency');
@@ -254,7 +257,7 @@ main().catch(error => {
 NODE
 fi
 
-test "$(pnpm --version)" = 12.10.1
+test "$(pnpm --version)" = 12.11.2
 mkdir "$test_dir/dep" "$test_dir/project"
 printf '%s\n' '{"name":"local-smoke-dep","version":"1.0.0","main":"index.js"}' > "$test_dir/dep/package.json"
 printf '%s\n' 'module.exports = 42;' > "$test_dir/dep/index.js"
