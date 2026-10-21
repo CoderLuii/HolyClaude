@@ -4,6 +4,12 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Refreshed CloudCLI's predefined MiniMax choices: OpenCode Zen lists M3.1 Flash Free before M3, and OpenCode Go retains M3. Saved sessions and custom model IDs remain unchanged.
+
 ## [1.6.7] - 10/14/2026
 
 ### Changed
