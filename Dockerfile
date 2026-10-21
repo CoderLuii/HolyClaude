@@ -771,6 +771,7 @@ COPY scripts/patch-cloudcli-browser-runtime.mjs /tmp/patch-cloudcli-browser-runt
 COPY scripts/patch-cloudcli-codex-complete-exit-code.mjs /tmp/patch-cloudcli-codex-complete-exit-code.mjs
 COPY scripts/patch-cloudcli-codex-permissions.mjs /tmp/patch-cloudcli-codex-permissions.mjs
 COPY scripts/patch-cloudcli-disable-self-update.mjs /tmp/patch-cloudcli-disable-self-update.mjs
+COPY scripts/patch-cloudcli-minimax-models.mjs /tmp/patch-cloudcli-minimax-models.mjs
 COPY --chown=claude:claude scripts/patch-cloudcli-web-terminal-install-policy.mjs /tmp/patch-cloudcli-web-terminal-install-policy.mjs
 COPY --chown=claude:claude scripts/patch-cloudcli-web-terminal-rendering.mjs /tmp/patch-cloudcli-web-terminal-rendering.mjs
 COPY scripts/verify-cloudcli-account-management-support.mjs /tmp/verify-cloudcli-account-management-support.mjs
@@ -783,6 +784,9 @@ RUN CLOUDCLI_BROWSER_USE="/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist
     grep -Fq "executablePath: process.env.CHROME_PATH," "$CLOUDCLI_BROWSER_USE" && \
     grep -Fq "const executablePath = process.env.CHROME_PATH || playwright.chromium.executablePath();" "$CLOUDCLI_BROWSER_USE" && \
     echo "[patch] CloudCLI Browser Use canonical Chromium applied to runtime"
+
+# patch: refresh MiniMax suggestions without changing saved/custom model IDs
+RUN node /tmp/patch-cloudcli-minimax-models.mjs && rm -f /tmp/patch-cloudcli-minimax-models.mjs
 
 # patch: disable CloudCLI npm self-update inside HolyClaude (issue #50)
 RUN node /tmp/patch-cloudcli-disable-self-update.mjs && rm -f /tmp/patch-cloudcli-disable-self-update.mjs
