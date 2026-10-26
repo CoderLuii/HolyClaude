@@ -8,16 +8,16 @@ const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8')
 const immutableInputs = readFileSync('security/immutable-inputs.yml', 'utf8');
 
 const versions = {
-  amd64: '155.0.8059.39-1~deb12u1',
-  arm64: '155.0.8059.39-1~deb12u1',
+  amd64: '156.0.8078.47-1~deb12u1',
+  arm64: '156.0.8078.47-1~deb12u1',
 };
 const packageBindings = [
-  ['CHROMIUM_PACKAGE_SHA256_AMD64', 'amd64-chromium-package-sha256', 'a3ffb89479162c43d1f0f997344c228b2ea63dce5725bf737cd38da0acefe694'],
-  ['CHROMIUM_PACKAGE_SHA256_ARM64', 'arm64-chromium-package-sha256', '924331300fec8182d81fa4a6db3178395b982c0b1c080c5f51a92f78c54b8edf'],
-  ['CHROMIUM_COMMON_PACKAGE_SHA256_AMD64', 'amd64-chromium-common-package-sha256', '7fbecf6ffc963be6ec4b24aabea894fc34e3d476571477facedfe78fb95bbb18'],
-  ['CHROMIUM_COMMON_PACKAGE_SHA256_ARM64', 'arm64-chromium-common-package-sha256', 'bd62e7a62731e3eb880c1eecf5394210a6816444e5ae20fee0b297876e53a253'],
-  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64', 'amd64-chromium-sandbox-package-sha256', '9fc7e25eb050101a808467e4efbf9ca138136412243b2426de624bb0514d243a'],
-  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64', 'arm64-chromium-sandbox-package-sha256', '008210879b7cfdc84a4088cdabc0a478eda985318fc23b036e6b32c9de83749d'],
+  ['CHROMIUM_PACKAGE_SHA256_AMD64', 'amd64-chromium-package-sha256', 'aad2dc4f0d7340343c3dfb9dc9d1b5d058e4b008b6be18ca136415c3fa49ccf2'],
+  ['CHROMIUM_PACKAGE_SHA256_ARM64', 'arm64-chromium-package-sha256', 'a7ade1ba5b63258b899dd469f56edf5b03e0d63260e1bd27c69c2bbc661200e1'],
+  ['CHROMIUM_COMMON_PACKAGE_SHA256_AMD64', 'amd64-chromium-common-package-sha256', 'e570a2b3da2f4dfdc9edf966b4d9588c67be6021fd09198dbbed3d11c8870f7d'],
+  ['CHROMIUM_COMMON_PACKAGE_SHA256_ARM64', 'arm64-chromium-common-package-sha256', 'e3e3a575718696dc0b40c53dc1f27b946d6c4b5818b8699624af11a2be47b2e3'],
+  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64', 'amd64-chromium-sandbox-package-sha256', 'adbb12a68bb15d27eff08438d7372e17407163891a7baad4b95a1c25fd70ac8b'],
+  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64', 'arm64-chromium-sandbox-package-sha256', 'b6cb89d36042208b929ce7dc8d706c0471c1d65dff844f312d24ae288439bc22'],
 ];
 const chromiumPackageNames = new Set(['chromium', 'chromium-common', 'chromium-sandbox']);
 const retiredChromiumVersions = new Set([
@@ -73,7 +73,7 @@ function assertImmutablePackageBindings(input) {
   }
 }
 
-test('pins the complete signed Chromium 155 package trio for both architectures', () => {
+test('pins the complete signed Chromium 156 package trio for both architectures', () => {
   for (const [arch, version] of Object.entries(versions)) {
     assert.match(dockerfile, new RegExp(`ARG CHROMIUM_DEBIAN_VERSION_${arch.toUpperCase()}=${version.replaceAll('.', '\\.')}`));
     assert.match(immutableInputs, new RegExp(`^    ${arch}-version: ${version.replaceAll('.', '\\.')}$`, 'm'));
@@ -82,7 +82,7 @@ test('pins the complete signed Chromium 155 package trio for both architectures'
     assert.match(dockerfile, new RegExp(`ARG ${name}=${sha256}`));
   }
   assertImmutablePackageBindings(immutableInputs);
-  assert.match(immutableInputs, /version: 155\.0\.8059/);
+  assert.match(immutableInputs, /version: 156\.0\.8078/);
 });
 
 test('rejects immutable Chromium inputs whose architecture hashes are swapped', () => {
@@ -99,8 +99,8 @@ test('rejects immutable Chromium inputs whose architecture hashes are swapped', 
   );
 });
 
-test('publishes Chromium 155 as the product and runtime fact', () => {
-  assert.equal(facts.browser.chromium.version, '155.0.8059');
+test('publishes Chromium 156 as the product and runtime fact', () => {
+  assert.equal(facts.browser.chromium.version, '156.0.8078');
   assert.deepEqual(facts.browser.chromium.versionByArch, versions);
   for (const version of Object.values(facts.browser.chromium.versionByArch)) {
     assert.ok(version.startsWith(`${facts.browser.chromium.version}.`));
@@ -113,13 +113,13 @@ test('publishes Chromium 155 as the product and runtime fact', () => {
     'config/claude-memory-slim.md',
     'THIRD-PARTY-NOTICES',
   ]) {
-    assert.match(readFileSync(path, 'utf8'), /155\.0\.8059/, path);
+    assert.match(readFileSync(path, 'utf8'), /156\.0\.8078/, path);
   }
 });
 
-test('does not reuse historical Chromium 154 review decisions for Chromium 155', () => {
+test('does not reuse historical Chromium 154 review decisions for Chromium 156', () => {
   const currentReviews = ledger.reviews.filter((review) =>
-    review.component.versions.includes('155.0.8059.39-1~deb12u1'));
+    review.component.versions.includes('156.0.8078.47-1~deb12u1'));
   assert.deepEqual(currentReviews, []);
 });
 

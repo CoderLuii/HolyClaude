@@ -19,7 +19,7 @@ FFmpeg build stay unchanged while their official replacements are evaluated.
 This maintenance does not add or extend their patches. Their modification
 notices remain in [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES).
 
-Vercel CLI 63.1.2, EAS CLI 24.14.0 and Netlify CLI 27.12.1 keep their official npm dependency trees. Their upstream vulnerability findings remain visible to the release scanners and are accepted as upstream findings rather than replaced downstream.
+Vercel CLI 63.1.2, EAS CLI 24.14.0 and Netlify CLI 27.14.1 keep their official npm dependency trees. Their upstream vulnerability findings remain visible to the release scanners and are accepted as upstream findings rather than replaced downstream.
 
 Official Vercel 63.1.2 includes `smol-toml` 1.5.2, affected by
 [CVE-2026-85730 / GHSA-7w5x-hrqm-74c2](https://github.com/advisories/GHSA-7w5x-hrqm-74c2).
@@ -36,8 +36,9 @@ Official EAS CLI 24.14.0 includes `tar` 7.5.19, affected by
 The upstream fix starts at 7.5.21. This remains an accepted upstream
 vulnerability; npm's separate bundled `tar` 7.5.22 is unchanged.
 
-Wrangler 4.151.0 declares Miniflare 5.20261012.0-beta and workerd 1.20261012.1.
-That Miniflare release declares the same workerd, Undici 7.29.1, and official
+The [Wrangler 4.151.3 npm release](https://www.npmjs.com/package/wrangler/v/4.151.3)
+declares Miniflare 5.20261019.1-beta and workerd 1.20261019.1. That Miniflare
+release declares the same workerd, Undici 7.29.1, and official
 Sharp 0.35.5 with libheif 1.23.5. [libheif 1.23.6](https://github.com/strukturag/libheif/releases/tag/v1.23.6)
 contains security fixes that this official Sharp prebuild does not yet include.
 Those upstream findings remain accepted and unresolved; HolyClaude does not
@@ -55,14 +56,17 @@ checks that must use `"name" in tools`. Pi 1.0.3 renames the
 `azure-openai-responses` provider to `azure` and requires auth, model, settings
 and existing-session migration. A transparent upgrade would require rewriting
 user-installed extensions and Azure configuration, so Pi 1.x needs a dedicated
-compatibility path.
+compatibility path. The existing security overlay keeps Pi's upstream Undici
+baseline at 8.9.0, then installs the registry-verified 8.10.2 package without
+changing Pi code or removing features.
 
-Playwright is updated to 1.64.0 for both Node and Python now that matching
-official releases are available. Junie is updated to stable 3659.4.
+Playwright stays aligned at 1.64.0 for Node and Python. Junie is updated to the
+official 3888.1 release assets.
 
-Go stays at 1.27.1. The 1.27.2 runtime would require rebuilding the retained
-modified esbuild baseline, so it remains frozen until that compatibility work
-can be qualified without changing the retained artifact boundary.
+Go remains at 1.27.1 for the existing esbuild rebuild stage. Changing that
+builder would change the outputs of HolyClaude's custom esbuild builds, so this
+toolchain update is deferred. The retained esbuild versions and replacement
+boundaries stay unchanged.
 
 Azure CLI is updated to 2.91.0 from Microsoft's signed Bookworm repository.
 Its existing embedded Python, cryptography, PyJWT, urllib3, pip and command

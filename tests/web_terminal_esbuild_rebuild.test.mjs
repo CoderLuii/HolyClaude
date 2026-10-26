@@ -14,7 +14,7 @@ test('Web Terminal replaces both locked esbuild executables with the pinned Go r
   assert.equal(lock.packages['node_modules/@esbuild/linux-x64'].version, '0.25.12');
   assert.equal(lock.packages['node_modules/@esbuild/linux-arm64'].version, '0.25.12');
 
-  assert.match(dockerfile, /^FROM golang:1\.27\.1-bookworm@sha256:[0-9a-f]{64} AS esbuild-builder$/m);
+  assert.match(dockerfile, /^FROM golang:1\.27\.1-bookworm@sha256:69a7b9788769bec032d238959b61854e9ae87f57be9029ec04e9885fabf99195 AS esbuild-builder$/m);
   assert.match(dockerfile, /go install "github\.com\/evanw\/esbuild\/cmd\/esbuild@v\$\{ESBUILD_VERSION\}"/);
   assert.match(
     dockerfile,

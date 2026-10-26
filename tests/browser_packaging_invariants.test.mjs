@@ -15,8 +15,8 @@ test('Dockerfile uses pinned Playwright bindings and the canonical browser path'
 });
 
 test('Dockerfile pins the Bookworm security Chromium packages', () => {
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_AMD64=155\.0\.8059\.39-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_ARM64=155\.0\.8059\.39-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_AMD64=156\.0\.8078\.47-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_ARM64=156\.0\.8078\.47-1~deb12u1/);
   for (const packageName of ['CHROMIUM_PACKAGE', 'CHROMIUM_COMMON_PACKAGE', 'CHROMIUM_SANDBOX_PACKAGE']) {
     assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_AMD64=[0-9a-f]{64}`));
     assert.match(dockerfile, new RegExp(`ARG ${packageName}_SHA256_ARM64=[0-9a-f]{64}`));

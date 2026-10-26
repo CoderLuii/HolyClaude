@@ -348,8 +348,8 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
-  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.12\.0'/);
-  assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.0'/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.12\.1'/);
+  assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.1'/);
   assert.match(developerTools, /assert\.equal\(easPackage\.version, '24\.14\.0'/);
   assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '63\.1\.2'/);
   assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.version, '18\.0\.1'/);

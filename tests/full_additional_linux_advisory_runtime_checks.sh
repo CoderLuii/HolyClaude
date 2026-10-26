@@ -27,9 +27,9 @@ case "$architecture:$multiarch" in
     ;;
 esac
 
-require_package gh '2.102.0' "$architecture"
+require_package gh '2.103.0' "$architecture"
 gh_version="$(gh --version)"
-grep -Fq 'gh version 2.102.0' <<<"$gh_version"
+grep -Fq 'gh version 2.103.0' <<<"$gh_version"
 
 for package in libaom3 libaom-dev; do
   require_package "$package" '3.6.0-1+deb12u3' "$architecture"
@@ -51,7 +51,18 @@ for package in bind9-dnsutils bind9-host bind9-libs; do
 done
 require_package dnsutils '1:9.18.49-1~deb12u2' all
 
-echo '4f227d20b24f9d9ba953802e850d6a606372c4d2d731d1d3fb4ba981f0b2860e  /home/claude/.local/share/junie/current/lib/app/junie-release-3659.4.jar' | sha256sum -c -
+case "$architecture" in
+  amd64)
+    junie_platform=amd64
+    junie_jar_sha256=a0501be7a218a293aaa7d20a7bacbbe2e05e6e25bb4b15401984c10a0a95a46d
+    ;;
+  arm64)
+    junie_platform=aarch64
+    junie_jar_sha256=681a9b82ca37cd2a16e90c810eddc8fb21eb5e670a6364c19c2a787cdf29a73d
+    ;;
+esac
+junie_jar_path="/home/claude/.local/share/junie/current/lib/app/junie-nightly-3888.1-linux-${junie_platform}.jar"
+echo "$junie_jar_sha256  $junie_jar_path" | sha256sum -c -
 junie_version_stderr="$(mktemp)"
 set +e
 junie_version="$(timeout 30s junie --version 2>"$junie_version_stderr")"
@@ -62,7 +73,7 @@ if [ "$junie_version_status" -ne 0 ]; then
   rm -f "$junie_version_stderr"
   exit "$junie_version_status"
 fi
-if [ "$junie_version" != 'Junie version: 26.10.12 (3659.4)' ]; then
+if [ "$junie_version" != 'Junie version: build 3888.1 nightly' ]; then
   cat "$junie_version_stderr" >&2
   rm -f "$junie_version_stderr"
   echo "unexpected Junie version output: $junie_version" >&2

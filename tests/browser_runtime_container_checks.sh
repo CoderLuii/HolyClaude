@@ -169,22 +169,22 @@ const inventory = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const variant = process.argv[3];
 const common = {
   '@cloudcli-ai/cloudcli': '1.37.3',
-  '@google/gemini-cli': '0.64.0',
-  '@openai/codex': '0.162.1',
+  '@google/gemini-cli': '0.65.0',
+  '@openai/codex': '0.163.0',
   concurrently: '10.0.6',
   'dotenv-cli': '11.0.0',
   esbuild: '0.28.2',
-  eslint: '10.12.0',
+  eslint: '10.13.0',
   nodemon: '3.1.14',
-  npm: '12.2.0',
+  npm: '12.2.1',
   playwright: '1.64.0',
-  pnpm: '12.11.2',
+  pnpm: '12.14.0',
   prettier: '3.9.10',
   serve: '14.2.6',
   'task-master-ai': '0.43.1',
   tsx: '4.23.15',
   typescript: '7.0.2',
-  vite: '8.3.4',
+  vite: '8.3.5',
 };
 const full = {
   '@cloudflare/next-on-pages': '1.13.16',
@@ -196,13 +196,13 @@ const full = {
   'http-server': '14.1.1',
   'json-server': '0.17.4',
   lighthouse: '13.5.0',
-  'netlify-cli': '27.12.1',
-  'opencode-ai': '1.19.0',
-  pm2: '7.0.4',
-  prisma: '7.10.0',
+  'netlify-cli': '27.14.1',
+  'opencode-ai': '1.19.3',
+  pm2: '7.1.0',
+  prisma: '7.10.1',
   'sharp-cli': '6.1.0',
   vercel: '63.1.2',
-  wrangler: '4.151.0',
+  wrangler: '4.151.3',
 };
 const expected = variant === 'full' ? { ...common, ...full } : common;
 const actual = Object.fromEntries(
@@ -233,19 +233,19 @@ common = {
     'httpx': '0.28.1',
     'jinja2': '3.1.6',
     'lxml': '6.1.3',
-    'markdown': '3.11.1',
+    'markdown': '3.11.2',
     'numpy': '2.5.4',
     'openpyxl': '3.1.5',
     'pandas': '3.0.6',
     'pillow': '12.3.0',
-    'pip': '26.2.1',
+    'pip': '26.2.2',
     'playwright': '1.64.0',
     'python-docx': '1.2.0',
     'python-dotenv': '1.2.4',
     'pyyaml': '6.0.3',
     'requests': '2.34.2',
     'rich': '15.0.0',
-    'setuptools': '84.0.0',
+    'setuptools': '84.2.1',
     'stevedore': '5.9.1',
     'tqdm': '4.70.1',
     'tree-sitter': '0.26.0',
@@ -264,7 +264,7 @@ full = {
     'uvicorn': '0.54.0',
     'weasyprint': '70.0',
     'xlrd': '2.0.2',
-    'xlsxwriter': '3.2.9',
+    'xlsxwriter': '3.3.0',
 }
 expected = common | full if variant == 'full' else common
 inspection = json.loads(subprocess.check_output([sys.executable, '-m', 'pip', 'inspect', '--local']))
@@ -282,15 +282,15 @@ PY
 
 assert_runtime_identity() {
   require_eq "runtime user" "$(id -un)" "claude"
-  require_eq "application Python" "$(python3 --version)" "Python 3.14.8"
+  require_eq "application Python" "$(python3 --version)" "Python 3.14.9"
   require_eq "command -v chromium" "$(command -v chromium)" "/usr/bin/chromium"
   require_eq "CHROME_PATH" "${CHROME_PATH:-}" "/usr/bin/chromium"
   require_eq "PUPPETEER_EXECUTABLE_PATH" "${PUPPETEER_EXECUTABLE_PATH:-}" "/usr/bin/chromium"
   test -x /usr/bin/chromium
   test -x /usr/lib/chromium/chromium
   case "$(uname -m)" in
-    x86_64) chromium_debian_version="155.0.8059.39-1~deb12u1" ;;
-    aarch64) chromium_debian_version="155.0.8059.39-1~deb12u1" ;;
+    x86_64) chromium_debian_version="156.0.8078.47-1~deb12u1" ;;
+    aarch64) chromium_debian_version="156.0.8078.47-1~deb12u1" ;;
     *) fail "unsupported Chromium architecture: $(uname -m)" ;;
   esac
   require_eq "Chromium Debian package version" "$(dpkg-query -W -f='${Version}' chromium)" "$chromium_debian_version"
@@ -303,23 +303,23 @@ assert_runtime_identity() {
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   cloudcli_package_version="$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   require_eq "CloudCLI package version" "$cloudcli_package_version" "1.37.3"
-  require_eq "Node version" "$(node --version)" "v26.12.0"
-  require_eq "npm version" "$(npm --version)" "12.2.0"
+  require_eq "Node version" "$(node --version)" "v26.12.1"
+  require_eq "npm version" "$(npm --version)" "12.2.1"
   require_eq "npm tar package version" "$(node -p "require('/usr/local/lib/node_modules/npm/node_modules/tar/package.json').version")" "7.5.22"
   require_eq "npm tar dependency declaration" "$(node -p "require('/usr/local/lib/node_modules/npm/package.json').dependencies.tar")" "^7.5.22"
   node -e "if (typeof require('/usr/local/lib/node_modules/npm/node_modules/tar').list !== 'function') throw new Error('invalid npm tar module')"
   npm --prefix /usr/local/lib/node_modules/npm ls tar --all >/dev/null
-  require_eq "pnpm version" "$(pnpm --version)" "12.11.2"
-  require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.3.4"
+  require_eq "pnpm version" "$(pnpm --version)" "12.14.0"
+  require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.3.5"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.10"
-  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.162.1"
-  require_eq "Codex CLI version" "$(codex --version | awk '{print $NF}')" "0.162.1"
-  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.64.0"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.163.0"
+  require_eq "Codex CLI version" "$(codex --version | awk '{print $NF}')" "0.163.0"
+  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.65.0"
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.22.1"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.1"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.5"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.300"
-  require_eq "GitHub CLI version" "$(gh --version | awk 'NR == 1 {print $3}')" "2.102.0"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.307"
+  require_eq "GitHub CLI version" "$(gh --version | awk 'NR == 1 {print $3}')" "2.103.0"
   require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.09.15-d2fe57e"
   local web_terminal_esbuild_arch
   local web_terminal_esbuild_root=/home/claude/.claude-code-ui/plugins/web-terminal/node_modules
@@ -340,7 +340,7 @@ assert_runtime_identity() {
     require_eq "Full libvips development package" "$(dpkg-query -W -f='${Status}' libvips-dev)" "install ok installed"
     pkg-config --exists vips
     local libssh_gcrypt_path
-    require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u2"
+    require_eq "libssh-gcrypt-4 package version" "$(dpkg-query -W -f='${Version}' libssh-gcrypt-4)" "0.10.6-0+deb12u3"
     libssh_gcrypt_path="$(dpkg -L libssh-gcrypt-4 | grep '/libssh-gcrypt\.so\.4$')"
     test -n "$libssh_gcrypt_path"
     ldd "$libssh_gcrypt_path" | grep -q 'libgcrypt\.so'
@@ -378,7 +378,7 @@ assert_runtime_identity() {
     timeout 5s node -e "const { parse } = require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml'); const value = parse('project = \\\"holyclaude\\\"\\n[build]\\ncommand = \\\"npm run build\\\"'); if (value.project !== 'holyclaude' || value.build.command !== 'npm run build') throw new Error('representative TOML parsing failed'); console.log('vercel_smol_toml=ok')"
     timeout 5s node -e "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require('node:fs'); const { tmpdir } = require('node:os'); const { join } = require('node:path'); (async () => { const root = mkdtempSync(join(tmpdir(), 'vercel-smol-toml-')); try { const python = join(root, 'python'); mkdirSync(python); writeFileSync(join(python, 'pyproject.toml'), '[project]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n'); const { discoverPythonPackage } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis'); const discovered = await discoverPythonPackage({ entrypointDir: python, rootDir: root }); if (discovered.manifest?.data?.project?.name !== 'smoke') throw new Error('python-analysis failed to parse pyproject.toml'); const rust = join(root, 'rust'); mkdirSync(join(rust, 'src'), { recursive: true }); writeFileSync(join(rust, 'Cargo.toml'), '[package]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n[dependencies]\\nvercel_runtime = \\\"1\\\"\\n'); writeFileSync(join(rust, 'src/main.rs'), 'fn main() {}\\n'); const { shouldServe } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/rust'); if (await shouldServe({ workPath: rust, entrypoint: 'src/main.rs', requestPath: 'different' })) throw new Error('rust failed to parse Cargo.toml runtime dependency'); console.log('vercel_smol_toml_consumers=ok'); } finally { rmSync(root, { recursive: true, force: true }); } })().catch((error) => { console.error(error); process.exit(1); })"
     evidence "official_eas=24.14.0 tar=7.5.19 official_vercel=63.1.2 native=ok runtimes=ok"
-    require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "27.12.1"
+    require_eq "Netlify CLI package version" "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" "27.14.1"
     netlify --version >/dev/null
     local ffmpeg_backport_version='7:5.1.9-0+deb12u1+holyclaude2'
     for package_name in ffmpeg libavcodec59 libavdevice59 libavfilter8 libavformat59 libavutil57 libpostproc56 libswresample4 libswscale6; do
@@ -445,13 +445,13 @@ PY
     AZURE_CONFIG_DIR="$azure_config_dir" AZURE_CORE_COLLECT_TELEMETRY=false az config get core.collect_telemetry >/dev/null
     netlify_proxy_arch=$(case "$(uname -m)" in x86_64) echo x64;; aarch64) echo arm64;; *) fail "Unsupported Netlify proxy architecture: $(uname -m)";; esac)
     test -x "/usr/local/lib/node_modules/netlify-cli/node_modules/@netlify/local-functions-proxy-linux-${netlify_proxy_arch}/bin/local-functions-proxy"
-    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.151.0"
+    require_eq "Wrangler package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').version")" "4.151.3"
     require_eq "Wrangler undici development dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').devDependencies.undici")" "7.29.1"
-    require_eq "Wrangler Miniflare dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').dependencies.miniflare")" "5.20261012.0-beta"
-    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20261012.0-beta"
-    require_eq "Wrangler workerd dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').dependencies.workerd")" "1.20261012.1"
-    require_eq "Wrangler workerd package version" "$(node -p "require(require.resolve('workerd/package.json', { paths: ['/usr/local/lib/node_modules/wrangler'] })).version")" "1.20261012.1"
-    require_eq "Wrangler Miniflare workerd dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.workerd")" "1.20261012.1"
+    require_eq "Wrangler Miniflare dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').dependencies.miniflare")" "5.20261019.1-beta"
+    require_eq "Wrangler Miniflare package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').version")" "5.20261019.1-beta"
+    require_eq "Wrangler workerd dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/package.json').dependencies.workerd")" "1.20261019.1"
+    require_eq "Wrangler workerd package version" "$(node -p "require(require.resolve('workerd/package.json', { paths: ['/usr/local/lib/node_modules/wrangler'] })).version")" "1.20261019.1"
+    require_eq "Wrangler Miniflare workerd dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.workerd")" "1.20261019.1"
     require_eq "Wrangler Miniflare undici dependency" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/miniflare/package.json').dependencies.undici")" "7.29.1"
     require_eq "Wrangler undici package version" "$(node -p "require('/usr/local/lib/node_modules/wrangler/node_modules/undici/package.json').version")" "7.29.1"
     npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null
@@ -463,7 +463,7 @@ PY
     npm --prefix /usr/local/lib/node_modules/wrangler ls sharp --all >/dev/null
     node -e "(async () => { const sharp = require('/usr/local/lib/node_modules/wrangler/node_modules/sharp'); const buffer = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#336699ff' } }).png().toBuffer(); if (buffer.subarray(1, 4).toString() !== 'PNG') throw new Error('invalid sharp PNG transform'); console.log('sharp_transform=ok'); })().catch((error) => { console.error(error); process.exit(1); })"
     wrangler --version >/dev/null
-    require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.10.0"
+    require_eq "Prisma package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').version")" "7.10.1"
     require_eq "Prisma mysql2 dependency" "$(node -p "require('/usr/local/lib/node_modules/prisma/package.json').dependencies.mysql2")" "3.24.4"
     require_eq "Prisma mysql2 package version" "$(node -p "require('/usr/local/lib/node_modules/prisma/node_modules/mysql2/package.json').version")" "3.24.4"
     node -e "if (typeof require('/usr/local/lib/node_modules/prisma/node_modules/mysql2').createConnection !== 'function') throw new Error('invalid Prisma mysql2 module')"
@@ -474,8 +474,8 @@ PY
     require_eq "Marp xmldom package version" "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json').version")" "0.9.12"
     npm --prefix /usr/local/lib/node_modules/@marp-team/marp-cli ls @xmldom/xmldom --all >/dev/null
     node -e "const { DOMImplementation, XMLSerializer } = require('/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom'); const implementation = new DOMImplementation(); const doctype = implementation.createDocumentType('html', '', ''); doctype.name = 'html><injected'; const document = implementation.createDocument(null, 'root', doctype); try { new XMLSerializer().serializeToString(document, { requireWellFormed: true }); throw new Error('xmldom accepted an injected doctype name'); } catch (error) { if (error.name !== 'InvalidStateError') throw error; } console.log('xmldom_require_well_formed=ok')"
-    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.19.0"
-    require_eq "OpenCode CLI version" "$(opencode --version)" "1.19.0"
+    require_eq "OpenCode package version" "$(node -p "require('/usr/local/lib/node_modules/opencode-ai/package.json').version")" "1.19.3"
+    require_eq "OpenCode CLI version" "$(opencode --version)" "1.19.3"
     require_eq "Pi package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').version")" "0.85.1"
     require_eq "Pi undici dependency" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/package.json').dependencies.undici")" "8.10.2"
     require_eq "Pi undici package version" "$(node -p "require('/usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici/package.json').version")" "8.10.2"
@@ -491,12 +491,13 @@ PY
     require_eq "PM2 js-yaml dependency" "$(node -p "require('/usr/local/lib/node_modules/pm2/package.json').dependencies['js-yaml']")" "4.3.2"
     require_eq "PM2 js-yaml package version" "$(node -p "require('/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json').version")" "4.3.2"
     npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all >/dev/null
-    PM2_HOME="$SENTINEL_ROOT/pm2" pm2 --version | grep -Fx "7.0.4"
+    PM2_HOME="$SENTINEL_ROOT/pm2" pm2 --version | grep -Fx "7.1.0"
     PM2_HOME="$SENTINEL_ROOT/pm2" pm2 kill >/dev/null
     require_eq "Matplotlib package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("matplotlib"))')" "3.11.2"
     require_eq "FastAPI package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("fastapi"))')" "0.143.1"
-    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3659.4"
-    test -f /home/claude/.local/share/junie/current/lib/app/junie-release-3659.4.jar
+    require_eq "Junie build" "$(basename "$(readlink /home/claude/.local/share/junie/current)")" "3888.1"
+    junie_platform="$(case "$(dpkg --print-architecture)" in amd64) echo amd64;; arm64) echo aarch64;; *) echo "Unsupported architecture" >&2; exit 1;; esac)"
+    test -f "/home/claude/.local/share/junie/current/lib/app/junie-nightly-3888.1-linux-${junie_platform}.jar"
   else
     for debian_python_package in libpython3.11-minimal libpython3.11-stdlib python3.11 python3.11-minimal python3.11-venv; do
       if dpkg-query -W "$debian_python_package" >/dev/null 2>&1; then
@@ -599,7 +600,7 @@ console.log('cloudcli_js_yaml_merge_limit=ok');
 
 assert.equal(
   JSON.parse(readFileSync('/usr/local/lib/node_modules/npm/node_modules/ip-address/package.json', 'utf8')).version,
-  '10.5.0',
+  '10.7.2',
   'npm ip-address should match the official npm archive',
 );
 
@@ -777,8 +778,8 @@ for (const [name, expectedRange] of Object.entries(expectedRanges)) {
 }
 NODE
   npm --prefix /usr/local/lib/node_modules/netlify-cli ls toml cron-parser raw-body --all >/dev/null
-  require_eq "Netlify ipx sharp dependency" "$(node -p "require('$netlify_root/node_modules/ipx/package.json').dependencies.sharp")" "^0.34.3"
-  require_eq "Netlify sharp package version" "$(node -p "require('$netlify_root/node_modules/sharp/package.json').version")" "0.34.5"
+  require_eq "Netlify ipx sharp dependency" "$(node -p "require('$netlify_root/node_modules/ipx/package.json').dependencies.sharp")" "^0.35.5"
+  require_eq "Netlify sharp package version" "$(node -p "require('$netlify_root/node_modules/sharp/package.json').version")" "0.35.5"
   require_eq "Netlify sharp Node module ABI" "$(node -p "process.versions.modules")" "147"
   npm --prefix /usr/local/lib/node_modules/netlify-cli ls sharp --all >/dev/null
 

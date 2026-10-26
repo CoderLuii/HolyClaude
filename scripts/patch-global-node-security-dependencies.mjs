@@ -17,7 +17,6 @@ const FULL_PACKAGES = [
     '8.9.0',
     '8.10.2',
   ],
-  ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.1', '4.3.2'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json',
     '@xmldom/xmldom',
@@ -28,7 +27,6 @@ const FULL_PACKAGES = [
 ];
 
 const FULL_DEPENDENCIES = [
-  ['usr/local/lib/node_modules/pm2/package.json', 'pm2', '7.0.4', 'js-yaml', '4.3.1', '4.3.2'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/speech-rule-engine/package.json',
     'speech-rule-engine',

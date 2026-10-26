@@ -4,6 +4,20 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.8] - 10/26/2026
+
+### Changed
+
+- Updated the Node and Python base images, Chromium to 156.0.8078.47, Claude Code, Junie, GitHub CLI, scanner tooling and compatible npm and Python packages from checksum-bound official upstream artifacts.
+- Kept the existing Go 1.27.1 builder for custom esbuild binaries; a toolchain update is deferred to avoid changing those third-party build outputs.
+- Removed the Prisma `mysql2` and PM2 `js-yaml` replacement steps because Prisma 7.10.1 and PM2 7.1.0 now carry the fixed dependency versions in their official package trees.
+- Kept Node and Python Playwright aligned at 1.64.0 and retained the existing CloudCLI features, notices and FFmpeg security patches without adding new third-party source patches.
+
+### Security
+
+- Renewed the immutable input inventory for v1.6.8 and kept runtime assertions for the upstream Prisma and PM2 dependency trees.
+- Updated Syft to 1.55.0 and Grype to 0.121.0. Dependency reports still list accepted upstream vulnerabilities with their installed versions. These remain unresolved.
+
 ## [1.6.7] - 10/14/2026
 
 ### Changed

@@ -230,7 +230,7 @@ test('candidate runtime contract probes versions, architecture, variants, browse
   assert.match(candidate, /chromium.*product-facts\.json/s);
   assert.match(candidate, /project-stats web-terminal/);
   assert.match(candidate, /test -x \/usr\/local\/bin\/entrypoint\.sh/);
-  assert.match(candidate, /output\.match\(\/\^Junie version: 26\\\.10\\\.12/);
+  assert.match(candidate, /output\.match\(\/\^Junie version: build /);
   assert.match(candidate, /junie[\s\S]+--version 2>"\$version_stderr"/);
   assert.match(candidate, /cat "\$version_stderr" >&2/);
   assert.match(candidate, /output\.matchAll\(patterns\[command\]/);
@@ -244,7 +244,7 @@ test('version normalization rejects substring, boundary, and ambiguous-version f
     ['claude', '2.1.258 (Claude Code)', '2.1.258'],
     ['codex', 'codex-cli 0.152.1', '0.152.1'],
     ['cursor', '2026.08.31-4057e58', '2026.08.31-4057e58'],
-    ['junie', 'Junie version: 26.10.12 (3659.4)', '3659.4'],
+    ['junie', 'Junie version: build 3888.1 nightly', '3888.1'],
   ]) {
     const result = runWorkflowVersionParser(command, output);
     assert.equal(result.status, 0, result.stderr);
@@ -260,17 +260,24 @@ test('version normalization rejects substring, boundary, and ambiguous-version f
 
 test('Junie normalization fails closed on malformed, extra, ambiguous, and wrong-build output', () => {
   for (const output of [
+    'Junie version: 26.10.12 (3888.1)',
+    'Junie version: build 3888.1 nightly extra',
+    'Junie version: build 3888.1 nightly\nJunie version: build 3888.1 nightly',
+    'Junie version: build 3888.1 3888.0 nightly',
+    'Junie version: build 13888.10 nightly extra 3888.1',
+    'Junie version: build 3888.1 stable',
     'Junie version: 26.9.14 3196.5',
     'Junie version: 26.9.14 (3196.5) extra',
-    'Junie version: 26.10.12 (3659.4)\nJunie 26.10.12 (3659.4) (pid=1): log file: /tmp/log',
-    'Junie version: 26.10.12 (3659.4) (3579.5)',
-    'Junie version: 26.10.11 (3659.4)',
-    'Junie 3659.4',
+    'Junie version: 26.10.12 (3888.1)\nJunie 26.10.12 (3888.1) (pid=1): log file: /tmp/log',
+    'Junie version: 26.10.12 (3888.1) (3659.4)',
+    'Junie version: 26.10.11 (3888.1)',
+    'Junie 3888.1',
   ]) assert.notEqual(runWorkflowVersionParser('junie', output).status, 0);
 
-  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: 26.10.12 (3659.3)');
+  const wrongBuild = runWorkflowVersionParser('junie', 'Junie version: build 3888.0 nightly');
   assert.equal(wrongBuild.status, 0, wrongBuild.stderr);
-  assert.notEqual(wrongBuild.stdout, '3659.4');
+  assert.notEqual(wrongBuild.stdout, '3888.1');
+  assert.equal(wrongBuild.stdout, '3888.0');
 });
 
 test('candidate attempt validation treats promotion workflow attempts as independent', () => {

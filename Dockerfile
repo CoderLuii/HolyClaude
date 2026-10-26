@@ -47,15 +47,15 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
     TARGETARCH="$TARGETARCH" /usr/local/bin/build-ffmpeg-security-backport.sh; \
     fi
 
-FROM python:3.14.8-slim-bookworm@sha256:48b13b003dda20b16f9442b8475aa05fe21bf6579a8c881db92ffb4d8fd20f83 AS python-runtime
+FROM python:3.14.9-slim-bookworm@sha256:7e0522950230cad1ec100ada6e3898c22c6bc82851289b4bdf0bf77c1c829cd5 AS python-runtime
 
-FROM node:26.12.0-bookworm-slim@sha256:298992629d69bbd5b2b03ad57094d8e4fcb3a8eeb7c4e25d29de656519568913
+FROM node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe
 
 COPY --from=python-runtime /usr/local/ /usr/local/
-RUN test "$(python3 --version)" = "Python 3.14.8" && \
+RUN test "$(python3 --version)" = "Python 3.14.9" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.6.7
+ARG HOLYCLAUDE_VERSION=1.6.8
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -67,29 +67,29 @@ ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd7121
 ARG FZF_VERSION=0.74.5
 ARG FZF_ARCHIVE_SHA256_AMD64=d47d7f882972c7d674dbbba998ffa4116e68379616ffac7695d0671e9a722c5f
 ARG FZF_ARCHIVE_SHA256_ARM64=cf058001da21724a469b714a29cf4aab9cbe860d218a0d6c1b5b661efad7784c
-ARG CHROMIUM_DEBIAN_VERSION_AMD64=155.0.8059.39-1~deb12u1
-ARG CHROMIUM_DEBIAN_VERSION_ARM64=155.0.8059.39-1~deb12u1
-ARG CHROMIUM_PACKAGE_SHA256_AMD64=a3ffb89479162c43d1f0f997344c228b2ea63dce5725bf737cd38da0acefe694
-ARG CHROMIUM_PACKAGE_SHA256_ARM64=924331300fec8182d81fa4a6db3178395b982c0b1c080c5f51a92f78c54b8edf
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=7fbecf6ffc963be6ec4b24aabea894fc34e3d476571477facedfe78fb95bbb18
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=bd62e7a62731e3eb880c1eecf5394210a6816444e5ae20fee0b297876e53a253
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=9fc7e25eb050101a808467e4efbf9ca138136412243b2426de624bb0514d243a
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=008210879b7cfdc84a4088cdabc0a478eda985318fc23b036e6b32c9de83749d
-ARG CLAUDE_CODE_VERSION=2.1.300
+ARG CHROMIUM_DEBIAN_VERSION_AMD64=156.0.8078.47-1~deb12u1
+ARG CHROMIUM_DEBIAN_VERSION_ARM64=156.0.8078.47-1~deb12u1
+ARG CHROMIUM_PACKAGE_SHA256_AMD64=aad2dc4f0d7340343c3dfb9dc9d1b5d058e4b008b6be18ca136415c3fa49ccf2
+ARG CHROMIUM_PACKAGE_SHA256_ARM64=a7ade1ba5b63258b899dd469f56edf5b03e0d63260e1bd27c69c2bbc661200e1
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=e570a2b3da2f4dfdc9edf966b4d9588c67be6021fd09198dbbed3d11c8870f7d
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=e3e3a575718696dc0b40c53dc1f27b946d6c4b5818b8699624af11a2be47b2e3
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=adbb12a68bb15d27eff08438d7372e17407163891a7baad4b95a1c25fd70ac8b
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=b6cb89d36042208b929ce7dc8d706c0471c1d65dff844f312d24ae288439bc22
+ARG CLAUDE_CODE_VERSION=2.1.307
 ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-ARG CLAUDE_BINARY_SHA256_AMD64=674deba0bba9aee479f4503c438b49303b6fdd304b9a471b14977aaec5215453
-ARG CLAUDE_BINARY_SHA256_ARM64=ae2295ae2da156936bf5831ab01971ce924d0c9a0af174e28d96fffa8d5fa0a6
-ARG JUNIE_VERSION=3659.4
-ARG JUNIE_ARCHIVE_SHA256_AMD64=3021cf7a8737e5f137d747f1d7180b0c3b3da79e8bfc30e5d959a6171ddb0147
-ARG JUNIE_ARCHIVE_SHA256_ARM64=a7512fa8c0284ba7d674ce885656d6014f2150332ba7224e253dfdf99d4d01e0
+ARG CLAUDE_BINARY_SHA256_AMD64=6021eb72d20d0682b720bdc63acd2a5cd2270895d1f10d9ca2a88cbfa7b9dd0e
+ARG CLAUDE_BINARY_SHA256_ARM64=1c67968ab8410c9644e2f4867167a0dab1a8c6c9de9cc83fe78449e5ae8a3633
+ARG JUNIE_VERSION=3888.1
+ARG JUNIE_ARCHIVE_SHA256_AMD64=742d99abb4a8a950b4a64d397b8763e25133d0708237b706ba5ab2c890745d9c
+ARG JUNIE_ARCHIVE_SHA256_ARM64=365b966a4de7a82b325e7b2a348eed4aea62b251b130ce2d4118a266979547a3
 ARG CURSOR_BUILD_ID=2026.09.15-d2fe57e
 ARG CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97
 ARG CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d
 ARG CURSOR_LAUNCHER_SHA256=2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233
 ARG CURSOR_NODE_SHA256_AMD64=e0e46d3a1c0667117303412647cafcbcefb1be7612493015ec8fd6b7440162a4
 ARG CURSOR_NODE_SHA256_ARM64=47befb5f57df96771ce343d6293349ecf4d46c91110b626423ec3a49d2fee7c1
-ARG SETUPTOOLS_VERSION=84.0.0
-ARG SETUPTOOLS_WHEEL_SHA256=51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670
+ARG SETUPTOOLS_VERSION=84.2.1
+ARG SETUPTOOLS_WHEEL_SHA256=ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2
 ARG PISCINA_VERSION=4.9.4
 ARG PISCINA_ARCHIVE_SHA256=9ea03459396e46c626b8e1b8d73e827ecfbe48ac1e94fb9ba7235e6b25f9fc2f
 ARG WS_VERSION=8.21.3
@@ -110,8 +110,6 @@ ARG CLOUDCLI_RIPGREP_ARCHIVE_SHA256_AMD64=4499958bfd5252df3d9e7504127fd448e4a14f
 ARG CLOUDCLI_RIPGREP_ARCHIVE_SHA256_ARM64=dd3738a4b6e8df0fb3bc3edc5af352c4c39e0d97ad118a23e5176bdc5d48ba08
 ARG UNDICI_8_VERSION=8.10.2
 ARG UNDICI_8_ARCHIVE_SHA256=740638ae32d78d2646a6727950e365fa26b6fa87913fa096e60ed4afeb4634aa
-ARG FULL_JS_YAML_VERSION=4.3.2
-ARG FULL_JS_YAML_ARCHIVE_SHA256=c7b241d2224cf9253ff53854aa4cee87da91bd889c4d0fa3a3ffd1041ecee5b1
 ARG FULL_XMLDOM_VERSION=0.9.12
 ARG FULL_XMLDOM_ARCHIVE_SHA256=08245e18c248b957b4c6e07f8549ad5f55ae11b7a8abd4c1113a0fd61ddc67ee
 ARG AZURE_CLI_VERSION=2.91.0-1~bookworm
@@ -120,11 +118,9 @@ ARG AZURE_CLI_PYJWT_VERSION=2.15.1
 ARG AZURE_CLI_PYJWT_WHEEL_SHA256=42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193
 ARG AZURE_CLI_URLLIB3_VERSION=2.8.0
 ARG AZURE_CLI_URLLIB3_WHEEL_SHA256=0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3
-ARG GITHUB_CLI_VERSION=2.102.0
-ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=7e54a307f90afdc59796c325ec0c49fb09e6c18537727207a8ac7513584ea5b0
-ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=5006962696f01e1624b3fcf1f9d8e1a11547f24bf067dd2a0371b7b421945237
-ARG PRISMA_MYSQL2_VERSION=3.24.4
-ARG PRISMA_MYSQL2_ARCHIVE_SHA256=ae44923fa285bb1a089101331603ab0d89b766e73038987a79449c79f8017a27
+ARG GITHUB_CLI_VERSION=2.103.0
+ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=4a48fa23b9ce9581f3304b822f3e014812f26519b134f89b37db8bc7d74746e1
+ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=5e218097cf3e02c4855a07fd4f5719b1523fa799f24eeb70d6b795a9a74fffe2
 ARG TARGETARCH
 ARG VARIANT=full
 ARG FFMPEG_BACKPORT_VERSION=7:5.1.9-0+deb12u1+holyclaude2
@@ -189,9 +185,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 ARG YQ_VERSION=4.54.1
 ARG YQ_SHA256_AMD64=8e34fc298390875de416e6a4afcb8cabeceb25d9aa8506c1a2f9353cf702ea5f
 ARG YQ_SHA256_ARM64=189088da0c6429ec5178dfaab1a114805f6cab0b61b165ab236efedf1d57a71b
-ARG ATUIN_VERSION=18.23.0
-ARG ATUIN_SHA256_AMD64=d1b40dd6e7cd3d823867ffe22b39a025bc420f7875926ae9ca974155378da14d
-ARG ATUIN_SHA256_ARM64=faf91adc71e6b661b21ed4f486babbd7af9d17363d4276da4a0251f83c72498d
+ARG ATUIN_VERSION=18.24.1
+ARG ATUIN_SHA256_AMD64=fe03f652d6545a9d8795b3c2abb84bcddfe831e4b7effb0c2d191a0d70e498a0
+ARG ATUIN_SHA256_ARM64=a63e649138cddd5c9dba7123c89c2488b1701027d432836553a8a6cf51f5e863
 RUN set -eux; \
     case "$TARGETARCH" in \
       amd64) YQ_SHA256="$YQ_SHA256_AMD64"; ATUIN_SHA256="$ATUIN_SHA256_AMD64"; ATUIN_TARGET=x86_64-unknown-linux-musl ;; \
@@ -344,15 +340,15 @@ RUN rm -f /home/claude/.claude.json
 ENV PATH="/home/claude/.local/bin:${PATH}"
 
 # ---------- npm global packages (slim — always installed) ----------
-RUN npm install -g npm@12.2.0 && \
-    test "$(npm --version)" = "12.2.0"
+RUN npm install -g npm@12.2.1 && \
+    test "$(npm --version)" = "12.2.1"
 
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
     playwright@1.64.0 \
     typescript@7.0.2 tsx@4.23.15 \
-    pnpm@12.11.2 \
-    vite@8.3.4 esbuild@0.28.2 \
-    eslint@10.12.0 prettier@3.9.10 \
+    pnpm@12.14.0 \
+    vite@8.3.5 esbuild@0.28.2 \
+    eslint@10.13.0 prettier@3.9.10 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.6 \
     dotenv-cli@11.0.0
 
@@ -360,9 +356,9 @@ RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
 RUN if [ "$VARIANT" = "full" ]; then \
     set -e; \
     npm i -g \
-      wrangler@4.151.0 vercel@63.1.2 netlify-cli@27.12.1 \
-      pm2@7.0.4 \
-      prisma@7.10.0 drizzle-kit@0.31.11 \
+      wrangler@4.151.3 vercel@63.1.2 netlify-cli@27.14.1 \
+      pm2@7.1.0 \
+      prisma@7.10.1 drizzle-kit@0.31.11 \
       eas-cli@24.14.0 \
       lighthouse@13.5.0 @lhci/cli@0.15.1 \
       sharp-cli@6.1.0 json-server@0.17.4 http-server@14.1.1 \
@@ -384,27 +380,16 @@ RUN if [ "$VARIANT" = "full" ]; then \
     rm -f /tmp/json-server-smoke.json /tmp/json-server-response.json /tmp/json-server-smoke.log; \
     fi
 
-# Prisma 7.10.0 pins mysql2 3.15.3. Replace that exact nested dependency with
-# the checksum-bound fixed release while preserving Prisma's dependency graph.
+# Prisma 7.10.1 now carries the fixed mysql2 release directly. Assert the
+# upstream dependency tree instead of maintaining a downstream source overlay.
 RUN if [ "$VARIANT" = "full" ]; then \
       PRISMA_ROOT=/usr/local/lib/node_modules/prisma && \
       MYSQL2_ROOT="$PRISMA_ROOT/node_modules/mysql2" && \
-      test "$(node -p "require('$PRISMA_ROOT/package.json').version")" = "7.10.0" && \
-      test "$(node -p "require('$PRISMA_ROOT/package.json').dependencies.mysql2")" = "3.15.3" && \
-      test "$(node -p "require('$MYSQL2_ROOT/package.json').version")" = "3.15.3" && \
-      curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o /tmp/prisma-mysql2.tgz \
-        "https://registry.npmjs.org/mysql2/-/mysql2-${PRISMA_MYSQL2_VERSION}.tgz" && \
-      echo "$PRISMA_MYSQL2_ARCHIVE_SHA256  /tmp/prisma-mysql2.tgz" | sha256sum -c - && \
-      rm -rf "$MYSQL2_ROOT" && \
-      mkdir -p "$MYSQL2_ROOT" && \
-      tar -xzf /tmp/prisma-mysql2.tgz --strip-components=1 -C "$MYSQL2_ROOT" && \
-      npm install --omit=dev --ignore-scripts --no-package-lock --prefix "$MYSQL2_ROOT" && \
-      node -e "const fs=require('fs'); const path='$PRISMA_ROOT/package.json'; const value=JSON.parse(fs.readFileSync(path,'utf8')); value.dependencies.mysql2=process.env.PRISMA_MYSQL2_VERSION; fs.writeFileSync(path, JSON.stringify(value, null, 2) + '\\n')" && \
-      test "$(node -p "require('$MYSQL2_ROOT/package.json').version")" = "$PRISMA_MYSQL2_VERSION" && \
-      test "$(node -p "require('$PRISMA_ROOT/package.json').dependencies.mysql2")" = "$PRISMA_MYSQL2_VERSION" && \
+      test "$(node -p "require('$PRISMA_ROOT/package.json').version")" = "7.10.1" && \
+      test "$(node -p "require('$PRISMA_ROOT/package.json').dependencies.mysql2")" = "3.24.4" && \
+      test "$(node -p "require('$MYSQL2_ROOT/package.json').version")" = "3.24.4" && \
       node -e "if (typeof require('$MYSQL2_ROOT').createConnection !== 'function') throw new Error('invalid Prisma mysql2 module')" && \
-      npm --prefix "$PRISMA_ROOT" ls mysql2 --all >/dev/null && \
-      rm -f /tmp/prisma-mysql2.tgz; \
+      npm --prefix "$PRISMA_ROOT" ls mysql2 --all >/dev/null; \
     fi
 
 # Rebuild the exact esbuild versions retained by full-only tools with the
@@ -439,7 +424,7 @@ RUN pip install --no-cache-dir --break-system-packages \
     Pillow==12.3.0 \
     pandas==3.0.6 numpy==2.5.4 \
     openpyxl==3.1.5 python-docx==1.2.0 \
-    jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.4 markdown==3.11.1 \
+    jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.4 markdown==3.11.2 \
     rich==15.0.0 click==8.5.0 tqdm==4.70.1 \
     desloppify==1.0 bandit==1.9.4 defusedxml==0.7.1 \
     tree-sitter==0.26.0 tree-sitter-language-pack==1.22.1 stevedore==5.9.1 \
@@ -467,7 +452,7 @@ RUN CHROMIUM_DEBIAN_VERSION=$(case "$TARGETARCH" in amd64) echo "$CHROMIUM_DEBIA
 RUN if [ "$VARIANT" = "full" ]; then \
     pip install --no-cache-dir --break-system-packages \
       reportlab==5.0.1 weasyprint==70.0 cairosvg==2.9.1 fpdf2==2.8.9 PyMuPDF==1.28.2 img2pdf==0.6.3 \
-      xlsxwriter==3.2.9 xlrd==2.0.2 \
+      xlsxwriter==3.3.0 xlrd==2.0.2 \
       matplotlib==3.11.2 seaborn==0.13.2 \
       python-pptx==1.0.2 \
       fastapi==0.143.1 uvicorn==0.54.0; \
@@ -475,7 +460,7 @@ RUN if [ "$VARIANT" = "full" ]; then \
 
 # Replace Bookworm's runtime setuptools copy after all image packages are built.
 RUN curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl" \
-      "https://files.pythonhosted.org/packages/95/9c/c510029fc6ef33a6275cd2c5d3cecd6613dfd6aa401d57c54f1c18852ccf/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl" && \
+      "https://files.pythonhosted.org/packages/ef/55/6dc6d6bb953bdfc52519a0059592c52b6e3b8ad51cf8256dffceb55b0610/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl" && \
     echo "$SETUPTOOLS_WHEEL_SHA256  /tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl" | sha256sum -c - && \
     pip install --no-cache-dir --no-deps --break-system-packages "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl" && \
     rm -rf /usr/lib/python3/dist-packages/setuptools \
@@ -487,7 +472,7 @@ RUN curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on
     rm -f "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl"
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.64.0 @openai/codex@0.162.1 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.65.0 @openai/codex@0.163.0 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -512,7 +497,7 @@ RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "a
     rm -f "$CURSOR_DIR/node" && \
     ln -s /usr/local/bin/node "$CURSOR_DIR/node" && \
     test "$(readlink -f "$CURSOR_DIR/node")" = "$(readlink -f /usr/local/bin/node)" && \
-    test "$("$CURSOR_DIR/node" --version)" = "v26.12.0" && \
+    test "$("$CURSOR_DIR/node" --version)" = "v26.12.1" && \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
     cursor-agent --help >/dev/null && \
     rm -f /tmp/cursor-agent.tar.gz
@@ -523,7 +508,7 @@ USER claude
 RUN if [ "$VARIANT" = "full" ]; then \
     JUNIE_PLATFORM=$(case "$TARGETARCH" in amd64) echo "amd64";; arm64) echo "aarch64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     JUNIE_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$JUNIE_ARCHIVE_SHA256_AMD64";; arm64) echo "$JUNIE_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
-    JUNIE_ARCHIVE="junie-release-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.zip" && \
+    JUNIE_ARCHIVE="junie-nightly-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.zip" && \
     curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on-error --connect-timeout 15 --max-time 300 -fsSL -o "/tmp/${JUNIE_ARCHIVE}" "https://github.com/jetbrains-junie/junie/releases/download/${JUNIE_VERSION}/${JUNIE_ARCHIVE}" && \
     echo "$JUNIE_ARCHIVE_SHA256  /tmp/${JUNIE_ARCHIVE}" | sha256sum -c - && \
     JUNIE_TARGET="/home/claude/.local/share/junie/versions/$JUNIE_VERSION" && \
@@ -534,7 +519,7 @@ RUN if [ "$VARIANT" = "full" ]; then \
     test "$JUNIE_TOP_LEVEL" = "channel junie junie-app shim " && \
     unzip -q "/tmp/${JUNIE_ARCHIVE}" 'junie-app/*' -d "$JUNIE_STAGING" && \
     test -x "$JUNIE_STAGING/junie-app/bin/junie" && \
-    test -f "$JUNIE_STAGING/junie-app/lib/app/junie-release-${JUNIE_VERSION}.jar" && \
+    test -f "$JUNIE_STAGING/junie-app/lib/app/junie-nightly-${JUNIE_VERSION}-linux-${JUNIE_PLATFORM}.jar" && \
     mv "$JUNIE_STAGING/junie-app" "$JUNIE_TARGET" && \
     rmdir "$JUNIE_STAGING" && \
     ln -sfn "$JUNIE_TARGET" /home/claude/.local/share/junie/current && \
@@ -547,8 +532,8 @@ USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --allow-scripts=opencode-ai opencode-ai@1.19.0; \
-    test "$(opencode --version)" = "1.19.0"; \
+    npm i -g --allow-scripts=opencode-ai opencode-ai@1.19.3; \
+    test "$(opencode --version)" = "1.19.3"; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
@@ -602,15 +587,13 @@ RUN set -eux; \
     if [ "$VARIANT" = "full" ]; then \
       replace_node_module undici "$UNDICI_8_VERSION" "$UNDICI_8_ARCHIVE_SHA256" \
         /usr/local/lib/node_modules/@earendil-works/pi-coding-agent/node_modules/undici; \
-      replace_node_module js-yaml "$FULL_JS_YAML_VERSION" "$FULL_JS_YAML_ARCHIVE_SHA256" \
-        /usr/local/lib/node_modules/pm2/node_modules/js-yaml; \
       replace_scoped_node_module "@xmldom/xmldom" "$FULL_XMLDOM_VERSION" "$FULL_XMLDOM_ARCHIVE_SHA256" xmldom \
         /usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom; \
       replace_node_module ws "$WS_VERSION" "$WS_ARCHIVE_SHA256" \
         /usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws; \
     fi; \
     node /tmp/patch-global-node-security-dependencies.mjs --root / --variant "$VARIANT"; \
-    test "$(npm --version)" = "12.2.0"; \
+    test "$(npm --version)" = "12.2.1"; \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID"; \
     if [ "$VARIANT" = "full" ]; then \
       npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null; \
@@ -618,6 +601,8 @@ RUN set -eux; \
       npm --prefix /usr/local/lib/node_modules/eas-cli ls nanoid --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/eas-cli ls joi --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/pm2 ls js-yaml --all >/dev/null; \
+      test "$(node -p "require('/usr/local/lib/node_modules/pm2/package.json').dependencies['js-yaml']")" = "4.3.2"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json').version")" = "4.3.2"; \
       npm --prefix /usr/local/lib/node_modules/vercel ls smol-toml --all >/dev/null; \
       VERCEL_NATIVE_ARCH=$(case "$TARGETARCH" in amd64) echo x64;; arm64) echo arm64;; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac); \
       VERCEL_NATIVE_ROOT="/usr/local/lib/node_modules/vercel/node_modules/@vercel/vc-native-linux-${VERCEL_NATIVE_ARCH}"; \
@@ -636,7 +621,7 @@ RUN set -eux; \
       npm --prefix /usr/local/lib/node_modules/@marp-team/marp-cli ls @xmldom/xmldom --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/wrangler ls sharp --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/netlify-cli ls sharp --all >/dev/null; \
-      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.12.1"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.14.1"; \
       test "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json').version")" = "$FULL_XMLDOM_VERSION"; \
       node -e "const { DOMImplementation, XMLSerializer } = require('/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom'); const implementation = new DOMImplementation(); const doctype = implementation.createDocumentType('html', '', ''); doctype.name = 'html><injected'; const document = implementation.createDocument(null, 'root', doctype); try { new XMLSerializer().serializeToString(document, { requireWellFormed: true }); throw new Error('xmldom accepted an injected doctype name'); } catch (error) { if (error.name !== 'InvalidStateError') throw error; }"; \
       test "$(node -p "process.versions.modules")" = "147"; \
@@ -652,11 +637,11 @@ RUN set -eux; \
       timeout 5s node -e "const { parse } = require('/usr/local/lib/node_modules/vercel/node_modules/smol-toml'); const value = parse('project = \\\"holyclaude\\\"\\n[build]\\ncommand = \\\"npm run build\\\"'); if (value.project !== 'holyclaude' || value.build.command !== 'npm run build') throw new Error('invalid TOML parse'); console.log('vercel_smol_toml=ok')"; \
       node -e "const Joi = require('/usr/local/lib/node_modules/eas-cli/node_modules/joi'); const schema = Joi.object({ platform: Joi.string().valid('android', 'ios').required(), profile: Joi.string().min(1).required() }); const valid = schema.validate({ platform: 'android', profile: 'production' }); if (valid.error) throw valid.error; const invalid = schema.validate({ platform: 'desktop', profile: '' }); if (!invalid.error) throw new Error('Joi accepted an invalid EAS profile'); console.log('eas_joi_validation=ok')"; \
       timeout 5s node -e "const { mkdtempSync, mkdirSync, rmSync, writeFileSync } = require('node:fs'); const { tmpdir } = require('node:os'); const { join } = require('node:path'); (async () => { const root = mkdtempSync(join(tmpdir(), 'vercel-smol-toml-')); try { const python = join(root, 'python'); mkdirSync(python); writeFileSync(join(python, 'pyproject.toml'), '[project]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n'); const { discoverPythonPackage } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/python-analysis'); const discovered = await discoverPythonPackage({ entrypointDir: python, rootDir: root }); if (discovered.manifest?.data?.project?.name !== 'smoke') throw new Error('python-analysis failed to parse pyproject.toml'); const rust = join(root, 'rust'); mkdirSync(join(rust, 'src'), { recursive: true }); writeFileSync(join(rust, 'Cargo.toml'), '[package]\\nname = \\\"smoke\\\"\\nversion = \\\"0.1.0\\\"\\n[dependencies]\\nvercel_runtime = \\\"1\\\"\\n'); writeFileSync(join(rust, 'src/main.rs'), 'fn main() {}\\n'); const { shouldServe } = require('/usr/local/lib/node_modules/vercel/node_modules/@vercel/rust'); if (await shouldServe({ workPath: rust, entrypoint: 'src/main.rs', requestPath: 'different' })) throw new Error('rust failed to parse Cargo.toml runtime dependency'); console.log('vercel_smol_toml_consumers=ok'); } finally { rmSync(root, { recursive: true, force: true }); } })().catch((error) => { console.error(error); process.exit(1); })"; \
-      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/sharp/package.json').version")" = "0.34.5"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/node_modules/sharp/package.json').version")" = "0.35.5"; \
       node -e "(async () => { const sharp = require('/usr/local/lib/node_modules/netlify-cli/node_modules/sharp'); if (typeof sharp !== 'function' || typeof sharp.format !== 'object') throw new Error('invalid Netlify sharp exports'); const png = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#336699ff' } }).png().toBuffer(); if (png.subarray(1, 4).toString() !== 'PNG') throw new Error('invalid Netlify sharp PNG transform'); const avif = await sharp(png).avif().toBuffer(); const metadata = await sharp(avif).metadata(); if (metadata.format !== 'heif' || metadata.width !== 2 || metadata.height !== 2) throw new Error('invalid Netlify sharp AVIF decode'); console.log('netlify_sharp_build=ok'); })().catch((error) => { console.error(error); process.exit(1); })"; \
       wrangler --version >/dev/null; \
       pi --version >/dev/null; \
-      PM2_HOME=/tmp/holyclaude-build-pm2 pm2 --version | grep -Fx "7.0.4"; \
+      PM2_HOME=/tmp/holyclaude-build-pm2 pm2 --version | grep -Fx "7.1.0"; \
       PM2_HOME=/tmp/holyclaude-build-pm2 pm2 kill >/dev/null; \
       rm -rf /tmp/holyclaude-build-pm2; \
       eas --version >/dev/null; \
@@ -699,7 +684,7 @@ RUN echo "$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  /tmp/vendor/cloudcli-ai-
     cp -- npm-shrinkwrap.json package-lock.json && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap.json" | sha256sum -c - && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  package-lock.json" | sha256sum -c - && \
-    test "$(npm --version)" = "12.2.0" && \
+    test "$(npm --version)" = "12.2.1" && \
     TMPDIR="$CLOUDCLI_RIPGREP_CACHE_ROOT" npm ci --omit=dev --allow-remote=all --allow-file=none --allow-git=none --allow-directory=none && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap.json" | sha256sum -c - && \
     cmp -s npm-shrinkwrap.json package-lock.json && \

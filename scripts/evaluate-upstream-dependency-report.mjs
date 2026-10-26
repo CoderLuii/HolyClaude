@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { validateReport } from './evaluate-security-report.mjs';
 
-const EXPECTED_RELEASE = 'v1.6.7';
-const EXPECTED_SYFT_VERSION = '1.54.1';
-const EXPECTED_GRYPE_VERSION = '0.120.1';
+const EXPECTED_RELEASE = 'v1.6.8';
+const EXPECTED_SYFT_VERSION = '1.55.0';
+const EXPECTED_GRYPE_VERSION = '0.121.0';
 const EXPECTED_GRYPE_DB_SCHEMA_VERSION = 'v6.1.10';
 const SEVERITIES = ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical'];
 const TYPES = new Set(['binary', 'deb', 'go-module', 'java-archive', 'npm', 'python']);
@@ -17,7 +17,7 @@ const VARIANTS = new Set(['full', 'slim']);
 const ARCHITECTURES = new Set(['amd64', 'arm64']);
 const POLICY_KEYS = new Set([
   'schemaVersion', 'release', 'scope', 'disposition', 'approvedBy', 'authorizedAt',
-  'officialReleasesOnly', 'targets', 'officialInputs', 'retainedModifiedInputs',
+  'officialReleasesOnly', 'targets', 'officialInputs', 'retainedModifiedInputs', 'retainedBaselineOnlyInventoryAnchors',
   'retainedBaselineCommit', 'retainedBaselineEvidence', 'projectControlled', 'rationale', 'monitoring',
 ]);
 const INPUT_KEYS = new Set(['origin', 'types', 'purlPrefixes', 'locationPrefixes', 'locationPaths']);
@@ -148,6 +148,11 @@ function validatePolicy(policy, args) {
     uniqueStrings(input.inventoryAnchors, `retainedModifiedInputs[${index}].inventoryAnchors`);
     if (input.types.some((type) => !TYPES.has(type))) throw new Error(`retainedModifiedInputs[${index}] contains unsupported types`);
   }
+  uniqueStrings(policy.retainedBaselineOnlyInventoryAnchors, 'retainedBaselineOnlyInventoryAnchors');
+  const retainedAnchors = new Set(policy.retainedModifiedInputs.flatMap((input) => input.inventoryAnchors));
+  if (policy.retainedBaselineOnlyInventoryAnchors.some((anchor) => retainedAnchors.has(anchor))) {
+    throw new Error('retainedBaselineOnlyInventoryAnchors cannot overlap active retained inputs');
+  }
   exactKeys(policy.projectControlled, CONTROLLED_KEYS, 'projectControlled');
   for (const key of CONTROLLED_KEYS) uniqueStrings(policy.projectControlled[key], `projectControlled.${key}`);
   for (const key of ['rationale', 'monitoring']) {
@@ -177,7 +182,10 @@ function validateRetainedBaseline(baseline, policy) {
       throw new Error(`retained baseline ${target} identity hash is invalid`);
     }
   }
-  const expectedAnchors = [...new Set(policy.retainedModifiedInputs.flatMap((input) => input.inventoryAnchors))].sort();
+  const expectedAnchors = [...new Set([
+    ...policy.retainedModifiedInputs.flatMap((input) => input.inventoryAnchors),
+    ...policy.retainedBaselineOnlyInventoryAnchors,
+  ])].sort();
   exactKeys(baseline.immutableRecordSha256, new Set(expectedAnchors), 'retained baseline immutable records');
   if (Object.values(baseline.immutableRecordSha256).some((value) => !/^[a-f0-9]{64}$/.test(value))) {
     throw new Error('retained baseline immutable record hash is invalid');

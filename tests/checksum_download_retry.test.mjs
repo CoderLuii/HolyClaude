@@ -94,7 +94,6 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
     `${productionCurlPrefix} /tmp/azure-cli-install.sh`,
     `${productionCurlPrefix} "/tmp/\${GITHUB_CLI_PACKAGE}"`,
     `${productionCurlPrefix} /tmp/claude-install.sh`,
-    `${productionCurlPrefix} /tmp/prisma-mysql2.tgz`,
     `${productionCurlPrefix} "/tmp/setuptools-\${SETUPTOOLS_VERSION}-py3-none-any.whl"`,
     `${productionCurlPrefix} /tmp/cursor-agent.tar.gz`,
     `${productionCurlPrefix} "/tmp/\${JUNIE_ARCHIVE}"`,
@@ -106,21 +105,21 @@ test('all checksum-bound direct-file downloads use the bounded retry policy and 
   assert.equal(dockerfile.split(`${productionCurlPrefix} "$archive"`).length - 1, 3);
   const dockerfileTemplateCount = dockerfile.split(productionCurlPrefix).length - 1;
   const ffmpegTemplateCount = ffmpegBuilder.split(productionCurlPrefix).length - 1;
-  assert.equal(dockerfileTemplateCount, 14);
+  assert.equal(dockerfileTemplateCount, 13);
   assert.equal(ffmpegTemplateCount, 1);
-  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 15);
+  assert.equal(dockerfileTemplateCount + ffmpegTemplateCount, 14);
 
   const replaceNodeDownloads = (dockerfile.match(/^\s+replace_node_module \S+/gm) ?? []).length;
   const replaceScopedDownloads = (dockerfile.match(/^\s+replace_scoped_node_module \S+/gm) ?? []).length;
   const replaceNestedDownloads = (dockerfile.match(/^\s+replace_nested_node_module \S+/gm) ?? []).length;
   const ffmpegDownloads = (ffmpegBuilder.match(/^download '/gm) ?? []).length;
-  assert.equal(replaceNodeDownloads, 4);
+  assert.equal(replaceNodeDownloads, 3);
   assert.equal(replaceScopedDownloads, 1);
   assert.equal(replaceNestedDownloads, 4);
   assert.equal(ffmpegDownloads, 4);
-  const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 8
+  const logicalDownloads = (s6CurlCount * 2) + fzfCurlCount + 7
     + replaceNodeDownloads + replaceScopedDownloads + replaceNestedDownloads + ffmpegDownloads;
-  assert.equal(logicalDownloads, 27);
+  assert.equal(logicalDownloads, 25);
 
   const checksumDownloadSources = `${dockerfile}\n${ffmpegBuilder}`;
   assert.doesNotMatch(checksumDownloadSources, /--retry-delay/);

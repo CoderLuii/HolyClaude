@@ -7,9 +7,9 @@ import test from 'node:test';
 
 const script = 'scripts/patch-global-node-security-dependencies.mjs';
 
-test('does not patch upgraded EAS, Netlify, or Vercel dependency trees', () => {
+test('does not patch dependency trees already fixed by their upstream owners', () => {
   const source = readFileSync(script, 'utf8');
-  assert.doesNotMatch(source, /eas-cli|netlify-cli|usr\/local\/lib\/node_modules\/vercel/);
+  assert.doesNotMatch(source, /eas-cli|netlify-cli|usr\/local\/lib\/node_modules\/(?:vercel|pm2)/);
 });
 
 const packages = [
@@ -25,7 +25,6 @@ const packages = [
     '8.9.0',
     '8.10.2',
   ],
-  ['usr/local/lib/node_modules/pm2/node_modules/js-yaml/package.json', 'js-yaml', '4.3.1', '4.3.2'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json',
     '@xmldom/xmldom',
@@ -36,7 +35,6 @@ const packages = [
 ];
 
 const dependencies = [
-  ['usr/local/lib/node_modules/pm2/package.json', 'pm2', '7.0.4', 'js-yaml', '4.3.1', '4.3.2'],
   [
     'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/speech-rule-engine/package.json',
     'speech-rule-engine',
@@ -153,7 +151,6 @@ test('fails closed when a dependency specification drifts', () => {
 test('fails closed when a reviewed full-image package baseline drifts', () => {
   for (const [path, name, baseline] of [
     packages.find(([path]) => path.endsWith('/pi-coding-agent/node_modules/undici/package.json')),
-    packages.find(([path]) => path.endsWith('/pm2/node_modules/js-yaml/package.json')),
     packages.find(([path]) => path.endsWith('/marp-cli/node_modules/@xmldom/xmldom/package.json')),
     packages.find(([path]) => path.endsWith('/next-on-pages/node_modules/ws/package.json')),
   ]) {
@@ -168,7 +165,6 @@ test('fails closed when a reviewed full-image package baseline drifts', () => {
 test('fails closed when a reviewed dependency owner version drifts', () => {
   for (const [path, name, version] of [
     dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
-    dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
   ]) {
     const root = fixture();
@@ -185,7 +181,6 @@ test('fails closed when a reviewed dependency owner version drifts', () => {
 test('fails closed when a reviewed owner dependency baseline drifts', () => {
   for (const [path, , , dependency, , , dependencyGroup = 'dependencies'] of [
     dependencies.find(([path]) => path.endsWith('/pi-coding-agent/package.json')),
-    dependencies.find(([path]) => path.endsWith('/pm2/package.json')),
     dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json')),
   ]) {
     const root = fixture();

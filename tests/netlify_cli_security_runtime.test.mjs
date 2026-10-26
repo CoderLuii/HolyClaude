@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve, sep } from 'node:path';
 import test from 'node:test';
 
 const dockerfile = readFileSync('Dockerfile', 'utf8');
@@ -10,20 +13,20 @@ const securityPatch = readFileSync('scripts/patch-global-node-security-dependenc
 const upstreamPolicy = JSON.parse(readFileSync('security/upstream-dependency-policy.json', 'utf8'));
 
 test('Netlify CLI uses the checksum-bound upstream TOML security release', () => {
-  assert.match(dockerfile, /netlify-cli@27\.12\.1/);
+  assert.match(dockerfile, /netlify-cli@27\.14\.1/);
   assert.doesNotMatch(dockerfile, /netlify-cli@27\.5\.2/);
   assert.match(
     immutableInputs,
-    /name: Netlify CLI[\s\S]*?version: 27\.12\.1[\s\S]*?archive-sha256: 540b6857bddddcf84992248000c11ea4e2854d040e33b0100ecbdbb3a6959da4[\s\S]*?npm-integrity: "sha512-Pd9aNEWdstTxFkvBS92CoJVSEGQdOKI73dudjbouuwgasPoaBA2UHYsGyah0aW\+y7EY9L\/ugtoZwXhcKvI\+AhQ=="/,
+    /name: Netlify CLI[\s\S]*?version: 27\.14\.1[\s\S]*?archive-sha256: 33dfec563c056871d2562a4cac28159f98efa9b10769a2d99001bb89720a23af[\s\S]*?npm-integrity: "sha512-kbTpN5JhWUzm3jLgtqKj3O59mzmu\/ik4wbM9\/1IJMPX\/BCASQa\/rKR4fUJ76dy4u7PxAX\/0T5PfOK8Q\/tywfQQ=="/,
   );
-  assert.match(releaseInputs, /'netlify-cli@27\.12\.1'/);
+  assert.match(releaseInputs, /'netlify-cli@27\.14\.1'/);
   assert.doesNotMatch(dockerfile, /rm -f[^\n]*local-functions-proxy/);
   assert.match(runtimeChecks, /test -x .*local-functions-proxy/);
 });
 
 test('full-image runtime validates Netlify parser upgrades and real Rust TOML reachability', () => {
   for (const expected of [
-    "'netlify-cli': '27.12.1'",
+    "'netlify-cli': '27.14.1'",
     'const expectedRanges = {',
     'manifest.dependencies[name]',
     'semver.satisfies(installedVersion, declaredRange)',
@@ -72,8 +75,46 @@ test('Netlify Sharp keeps the official dependency tree and runtime checks', () =
       input.locationPrefixes?.some((prefix) => prefix.includes('/netlify-cli/'))),
     false,
   );
-  assert.match(runtimeChecks, /Netlify ipx sharp dependency[\s\S]{0,180}\^0\.34\.3/);
-  assert.match(runtimeChecks, /Netlify sharp package version[\s\S]{0,180}0\.34\.5/);
+  assert.match(runtimeChecks, /Netlify ipx sharp dependency[\s\S]{0,180}\^0\.35\.5/);
+  assert.ok(
+    dockerfile.includes("netlify-cli/node_modules/sharp/package.json').version\")\" = \"0.35.5\""),
+    'Dockerfile should enforce the resolved Netlify Sharp version',
+  );
+  assert.match(runtimeChecks, /Netlify sharp package version[\s\S]{0,180}0\.35\.5/);
+});
+
+test('Netlify Sharp runtime assertion accepts the official ipx manifest and rejects changed ranges', () => {
+  const requireEq = runtimeChecks.match(/^require_eq\(\) \{[\s\S]*?^\}/m)?.[0];
+  const rangeCheck = runtimeChecks.split('\n').find((line) =>
+    line.includes('require_eq "Netlify ipx sharp dependency"'));
+  assert.ok(requireEq, 'runtime smoke should define require_eq');
+  assert.ok(rangeCheck, 'runtime smoke should check the ipx Sharp declaration');
+  const root = mkdtempSync(join(tmpdir(), 'holyclaude-netlify-sharp-'));
+  const bash = process.platform === 'win32' ? 'C:\\Program Files\\Git\\bin\\bash.exe' : 'bash';
+  try {
+    mkdirSync(join(root, 'node_modules', 'ipx'), { recursive: true });
+    for (const [range, expectedStatus] of [['^0.35.5', 0], ['^0.34.3', 1], ['^0.36.0', 1], ['*', 1]]) {
+      writeFileSync(join(root, 'node_modules', 'ipx', 'package.json'), JSON.stringify({
+        name: 'ipx', version: '4.0.0', dependencies: { sharp: range },
+      }));
+      const result = spawnSync(bash, ['-eu', '-c', `${requireEq}
+netlify_root="$NETLIFY_TEST_ROOT"
+${rangeCheck.replace('$(node -p', '$("$NETLIFY_TEST_NODE" -p')}
+`], {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          NETLIFY_TEST_ROOT: root.replaceAll('\\', '/'),
+          NETLIFY_TEST_NODE: process.execPath.replaceAll('\\', '/'),
+        },
+      });
+      assert.equal(result.status, expectedStatus, `ipx Sharp range ${range}: ${result.stderr}`);
+      if (expectedStatus !== 0) assert.match(result.stderr, /Netlify ipx sharp dependency expected/);
+    }
+  } finally {
+    assert.ok(resolve(root).startsWith(resolve(tmpdir()) + sep));
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('historical Netlify exception is not used to hide current upstream findings', () => {

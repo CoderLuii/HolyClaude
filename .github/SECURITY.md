@@ -60,7 +60,7 @@ The vendored CloudCLI version must stay at or above the fixes for:
 | `CVE-2026-31862` / `GHSA-f2fc-vc88-6w7q` | Authenticated command injection in Git-related endpoints | `1.24.0` |
 | `CVE-2026-31975` / `GHSA-gv8f-wpm2-m5wr` | WebSocket auth/JWT weakness with shell injection risk | `1.25.0` |
 
-HolyClaude v1.6.7 vendors CloudCLI `1.37.3` with its existing compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. Its copied `better-sqlite3` 12.11.1 metadata matches the official Node 26 engine range while retaining the same registry URL and integrity. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
+HolyClaude v1.6.8 vendors CloudCLI `1.37.3` with its existing compatible runtime dependency tree, including patched `ws`, `multer`, DOMPurify, Express, `path-to-regexp`, Hono, PostCSS, `fast-uri`, `jws`, `minimatch`, `picomatch`, `tar-fs`, and YAML resolutions. Its copied `better-sqlite3` 12.11.1 metadata matches the official Node 26 engine range while retaining the same registry URL and integrity. The release workflow also stores digest-bound CycloneDX, SPDX, and Grype reports for each full/slim and `amd64`/`arm64` candidate. Scanner output is release evidence, not a claim that the image has zero vulnerabilities.
 
 CloudCLI is a single-user service. Its account controls one shared workspace and credential context. Putting CloudCLI behind a tunnel or sharing its URL does not create separate users, tenants, workspaces, or credential boundaries.
 
@@ -80,7 +80,7 @@ default. HolyClaude checks the exact built-in rule and retains those ignored
 records separately. Ignored findings must still bind to a real SBOM component;
 an arbitrary ignore cannot bypass provenance checks.
 
-EAS CLI 24.14.0, Netlify CLI 27.12.1 and Vercel CLI 63.1.2 keep their official npm dependency trees. Their upstream vulnerability findings remain accepted and unresolved; the release scanners continue reporting the installed versions and advisories.
+EAS CLI 24.14.0, Netlify CLI 27.14.1 and Vercel CLI 63.1.2 keep their official npm dependency trees. Their upstream vulnerability findings remain accepted and unresolved; the release scanners continue reporting the installed versions and advisories.
 
 CloudCLI, its plugins and the FFmpeg security build remain exact retained modified
 third-party inputs. Updated npm and Wrangler also use their official dependency
@@ -93,7 +93,7 @@ are present, the explicit `pgppub` value wins.
 
 The old [review ledger](../security/advisory-reviews.json),
 [OpenVEX](../security/openvex.json) and v1.6.4 release approvals remain historical
-evidence. They do not authorize v1.6.7 or claim its affected components are fixed.
+evidence. They do not authorize v1.6.8 or claim its affected components are fixed.
 The [review policy](../security/advisory-review-policy.md) explains both paths.
 
 The workflow validates the raw and normalized SBOMs and binds the dependency

@@ -5,8 +5,8 @@ import test from 'node:test';
 const dockerfile = readFileSync('Dockerfile', 'utf8');
 const policy = readFileSync('security/immutable-inputs.yml', 'utf8');
 
-test('keeps npm 12.2.0 official dependencies unmodified', () => {
-  assert.match(dockerfile, /npm@12\.2\.0/);
+test('keeps npm 12.2.1 official dependencies unmodified', () => {
+  assert.match(dockerfile, /npm@12\.2\.1/);
   assert.doesNotMatch(dockerfile, /NPM_UNDICI_|BRACE_EXPANSION_/);
   const replacementBlocks = dockerfile.match(/replace_(?:nested_)?node_module [\s\S]*?;/g) ?? [];
   for (const block of replacementBlocks) {
