@@ -1,6 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+const MARP_XMLDOM_PATH = 'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json';
+const MARP_OWNER_PATH = 'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/speech-rule-engine/package.json';
+
 const COMMON_PACKAGES = [
   [
     'home/claude/.local/share/cursor-agent/versions/2026.09.15-d2fe57e/node_modules/piscina/package.json',
@@ -18,7 +21,7 @@ const FULL_PACKAGES = [
     '8.10.2',
   ],
   [
-    'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json',
+    MARP_XMLDOM_PATH,
     '@xmldom/xmldom',
     '0.9.10',
     '0.9.12',
@@ -28,7 +31,7 @@ const FULL_PACKAGES = [
 
 const FULL_DEPENDENCIES = [
   [
-    'usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/speech-rule-engine/package.json',
+    MARP_OWNER_PATH,
     'speech-rule-engine',
     '4.1.4',
     '@xmldom/xmldom',
@@ -78,29 +81,36 @@ function parseArguments(argv) {
 
 function loadPackage(path, expectedName, expectedVersion) {
   const value = JSON.parse(readFileSync(path, 'utf8'));
-  if (value.name !== expectedName || value.version !== expectedVersion) {
-    throw new Error(`unexpected package at ${path}: expected ${expectedName}@${expectedVersion}`);
+  const versions = Array.isArray(expectedVersion) ? expectedVersion : [expectedVersion];
+  if (value.name !== expectedName || !versions.includes(value.version)) {
+    throw new Error(`unexpected package at ${path}: expected ${expectedName}@${versions.join(' or ')}`);
   }
   return value;
 }
 
 function verifyPackage(root, definition, checkBaseline) {
   const [relativePath, name, baseline, target] = definition;
+  if (checkBaseline && relativePath === MARP_XMLDOM_PATH) {
+    const owner = loadPackage(resolve(root, MARP_OWNER_PATH), 'speech-rule-engine', ['4.1.4', '4.1.5']);
+    loadPackage(resolve(root, relativePath), name, owner.version === '4.1.4' ? baseline : target);
+    return;
+  }
   loadPackage(resolve(root, relativePath), name, checkBaseline ? baseline : target);
 }
 
 function patchDependency(root, definition, checkBaseline) {
   const [relativePath, name, version, dependency, baseline, target, dependencyGroup = 'dependencies'] = definition;
   const path = resolve(root, relativePath);
-  const value = loadPackage(path, name, version);
-  const expected = checkBaseline ? baseline : target;
+  const value = loadPackage(path, name, relativePath === MARP_OWNER_PATH ? [version, '4.1.5'] : version);
+  const ownerBaseline = relativePath === MARP_OWNER_PATH && value.version === '4.1.5' ? '^0.9.12' : baseline;
+  const expected = checkBaseline ? ownerBaseline : target;
   const current = value[dependencyGroup]?.[dependency];
-  if (current !== expected && !(checkBaseline === false && current === baseline)) {
+  if (current !== expected && !(checkBaseline === false && current === ownerBaseline)) {
     throw new Error(
       `unexpected ${dependency} dependency in ${path}: expected ${JSON.stringify(expected)}, found ${JSON.stringify(current)}`,
     );
   }
-  if (!checkBaseline && current === baseline) {
+  if (!checkBaseline && current === ownerBaseline) {
     value[dependencyGroup][dependency] = target;
     writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
   }

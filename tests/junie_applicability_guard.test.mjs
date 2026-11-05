@@ -20,30 +20,36 @@ const vex = JSON.parse(readFileSync('security/openvex.json', 'utf8'));
 const python = process.platform === 'win32' ? 'python' : 'python3';
 const toBashPath = (path) => path.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replaceAll('\\', '/');
 
-test('binds current native Junie checks to the verified 3888.1 release archive and CLI', () => {
+test('binds current native Junie checks to the verified 4011.1 release archive and CLI', () => {
   assert.doesNotMatch(harness, /junie_applicability_guard\.py/);
-  assert.match(harness, /a0501be7a218a293aaa7d20a7bacbbe2e05e6e25bb4b15401984c10a0a95a46d/);
-  assert.match(harness, /681a9b82ca37cd2a16e90c810eddc8fb21eb5e670a6364c19c2a787cdf29a73d/);
-  assert.match(harness, /junie-nightly-3888\.1-linux-\$\{junie_platform\}\.jar/);
-  assert.match(browserRuntimeChecks, /junie-nightly-3888\.1-linux-\$\{junie_platform\}\.jar/);
-  assert.doesNotMatch(harness, /junie-release-3888\.1\.jar|4f227d20b24f9d9ba953802e850d6a606372c4d2d731d1d3fb4ba981f0b2860e/);
-  assert.match(harness, /amd64\)[\s\S]*?junie_platform=amd64[\s\S]*?junie_jar_sha256=a0501be7a218a293aaa7d20a7bacbbe2e05e6e25bb4b15401984c10a0a95a46d/);
-  assert.match(harness, /arm64\)[\s\S]*?junie_platform=aarch64[\s\S]*?junie_jar_sha256=681a9b82ca37cd2a16e90c810eddc8fb21eb5e670a6364c19c2a787cdf29a73d/);
+  assert.match(harness, /56b780b39c8b2446e6bf3bda952221583194f1081fb536efd82f0e991d42f5f8/);
+  assert.match(harness, /0acfc83dfe85f011fcc486ca011b5a52cdda723e089f086ea2b524c96dfad1b0/);
+  assert.match(harness, /junie-nightly-4011\.1-linux-\$\{junie_platform\}\.jar/);
+  assert.match(browserRuntimeChecks, /junie-nightly-4011\.1-linux-\$\{junie_platform\}\.jar/);
+  assert.doesNotMatch(harness, /junie-release-4011\.1\.jar|4f227d20b24f9d9ba953802e850d6a606372c4d2d731d1d3fb4ba981f0b2860e/);
+  assert.match(harness, /amd64\)[\s\S]*?junie_platform=amd64[\s\S]*?junie_jar_sha256=56b780b39c8b2446e6bf3bda952221583194f1081fb536efd82f0e991d42f5f8/);
+  assert.match(harness, /arm64\)[\s\S]*?junie_platform=aarch64[\s\S]*?junie_jar_sha256=0acfc83dfe85f011fcc486ca011b5a52cdda723e089f086ea2b524c96dfad1b0/);
   assert.match(harness, /timeout 30s junie --version 2>"\$junie_version_stderr"/);
   assert.match(harness, /cat "\$junie_version_stderr" >&2/);
-  assert.match(harness, /Junie version: build 3888\.1 nightly/);
+  assert.match(harness, /Junie version: build 4011\.1 nightly/);
   assert.match(harness, /timeout 30s junie --help >\/dev\/null/);
-  assert.equal((workflow.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
-  assert.equal((workflow.match(/--init --network none --entrypoint bash[\s\S]*?full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
-  assert.match(dockerfile, /ARG JUNIE_VERSION=3888\.1/);
-  assert.match(dockerfile, /ARG JUNIE_ARCHIVE_SHA256_AMD64=742d99abb4a8a950b4a64d397b8763e25133d0708237b706ba5ab2c890745d9c/);
-  assert.match(dockerfile, /ARG JUNIE_ARCHIVE_SHA256_ARM64=365b966a4de7a82b325e7b2a348eed4aea62b251b130ce2d4118a266979547a3/);
+  const candidate = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  resolve-candidate-run:'));
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  const manual = workflow.slice(workflow.indexOf('  published-browser-smoke:'));
+  for (const stage of [candidate, manual]) {
+    assert.equal((stage.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 1);
+    assert.match(stage, /--init --network none --entrypoint bash[\s\S]*?full_additional_linux_advisory_runtime_checks\.sh/);
+  }
+  assert.doesNotMatch(finalSmoke, /full_additional_linux_advisory_runtime_checks\.sh/);
+  assert.match(dockerfile, /ARG JUNIE_VERSION=4011\.1/);
+  assert.match(dockerfile, /ARG JUNIE_ARCHIVE_SHA256_AMD64=9fcc8c47cc41e4b839f15297fe3a59ec400d2bde6b59c6e79166652daed4223d/);
+  assert.match(dockerfile, /ARG JUNIE_ARCHIVE_SHA256_ARM64=f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15/);
   assert.match(dockerfile, /github\.com\/jetbrains-junie\/junie\/releases\/download\/\$\{JUNIE_VERSION\}\/\$\{JUNIE_ARCHIVE\}/);
   assert.match(dockerfile, /echo "\$JUNIE_ARCHIVE_SHA256  \/tmp\/\$\{JUNIE_ARCHIVE\}" \| sha256sum -c -/);
-  assert.match(immutableInputs, /- name: Junie\r?\n\s+version: "3888\.1"\r?\n\s+amd64-archive-sha256: 742d99abb4a8a950b4a64d397b8763e25133d0708237b706ba5ab2c890745d9c\r?\n\s+arm64-archive-sha256: 365b966a4de7a82b325e7b2a348eed4aea62b251b130ce2d4118a266979547a3/);
+  assert.match(immutableInputs, /- name: Junie\r?\n\s+version: "4011\.1"\r?\n\s+amd64-archive-sha256: 9fcc8c47cc41e4b839f15297fe3a59ec400d2bde6b59c6e79166652daed4223d\r?\n\s+arm64-archive-sha256: f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15/);
 });
 
-test('current Junie shell gate parses stdout only, preserves failure diagnostics, and accepts only 3888.1', () => {
+test('current Junie shell gate parses stdout only, preserves failure diagnostics, and accepts only 4011.1', () => {
   const check = harness.match(/junie_version_stderr="\$\(mktemp\)"[\s\S]*?timeout 30s junie --help >\/dev\/null/)?.[0];
   assert.ok(check, 'current Junie shell gate must remain extractable');
   const root = mkdtempSync(join(tmpdir(), 'junie-current-'));
@@ -52,9 +58,9 @@ test('current Junie shell gate parses stdout only, preserves failure diagnostics
 set -eu
 case "\${1:-}" in
   --version)
-    printf '%s\n' "\${JUNIE_VERSION_STDERR:-Junie build 3888.1 nightly (pid=1): log file: /tmp/junie.log}" >&2
+    printf '%s\n' "\${JUNIE_VERSION_STDERR:-Junie build 4011.1 nightly (pid=1): log file: /tmp/junie.log}" >&2
     [ "\${JUNIE_VERSION_STATUS:-0}" = 0 ] || exit "$JUNIE_VERSION_STATUS"
-    printf '%s\\n' "\${JUNIE_VERSION_OUTPUT:-Junie version: build 3888.1 nightly}"
+    printf '%s\\n' "\${JUNIE_VERSION_OUTPUT:-Junie version: build 4011.1 nightly}"
     ;;
   --help)
     [ "\${JUNIE_HELP_STATUS:-0}" = 0 ] || exit "$JUNIE_HELP_STATUS"
@@ -66,8 +72,8 @@ esac
   chmodSync(executable, 0o755);
   const run = (overrides = {}) => spawnSync('bash', [
     '-s', '--', toBashPath(root),
-    overrides.JUNIE_VERSION_OUTPUT ?? 'Junie version: build 3888.1 nightly',
-    overrides.JUNIE_VERSION_STDERR ?? 'Junie build 3888.1 nightly (pid=1): log file: /tmp/junie.log',
+    overrides.JUNIE_VERSION_OUTPUT ?? 'Junie version: build 4011.1 nightly',
+    overrides.JUNIE_VERSION_STDERR ?? 'Junie build 4011.1 nightly (pid=1): log file: /tmp/junie.log',
     overrides.JUNIE_VERSION_STATUS ?? '0',
     overrides.JUNIE_HELP_STATUS ?? '0',
   ], {
@@ -78,7 +84,7 @@ esac
   });
   try {
     assert.equal(run().status, 0);
-    for (const output of ['Junie 3888.1', 'Junie version: 26.10.12 (3888.1)', 'Junie version: build 3579.5 nightly', 'Junie version: build 3888.1 nightly extra', 'Junie version: build 3888.1 nightly\nJunie version: build 3888.1 nightly']) {
+    for (const output of ['Junie 4011.1', 'Junie version: 26.10.12 (4011.1)', 'Junie version: build 3579.5 nightly', 'Junie version: build 3888.1 nightly', 'Junie version: build 4011.1 nightly extra', 'Junie version: build 4011.1 nightly\nJunie version: build 4011.1 nightly']) {
       const result = run({ JUNIE_VERSION_OUTPUT: output });
       assert.notEqual(result.status, 0, output);
       assert.match(result.stderr, /unexpected Junie version output/);

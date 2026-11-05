@@ -102,20 +102,19 @@ test('does not suppress the excluded full amd64 risks', () => {
     statement.products.some((product) => product['@id'].endsWith('?variant=full'))), []);
 });
 
-test('runs additional full evidence for both architectures on candidate and final image digests', () => {
+test('runs additional full evidence on both native candidates without repeating it after promotion', () => {
   assert.match(workflow, /if \[ "\$VARIANT" = full \]; then[\s\S]*?\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
   assert.doesNotMatch(workflow, /if \[ "\$VARIANT" = full \] && \[ "\$ARCH" = amd64 \]; then[\s\S]*?\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
-  assert.match(workflow, /name: Verify final additional full advisory evidence\s+if: matrix\.variant == 'full'/);
-  const finalStep = workflow.slice(workflow.indexOf('      - name: Verify final additional full advisory evidence'));
-  assert.match(finalStep, /steps\.image\.outputs\.ref.*steps\.image\.outputs\.digest/);
-  assert.match(finalStep, /\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  assert.doesNotMatch(finalSmoke, /full_additional_linux_advisory_runtime_checks\.sh/);
+  assert.match(workflow, /name: Revalidate candidate security evidence/);
 });
 
 test('runtime proof covers exact full-only packages and negative execute paths', () => {
   for (const packageName of ['libaom-dev', 'libblkid-dev', 'libmount-dev', 'uuid-dev', 'zlib1g-dev']) {
     assert.match(runtime, new RegExp(`require_package[^\\n]*${packageName}|for package in [\\s\\S]*?${packageName}`));
   }
-  assert.match(runtime, /require_package dnsutils '1:9\.18\.49-1~deb12u2' all/);
+  assert.match(runtime, /require_package dnsutils '1:9\.18\.49-1~deb12u3' all/);
   assert.match(runtime, /--join-cgroup/);
   assert.match(runtime, /MNT_STAGE_MOUNT_POST/);
   assert.match(runtime, /hook_subdir/);
@@ -149,4 +148,62 @@ source tests/full_additional_linux_advisory_runtime_checks.sh
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /Unsupported architecture: riscv64/);
   assert.doesNotMatch(result.stderr, /unexpected util-linux hook marker|unexpected zlib|unexpected bind9/);
+});
+
+test('BIND runtime guards require the exact current package version and architecture', async (t) => {
+  const bash = process.platform === 'win32'
+    ? join(process.env.ProgramW6432 ?? process.env.ProgramFiles, 'Git', 'bin', 'bash.exe')
+    : 'bash';
+  for (const path of ['tests/slim_linux_advisory_runtime_checks.sh', 'tests/full_additional_linux_advisory_runtime_checks.sh']) {
+    const source = readFileSync(path, 'utf8');
+    const requirePackage = source.match(/^require_package\(\) \{[\s\S]*?^\}/m)?.[0];
+    const bindPackages = source.match(/^for package in bind9-dnsutils bind9-host bind9-libs; do\n[\s\S]*?^done$/m)?.[0];
+    const dnsutils = source.match(/^require_package dnsutils [^\n]+/m)?.[0];
+    assert.ok(requirePackage && bindPackages && dnsutils, `${path} must retain all four BIND package guards`);
+    for (const architecture of ['amd64', 'arm64']) {
+      const wrongArchitecture = architecture === 'amd64' ? 'arm64' : 'amd64';
+      const cases = [
+        { name: 'current tuple', version: '1:9.18.49-1~deb12u3', architecture, dnsutilsArchitecture: 'all' },
+        { name: 'stale version', version: '1:9.18.49-1~deb12u2', architecture, dnsutilsArchitecture: 'all', error: 'unexpected bind9-dnsutils version: expected 1:9.18.49-1~deb12u3, got 1:9.18.49-1~deb12u2' },
+        { name: 'unreviewed version', version: '1:9.18.49-1~deb12u4', architecture, dnsutilsArchitecture: 'all', error: 'unexpected bind9-dnsutils version: expected 1:9.18.49-1~deb12u3, got 1:9.18.49-1~deb12u4' },
+        { name: 'wrong native architecture', version: '1:9.18.49-1~deb12u3', architecture: wrongArchitecture, dnsutilsArchitecture: 'all', error: `unexpected bind9-dnsutils architecture: expected ${architecture}, got ${wrongArchitecture}` },
+        { name: 'wrong metapackage architecture', version: '1:9.18.49-1~deb12u3', architecture, dnsutilsArchitecture: architecture, error: `unexpected dnsutils architecture: expected all, got ${architecture}` },
+      ];
+      for (const fixture of cases) {
+        await t.test(`${path} ${architecture}: ${fixture.name}`, () => {
+          const result = spawnSync(bash, ['-c', `
+set -Eeuo pipefail
+architecture=${architecture}
+dpkg-query() {
+  [ "$#" = 3 ] && [ "$1" = -W ] || return 99
+  case "$3" in bind9-dnsutils|bind9-host|bind9-libs|dnsutils) ;; *) return 98 ;; esac
+  printf 'queried:%s:%s\\n' "$3" "$2" >&2
+  case "$2" in
+    '-f=\${Version}') printf '%s' '${fixture.version}' ;;
+    '-f=\${Architecture}')
+      if [ "$3" = dnsutils ]; then printf '%s' '${fixture.dnsutilsArchitecture}'; else printf '%s' '${fixture.architecture}'; fi ;;
+    *) return 97 ;;
+  esac
+}
+${requirePackage}
+${bindPackages}
+${dnsutils}
+printf 'BIND guards passed\\n'
+`], { encoding: 'utf8', timeout: 5000 });
+          assert.ifError(result.error);
+          if (fixture.error) {
+            assert.equal(result.status, 1, result.stderr);
+            assert.ok(result.stderr.includes(fixture.error), result.stderr);
+            assert.doesNotMatch(result.stdout, /BIND guards passed/);
+          } else {
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(result.stdout, 'BIND guards passed\n');
+            const queriedPackages = result.stderr.split('\n').filter((line) => line.startsWith('queried:'))
+              .map((line) => line.split(':')[1]);
+            assert.deepEqual(queriedPackages, ['bind9-dnsutils', 'bind9-dnsutils', 'bind9-host', 'bind9-host', 'bind9-libs', 'bind9-libs', 'dnsutils', 'dnsutils']);
+          }
+        });
+      }
+    }
+  }
 });

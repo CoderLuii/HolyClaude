@@ -123,9 +123,10 @@ test('guards both architectures and binds exact ARM64 library payloads', () => {
   }
 });
 
-test('requires ARM64 applicability guards in candidate, final, and published matrices', () => {
+test('requires ARM64 applicability guards in candidates and manual published diagnostics', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   const candidate = workflowStep(workflow, 'Run complete candidate smoke matrix');
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
 
   for (const variant of ['full', 'slim']) {
     const script = `${variant}_linux_advisory_runtime_checks.sh`;
@@ -134,19 +135,17 @@ test('requires ARM64 applicability guards in candidate, final, and published mat
       new RegExp(`if \\[ "\\$VARIANT" = ${variant} \\]; then\\s+docker run[^\\n]+/${script}`),
       `${variant} candidate evidence must run without an amd64-only condition`,
     );
-    for (const stage of ['final', 'published']) {
-      const step = workflowStep(workflow, `Verify ${stage} ${variant} advisory evidence`);
-      assert.match(step, new RegExp(`if: matrix\\.variant == '${variant}'(?:\\r?\\n)`));
-      assert.doesNotMatch(step, /matrix\.arch/);
-      assert.match(step, new RegExp(`/${script}`));
-    }
+    const step = workflowStep(workflow, `Verify published ${variant} advisory evidence`);
+    assert.match(step, new RegExp(`if: matrix\\.variant == '${variant}'(?:\\r?\\n)`));
+    assert.doesNotMatch(step, /matrix\.arch/);
+    assert.match(step, new RegExp(`/${script}`));
+    assert.doesNotMatch(finalSmoke, new RegExp(script));
   }
 
   assert.match(candidate, /if \[ "\$VARIANT" = full \]; then\s+docker run[^\n]+\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
-  for (const stage of ['final', 'published']) {
-    const step = workflowStep(workflow, `Verify ${stage} additional full advisory evidence`);
-    assert.match(step, /if: matrix\.variant == 'full'/);
-    assert.doesNotMatch(step, /matrix\.arch/);
-    assert.match(step, /\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
-  }
+  const step = workflowStep(workflow, 'Verify published additional full advisory evidence');
+  assert.match(step, /if: matrix\.variant == 'full'/);
+  assert.doesNotMatch(step, /matrix\.arch/);
+  assert.match(step, /\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
+  assert.doesNotMatch(finalSmoke, /full_additional_linux_advisory_runtime_checks\.sh/);
 });

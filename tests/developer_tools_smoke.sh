@@ -52,7 +52,7 @@ timeout --foreground 90s env \
 import importlib.metadata
 
 assert importlib.metadata.version('tree-sitter') == '0.26.0'
-assert importlib.metadata.version('tree-sitter-language-pack') == '1.22.1'
+assert importlib.metadata.version('tree-sitter-language-pack') == '1.23.1'
 
 from tree_sitter_language_pack import downloaded_languages, get_parser
 
@@ -121,8 +121,8 @@ function pythonBuild(major, minor, patch, prerelease) {
 
 async function main() {
   const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  assert.equal(process.version, 'v26.12.1', 'unexpected Node version');
-  assert.equal(installedNpmVersion, '12.2.1', 'unexpected npm version');
+  assert.equal(process.version, 'v26.13.0', 'unexpected Node version');
+  assert.equal(installedNpmVersion, '12.2.2', 'unexpected npm version');
   assert.equal(easPackage.version, '24.14.0', 'unexpected EAS version');
   assert.equal(vercelPackage.version, '63.1.2', 'unexpected Vercel version');
   assert.equal(vercelContainerPackage.version, '18.0.1', 'unexpected @vercel/container version');
@@ -257,7 +257,7 @@ main().catch(error => {
 NODE
 fi
 
-test "$(pnpm --version)" = 12.14.0
+test "$(pnpm --version)" = 12.16.1
 mkdir "$test_dir/dep" "$test_dir/project"
 printf '%s\n' '{"name":"local-smoke-dep","version":"1.0.0","main":"index.js"}' > "$test_dir/dep/package.json"
 printf '%s\n' 'module.exports = 42;' > "$test_dir/dep/index.js"

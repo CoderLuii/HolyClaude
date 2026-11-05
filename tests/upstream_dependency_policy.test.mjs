@@ -9,7 +9,7 @@ import test from 'node:test';
 const evaluator = 'scripts/evaluate-upstream-dependency-report.mjs';
 const sourceLabels = {
   'org.opencontainers.image.revision': 'fixture-sha',
-  'org.opencontainers.image.version': 'v1.6.8',
+  'org.opencontainers.image.version': 'v1.6.9',
 };
 const layerId = `sha256:${'4'.repeat(64)}`;
 const configText = JSON.stringify({
@@ -115,7 +115,7 @@ function fixture() {
       ignoredMatches: [],
       source: { type: 'sbom-file', target: 'fixture' },
       distro: { name: 'debian', version: '12.15' },
-      descriptor: { name: 'grype', version: '0.121.0', configuration: {} },
+      descriptor: { name: 'grype', version: '0.121.1', configuration: {} },
     },
     sbom: {
       bomFormat: 'CycloneDX',
@@ -124,7 +124,7 @@ function fixture() {
         component: { 'bom-ref': '5b7642aa89f8ce21', type: 'container', name: 'coderluii/holyclaude', version: 'fixture-image' },
         properties: [
           { name: 'syft:image:labels:org.opencontainers.image.revision', value: 'fixture-sha' },
-          { name: 'syft:image:labels:org.opencontainers.image.version', value: 'v1.6.8' },
+          { name: 'syft:image:labels:org.opencontainers.image.version', value: 'v1.6.9' },
         ],
       },
       components: [fixtureComponent],
@@ -147,7 +147,7 @@ function fixture() {
           imageSize: 123,
         },
       },
-      descriptor: { name: 'syft', version: '1.55.0', configuration: {} },
+      descriptor: { name: 'syft', version: '1.56.0', configuration: {} },
     },
     database: {
       schemaVersion: 'v6.1.10',
@@ -246,7 +246,7 @@ function useCycloneDxImageProjection(data) {
 }
 
 function runFixture(mutate = () => {}, {
-  preflight = false, release = 'v1.6.8', variant = 'full', arch = 'amd64', syncSyft = true,
+  preflight = false, release = 'v1.6.9', variant = 'full', arch = 'amd64', syncSyft = true,
 } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-upstream-policy-'));
   const output = join(root, 'output');
@@ -297,7 +297,7 @@ function rerunRelocated(run, sourceTarget) {
   }
   return spawnSync(process.execPath, [
     evaluator,
-    '--policy', join(relocated, 'policy.json'), '--release', 'v1.6.8',
+    '--policy', join(relocated, 'policy.json'), '--release', 'v1.6.9',
     '--report', join(relocated, 'report.json'), '--sbom', join(relocated, 'sbom.json'),
     '--syft-json', join(relocated, 'syft.json'), '--image-ref', imageRef,
     '--expected-source-target', sourceTarget,
@@ -309,6 +309,17 @@ function rerunRelocated(run, sourceTarget) {
 
 function cleanup(t, root) {
   t.after(() => rmSync(root, { recursive: true, force: true }));
+}
+
+function usePythonPlaywrightNode(data) {
+  const path = '/usr/local/lib/python3.14/site-packages/playwright/driver/node';
+  const purl = 'pkg:generic/node@24.22.1';
+  const digest = 'b'.repeat(64);
+  data.report.matches[0] = match({ artifactId: `${purl}?package-id=playwright`, purl, name: 'node', version: '24.22.1', type: 'binary', path });
+  data.sbom.components[0] = component({ id: data.report.matches[0].artifact.id, purl, name: 'node', version: '24.22.1', type: 'binary', path });
+  data.syft.files = [{ location: { path, layerID: layerId }, digests: [{ algorithm: 'sha256', value: digest }] }];
+  data.immutableInputs = data.immutableInputs.replace(/^    (?:driver-node-version|(?:amd64|arm64)-driver-node-sha256): .*\n/gm, '')
+    .replace('  - name: Python Playwright\n', `  - name: Python Playwright\n    driver-node-version: 24.22.1\n    amd64-driver-node-sha256: ${digest}\n    arm64-driver-node-sha256: ${digest}\n`);
 }
 
 test('accepts fixable Critical and High upstream findings without calling them fixed', (t) => {
@@ -359,7 +370,7 @@ test('accepts the exact Grype image projection emitted from a Syft CycloneDX SBO
   const run = runFixture((data) => {
     useCycloneDxImageProjection(data);
     data.syft.source.metadata.labels = {
-      'org.opencontainers.image.version': 'v1.6.8',
+      'org.opencontainers.image.version': 'v1.6.9',
       'org.opencontainers.image.revision': 'fixture-sha',
     };
   });
@@ -448,6 +459,150 @@ test('classifies Prisma mysql2 from the official package tree as an official npm
   assert.equal(run.result.status, 0, run.result.stderr);
   assert.equal(run.evidence.findings[0].provenanceClass, 'official_third_party');
   assert.equal(run.evidence.findings[0].dependencyOrigin, 'npm registry packages');
+});
+
+test('accepts the exact official Python Playwright bundled Node path as unresolved upstream evidence', (t) => {
+  const run = runFixture(usePythonPlaywrightNode);
+  cleanup(t, run.root);
+  assert.equal(run.result.status, 0, run.result.stderr);
+  const finding = run.evidence.findings[0];
+  assert.equal(finding.dependencyOrigin, 'Python Playwright official wheel bundled Node runtime');
+  assert.equal(finding.provenanceClass, 'official_third_party');
+  assert.equal(finding.severity, 'Critical');
+  assert.equal(finding.disposition, 'accepted_upstream_vulnerability_not_fixed');
+  assert.deepEqual(finding.rawFixVersions, ['1.0.1']);
+});
+
+for (const [label, mutate] of [
+  ['protected file evidence', (data) => {
+    data.syft.files = [{
+      location: { path: '/usr/local/lib/python3.14/site-packages/playwright/driver/node', layerID: layerId },
+      digests: [{ algorithm: 'sha256', value: '0'.repeat(64) }],
+    }];
+  }],
+  ['Python package name', (data) => {
+    data.sbom.components.push(component({
+      id: 'pkg:pypi/renamed-playwright@1.64.1?package-id=playwright',
+      purl: 'pkg:pypi/renamed-playwright@1.64.1', name: 'Playwright', version: '1.64.1', type: 'python',
+      path: '/usr/local/lib/python3.14/site-packages/playwright-1.64.1.dist-info/METADATA',
+    }));
+  }],
+  ['canonical Python package PURL', (data) => {
+    data.sbom.components.push(component({
+      id: 'pkg:pypi/playwright@1.64.1?package-id=playwright',
+      purl: 'pkg:pypi/playwright@1.64.1', name: 'renamed-playwright', version: '1.64.1', type: 'python',
+      path: '/usr/local/lib/python3.14/site-packages/playwright-1.64.1.dist-info/METADATA',
+    }));
+  }],
+]) {
+  test(`rejects a missing Python Playwright bundled Node artifact despite ${label}`, (t) => {
+    const run = runFixture(mutate);
+    cleanup(t, run.root);
+    assert.notEqual(run.result.status, 0);
+    assert.match(run.result.stderr, /Python Playwright bundled Node artifact is missing/);
+  });
+}
+
+test('accepts npm Playwright without a Python Playwright driver', (t) => {
+  const run = runFixture(({ sbom }) => {
+    sbom.components.push(component({
+      id: 'pkg:npm/playwright@1.64.1?package-id=playwright',
+      purl: 'pkg:npm/playwright@1.64.1', name: 'playwright', version: '1.64.1',
+      path: '/usr/local/lib/node_modules/playwright/package.json',
+    }));
+  });
+  cleanup(t, run.root);
+  assert.equal(run.result.status, 0, run.result.stderr);
+  assert.equal(run.evidence.status, 'accepted_upstream_vulnerability_not_fixed');
+});
+
+for (const [label, mutate] of [
+  ['wrong artifact name', (data) => {
+    data.report.matches[0].artifact.name = 'unbound-node-lookalike';
+    data.sbom.components[0].name = 'unbound-node-lookalike';
+    data.syft.files = [];
+  }],
+  ['wrong artifact type', (data) => {
+    data.report.matches[0].artifact.type = 'go-module';
+    data.sbom.components[0].properties.find((property) => property.name === 'syft:package:type').value = 'go-module';
+  }],
+  ['wrong artifact PURL', (data) => {
+    data.report.matches[0].artifact.purl = 'pkg:generic/unbound@24.22.1';
+    data.sbom.components[0].purl = 'pkg:generic/unbound@24.22.1';
+  }],
+  ['wrong artifact version', (data) => {
+    data.report.matches[0].artifact.version = '24.22.2';
+    data.sbom.components[0].version = '24.22.2';
+  }],
+  ['wrong binary hash', (data) => { data.syft.files[0].digests[0].value = 'c'.repeat(64); }],
+  ['wrong layer', (data) => { data.syft.files[0].location.layerID = `sha256:${'c'.repeat(64)}`; }],
+  ['missing file evidence', (data) => { data.syft.files = []; }],
+  ['duplicate file evidence', (data) => { data.syft.files.push(structuredClone(data.syft.files[0])); }],
+  ['missing inventory version', (data) => { data.immutableInputs = data.immutableInputs.replace('    driver-node-version: 24.22.1\n', ''); }],
+  ['wrong inventory version', (data) => { data.immutableInputs = data.immutableInputs.replace('    driver-node-version: 24.22.1\n', '    driver-node-version: 24.22.2\n'); }],
+  ['missing wheel hash', (data) => { data.immutableInputs = data.immutableInputs.replace(/^    amd64-wheel-sha256: .*\n/m, ''); }],
+]) {
+  test(`rejects Python Playwright bundled Node with ${label}`, (t) => {
+    const run = runFixture((data) => { usePythonPlaywrightNode(data); mutate(data); });
+    cleanup(t, run.root);
+    assert.notEqual(run.result.status, 0);
+    assert.match(run.result.stderr, /Python Playwright bundled Node/);
+  });
+}
+
+test('rejects another package catalog artifact at the protected Python Playwright Node path', (t) => {
+  const run = runFixture((data) => {
+    usePythonPlaywrightNode(data);
+    data.sbom.components.push(component({
+      id: 'pkg:npm/unbound@1.0.0?package-id=duplicate',
+      purl: 'pkg:npm/unbound@1.0.0',
+      name: 'unbound',
+      path: '/usr/local/lib/python3.14/site-packages/playwright/driver/node',
+    }));
+  });
+  cleanup(t, run.root);
+  assert.notEqual(run.result.status, 0);
+  assert.match(run.result.stderr, /Python Playwright bundled Node inventory or artifact is missing or duplicated/);
+});
+
+for (const path of [
+  '/usr/local/lib/python3.14/site-packages/playwright/driver/node.backup',
+  '/usr/local/lib/python3.14/site-packages/playwright/driver/node/unbound',
+  '/usr/local/lib/python3.14/site-packages/another-package/driver/node',
+  '/usr/local/lib/python3.15/site-packages/playwright/driver/node',
+]) {
+  test(`rejects an unbound bundled Node location ${path}`, (t) => {
+    const purl = 'pkg:generic/node@24.22.1';
+    const run = runFixture(({ report, sbom }) => {
+      report.matches[0] = match({ artifactId: `${purl}?package-id=unbound`, purl, name: 'node', version: '24.22.1', type: 'binary', path });
+      sbom.components[0] = component({ id: report.matches[0].artifact.id, purl, name: 'node', version: '24.22.1', type: 'binary', path });
+    });
+    cleanup(t, run.root);
+    assert.notEqual(run.result.status, 0);
+    assert.match(run.result.stderr, /matched 0 official input origins/);
+  });
+}
+
+test('rejects unrelated binaries at the official Python Playwright Node path', (t) => {
+  const path = '/usr/local/lib/python3.14/site-packages/playwright/driver/node';
+  const purl = 'pkg:generic/unbound@1.0.0';
+  const run = runFixture(({ report, sbom }) => {
+    report.matches[0] = match({ artifactId: `${purl}?package-id=unbound`, purl, name: 'unbound', type: 'binary', path });
+    sbom.components[0] = component({ id: report.matches[0].artifact.id, purl, name: 'unbound', type: 'binary', path });
+  });
+  cleanup(t, run.root);
+  assert.notEqual(run.result.status, 0);
+  assert.match(run.result.stderr, /Python Playwright bundled Node identity differs from the official wheel inventory/);
+});
+
+test('rejects an official input with no location binding', (t) => {
+  const run = runFixture(({ policy }) => {
+    policy.officialInputs[0].locationPrefixes = [];
+    policy.officialInputs[0].locationPaths = [];
+  });
+  cleanup(t, run.root);
+  assert.notEqual(run.result.status, 0);
+  assert.match(run.result.stderr, /must bind at least one location/);
 });
 
 test('classifies the unchanged CloudCLI ip-address overlay as retained modified and keeps its historical hash', (t) => {
@@ -651,7 +806,7 @@ for (const [label, options, expected] of [
 
 for (const [type, purl, path] of [
   ['binary', 'pkg:generic/holyclaude@1.6.8', '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/holyclaude'],
-  ['go-module', 'pkg:golang/example.com/holyclaude@v1.6.8', '/home/claude/.claude-code-ui/plugins/project-stats/holyclaude'],
+  ['go-module', 'pkg:golang/example.com/holyclaude@v1.6.9', '/home/claude/.claude-code-ui/plugins/project-stats/holyclaude'],
 ]) {
   test(`project-controlled identity blocks before retained ${type} path classification`, (t) => {
     const run = runFixture(({ policy, report, sbom }) => {
@@ -672,7 +827,7 @@ for (const [type, purl, path] of [
 }
 
 for (const [label, mutate, expected] of [
-  ['unsupported scanner version', ({ report }) => { report.descriptor.version = '0.120.2'; }, /expected Grype 0\.121\.0/],
+  ['unsupported scanner version', ({ report }) => { report.descriptor.version = '0.120.2'; }, /expected Grype 0\.121\.1/],
   ['missing SBOM identity', ({ report }) => { delete report.matches[0].artifact.id; }, /lacks exact SBOM identity/],
   ['ambiguous SBOM identity', ({ sbom }) => { sbom.components.push(structuredClone(sbom.components[0])); sbom.components[1]['bom-ref'] = sbom.components[0]['bom-ref']; }, /component identities must be unique/],
   ['malformed fix versions', ({ report }) => { report.matches[0].vulnerability.fix.versions = '1.0.1'; }, /fix metadata is malformed/],
@@ -751,7 +906,7 @@ test('rejects wrong release, target, and image digest', (t) => {
   const wrongRelease = runFixture(() => {}, { release: 'v1.6.4', preflight: true });
   cleanup(t, wrongRelease.root);
   assert.notEqual(wrongRelease.result.status, 0);
-  assert.match(wrongRelease.result.stderr, /must target v1\.6\.8/);
+  assert.match(wrongRelease.result.stderr, /must target v1\.6\.9/);
 
   const wrongTarget = runFixture(() => {}, { arch: 'ppc64le', preflight: true });
   cleanup(t, wrongTarget.root);
@@ -761,7 +916,7 @@ test('rejects wrong release, target, and image digest', (t) => {
   const invalidDigest = runFixture(() => {});
   cleanup(t, invalidDigest.root);
   const rerun = spawnSync(process.execPath, [
-    evaluator, '--policy', join(invalidDigest.root, 'policy.json'), '--release', 'v1.6.8',
+    evaluator, '--policy', join(invalidDigest.root, 'policy.json'), '--release', 'v1.6.9',
     '--variant', 'full', '--arch', 'amd64', '--as-of', '2026-10-21',
     '--report', join(invalidDigest.root, 'report.json'), '--sbom', join(invalidDigest.root, 'sbom.json'),
     '--syft-json', join(invalidDigest.root, 'syft.json'), '--image-ref', imageRef,
@@ -800,7 +955,7 @@ test('changed raw evidence requires a regenerated acceptance record', (t) => {
 test('committed policy preflight has standing authorization and all native targets', () => {
   for (const [variant, arch] of [['full', 'amd64'], ['full', 'arm64'], ['slim', 'amd64'], ['slim', 'arm64']]) {
     const result = spawnSync(process.execPath, [
-      evaluator, '--policy', 'security/upstream-dependency-policy.json', '--release', 'v1.6.8',
+      evaluator, '--policy', 'security/upstream-dependency-policy.json', '--release', 'v1.6.9',
       '--variant', variant, '--arch', arch, '--as-of', '2026-10-21', '--preflight', 'true',
     ], { cwd: process.cwd(), encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);

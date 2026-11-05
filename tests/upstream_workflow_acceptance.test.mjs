@@ -5,7 +5,7 @@ import test from 'node:test';
 const releaseWorkflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8').replaceAll('\r\n', '\n');
 const monitorWorkflow = readFileSync('.github/workflows/source-security.yml', 'utf8').replaceAll('\r\n', '\n');
 
-test('v1.6.8 release workflow evaluates the standing policy at source, candidate, and promotion', () => {
+test('v1.6.9 release workflow evaluates the standing policy at source, candidate, and promotion', () => {
   assert.equal((releaseWorkflow.match(/evaluate-upstream-dependency-report\.mjs/g) ?? []).length, 3);
   assert.equal((releaseWorkflow.match(/--policy security\/upstream-dependency-policy\.json/g) ?? []).length, 3);
   assert.match(releaseWorkflow, /--preflight true/);
@@ -89,11 +89,11 @@ test('published Full-image monitoring provisions scanner capacity before install
 
 test('both workflows pin accepted Syft and Grype versions and architecture checksums', () => {
   for (const workflow of [releaseWorkflow, monitorWorkflow]) {
-    assert.match(workflow, /SYFT_VERSION: 1\.55\.0/);
-    assert.match(workflow, /GRYPE_VERSION: 0\.121\.0/);
-    assert.match(workflow, /bb65249542db5fedeeb4d3f9b018b75e7264dbfbbb10486f044581a92f90490d/);
-    assert.match(workflow, /929bd163db2d7cd2255d3bcb8967208079813d7b46b0c952f7b794d8e2c7d304/);
-    assert.match(workflow, /64e07133d3486115de647a66581461dccf5c732748a0a3119077395565f15519/);
-    assert.match(workflow, /86f570f75ca947ea3dd6486309232bcff6d78e44ba081ae75ab14eab72be3dae/);
+    assert.match(workflow, /SYFT_VERSION: 1\.56\.0/);
+    assert.match(workflow, /GRYPE_VERSION: 0\.121\.1/);
+    assert.match(workflow, /1c2493cfcf52d3367d6cb25780d9190c111c2219c34c820574c43e8bae15c528/);
+    assert.match(workflow, /ace61b9397ae28189c674ae332d67a8074dafd71e87724dfb8b22412d8253bb5/);
+    assert.match(workflow, /bc3ea3f9e6fd56ac781c08c6c5e614271b79f438200757f6932085c19b0a4657/);
+    assert.match(workflow, /33670612aad351c48cf3c37f4a85d8b043d1b64b21e6034e675bb00b956d78c1/);
   }
 });

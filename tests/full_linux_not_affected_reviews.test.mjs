@@ -109,13 +109,12 @@ test('binds the TIFF source split without suppressing genuine risks', () => {
   assert.deepEqual(prohibitedStatements, []);
 });
 
-test('runs full applicability checks for both architectures on candidate, final, and published images', () => {
+test('runs full applicability checks on both native candidates and manual published diagnostics', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   assert.match(workflow, /if \[ "\$VARIANT" = full \]; then\s+docker run --rm --entrypoint bash -v "\$PWD\/tests:\/tests:ro" "\$IMAGE" \/tests\/full_linux_advisory_runtime_checks\.sh\s+fi\s+if \[ "\$VARIANT" = full \]; then\s+docker run --rm --init --network none --entrypoint bash -v "\$PWD\/tests:\/tests:ro" "\$IMAGE" \/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
-  assert.match(workflow, /name: Verify final full advisory evidence\s+if: matrix\.variant == 'full'/);
-  const finalStep = workflow.slice(workflow.indexOf('      - name: Verify final full advisory evidence'));
-  assert.match(finalStep, /steps\.image\.outputs\.ref.*steps\.image\.outputs\.digest/);
-  assert.match(finalStep, /\/tests\/full_linux_advisory_runtime_checks\.sh/);
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  assert.doesNotMatch(finalSmoke, /full_linux_advisory_runtime_checks\.sh/);
+  assert.match(workflow, /name: Revalidate candidate security evidence/);
   assert.match(workflow, /name: Verify published full advisory evidence\s+if: matrix\.variant == 'full'[\s\S]+\/tests\/full_linux_advisory_runtime_checks\.sh/);
   assert.match(workflow, /name: Verify published additional full advisory evidence\s+if: matrix\.variant == 'full'[\s\S]+\/tests\/full_additional_linux_advisory_runtime_checks\.sh/);
 });

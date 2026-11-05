@@ -212,21 +212,28 @@ test('removes expired libxml2-dev exceptions from the active ledger', () => {
   assert.deepEqual(scopedReviews, []);
 });
 
-test('retains exact BIND native runtime guards and candidate/final workflow coverage', () => {
+test('retains exact BIND native guards in candidates and manual published diagnostics', () => {
   const slim = readFileSync('tests/slim_linux_advisory_runtime_checks.sh', 'utf8');
   const full = readFileSync('tests/full_additional_linux_advisory_runtime_checks.sh', 'utf8');
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
 
   for (const runtime of [slim, full]) {
-    assert.match(runtime, /require_package "\$package" '1:9\.18\.49-1~deb12u2' "\$architecture"/);
+    assert.match(runtime, /require_package "\$package" '1:9\.18\.49-1~deb12u3' "\$architecture"/);
     assert.match(runtime, /dpkg-query -W -f='\$\{Status\}' bind9/);
     assert.match(runtime, /command -v named/);
     assert.match(runtime, /\/usr\/sbin\/named/);
   }
-  assert.match(slim, /require_package dnsutils '1:9\.18\.49-1~deb12u2' all/);
-  assert.match(full, /require_package dnsutils '1:9\.18\.49-1~deb12u2' all/);
-  assert.equal((workflow.match(/slim_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
-  assert.equal((workflow.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
+  assert.match(slim, /require_package dnsutils '1:9\.18\.49-1~deb12u3' all/);
+  assert.match(full, /require_package dnsutils '1:9\.18\.49-1~deb12u3' all/);
+  const candidate = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  resolve-candidate-run:'));
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  const manual = workflow.slice(workflow.indexOf('  published-browser-smoke:'));
+  for (const script of ['slim_linux_advisory_runtime_checks.sh', 'full_additional_linux_advisory_runtime_checks.sh']) {
+    for (const stage of [candidate, manual]) {
+      assert.equal((stage.match(new RegExp(script.replaceAll('.', '\\.'), 'g')) ?? []).length, 1);
+    }
+    assert.doesNotMatch(finalSmoke, new RegExp(script.replaceAll('.', '\\.')));
+  }
 });
 
 test('retires the four fixed Chromium Critical exceptions and authority records', () => {

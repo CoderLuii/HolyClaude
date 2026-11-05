@@ -137,7 +137,7 @@ test('optional recipe pins only the signed Bookworm Docker client packages and u
 });
 
 test('native validator requires an exact digest and unique prefix, fails closed, and cleans only owned resources', () => {
-  assert.match(validator, /\[\[ \$# -ne 2 \]\]/);
+  assert.match(validator, /\[\[ \$# -ne 2 && \$# -ne 4 \]\]/);
   assert.match(validator, /\^\[a-z0-9\]\[a-z0-9_.-\]\{5,62\}\$/);
   assert.match(validator, /@sha256:\[0-9a-f\]\{64\}\$/);
   assert.match(validator, /REQUIRE_SOCKET_COMPOSE:-0.*!= 1/);
@@ -323,7 +323,7 @@ test('configuration guide keeps Docker access opt-in and documents authenticated
   assert.match(section, /Docker CLI 29\.9\.2/);
   assert.match(section, /Compose 5\.6\.1/);
   assert.match(section, /existing Full Compose service/i);
-  assert.match(section, /image: holyclaude:1\.6\.8-docker-client/);
+  assert.match(section, /image: holyclaude:1\.6\.9-docker-client/);
   assert.match(section, /DOCKER_CONFIG=\/home\/claude\/\.claude\/docker-client/);
   assert.match(section, /container's terminal/i);
   assert.match(section, /native release workflow[\s\S]*amd64[\s\S]*arm64/i);

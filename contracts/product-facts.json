@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.6.8",
-    "dockerVersion": "1.6.8"
+    "tag": "v1.6.9",
+    "dockerVersion": "1.6.9"
   },
   "registries": {
     "dockerHub": {
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.307",
+      "version": "2.1.318",
       "variants": [
         "full",
         "slim"
@@ -47,7 +47,7 @@
       "id": "gemini-cli",
       "name": "Gemini CLI",
       "command": "gemini",
-      "version": "0.65.0",
+      "version": "0.67.0",
       "variants": [
         "full",
         "slim"
@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.163.0",
+      "version": "0.166.0",
       "variants": [
         "full",
         "slim"
@@ -87,7 +87,7 @@
       "id": "junie",
       "name": "Junie",
       "command": "junie",
-      "version": "3888.1",
+      "version": "4011.1",
       "variants": [
         "full"
       ]
@@ -96,7 +96,7 @@
       "id": "opencode",
       "name": "OpenCode",
       "command": "opencode",
-      "version": "1.19.3",
+      "version": "1.19.5",
       "variants": [
         "full"
       ]
@@ -158,14 +158,14 @@
       "name": "Debian Chromium",
       "version": "156.0.8078",
       "versionByArch": {
-        "amd64": "156.0.8078.47-1~deb12u1",
-        "arm64": "156.0.8078.47-1~deb12u1"
+        "amd64": "156.0.8078.79-1~deb12u1",
+        "arm64": "156.0.8078.79-1~deb12u1"
       },
       "executable": "/usr/bin/chromium"
     },
     "playwright": {
-      "nodeVersion": "1.64.0",
-      "pythonVersion": "1.64.0",
+      "nodeVersion": "1.64.1",
+      "pythonVersion": "1.64.1",
       "browserDownload": false,
       "executable": "/usr/bin/chromium"
     }

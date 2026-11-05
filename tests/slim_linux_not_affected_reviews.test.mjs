@@ -225,13 +225,12 @@ test('leaves no temporary Critical exception for the component-separated finding
   assert.deepEqual(reviews, []);
 });
 
-test('runs slim advisory checks for both architectures on candidate, final, and published images', () => {
+test('runs slim advisory checks on both native candidates and manual published diagnostics', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   assert.match(workflow, /if \[ "\$VARIANT" = slim \]; then\s+docker run --rm --entrypoint bash -v "\$PWD\/tests:\/tests:ro" "\$IMAGE" \/tests\/slim_linux_advisory_runtime_checks\.sh/);
-  assert.match(workflow, /name: Verify final slim advisory evidence\s+if: matrix\.variant == 'slim'/);
-  const finalStep = workflow.slice(workflow.indexOf('      - name: Verify final slim advisory evidence'));
-  assert.match(finalStep, /steps\.image\.outputs\.ref.*steps\.image\.outputs\.digest/);
-  assert.match(finalStep, /\/tests\/slim_linux_advisory_runtime_checks\.sh/);
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  assert.doesNotMatch(finalSmoke, /slim_linux_advisory_runtime_checks\.sh/);
+  assert.match(workflow, /name: Revalidate candidate security evidence/);
   assert.match(workflow, /name: Verify published slim advisory evidence\s+if: matrix\.variant == 'slim'[\s\S]+\/tests\/slim_linux_advisory_runtime_checks\.sh/);
 });
 

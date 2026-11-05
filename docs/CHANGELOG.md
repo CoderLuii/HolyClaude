@@ -4,6 +4,19 @@ All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.9] - 11/05/2026
+
+### Changed
+
+- Updated Node to 26.13.0, Claude Code to 2.1.318, Gemini CLI to 0.67.0, Codex to 0.166.0, OpenCode to 1.19.5 and Junie to 4011.1 from official upstream releases.
+- Updated Python to 3.14.10 and Debian Chromium to 156.0.8078.79 on AMD64 and ARM64.
+- Aligned Node and Python Playwright at 1.64.1 and refreshed compatible developer, notification and document tools. Existing CloudCLI features and retained third-party patches remain unchanged.
+
+### Security
+
+- Added origin checks for the Node binary bundled in Python Playwright, binding its version, architecture, file hash and image layer to the reviewed official wheel.
+- Renewed immutable-input evidence and updated Syft to 1.56.0 and Grype to 0.121.1. Upstream vulnerability findings remain visible as accepted findings, not fixes.
+
 ## [1.6.8] - 10/26/2026
 
 ### Changed

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "release": "v1.6.8",
+  "release": "v1.6.9",
   "scope": "third_party_dependencies_only",
   "disposition": "accepted_upstream_vulnerability_not_fixed",
   "approvedBy": "CoderLuii",
@@ -71,6 +71,19 @@
         "/usr/local/lib/python"
       ],
       "locationPaths": []
+    },
+    {
+      "origin": "Python Playwright official wheel bundled Node runtime",
+      "types": [
+        "binary"
+      ],
+      "purlPrefixes": [
+        "pkg:generic/node@"
+      ],
+      "locationPrefixes": [],
+      "locationPaths": [
+        "/usr/local/lib/python3.14/site-packages/playwright/driver/node"
+      ]
     },
     {
       "origin": "bundled official Go module releases",

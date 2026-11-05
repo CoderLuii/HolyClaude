@@ -13,20 +13,20 @@ const securityPatch = readFileSync('scripts/patch-global-node-security-dependenc
 const upstreamPolicy = JSON.parse(readFileSync('security/upstream-dependency-policy.json', 'utf8'));
 
 test('Netlify CLI uses the checksum-bound upstream TOML security release', () => {
-  assert.match(dockerfile, /netlify-cli@27\.14\.1/);
+  assert.match(dockerfile, /netlify-cli@27\.16\.2/);
   assert.doesNotMatch(dockerfile, /netlify-cli@27\.5\.2/);
   assert.match(
     immutableInputs,
-    /name: Netlify CLI[\s\S]*?version: 27\.14\.1[\s\S]*?archive-sha256: 33dfec563c056871d2562a4cac28159f98efa9b10769a2d99001bb89720a23af[\s\S]*?npm-integrity: "sha512-kbTpN5JhWUzm3jLgtqKj3O59mzmu\/ik4wbM9\/1IJMPX\/BCASQa\/rKR4fUJ76dy4u7PxAX\/0T5PfOK8Q\/tywfQQ=="/,
+    /name: Netlify CLI[\s\S]*?version: 27\.16\.2[\s\S]*?archive-sha256: e96fd5fc99c2d2754c3d42817ede895ab54512209506ea8d7af7821f99eed0f5[\s\S]*?npm-integrity: "sha512-rRy3qR18LW\/bn6DGaw\/QPr7MvOGv3tx6SN2dw2OLKukToggOcooH1M13rCigGE\/EW31VhAS7GYAH9mS6suo0\/Q=="/,
   );
-  assert.match(releaseInputs, /'netlify-cli@27\.14\.1'/);
+  assert.match(releaseInputs, /'netlify-cli@27\.16\.2'/);
   assert.doesNotMatch(dockerfile, /rm -f[^\n]*local-functions-proxy/);
   assert.match(runtimeChecks, /test -x .*local-functions-proxy/);
 });
 
 test('full-image runtime validates Netlify parser upgrades and real Rust TOML reachability', () => {
   for (const expected of [
-    "'netlify-cli': '27.14.1'",
+    "'netlify-cli': '27.16.2'",
     'const expectedRanges = {',
     'manifest.dependencies[name]',
     'semver.satisfies(installedVersion, declaredRange)',
@@ -40,7 +40,7 @@ test('full-image runtime validates Netlify parser upgrades and real Rust TOML re
   ]) {
     assert.ok(runtimeChecks.includes(expected), 'runtime smoke should contain ' + expected);
   }
-  assert.match(runtimeChecks, /toml: '\^4\.0\.0'/);
+  assert.match(runtimeChecks, /toml: '\^5\.0\.0'/);
   assert.match(runtimeChecks, /'cron-parser': '\^5\.0\.0'/);
   assert.match(runtimeChecks, /'raw-body': '\^4\.0\.0'/);
   assert.match(runtimeChecks, /manifest\.dependencies\[name\]/);

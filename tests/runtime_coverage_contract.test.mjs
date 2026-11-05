@@ -31,11 +31,15 @@ test('native candidate matrix runs the bounded runtime coverage harnesses', () =
   }
 });
 
-test('published final matrix reruns non-baseline runtime coverage', () => {
+test('complete runtime coverage runs once per candidate before thin published smoke', () => {
+  const candidate = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  resolve-candidate-run:'));
+  const published = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
   for (const harness of ['atuin_runtime_smoke.sh', 'plugin_runtime_smoke.sh', 'docker_lifecycle_smoke.sh']) {
-    const matches = workflow.match(new RegExp(`bash tests/${harness.replaceAll('.', '\\.')}`, 'g')) ?? [];
-    assert.ok(matches.length >= 2, `${harness} must run for candidates and published images`);
+    const command = new RegExp(`bash tests/${harness.replaceAll('.', '\\.')}`, 'g');
+    assert.equal((candidate.match(command) ?? []).length, 1, harness);
+    assert.doesNotMatch(published, command);
   }
+  assert.match(published, /name: Smoke published startup and browser/);
 });
 
 test('source checks parse every Bash script separately', () => {
@@ -338,8 +342,9 @@ test('Cursor topology contracts preserve real state and require an exact generat
 });
 
 test('developer tools fixture exercises upgraded Vite, EAS, and native parser behavior', () => {
-  assert.ok((workflow.match(/developer_tools_smoke\.sh/g) ?? []).length >= 2,
-    'developer tools smoke must run for candidate and published image matrices');
+  const candidate = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  resolve-candidate-run:'));
+  assert.equal((candidate.match(/developer_tools_smoke\.sh/g) ?? []).length, 1,
+    'developer tools smoke must run once for every native candidate');
   assert.match(developerTools, /vite build/);
   assert.match(developerTools, /vite preview/);
   assert.match(developerTools, /grep -RFq 'vite-native-smoke' dist\/assets/);
@@ -348,8 +353,9 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
-  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.12\.1'/);
-  assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.1'/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.13\.0'/);
+  assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.2'/);
+  assert.match(developerTools, /test "\$\(pnpm --version\)" = 12\.16\.1/);
   assert.match(developerTools, /assert\.equal\(easPackage\.version, '24\.14\.0'/);
   assert.match(developerTools, /assert\.equal\(vercelPackage\.version, '63\.1\.2'/);
   assert.match(developerTools, /assert\.equal\(vercelContainerPackage\.version, '18\.0\.1'/);
@@ -379,7 +385,7 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /TREE_SITTER_LANGUAGE_PACK_MANIFEST_URL/);
   assert.match(developerTools, /a78386c99e08bc1c88e2fcd3c036a48b2c4c62088628a3aab3a3aad1ed3715a9/);
   assert.match(developerTools, /importlib\.metadata\.version\('tree-sitter'\) == '0\.26\.0'/);
-  assert.match(developerTools, /importlib\.metadata\.version\('tree-sitter-language-pack'\) == '1\.22\.1'/);
+  assert.match(developerTools, /importlib\.metadata\.version\('tree-sitter-language-pack'\) == '1\.23\.1'/);
   assert.match(developerTools, /get_parser\(['"]python['"]\)/);
   assert.match(developerTools, /root\.has_error/);
   assert.match(developerTools, /timeout --foreground [0-9]+s env/);

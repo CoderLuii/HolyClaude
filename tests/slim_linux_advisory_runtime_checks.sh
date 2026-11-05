@@ -10,8 +10,14 @@ require_package() {
 
   actual_version="$(dpkg-query -W -f='${Version}' "$package")"
   actual_architecture="$(dpkg-query -W -f='${Architecture}' "$package")"
-  test "$actual_version" = "$expected_version"
-  test "$actual_architecture" = "$expected_architecture"
+  if [ "$actual_version" != "$expected_version" ]; then
+    printf 'unexpected %s version: expected %s, got %s\n' "$package" "$expected_version" "$actual_version" >&2
+    return 1
+  fi
+  if [ "$actual_architecture" != "$expected_architecture" ]; then
+    printf 'unexpected %s architecture: expected %s, got %s\n' "$package" "$expected_architecture" "$actual_architecture" >&2
+    return 1
+  fi
 }
 
 test "$(cat /etc/holyclaude-variant)" = slim
@@ -36,13 +42,13 @@ for package in libblkid1 libfdisk1 libmount1 libsmartcols1 libuuid1 mount util-l
 done
 require_package zlib1g '1:1.2.13.dfsg-1' "$architecture"
 for package in bind9-dnsutils bind9-host bind9-libs; do
-  require_package "$package" '1:9.18.49-1~deb12u2' "$architecture"
+  require_package "$package" '1:9.18.49-1~deb12u3' "$architecture"
 done
 require_package libevent-core-2.1-7 '2.1.12-stable-8+deb12u1' "$architecture"
 require_package libtiff6 '4.5.0-6+deb12u4' "$architecture"
 
 # dnsutils is architecture-all and is bound separately from platform-architecture packages.
-require_package dnsutils '1:9.18.49-1~deb12u2' all
+require_package dnsutils '1:9.18.49-1~deb12u3' all
 
 if nsenter --help 2>&1 | grep -Fq -- '--join-cgroup'; then
   echo 'unexpected nsenter --join-cgroup support' >&2

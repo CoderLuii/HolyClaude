@@ -7,19 +7,20 @@ HolyClaude source checks, artifact integrity and runtime tests still block deliv
 
 ## Deferred replacements
 
-CloudCLI stays at the existing 1.37.3 artifact. The official 1.37.4 release does
-not provide HolyClaude's password-change controls, authenticated-session
-revocation, reverse-proxy prefix support and notification integration. Replacing
-it now would remove those features. Preserving them outside CloudCLI needs a
-separate authenticated account interface and REST/WebSocket session integration;
-a simple proxy does not cover its absolute browser paths.
+CloudCLI stays at the existing 1.37.3 artifact. The official 1.37.7 package does
+not pass HolyClaude's account-management support checks. Its account controls,
+session revocation, reverse-proxy prefixes and notification integration need
+equivalent source and runtime verification before replacement. A separate
+account interface and REST/WebSocket integration would be needed to preserve
+those features outside the dependency; a simple proxy does not cover its
+absolute browser paths.
 
 The existing Project Stats and Web Terminal artifacts, Cursor integration and
 FFmpeg build stay unchanged while their official replacements are evaluated.
 This maintenance does not add or extend their patches. Their modification
 notices remain in [THIRD-PARTY-NOTICES](../THIRD-PARTY-NOTICES).
 
-Vercel CLI 63.1.2, EAS CLI 24.14.0 and Netlify CLI 27.14.1 keep their official npm dependency trees. Their upstream vulnerability findings remain visible to the release scanners and are accepted as upstream findings rather than replaced downstream.
+Vercel CLI 63.1.2, EAS CLI 24.14.0 and Netlify CLI 27.16.2 keep their official npm dependency trees. Their upstream vulnerability findings remain visible to the release scanners and are accepted as upstream findings rather than replaced downstream.
 
 Official Vercel 63.1.2 includes `smol-toml` 1.5.2, affected by
 [CVE-2026-85730 / GHSA-7w5x-hrqm-74c2](https://github.com/advisories/GHSA-7w5x-hrqm-74c2).
@@ -36,15 +37,15 @@ Official EAS CLI 24.14.0 includes `tar` 7.5.19, affected by
 The upstream fix starts at 7.5.21. This remains an accepted upstream
 vulnerability; npm's separate bundled `tar` 7.5.22 is unchanged.
 
-The [Wrangler 4.151.3 npm release](https://www.npmjs.com/package/wrangler/v/4.151.3)
-declares Miniflare 5.20261019.1-beta and workerd 1.20261019.1. That Miniflare
-release declares the same workerd, Undici 7.29.1, and official
+The [Wrangler 4.157.0 npm release](https://www.npmjs.com/package/wrangler/v/4.157.0)
+declares Miniflare 5.20261103.0-beta and workerd 1.20261103.1. That Miniflare
+release declares the same workerd, Undici 7.30.1, and official
 Sharp 0.35.5 with libheif 1.23.5. [libheif 1.23.6](https://github.com/strukturag/libheif/releases/tag/v1.23.6)
 contains security fixes that this official Sharp prebuild does not yet include.
 Those upstream findings remain accepted and unresolved; HolyClaude does not
 replace the bundled native library.
 
-Apprise is updated to 2.0.1. Apprise 2 renamed the email PGP public-key URL
+Apprise is updated to 2.1.0. Apprise 2 renamed the email PGP public-key URL
 parameter from `pgpkey` to `pgppub`, so HolyClaude translates the legacy name for
 `mailto`, `mailtos`, `deltachat` and `deltachats` URLs before every `Apprise.add`
 call. An explicit `pgppub` value wins when both names are present.
@@ -60,17 +61,21 @@ compatibility path. The existing security overlay keeps Pi's upstream Undici
 baseline at 8.9.0, then installs the registry-verified 8.10.2 package without
 changing Pi code or removing features.
 
-Playwright stays aligned at 1.64.0 for Node and Python. Junie is updated to the
-official 3888.1 release assets.
+Playwright is aligned at 1.64.1 for Node and Python. Its official Python wheel
+bundles Node 24.22.1; the immutable input inventory records the wheel and driver
+hashes for each architecture. Junie is updated to the
+official 4011.1 release assets.
 
 Go remains at 1.27.1 for the existing esbuild rebuild stage. Changing that
 builder would change the outputs of HolyClaude's custom esbuild builds, so this
 toolchain update is deferred. The retained esbuild versions and replacement
 boundaries stay unchanged.
 
-Azure CLI is updated to 2.91.0 from Microsoft's signed Bookworm repository.
-Its existing embedded Python, cryptography, PyJWT, urllib3, pip and command
-probes remain strict for native Full-image qualification on both architectures.
+Azure CLI stays at 2.91.0 from Microsoft's signed Bookworm repository. Official
+2.92.0 removes `serverFarmId` from `az webapp show` and `az webapp list` output,
+which changes existing automation. That migration is deferred. The embedded
+Python, cryptography, PyJWT, urllib3, pip and command probes remain strict for
+native Full-image qualification on both architectures.
 
 A deferred replacement is not a verified fix, and its vulnerability findings
 remain visible.

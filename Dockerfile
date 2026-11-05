@@ -47,15 +47,15 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
     TARGETARCH="$TARGETARCH" /usr/local/bin/build-ffmpeg-security-backport.sh; \
     fi
 
-FROM python:3.14.9-slim-bookworm@sha256:7e0522950230cad1ec100ada6e3898c22c6bc82851289b4bdf0bf77c1c829cd5 AS python-runtime
+FROM python:3.14.10-slim-bookworm@sha256:516b51cb9db2ef061e465c803e50f64361b82cefd91e525b889b967b83e83527 AS python-runtime
 
-FROM node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe
+FROM node:26.13.0-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9
 
 COPY --from=python-runtime /usr/local/ /usr/local/
-RUN test "$(python3 --version)" = "Python 3.14.9" && \
+RUN test "$(python3 --version)" = "Python 3.14.10" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.6.8
+ARG HOLYCLAUDE_VERSION=1.6.9
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
@@ -67,21 +67,21 @@ ARG S6_ARCHIVE_SHA256_ARM64=b17f17a82e7a515c682a91edaf2ffdabb73f891981b6c1fd7121
 ARG FZF_VERSION=0.74.5
 ARG FZF_ARCHIVE_SHA256_AMD64=d47d7f882972c7d674dbbba998ffa4116e68379616ffac7695d0671e9a722c5f
 ARG FZF_ARCHIVE_SHA256_ARM64=cf058001da21724a469b714a29cf4aab9cbe860d218a0d6c1b5b661efad7784c
-ARG CHROMIUM_DEBIAN_VERSION_AMD64=156.0.8078.47-1~deb12u1
-ARG CHROMIUM_DEBIAN_VERSION_ARM64=156.0.8078.47-1~deb12u1
-ARG CHROMIUM_PACKAGE_SHA256_AMD64=aad2dc4f0d7340343c3dfb9dc9d1b5d058e4b008b6be18ca136415c3fa49ccf2
-ARG CHROMIUM_PACKAGE_SHA256_ARM64=a7ade1ba5b63258b899dd469f56edf5b03e0d63260e1bd27c69c2bbc661200e1
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=e570a2b3da2f4dfdc9edf966b4d9588c67be6021fd09198dbbed3d11c8870f7d
-ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=e3e3a575718696dc0b40c53dc1f27b946d6c4b5818b8699624af11a2be47b2e3
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=adbb12a68bb15d27eff08438d7372e17407163891a7baad4b95a1c25fd70ac8b
-ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=b6cb89d36042208b929ce7dc8d706c0471c1d65dff844f312d24ae288439bc22
-ARG CLAUDE_CODE_VERSION=2.1.307
+ARG CHROMIUM_DEBIAN_VERSION_AMD64=156.0.8078.79-1~deb12u1
+ARG CHROMIUM_DEBIAN_VERSION_ARM64=156.0.8078.79-1~deb12u1
+ARG CHROMIUM_PACKAGE_SHA256_AMD64=8f1f898bd42225ffb0dd2ca0234505ab9e9a2fc1493f996a091afe32218d8996
+ARG CHROMIUM_PACKAGE_SHA256_ARM64=ef74b82730d487ef3b3232e6e5c20793ddc7174e3e9d240b58032584c2749adf
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=22f8b358b96ee1afca2cefa496b303f29381cea846a3791b23128dee154e3b6b
+ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=853af7690a8ea35a73911c7bf816fe032888099ebb3d6c9ba98e2b94668fa44f
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=5a8e3b720c9b6867e9747e697556ba4d58eac21d7755a1fd335b2517ce901d00
+ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=0bed7fc607e3fdd94963916502f91324eac161566b4379621e04df27d204ae1a
+ARG CLAUDE_CODE_VERSION=2.1.318
 ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-ARG CLAUDE_BINARY_SHA256_AMD64=6021eb72d20d0682b720bdc63acd2a5cd2270895d1f10d9ca2a88cbfa7b9dd0e
-ARG CLAUDE_BINARY_SHA256_ARM64=1c67968ab8410c9644e2f4867167a0dab1a8c6c9de9cc83fe78449e5ae8a3633
-ARG JUNIE_VERSION=3888.1
-ARG JUNIE_ARCHIVE_SHA256_AMD64=742d99abb4a8a950b4a64d397b8763e25133d0708237b706ba5ab2c890745d9c
-ARG JUNIE_ARCHIVE_SHA256_ARM64=365b966a4de7a82b325e7b2a348eed4aea62b251b130ce2d4118a266979547a3
+ARG CLAUDE_BINARY_SHA256_AMD64=708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd
+ARG CLAUDE_BINARY_SHA256_ARM64=53a0d7e219d7b0804ecba5dbc002745e89f786cc946d2de85a6470d5b2d1fb06
+ARG JUNIE_VERSION=4011.1
+ARG JUNIE_ARCHIVE_SHA256_AMD64=9fcc8c47cc41e4b839f15297fe3a59ec400d2bde6b59c6e79166652daed4223d
+ARG JUNIE_ARCHIVE_SHA256_ARM64=f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15
 ARG CURSOR_BUILD_ID=2026.09.15-d2fe57e
 ARG CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97
 ARG CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d
@@ -118,9 +118,9 @@ ARG AZURE_CLI_PYJWT_VERSION=2.15.1
 ARG AZURE_CLI_PYJWT_WHEEL_SHA256=42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193
 ARG AZURE_CLI_URLLIB3_VERSION=2.8.0
 ARG AZURE_CLI_URLLIB3_WHEEL_SHA256=0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3
-ARG GITHUB_CLI_VERSION=2.103.0
-ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=4a48fa23b9ce9581f3304b822f3e014812f26519b134f89b37db8bc7d74746e1
-ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=5e218097cf3e02c4855a07fd4f5719b1523fa799f24eeb70d6b795a9a74fffe2
+ARG GITHUB_CLI_VERSION=2.103.3
+ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=e3bafef96328d1a67de3a968bdfe1cc2ffd58cf6aba8b5e201356897ed06bb3d
+ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=cac3ff84b60b68e64cca69f31f303210c26320361cc3286b773655d4226b7b06
 ARG TARGETARCH
 ARG VARIANT=full
 ARG FFMPEG_BACKPORT_VERSION=7:5.1.9-0+deb12u1+holyclaude2
@@ -185,9 +185,9 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 ARG YQ_VERSION=4.54.1
 ARG YQ_SHA256_AMD64=8e34fc298390875de416e6a4afcb8cabeceb25d9aa8506c1a2f9353cf702ea5f
 ARG YQ_SHA256_ARM64=189088da0c6429ec5178dfaab1a114805f6cab0b61b165ab236efedf1d57a71b
-ARG ATUIN_VERSION=18.24.1
-ARG ATUIN_SHA256_AMD64=fe03f652d6545a9d8795b3c2abb84bcddfe831e4b7effb0c2d191a0d70e498a0
-ARG ATUIN_SHA256_ARM64=a63e649138cddd5c9dba7123c89c2488b1701027d432836553a8a6cf51f5e863
+ARG ATUIN_VERSION=18.24.5
+ARG ATUIN_SHA256_AMD64=54182762c9d91a4f779748f622749ff6963956db005feb13e62d037196b05618
+ARG ATUIN_SHA256_ARM64=b44b3f264652b847b2e524ec397aa498c13076ed75cf213239ed2b9a0de2f99d
 RUN set -eux; \
     case "$TARGETARCH" in \
       amd64) YQ_SHA256="$YQ_SHA256_AMD64"; ATUIN_SHA256="$ATUIN_SHA256_AMD64"; ATUIN_TARGET=x86_64-unknown-linux-musl ;; \
@@ -340,27 +340,27 @@ RUN rm -f /home/claude/.claude.json
 ENV PATH="/home/claude/.local/bin:${PATH}"
 
 # ---------- npm global packages (slim — always installed) ----------
-RUN npm install -g npm@12.2.1 && \
-    test "$(npm --version)" = "12.2.1"
+RUN npm install -g npm@12.2.2 && \
+    test "$(npm --version)" = "12.2.2"
 
 RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm i -g \
-    playwright@1.64.0 \
+    playwright@1.64.1 \
     typescript@7.0.2 tsx@4.23.15 \
-    pnpm@12.14.0 \
+    pnpm@12.16.1 \
     vite@8.3.5 esbuild@0.28.2 \
-    eslint@10.13.0 prettier@3.9.10 \
+    eslint@10.14.0 prettier@3.9.10 \
     serve@14.2.6 nodemon@3.1.14 concurrently@10.0.6 \
-    dotenv-cli@11.0.0
+    dotenv-cli@11.1.0
 
 # ---------- npm global packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
     set -e; \
     npm i -g \
-      wrangler@4.151.3 vercel@63.1.2 netlify-cli@27.14.1 \
-      pm2@7.1.0 \
+      wrangler@4.157.0 vercel@63.1.2 netlify-cli@27.16.2 \
+      pm2@7.1.2 \
       prisma@7.10.1 drizzle-kit@0.31.11 \
       eas-cli@24.14.0 \
-      lighthouse@13.5.0 @lhci/cli@0.15.1 \
+      lighthouse@13.6.0 @lhci/cli@0.15.1 \
       sharp-cli@6.1.0 json-server@0.17.4 http-server@14.1.1 \
       @marp-team/marp-cli@4.5.1 && \
     npm i -g --legacy-peer-deps @cloudflare/next-on-pages@1.13.16 && \
@@ -422,15 +422,15 @@ RUN if [ "$VARIANT" = "full" ]; then \
 RUN pip install --no-cache-dir --break-system-packages \
     requests==2.34.2 httpx==0.28.1 beautifulsoup4==4.15.0 lxml==6.1.3 \
     Pillow==12.3.0 \
-    pandas==3.0.6 numpy==2.5.4 \
+    pandas==3.1.1 numpy==2.5.4 \
     openpyxl==3.1.5 python-docx==1.2.0 \
     jinja2==3.1.6 pyyaml==6.0.3 python-dotenv==1.2.4 markdown==3.11.2 \
     rich==15.0.0 click==8.5.0 tqdm==4.70.1 \
     desloppify==1.0 bandit==1.9.4 defusedxml==0.7.1 \
-    tree-sitter==0.26.0 tree-sitter-language-pack==1.22.1 stevedore==5.9.1 \
-    playwright==1.64.0 \
-    apprise==2.0.1 \
-    pytest==9.1.1 pytest-asyncio==1.4.0 flake8==7.4.1 \
+    tree-sitter==0.26.0 tree-sitter-language-pack==1.23.1 stevedore==5.9.1 \
+    playwright==1.64.1 \
+    apprise==2.1.0 \
+    pytest==9.2.0 pytest-asyncio==1.4.1.post1 flake8==7.5.0 \
     aiomqtt==2.5.1 aiohttp==3.14.5
 
 COPY scripts/holyclaude-chromium /usr/local/bin/holyclaude-chromium
@@ -441,8 +441,8 @@ RUN CHROMIUM_DEBIAN_VERSION=$(case "$TARGETARCH" in amd64) echo "$CHROMIUM_DEBIA
     test -x /usr/lib/chromium/chromium && \
     chmod +x /usr/local/bin/holyclaude-chromium && \
     ln -sf /usr/local/bin/holyclaude-chromium /usr/bin/chromium && \
-    test "$(node -p "require('/usr/local/lib/node_modules/playwright/package.json').version")" = "1.64.0" && \
-    test "$(python3 -c "import importlib.metadata; print(importlib.metadata.version('playwright'))")" = "1.64.0" && \
+    test "$(node -p "require('/usr/local/lib/node_modules/playwright/package.json').version")" = "1.64.1" && \
+    test "$(python3 -c "import importlib.metadata; print(importlib.metadata.version('playwright'))")" = "1.64.1" && \
     test "$(/usr/bin/chromium --version | awk '{print $2}')" = "${CHROMIUM_DEBIAN_VERSION%%-*}" && \
     runuser -u claude -- test -r /usr/lib/chromium/chromium && \
     runuser -u claude -- test -x /usr/lib/chromium/chromium && \
@@ -451,8 +451,8 @@ RUN CHROMIUM_DEBIAN_VERSION=$(case "$TARGETARCH" in amd64) echo "$CHROMIUM_DEBIA
 # ---------- Python packages (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
     pip install --no-cache-dir --break-system-packages \
-      reportlab==5.0.1 weasyprint==70.0 cairosvg==2.9.1 fpdf2==2.8.9 PyMuPDF==1.28.2 img2pdf==0.6.3 \
-      xlsxwriter==3.3.0 xlrd==2.0.2 \
+      reportlab==5.1.0 weasyprint==70.0 cairosvg==2.9.1 fpdf2==2.9.0 PyMuPDF==1.28.2 img2pdf==0.6.3 \
+      xlsxwriter==3.3.1 xlrd==2.0.2 \
       matplotlib==3.11.2 seaborn==0.13.2 \
       python-pptx==1.0.2 \
       fastapi==0.143.1 uvicorn==0.54.0; \
@@ -472,7 +472,7 @@ RUN curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on
     rm -f "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl"
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.65.0 @openai/codex@0.163.0 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.67.0 @openai/codex@0.166.0 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -497,7 +497,7 @@ RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "a
     rm -f "$CURSOR_DIR/node" && \
     ln -s /usr/local/bin/node "$CURSOR_DIR/node" && \
     test "$(readlink -f "$CURSOR_DIR/node")" = "$(readlink -f /usr/local/bin/node)" && \
-    test "$("$CURSOR_DIR/node" --version)" = "v26.12.1" && \
+    test "$("$CURSOR_DIR/node" --version)" = "v26.13.0" && \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
     cursor-agent --help >/dev/null && \
     rm -f /tmp/cursor-agent.tar.gz
@@ -532,8 +532,8 @@ USER root
 
 # ---------- OpenCode CLI (full only) ----------
 RUN if [ "$VARIANT" = "full" ]; then \
-    npm i -g --allow-scripts=opencode-ai opencode-ai@1.19.3; \
-    test "$(opencode --version)" = "1.19.3"; \
+    npm i -g --allow-scripts=opencode-ai opencode-ai@1.19.5; \
+    test "$(opencode --version)" = "1.19.5"; \
     fi
 
 # ---------- Pi Coding Agent (full only) ----------
@@ -593,7 +593,7 @@ RUN set -eux; \
         /usr/local/lib/node_modules/@cloudflare/next-on-pages/node_modules/ws; \
     fi; \
     node /tmp/patch-global-node-security-dependencies.mjs --root / --variant "$VARIANT"; \
-    test "$(npm --version)" = "12.2.1"; \
+    test "$(npm --version)" = "12.2.2"; \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID"; \
     if [ "$VARIANT" = "full" ]; then \
       npm --prefix /usr/local/lib/node_modules/wrangler ls undici --all >/dev/null; \
@@ -621,7 +621,7 @@ RUN set -eux; \
       npm --prefix /usr/local/lib/node_modules/@marp-team/marp-cli ls @xmldom/xmldom --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/wrangler ls sharp --all >/dev/null; \
       npm --prefix /usr/local/lib/node_modules/netlify-cli ls sharp --all >/dev/null; \
-      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.14.1"; \
+      test "$(node -p "require('/usr/local/lib/node_modules/netlify-cli/package.json').version")" = "27.16.2"; \
       test "$(node -p "require('/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom/package.json').version")" = "$FULL_XMLDOM_VERSION"; \
       node -e "const { DOMImplementation, XMLSerializer } = require('/usr/local/lib/node_modules/@marp-team/marp-cli/node_modules/@xmldom/xmldom'); const implementation = new DOMImplementation(); const doctype = implementation.createDocumentType('html', '', ''); doctype.name = 'html><injected'; const document = implementation.createDocument(null, 'root', doctype); try { new XMLSerializer().serializeToString(document, { requireWellFormed: true }); throw new Error('xmldom accepted an injected doctype name'); } catch (error) { if (error.name !== 'InvalidStateError') throw error; }"; \
       test "$(node -p "process.versions.modules")" = "147"; \
@@ -641,7 +641,7 @@ RUN set -eux; \
       node -e "(async () => { const sharp = require('/usr/local/lib/node_modules/netlify-cli/node_modules/sharp'); if (typeof sharp !== 'function' || typeof sharp.format !== 'object') throw new Error('invalid Netlify sharp exports'); const png = await sharp({ create: { width: 2, height: 2, channels: 4, background: '#336699ff' } }).png().toBuffer(); if (png.subarray(1, 4).toString() !== 'PNG') throw new Error('invalid Netlify sharp PNG transform'); const avif = await sharp(png).avif().toBuffer(); const metadata = await sharp(avif).metadata(); if (metadata.format !== 'heif' || metadata.width !== 2 || metadata.height !== 2) throw new Error('invalid Netlify sharp AVIF decode'); console.log('netlify_sharp_build=ok'); })().catch((error) => { console.error(error); process.exit(1); })"; \
       wrangler --version >/dev/null; \
       pi --version >/dev/null; \
-      PM2_HOME=/tmp/holyclaude-build-pm2 pm2 --version | grep -Fx "7.1.0"; \
+      PM2_HOME=/tmp/holyclaude-build-pm2 pm2 --version | grep -Fx "7.1.2"; \
       PM2_HOME=/tmp/holyclaude-build-pm2 pm2 kill >/dev/null; \
       rm -rf /tmp/holyclaude-build-pm2; \
       eas --version >/dev/null; \
@@ -684,7 +684,7 @@ RUN echo "$CLOUDCLI_ACCOUNT_MANAGEMENT_ARTIFACT_SHA256  /tmp/vendor/cloudcli-ai-
     cp -- npm-shrinkwrap.json package-lock.json && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap.json" | sha256sum -c - && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  package-lock.json" | sha256sum -c - && \
-    test "$(npm --version)" = "12.2.1" && \
+    test "$(npm --version)" = "12.2.2" && \
     TMPDIR="$CLOUDCLI_RIPGREP_CACHE_ROOT" npm ci --omit=dev --allow-remote=all --allow-file=none --allow-git=none --allow-directory=none && \
     echo "$CLOUDCLI_SHRINKWRAP_SHA256  npm-shrinkwrap.json" | sha256sum -c - && \
     cmp -s npm-shrinkwrap.json package-lock.json && \
@@ -748,7 +748,7 @@ RUN set -eux; \
 RUN npm --prefix /usr/local/lib/node_modules/@cloudcli-ai/cloudcli ls js-yaml --all >/dev/null && \
     node -e "const matter = require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/gray-matter'); const value = matter('---\\ntitle: Secure\\nfeatures:\\n  - overlays\\n---\\nBody'); if (value.data.title !== 'Secure' || value.data.features[0] !== 'overlays' || value.content.trim() !== 'Body') throw new Error('invalid gray-matter front matter')" && \
     timeout 5s node -e "const yaml = require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/node_modules/js-yaml'); const source = 'arr: &arr [' + '{},'.repeat(12).slice(0, -1) + ']\\ntargets:\\n' + '  - <<: *arr\\n'.repeat(12); let rejected = false; try { yaml.load(source, { schema: yaml.DEFAULT_FULL_SCHEMA, maxTotalMergeKeys: 8 }); } catch (error) { if (error.reason !== 'merge keys exceeded maxTotalMergeKeys (8)') throw error; rejected = true; } if (!rejected) throw new Error('advisory input was accepted'); console.log('cloudcli_js_yaml_merge_limit=ok')"
-RUN node --input-type=module -e "import { createRequire } from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); const packagePath = require.resolve('playwright/package.json'); if (packagePath !== '/usr/local/lib/node_modules/playwright/package.json') throw new Error('CloudCLI resolved unexpected Playwright package: ' + packagePath); const { version } = require(packagePath); if (version !== '1.64.0') throw new Error('CloudCLI resolved unexpected Playwright version: ' + version);" && \
+RUN node --input-type=module -e "import { createRequire } from 'node:module'; const require = createRequire('file:///usr/local/lib/node_modules/@cloudcli-ai/cloudcli/dist-server/server/index.js'); const packagePath = require.resolve('playwright/package.json'); if (packagePath !== '/usr/local/lib/node_modules/playwright/package.json') throw new Error('CloudCLI resolved unexpected Playwright package: ' + packagePath); const { version } = require(packagePath); if (version !== '1.64.1') throw new Error('CloudCLI resolved unexpected Playwright version: ' + version);" && \
     test -x /usr/bin/chromium
 COPY scripts/patch-cloudcli-apprise-notifications.mjs /tmp/patch-cloudcli-apprise-notifications.mjs
 COPY scripts/patch-cloudcli-base-path.mjs /tmp/patch-cloudcli-base-path.mjs

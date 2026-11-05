@@ -252,13 +252,16 @@ test('documented recovery aborts when the old container cannot be inspected', {
   }
 });
 
-test('release workflow checks CLI persistence before and after promotion', () => {
+test('release workflow checks CLI persistence once per candidate before promotion', () => {
   assert.equal(existsSync('tests/docker_cli_persistence_smoke.sh'), true);
   const smoke = readFileSync('tests/docker_cli_persistence_smoke.sh', 'utf8');
   assert.match(smoke, /type=bind,source=\$bind_claude,target=\/home\/claude\/\.claude/);
   assert.match(smoke, /Manual Bind User/);
-  const matches = workflow.match(/tests\/docker_cli_persistence_smoke\.sh/g) ?? [];
-  assert.equal(matches.length, 2);
+  const candidate = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  resolve-candidate-run:'));
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  assert.equal((candidate.match(/tests\/docker_cli_persistence_smoke\.sh/g) ?? []).length, 1);
+  assert.doesNotMatch(finalSmoke, /tests\/docker_cli_persistence_smoke\.sh/);
+  assert.match(finalSmoke, /name: Smoke published startup and browser/);
 });
 
 test('troubleshooting preserves unsafe CLI state while inspecting link targets', () => {

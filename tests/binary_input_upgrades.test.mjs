@@ -22,47 +22,47 @@ const cloudcliManifest = JSON.parse(read('vendor/artifacts/cloudcli-account-mana
 
 test('updates runtime Node while preserving custom builder provenance', () => {
   const buildImage = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
-  const runtimeImage = 'node:26.12.1-bookworm-slim@sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe';
+  const runtimeImage = 'node:26.13.0-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9';
   assert.match(cloudcliArtifactBuilder, /const expectedBuildImage = 'node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6'/);
   assert.match(cloudcliArtifactContainerBuilder, /const buildImage = 'node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6'/);
   assert.equal(dockerfile.match(/^FROM node:[^\r\n]+/gm)?.filter((line) => line.startsWith(`FROM ${runtimeImage}`)).length, 1);
   assert.match(dockerfile, /^FROM node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6 AS ffmpeg-security-builder$/m);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.12\.1"/);
-  assert.match(runtimeChecks, /require_eq "Node version" "\$\(node --version\)" "v26\.12\.1"/);
-  assert.match(developerToolsSmoke, /assert\.equal\(process\.version, 'v26\.12\.1'/);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.13\.0"/);
+  assert.match(runtimeChecks, /require_eq "Node version" "\$\(node --version\)" "v26\.13\.0"/);
+  assert.match(developerToolsSmoke, /assert\.equal\(process\.version, 'v26\.13\.0'/);
   assert.doesNotMatch(architectureDocs, /Node 26\.8\.2 runtime/);
   assert.doesNotMatch(thirdPartyNotices, /Node 26\.8\.2 runtime|Version: 26\.8\.2 base image/);
-  assert.match(thirdPartyNotices, /## Node\.js[\s\S]{0,100}Version: 26\.12\.1 base image/);
+  assert.match(thirdPartyNotices, /## Node\.js[\s\S]{0,100}Version: 26\.13\.0 base image/);
   assert.equal(cloudcliManifest.build.image, buildImage);
   assert.equal(cloudcliManifest.build.node, 'v26.9.0');
   assert.match(immutableInputs, /name: FFmpeg security builder\s+reference: node:26\.9\.0-bookworm-slim\s+digest: sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6\s+status: retained/);
-  assert.match(immutableInputs, /name: HolyClaude runtime\s+reference: node:26\.12\.1-bookworm-slim\s+digest: sha256:28147155d47dc31abe0a46e0d12b59b2fb3d0a2dcc5dc65fce76a074180b16fe/);
+  assert.match(immutableInputs, /name: HolyClaude runtime\s+reference: node:26\.13\.0-bookworm-slim\s+digest: sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9/);
 });
 
 test('pins the verified native binary candidates and runtime contracts', () => {
   for (const expected of [
-    'ARG CLAUDE_CODE_VERSION=2.1.307',
-    'ARG CLAUDE_BINARY_SHA256_AMD64=6021eb72d20d0682b720bdc63acd2a5cd2270895d1f10d9ca2a88cbfa7b9dd0e',
-    'ARG CLAUDE_BINARY_SHA256_ARM64=1c67968ab8410c9644e2f4867167a0dab1a8c6c9de9cc83fe78449e5ae8a3633',
-    'ARG GITHUB_CLI_VERSION=2.103.0',
-    'ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=4a48fa23b9ce9581f3304b822f3e014812f26519b134f89b37db8bc7d74746e1',
-    'ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=5e218097cf3e02c4855a07fd4f5719b1523fa799f24eeb70d6b795a9a74fffe2',
+    'ARG CLAUDE_CODE_VERSION=2.1.318',
+    'ARG CLAUDE_BINARY_SHA256_AMD64=708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd',
+    'ARG CLAUDE_BINARY_SHA256_ARM64=53a0d7e219d7b0804ecba5dbc002745e89f786cc946d2de85a6470d5b2d1fb06',
+    'ARG GITHUB_CLI_VERSION=2.103.3',
+    'ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=e3bafef96328d1a67de3a968bdfe1cc2ffd58cf6aba8b5e201356897ed06bb3d',
+    'ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=cac3ff84b60b68e64cca69f31f303210c26320361cc3286b773655d4226b7b06',
     'ARG CURSOR_BUILD_ID=2026.09.15-d2fe57e',
     'ARG CURSOR_ARCHIVE_SHA256_AMD64=4b7b026dd104e935b216cc52f905a560d741fc80a4a4d62ef655735b96a15c97',
     'ARG CURSOR_ARCHIVE_SHA256_ARM64=2d741c12c3ee7a505584579efb28a0ee31ff13fefc1f347e2d3b43688c04620d',
     'ARG CURSOR_LAUNCHER_SHA256=2ccc9a8e167797641448b5e5c936f006ba137a2555f117f38c5eb76a5238a233',
-    'ARG JUNIE_VERSION=3888.1',
-    'ARG JUNIE_ARCHIVE_SHA256_AMD64=742d99abb4a8a950b4a64d397b8763e25133d0708237b706ba5ab2c890745d9c',
-    'ARG JUNIE_ARCHIVE_SHA256_ARM64=365b966a4de7a82b325e7b2a348eed4aea62b251b130ce2d4118a266979547a3',
+    'ARG JUNIE_VERSION=4011.1',
+    'ARG JUNIE_ARCHIVE_SHA256_AMD64=9fcc8c47cc41e4b839f15297fe3a59ec400d2bde6b59c6e79166652daed4223d',
+    'ARG JUNIE_ARCHIVE_SHA256_ARM64=f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15',
   ]) assert.ok(dockerfile.includes(expected), `Dockerfile should bind ${expected}`);
 
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.307');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.318');
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'cursor-agent')?.version, '2026.09.15-d2fe57e');
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'junie')?.version, '3888.1');
-  assert.match(runtimeChecks, /require_eq "Claude Code version"[^\n]+"2\.1\.307"/);
-  assert.match(runtimeChecks, /require_eq "GitHub CLI version"[^\n]+"2\.103\.0"/);
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'junie')?.version, '4011.1');
+  assert.match(runtimeChecks, /require_eq "Claude Code version"[^\n]+"2\.1\.318"/);
+  assert.match(runtimeChecks, /require_eq "GitHub CLI version"[^\n]+"2\.103\.3"/);
   assert.match(runtimeChecks, /require_eq "Cursor Agent build"[^\n]+"2026\.09\.15-d2fe57e"/);
-  assert.match(runtimeChecks, /require_eq "Junie build"[^\n]+"3888\.1"/);
+  assert.match(runtimeChecks, /require_eq "Junie build"[^\n]+"4011\.1"/);
   assert.match(cursorOwnerGuard, /versions\/2026\.09\.15-d2fe57e\/node_modules\/piscina\/package\.json/);
 });
 
@@ -78,12 +78,12 @@ test('preserves the historical Junie 3419.26 applicability guard', () => {
 
 test('pins the verified workflow scanner and action updates', () => {
   for (const expected of [
-    'SYFT_VERSION: 1.55.0',
-    'GRYPE_VERSION: 0.121.0',
-    'SYFT_SHA256_AMD64: bb65249542db5fedeeb4d3f9b018b75e7264dbfbbb10486f044581a92f90490d',
-    'SYFT_SHA256_ARM64: 929bd163db2d7cd2255d3bcb8967208079813d7b46b0c952f7b794d8e2c7d304',
-    'GRYPE_SHA256_AMD64: 64e07133d3486115de647a66581461dccf5c732748a0a3119077395565f15519',
-    'GRYPE_SHA256_ARM64: 86f570f75ca947ea3dd6486309232bcff6d78e44ba081ae75ab14eab72be3dae',
+    'SYFT_VERSION: 1.56.0',
+    'GRYPE_VERSION: 0.121.1',
+    'SYFT_SHA256_AMD64: 1c2493cfcf52d3367d6cb25780d9190c111c2219c34c820574c43e8bae15c528',
+    'SYFT_SHA256_ARM64: ace61b9397ae28189c674ae332d67a8074dafd71e87724dfb8b22412d8253bb5',
+    'GRYPE_SHA256_AMD64: bc3ea3f9e6fd56ac781c08c6c5e614271b79f438200757f6932085c19b0a4657',
+    'GRYPE_SHA256_ARM64: 33670612aad351c48cf3c37f4a85d8b043d1b64b21e6034e675bb00b956d78c1',
     'docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1',
     'docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0',
   ]) assert.ok(workflow.includes(expected), `workflow should bind ${expected}`);
@@ -102,7 +102,7 @@ test('updates the optional Docker CLI and Compose plugin from signed repository 
 });
 
 test('uses the current signed Chromium 156 Bookworm security binaries', () => {
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_AMD64=156\.0\.8078\.47-1~deb12u1/);
-  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_ARM64=156\.0\.8078\.47-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_AMD64=156\.0\.8078\.79-1~deb12u1/);
+  assert.match(dockerfile, /ARG CHROMIUM_DEBIAN_VERSION_ARM64=156\.0\.8078\.79-1~deb12u1/);
   assert.doesNotMatch(dockerfile, /153\.0\.8010\.52-1~deb12u1/);
 });

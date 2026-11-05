@@ -6,6 +6,8 @@ import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 
 const script = 'scripts/patch-global-node-security-dependencies.mjs';
+// Verbatim package.json from the official speech-rule-engine 4.1.5 archive.
+const currentMarpOwner = readFileSync(new URL('./fixtures/speech-rule-engine-4.1.5.package.json', import.meta.url), 'utf8');
 
 test('does not patch dependency trees already fixed by their upstream owners', () => {
   const source = readFileSync(script, 'utf8');
@@ -117,6 +119,58 @@ test('accepts an already patched verified tree', () => {
   installReplacements(root);
   assert.equal(run(root).status, 0);
   assert.equal(run(root).status, 0);
+});
+
+function setMarpTuple(root, ownerVersion, xmlVersion, dependencyVersion = xmlVersion) {
+  const [xmlPath, xmlName] = packages.find(([path]) => path.endsWith('/marp-cli/node_modules/@xmldom/xmldom/package.json'));
+  const [ownerPath, ownerName] = dependencies.find(([path]) => path.endsWith('/marp-cli/node_modules/speech-rule-engine/package.json'));
+  writeJson(join(root, xmlPath), { name: xmlName, version: xmlVersion });
+  writeJson(join(root, ownerPath), { name: ownerName, version: ownerVersion, dependencies: { '@xmldom/xmldom': dependencyVersion } });
+  return join(root, ownerPath);
+}
+
+test('accepts only the exact historical and current official Marp baseline pairs', () => {
+  for (const [ownerVersion, xmlVersion] of [['4.1.4', '0.9.10'], ['4.1.5', '0.9.12']]) {
+    const root = fixture();
+    const ownerPath = setMarpTuple(root, ownerVersion, xmlVersion);
+    if (ownerVersion === '4.1.5') writeFileSync(ownerPath, currentMarpOwner);
+    const baseline = run(root, true);
+    assert.equal(baseline.status, 0, baseline.stderr);
+    installReplacements(root);
+    const patched = run(root);
+    assert.equal(patched.status, 0, patched.stderr);
+    const owner = JSON.parse(readFileSync(ownerPath));
+    assert.equal(owner.version, ownerVersion);
+    assert.equal(owner.dependencies['@xmldom/xmldom'], '0.9.12');
+    if (ownerVersion === '4.1.5') {
+      const expected = JSON.parse(currentMarpOwner);
+      expected.dependencies['@xmldom/xmldom'] = '0.9.12';
+      assert.deepEqual(owner, expected, 'preserve every other official owner field');
+    }
+    assert.equal(run(root).status, 0);
+  }
+});
+
+test('rejects mixed and unreviewed Marp baseline pairs', () => {
+  for (const tuple of [
+    ['4.1.4', '0.9.12'],
+    ['4.1.5', '0.9.10'],
+    ['4.1.6', '0.9.12'],
+    ['4.1.5', '0.9.13'],
+    ['4.1.4', '0.9.10', '0.9.12'],
+    ['4.1.5', '0.9.12', '0.9.10'],
+    ['4.1.5', '0.9.12', '0.9.12'],
+    ['4.1.5', '0.9.12', '^0.9.13'],
+    ['4.1.5', '0.9.12', '>=0.9.12'],
+  ]) {
+    const root = fixture();
+    setMarpTuple(root, ...tuple);
+    assert.notEqual(run(root, true).status, 0, JSON.stringify(tuple));
+  }
+  const root = fixture();
+  setMarpTuple(root, '4.1.5', '0.9.12', '0.9.10');
+  installReplacements(root);
+  assert.notEqual(run(root).status, 0, 'the current owner cannot carry the old dependency after replacement');
 });
 
 test('fails closed when an installed package drifts', () => {

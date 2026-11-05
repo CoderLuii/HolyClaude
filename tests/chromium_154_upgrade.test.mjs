@@ -8,16 +8,16 @@ const ledger = JSON.parse(readFileSync('security/advisory-reviews.json', 'utf8')
 const immutableInputs = readFileSync('security/immutable-inputs.yml', 'utf8');
 
 const versions = {
-  amd64: '156.0.8078.47-1~deb12u1',
-  arm64: '156.0.8078.47-1~deb12u1',
+  amd64: '156.0.8078.79-1~deb12u1',
+  arm64: '156.0.8078.79-1~deb12u1',
 };
 const packageBindings = [
-  ['CHROMIUM_PACKAGE_SHA256_AMD64', 'amd64-chromium-package-sha256', 'aad2dc4f0d7340343c3dfb9dc9d1b5d058e4b008b6be18ca136415c3fa49ccf2'],
-  ['CHROMIUM_PACKAGE_SHA256_ARM64', 'arm64-chromium-package-sha256', 'a7ade1ba5b63258b899dd469f56edf5b03e0d63260e1bd27c69c2bbc661200e1'],
-  ['CHROMIUM_COMMON_PACKAGE_SHA256_AMD64', 'amd64-chromium-common-package-sha256', 'e570a2b3da2f4dfdc9edf966b4d9588c67be6021fd09198dbbed3d11c8870f7d'],
-  ['CHROMIUM_COMMON_PACKAGE_SHA256_ARM64', 'arm64-chromium-common-package-sha256', 'e3e3a575718696dc0b40c53dc1f27b946d6c4b5818b8699624af11a2be47b2e3'],
-  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64', 'amd64-chromium-sandbox-package-sha256', 'adbb12a68bb15d27eff08438d7372e17407163891a7baad4b95a1c25fd70ac8b'],
-  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64', 'arm64-chromium-sandbox-package-sha256', 'b6cb89d36042208b929ce7dc8d706c0471c1d65dff844f312d24ae288439bc22'],
+  ['CHROMIUM_PACKAGE_SHA256_AMD64', 'amd64-chromium-package-sha256', '8f1f898bd42225ffb0dd2ca0234505ab9e9a2fc1493f996a091afe32218d8996'],
+  ['CHROMIUM_PACKAGE_SHA256_ARM64', 'arm64-chromium-package-sha256', 'ef74b82730d487ef3b3232e6e5c20793ddc7174e3e9d240b58032584c2749adf'],
+  ['CHROMIUM_COMMON_PACKAGE_SHA256_AMD64', 'amd64-chromium-common-package-sha256', '22f8b358b96ee1afca2cefa496b303f29381cea846a3791b23128dee154e3b6b'],
+  ['CHROMIUM_COMMON_PACKAGE_SHA256_ARM64', 'arm64-chromium-common-package-sha256', '853af7690a8ea35a73911c7bf816fe032888099ebb3d6c9ba98e2b94668fa44f'],
+  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64', 'amd64-chromium-sandbox-package-sha256', '5a8e3b720c9b6867e9747e697556ba4d58eac21d7755a1fd335b2517ce901d00'],
+  ['CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64', 'arm64-chromium-sandbox-package-sha256', '0bed7fc607e3fdd94963916502f91324eac161566b4379621e04df27d204ae1a'],
 ];
 const chromiumPackageNames = new Set(['chromium', 'chromium-common', 'chromium-sandbox']);
 const retiredChromiumVersions = new Set([
@@ -119,7 +119,7 @@ test('publishes Chromium 156 as the product and runtime fact', () => {
 
 test('does not reuse historical Chromium 154 review decisions for Chromium 156', () => {
   const currentReviews = ledger.reviews.filter((review) =>
-    review.component.versions.includes('156.0.8078.47-1~deb12u1'));
+    review.component.versions.some((version) => [...Object.values(versions), '156.0.8078.47-1~deb12u1'].includes(version)));
   assert.deepEqual(currentReviews, []);
 });
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -10,6 +10,7 @@ const candidate = workflow.slice(
   workflow.indexOf('  build-candidate:'),
   workflow.indexOf('  resolve-candidate-run:'),
 );
+const published = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
 
 function runWorkflowVersionParser(command, output) {
   const marker = '          const command = process.env.VERSION_COMMAND;';
@@ -138,14 +139,20 @@ test('every native candidate runs the complete smoke suite against its digest', 
   assert.match(candidate, /ARCH: \$\{\{ matrix\.arch \}\}/);
 });
 
-test('published developer tools smoke uses the resolved image digest as the claude user', () => {
-  const step = workflow.slice(
-    workflow.indexOf('      - name: Smoke final developer tools'),
-    workflow.indexOf('      - name: Smoke final CloudCLI volume persistence'),
-  );
-  assert.match(step, /docker run --rm --user claude --entrypoint bash/);
-  assert.match(step, /steps\.image\.outputs\.ref.*@.*steps\.image\.outputs\.digest/);
-  assert.match(step, /\/tests\/developer_tools_smoke\.sh/);
+test('published images get a bounded native startup, version, and real browser check', () => {
+  assert.equal((published.match(/- registry: (dockerhub|ghcr)/g) ?? []).length, 8);
+  assert.match(published, /name: Smoke published startup and browser/);
+  assert.match(published, /IMAGE: \$\{\{ steps\.image\.outputs\.ref \}\}@\$\{\{ steps\.image\.outputs\.digest \}\}/);
+  assert.match(published, /uname -m/);
+  assert.match(published, /org\.opencontainers\.image\.revision/);
+  assert.match(published, /org\.opencontainers\.image\.version/);
+  assert.match(published, /http:\/\/127\.0\.0\.1:3001\/health/);
+  assert.match(published, /contracts\/product-facts\.json/);
+  assert.match(published, /--user claude/);
+  assert.match(published, /timeout 60 docker exec/);
+  assert.match(published, /--headless=new[\s\S]*--dump-dom/);
+  assert.match(published, /HolyClaude published browser/);
+  assert.match(published, /trap cleanup EXIT/);
 });
 
 test('CloudCLI volume smoke bounds SQLite lock waits', () => {
@@ -153,16 +160,47 @@ test('CloudCLI volume smoke bounds SQLite lock waits', () => {
   assert.match(smoke, /sqlite3 -cmd (?:\\?"\.timeout 10000\\?") \/home\/claude\/\.cloudcli\/auth\.db/g);
 });
 
-test('published auth-session smoke covers each resolved native image digest', () => {
-  const step = workflow.slice(
-    workflow.indexOf('      - name: Smoke final auth sessions'),
-    workflow.indexOf('      - name: Smoke final developer tools'),
-  );
-  assert.match(step, /timeout-minutes: 10/);
-  assert.match(step, /bash tests\/cloudcli_auth_session_smoke\.sh/);
-  assert.match(step, /steps\.image\.outputs\.ref.*@.*steps\.image\.outputs\.digest/);
-  assert.match(step, /--variant "\$\{\{ matrix\.variant \}\}"/);
-  assert.match(step, /--expected-arch "\$\{\{ matrix\.arch \}\}"/);
+test('post-promotion does not repeat the complete candidate suites', () => {
+  assert.doesNotMatch(published, /tests\/(?:browser_runtime_smoke|cloudcli_auth_session_smoke|developer_tools_smoke|atuin_runtime_smoke|plugin_runtime_smoke|docker_lifecycle_smoke|docker_cloudcli_volume_smoke|docker_cli_persistence_smoke|(?:slim|full)(?:_additional)?_linux_advisory_runtime_checks)\.sh/);
+  assert.match(candidate, /bash tests\/cloudcli_auth_session_smoke\.sh/);
+  assert.match(candidate, /bash tests\/docker_cloudcli_volume_smoke\.sh/);
+  assert.match(candidate, /bash tests\/docker_cli_persistence_smoke\.sh/);
+  assert.match(candidate, /bash tests\/validate_optional_docker_client\.sh/);
+  assert.match(workflow, /name: Roll back mutable aliases after failed final smoke/);
+});
+
+test('published cross-registry readback rejects changed config or ordered layers', () => {
+  const start = workflow.indexOf('      - name: Verify cross-registry published image graph');
+  const end = workflow.indexOf('      - name: Upload promotion evidence', start);
+  assert.ok(start >= 0 && end > start);
+  const step = workflow.slice(start, end);
+  const scripts = [...step.matchAll(/          python3 - <<'PY'[^\n]*\n([\s\S]*?)          PY/g)];
+  assert.equal(scripts.length, 2);
+  const validator = scripts.at(-1)[1].replace(/^ {10}/gm, '');
+  const root = mkdtempSync(join(tmpdir(), 'holyclaude-published-graphs-'));
+  try {
+    mkdirSync(join(root, 'promotion', 'manifests'), { recursive: true });
+    writeFileSync(join(root, 'promotion', 'final-digests.json'), JSON.stringify({ variants: { full: {}, slim: {} } }));
+    const manifest = { config: { digest: 'sha256:config' }, layers: [{ digest: 'sha256:first' }, { digest: 'sha256:second' }] };
+    for (const variant of ['full', 'slim']) for (const arch of ['amd64', 'arm64']) for (const registry of ['dockerhub', 'ghcr']) {
+      writeFileSync(join(root, 'promotion', 'manifests', `graph-${variant}-${arch}-${registry}.json`), JSON.stringify(manifest));
+    }
+    const run = () => spawnSync(process.platform === 'win32' ? 'python' : 'python3', ['-'], { cwd: root, input: validator, encoding: 'utf8' });
+    assert.equal(run().status, 0);
+    const changedPath = join(root, 'promotion', 'manifests', 'graph-full-arm64-ghcr.json');
+    for (const changed of [
+      { ...manifest, config: { digest: 'sha256:other' } },
+      { ...manifest, layers: [...manifest.layers].reverse() },
+    ]) {
+      writeFileSync(changedPath, JSON.stringify(changed));
+      const result = run();
+      assert.notEqual(result.status, 0);
+      assert.match(result.stderr, /published config or ordered layer digests differ/);
+    }
+  } finally {
+    assert.ok(root.startsWith(join(tmpdir(), 'holyclaude-published-graphs-')));
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('CloudCLI retained artifact gate blocks any extension of its builder or overlay inputs', () => {
@@ -188,8 +226,8 @@ test('CloudCLI retained section allows only the three exact reviewed release del
   assert.equal(accepted.normalized, current.replaceAll('\r\n', '\n'));
 
   for (const [label, changed] of [
-    ['stale CloudCLI Playwright version', current.replace("version !== '1.64.0'", "version !== '1.63.0'")],
-    ['wrong CloudCLI Playwright version', current.replace("version !== '1.64.0'", "version !== '1.64.1'")],
+    ['stale CloudCLI Playwright version', current.replace("version !== '1.64.1'", "version !== '1.64.0'")],
+    ['wrong CloudCLI Playwright version', current.replace("version !== '1.64.1'", "version !== '1.64.2'")],
     [
       'wrong CloudCLI Playwright resolution path',
       current.replace(

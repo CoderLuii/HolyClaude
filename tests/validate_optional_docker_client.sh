@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 2 ]]; then
-  echo "usage: $0 <full-candidate@sha256:digest> <unique-name-prefix>" >&2
+if [[ $# -ne 2 && $# -ne 4 ]]; then
+  echo "usage: $0 <full-candidate@sha256:digest> <unique-name-prefix> [--local-isolation-proof file]" >&2
   exit 2
 fi
 
 base_image=$1
 name_prefix=$2
+local_isolation_proof=
+if [[ $# -eq 4 ]]; then
+  if [[ $3 != --local-isolation-proof || -z $4 ]]; then
+    echo "Expected --local-isolation-proof followed by the controller proof file" >&2
+    exit 2
+  fi
+  local_isolation_proof=$4
+fi
 if [[ ! ${base_image} =~ @sha256:[0-9a-f]{64}$ ]]; then
   echo "Full candidate must use an exact sha256 digest" >&2
   exit 2
@@ -20,13 +28,26 @@ if [[ ${RUN_SOCKET_COMPOSE:-0} != 1 || ${REQUIRE_SOCKET_COMPOSE:-0} != 1 ]]; the
   echo "Native optional-client validation requires the authorized socket Compose cycle" >&2
   exit 2
 fi
-if [[ ${GITHUB_ACTIONS:-false} != true || ${RUNNER_ENVIRONMENT:-} != github-hosted ]]; then
+if [[ -z ${local_isolation_proof} && ( ${GITHUB_ACTIONS:-false} != true || ${RUNNER_ENVIRONMENT:-} != github-hosted ) ]]; then
   echo "Socket validation is restricted to an isolated GitHub-hosted runner" >&2
   exit 2
 fi
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 repo_root=$(cd -- "${script_dir}/.." && pwd)
+buildx_options=()
+if [[ -n ${local_isolation_proof} ]]; then
+  command -v node >/dev/null
+  node "${repo_root}/scripts/verify-local-docker-isolation.mjs" \
+    --proof "${local_isolation_proof}" --source-root "${repo_root}" \
+    --image "${base_image}" --prefix "${name_prefix}"
+  buildx_options=(--builder default)
+  test "$(docker run --rm --network none --memory 64m --memory-swap 64m --cpus .25 --pids-limit 32 \
+    --name "${name_prefix}-full-variant" \
+    --label com.coderluii.validation=optional-docker-client \
+    --label "com.coderluii.validation.prefix=${name_prefix}" \
+    --user 65534:65534 --entrypoint cat "${base_image}" /etc/holyclaude-variant)" = full
+fi
 recipe="${repo_root}/examples/docker-client/Dockerfile"
 derived_image="holyclaude-optional-docker-client:${name_prefix}"
 project_name="${name_prefix}-compose"
@@ -126,6 +147,7 @@ printf 'native_arch=%s\nengine_arch=%s\nimage_arch=%s\npackage_arch=%s\nbase_ima
 
 derived_image_may_exist=1
 docker buildx build \
+  "${buildx_options[@]}" \
   --pull \
   --load \
   --metadata-file "${metadata_file}" \

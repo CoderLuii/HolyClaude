@@ -5,8 +5,19 @@ require_package() {
   local package="$1"
   local expected_version="$2"
   local expected_architecture="$3"
-  test "$(dpkg-query -W -f='${Version}' "$package")" = "$expected_version"
-  test "$(dpkg-query -W -f='${Architecture}' "$package")" = "$expected_architecture"
+  local actual_version
+  local actual_architecture
+
+  actual_version="$(dpkg-query -W -f='${Version}' "$package")"
+  actual_architecture="$(dpkg-query -W -f='${Architecture}' "$package")"
+  if [ "$actual_version" != "$expected_version" ]; then
+    printf 'unexpected %s version: expected %s, got %s\n' "$package" "$expected_version" "$actual_version" >&2
+    return 1
+  fi
+  if [ "$actual_architecture" != "$expected_architecture" ]; then
+    printf 'unexpected %s architecture: expected %s, got %s\n' "$package" "$expected_architecture" "$actual_architecture" >&2
+    return 1
+  fi
 }
 
 test "$(cat /etc/holyclaude-variant)" = full
@@ -27,9 +38,9 @@ case "$architecture:$multiarch" in
     ;;
 esac
 
-require_package gh '2.103.0' "$architecture"
+require_package gh '2.103.3' "$architecture"
 gh_version="$(gh --version)"
-grep -Fq 'gh version 2.103.0' <<<"$gh_version"
+grep -Fq 'gh version 2.103.3' <<<"$gh_version"
 
 for package in libaom3 libaom-dev; do
   require_package "$package" '3.6.0-1+deb12u3' "$architecture"
@@ -47,21 +58,21 @@ for package in zlib1g zlib1g-dev; do
 done
 
 for package in bind9-dnsutils bind9-host bind9-libs; do
-  require_package "$package" '1:9.18.49-1~deb12u2' "$architecture"
+  require_package "$package" '1:9.18.49-1~deb12u3' "$architecture"
 done
-require_package dnsutils '1:9.18.49-1~deb12u2' all
+require_package dnsutils '1:9.18.49-1~deb12u3' all
 
 case "$architecture" in
   amd64)
     junie_platform=amd64
-    junie_jar_sha256=a0501be7a218a293aaa7d20a7bacbbe2e05e6e25bb4b15401984c10a0a95a46d
+    junie_jar_sha256=56b780b39c8b2446e6bf3bda952221583194f1081fb536efd82f0e991d42f5f8
     ;;
   arm64)
     junie_platform=aarch64
-    junie_jar_sha256=681a9b82ca37cd2a16e90c810eddc8fb21eb5e670a6364c19c2a787cdf29a73d
+    junie_jar_sha256=0acfc83dfe85f011fcc486ca011b5a52cdda723e089f086ea2b524c96dfad1b0
     ;;
 esac
-junie_jar_path="/home/claude/.local/share/junie/current/lib/app/junie-nightly-3888.1-linux-${junie_platform}.jar"
+junie_jar_path="/home/claude/.local/share/junie/current/lib/app/junie-nightly-4011.1-linux-${junie_platform}.jar"
 echo "$junie_jar_sha256  $junie_jar_path" | sha256sum -c -
 junie_version_stderr="$(mktemp)"
 set +e
@@ -73,7 +84,7 @@ if [ "$junie_version_status" -ne 0 ]; then
   rm -f "$junie_version_stderr"
   exit "$junie_version_status"
 fi
-if [ "$junie_version" != 'Junie version: build 3888.1 nightly' ]; then
+if [ "$junie_version" != 'Junie version: build 4011.1 nightly' ]; then
   cat "$junie_version_stderr" >&2
   rm -f "$junie_version_stderr"
   echo "unexpected Junie version output: $junie_version" >&2

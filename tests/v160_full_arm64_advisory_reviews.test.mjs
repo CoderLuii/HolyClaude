@@ -63,8 +63,14 @@ test('binds the nine emulation-guarded mappings to exact full arm64 OpenVEX prod
   }
 });
 
-test('requires the architecture-portable guard on the next native candidate and publication paths', () => {
+test('requires the architecture-portable guard on candidates and manual published diagnostics', () => {
   const workflow = readFileSync('.github/workflows/docker-publish.yml', 'utf8');
   assert.doesNotMatch(workflow, /matrix\.arch == 'amd64'[^\n]*full_additional_linux_advisory_runtime_checks/);
-  assert.equal((workflow.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 3);
+  const candidate = workflow.slice(workflow.indexOf('  build-candidate:'), workflow.indexOf('  resolve-candidate-run:'));
+  const finalSmoke = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
+  const manual = workflow.slice(workflow.indexOf('  published-browser-smoke:'));
+  for (const stage of [candidate, manual]) {
+    assert.equal((stage.match(/full_additional_linux_advisory_runtime_checks\.sh/g) ?? []).length, 1);
+  }
+  assert.doesNotMatch(finalSmoke, /full_additional_linux_advisory_runtime_checks\.sh/);
 });

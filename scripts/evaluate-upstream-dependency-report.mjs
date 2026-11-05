@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { validateReport } from './evaluate-security-report.mjs';
 
-const EXPECTED_RELEASE = 'v1.6.8';
-const EXPECTED_SYFT_VERSION = '1.55.0';
-const EXPECTED_GRYPE_VERSION = '0.121.0';
+const EXPECTED_RELEASE = 'v1.6.9';
+const EXPECTED_SYFT_VERSION = '1.56.0';
+const EXPECTED_GRYPE_VERSION = '0.121.1';
 const EXPECTED_GRYPE_DB_SCHEMA_VERSION = 'v6.1.10';
 const SEVERITIES = ['Unknown', 'Negligible', 'Low', 'Medium', 'High', 'Critical'];
 const TYPES = new Set(['binary', 'deb', 'go-module', 'java-archive', 'npm', 'python']);
@@ -119,12 +119,16 @@ function validatePolicy(policy, args) {
     if (typeof input.origin !== 'string' || !input.origin) throw new Error(`officialInputs[${index}].origin is required`);
     uniqueStrings(input.types, `officialInputs[${index}].types`);
     uniqueStrings(input.purlPrefixes, `officialInputs[${index}].purlPrefixes`);
-    uniqueStrings(input.locationPrefixes, `officialInputs[${index}].locationPrefixes`);
+    if (!Array.isArray(input.locationPrefixes)) throw new Error(`officialInputs[${index}].locationPrefixes is invalid`);
+    if (input.locationPrefixes.length) uniqueStrings(input.locationPrefixes, `officialInputs[${index}].locationPrefixes`);
     if (!Array.isArray(input.locationPaths) || new Set(input.locationPaths).size !== input.locationPaths.length) {
       throw new Error(`officialInputs[${index}].locationPaths is invalid`);
     }
     if (input.locationPaths.some((value) => typeof value !== 'string' || !value)) {
       throw new Error(`officialInputs[${index}].locationPaths contains an invalid value`);
+    }
+    if (input.locationPrefixes.length + input.locationPaths.length === 0) {
+      throw new Error(`officialInputs[${index}] must bind at least one location`);
     }
     if (input.types.some((type) => !TYPES.has(type))) throw new Error(`officialInputs[${index}] contains unsupported types`);
   }
@@ -232,6 +236,48 @@ function validateRetainedInventory(policy, retainedBaseline, immutableInputsText
         throw new Error(`retainedModifiedInputs[${index}] immutable inventory record ${anchor} differs from the v1.6.4 baseline`);
       }
     }
+  }
+}
+
+function validatePythonPlaywrightNode(syft, immutableInputsText, arch) {
+  const path = '/usr/local/lib/python3.14/site-packages/playwright/driver/node';
+  const artifacts = syft.artifacts.filter((artifact) =>
+    artifact.locations.some((location) => location.path === path)
+  );
+  const protectedFiles = (syft.files ?? []).filter((file) => file.location?.path === path);
+  const hasPythonPlaywright = syft.artifacts.some((artifact) =>
+    (artifact.type === 'python' && artifact.name.toLowerCase() === 'playwright') ||
+    /^pkg:pypi\/playwright(?:@|[?#]|$)/.test(artifact.purl ?? '')
+  );
+  if (artifacts.length === 0) {
+    if (protectedFiles.length || hasPythonPlaywright) throw new Error('Python Playwright bundled Node artifact is missing');
+    return;
+  }
+  const record = immutableRecord(immutableInputsText, 'Python Playwright');
+  if (!record || artifacts.length !== 1) throw new Error('Python Playwright bundled Node inventory or artifact is missing or duplicated');
+  const value = (key) => {
+    const fields = [...record.matchAll(new RegExp(`^    ${key}: (.+)$`, 'gm'))];
+    if (fields.length !== 1) throw new Error(`Python Playwright bundled Node requires one ${key}`);
+    return fields[0][1];
+  };
+  const version = value('driver-node-version');
+  const digest = value(`${arch}-driver-node-sha256`);
+  if (!/^\d+\.\d+\.\d+$/.test(version) || !/^[a-f0-9]{64}$/.test(digest) || !/^[a-f0-9]{64}$/.test(value(`${arch}-wheel-sha256`))) {
+    throw new Error('Python Playwright bundled Node inventory version or checksum is invalid');
+  }
+  const artifact = artifacts[0];
+  if (
+    artifact.type !== 'binary' || artifact.name !== 'node' ||
+    artifact.version !== version || artifact.purl !== `pkg:generic/node@${version}` || artifact.locations.length !== 1 ||
+    !/^sha256:[a-f0-9]{64}$/.test(artifact.locations[0].layerID) ||
+    !syft.source.metadata.layers.some((layer) => layer.digest === artifact.locations[0].layerID)
+  ) {
+    throw new Error('Python Playwright bundled Node identity differs from the official wheel inventory');
+  }
+  const files = protectedFiles.filter((file) => file.location.layerID === artifact.locations[0].layerID);
+  const digests = files.length === 1 ? (files[0].digests ?? []).filter((entry) => entry.algorithm === 'sha256') : [];
+  if (files.length !== 1 || digests.length !== 1 || digests[0].value !== digest) {
+    throw new Error('Python Playwright bundled Node file checksum is not bound to the official wheel and layer');
   }
 }
 
@@ -607,6 +653,7 @@ function main() {
   validateGrypeSource(report, sbom, args, imageMetadata);
   validateDatabaseEvidence(databaseEvidence, args['as-of']);
   validateRetainedInventory(policy, retainedBaseline, immutableInputsText);
+  validatePythonPlaywrightNode(syft, immutableInputsText, args.arch);
 
   const target = `${args.variant}-${args.arch}`;
   const normalized = report.matches.map((match) => normalizeMatch(match, sbom, policy, retainedBaseline, target));

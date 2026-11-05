@@ -1,0 +1,86 @@
+{
+  "name": "speech-rule-engine",
+  "version": "4.1.5",
+  "description": "A standalone speech rule engine for XML structures, based on the original engine from ChromeVox.",
+  "directories": {
+    "test": "tests"
+  },
+  "bin": {
+    "sre": "bin/sre"
+  },
+  "maintainers": [
+    "Volker Sorge <Volker.Sorge@gmail.com> (http://www.cs.bham.ac.uk/~vxs)"
+  ],
+  "bugs": {
+    "email": "volker.sorge@gmail.com",
+    "url": "https://github.com/zorkow/speech-rule-engine/issues"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zorkow/speech-rule-engine"
+  },
+  "keywords": [
+    "screen-reader",
+    "xml",
+    "a11y"
+  ],
+  "homepage": "https://github.com/zorkow/speech-rule-engine",
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.12",
+    "commander": "13.1.0",
+    "wicked-good-xpath": "1.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@typescript-eslint/eslint-plugin": "^8.72.0",
+    "@typescript-eslint/parser": "^8.72.0",
+    "circular-dependency-plugin": "^5.2.2",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-formatter-unix": "^8.40.0",
+    "eslint-plugin-jsdoc": "^50.8.0",
+    "json-minify": "1.0.0",
+    "prettier": "^3.9.10",
+    "rimraf": "^6.1.3",
+    "terser-webpack-plugin": "5.3.14",
+    "ts-loader": "9.5.2",
+    "ts-prune": "^0.10.3",
+    "typedoc": "^0.28.20",
+    "typescript": "5.8.3",
+    "webpack": "5.99.5",
+    "webpack-cli": "^6.0.1"
+  },
+  "files": [
+    "index.js",
+    "LICENSE",
+    "README.md",
+    "lib/",
+    "bin/",
+    "js/",
+    "mjs/"
+  ],
+  "source": "ts/index.ts",
+  "main": "lib/sre.js",
+  "scripts": {
+    "format": "prettier --check ts/",
+    "format-fix": "prettier --write ts/",
+    "lint": "eslint ts/ --ext .ts,.tsx",
+    "lint-fix": "eslint ts/ --ext .ts,.tsx --fix",
+    "test": "cd sre-tests; export SRE_JSON_PATH=../lib/mathmaps; npm run test",
+    "docs": "pnpm typedoc --entryPointStrategy ts/",
+    "commonjs": "pnpm tsc --module commonjs --outDir js --moduleResolution node",
+    "postcommonjs": "node -e 'require(\"fs\").writeFileSync(\"js/package.json\", \"{\\n  \\\"type\\\": \\\"commonjs\\\"\\n}\\n\");'",
+    "module": "pnpm tsc --module nodenext --outDir mjs --moduleResolution nodenext",
+    "postmodule": "node -e 'require(\"fs\").writeFileSync(\"mjs/package.json\", \"{\\n  \\\"type\\\": \\\"module\\\"\\n}\\n\");'",
+    "require": "node -e \"require(\\\"fs\\\").writeFileSync(\\\"lib/require.mjs\\\", \\\"import {createRequire} from 'module';\\nglobal.require = createRequire(import.meta.url);\\n\\\");\"",
+    "pretest": "git submodule update --remote --merge; pnpm compile; cd sre-tests; ln -s .. speech-rule-engine; npm install",
+    "compile": "pnpm module",
+    "clean": "rimraf mjs lib js",
+    "actionTest": "cd sre-tests; export SRE_JSON_PATH=../lib/mathmaps; pnpm jest --silent ",
+    "cleanAll": "make clean; make clean_min",
+    "prepublish": "pnpm cleanAll; pnpm buildAll",
+    "build": "make -j 12 all; pnpm module; pnpm webpack; pnpm require",
+    "buildAll": "make -j 12 all; pnpm commonjs; pnpm module; pnpm webpack; pnpm require; pnpm postcommonjs; pnpm postmodule"
+  }
+}

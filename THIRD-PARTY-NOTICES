@@ -9,12 +9,12 @@ licensed under MIT (see LICENSE).
 - nano: GPL-3.0-or-later, https://www.nano-editor.org/
 - ShellCheck: GPL-3.0-or-later, https://github.com/koalaman/shellcheck
 - yq 4.54.1: MIT, https://github.com/mikefarah/yq
-- Atuin 18.24.1: MIT, https://github.com/atuinsh/atuin
+- Atuin 18.24.5: MIT, https://github.com/atuinsh/atuin
 - pytest and flake8: MIT; package metadata is included with each Python distribution.
 - pytest-asyncio: Apache-2.0; package metadata is included with the Python distribution.
 - aiomqtt: BSD-3-Clause, https://github.com/empicano/aiomqtt.
 - aiohttp: Apache-2.0 AND MIT; package metadata is included with the Python distribution.
-- Apprise 2.0.1: BSD-2-Clause, https://github.com/caronc/apprise. HolyClaude's
+- Apprise 2.1.0: BSD-2-Clause, https://github.com/caronc/apprise. HolyClaude's
   notification hook translates the legacy email PGP parameter `pgpkey` to
   Apprise 2's `pgppub` before URL validation and delivery.
 - Debian DNS and MySQL-compatible clients retain their distribution copyright notices under /usr/share/doc.
@@ -96,7 +96,7 @@ browser with `localStorage['web-terminal-disable-webgl'] = 'true'`.
 
 - License: MIT
 - Source: https://github.com/junegunn/fzf
-- Version: 0.74.4, installed from checksum-verified upstream archives
+- Version: 0.74.5, installed from checksum-verified upstream archives
 
 ## esbuild
 
@@ -115,7 +115,7 @@ HolyClaude includes overlays for selected copies of setuptools, Piscina, brace-e
 js-yaml, minimatch, Nanoid, path-to-regexp, Sharp, Undici, ws, and xmldom. The full image uses js-yaml 4.3.2 in PM2. Updated npm, Wrangler, Vercel, EAS and Netlify retain their official dependency trees. Marp's speech-rule-engine
 uses xmldom 0.9.12; EAS's separate xmldom 0.8.15 copy is unchanged. CloudCLI retains its
 separate js-yaml 3.15.2 overlay. Cursor Agent uses
-HolyClaude's Node 26.12.1 runtime instead of its bundled Node binary.
+HolyClaude's Node 26.13.0 runtime instead of its bundled Node binary.
 
 These packages retain their upstream licenses. The exact versions, archive
 hashes, owning paths, and fail-closed patch checks are recorded in the
@@ -150,14 +150,14 @@ Mosh provides the optional roaming terminal path. HolyClaude gates
 
 - License: MIT
 - Source: https://github.com/nodejs/node
-- Version: 26.12.1 base image
+- Version: 26.13.0 base image
 
 ## Netlify CLI
 
 - License: MIT
 - Source: https://github.com/netlify/cli
 - npm: https://www.npmjs.com/package/netlify-cli
-- Version: 27.14.1, installed in the full image only
+- Version: 27.16.2, installed in the full image only
 
 HolyClaude installs the official Netlify CLI package and its dependency tree without downstream replacements or binary removal.
 
