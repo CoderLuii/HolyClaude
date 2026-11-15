@@ -1415,6 +1415,12 @@ If it saved you time, here's how you can help:
 [![PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate/?hosted_button_id=PM2UXGVSTHDNL)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/CoderLuii)
 
+<!-- sponsors: start. Drawn by the HolyCore bot from the live sponsor list; shows nothing until the first sponsor. -->
+<p align="center">
+  <a href="https://holycore.coderluii.dev/activity/sponsor/list/holyclaude"><picture><source media="(prefers-color-scheme: dark)" srcset="https://holycore.coderluii.dev/activity/sponsor/wall/holyclaude.svg?theme=dark"><img src="https://holycore.coderluii.dev/activity/sponsor/wall/holyclaude.svg?theme=light" width="100%" align="top" alt="HolyClaude supporters"></picture></a><br><a href="https://github.com/sponsors/CoderLuii"><picture><source media="(prefers-color-scheme: dark)" srcset="https://holycore.coderluii.dev/activity/sponsor/button/github.svg?theme=dark&project=holyclaude"><img src="https://holycore.coderluii.dev/activity/sponsor/button/github.svg?theme=light&project=holyclaude" alt="Sponsor on GitHub" width="50%" align="top"></picture></a><a href="https://buymeacoffee.com/coderluii"><picture><source media="(prefers-color-scheme: dark)" srcset="https://holycore.coderluii.dev/activity/sponsor/button/bmac.svg?theme=dark&project=holyclaude"><img src="https://holycore.coderluii.dev/activity/sponsor/button/bmac.svg?theme=light&project=holyclaude" alt="Buy Me a Coffee" width="50%" align="top"></picture></a>
+</p>
+<!-- sponsors: end -->
+
 <p align="right">
   <a href="#top">↑ back to top</a>
 </p>
