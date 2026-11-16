@@ -123,9 +123,9 @@ These take longer to install (~1-2 minutes) because they require system dependen
 
 | CLI | Command | Version | Notes |
 |-----|---------|---------|-------|
-| **Claude Code** | `claude` | 2.1.318 | Primary — you are running inside this |
-| **Gemini CLI** | `gemini` | 0.67.0 | Requires `GEMINI_API_KEY` env var |
-| **OpenAI Codex** | `codex` | 0.166.0 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. |
+| **Claude Code** | `claude` | 2.1.325 | Primary — you are running inside this |
+| **Gemini CLI** | `gemini` | 0.68.0 | Requires `GEMINI_API_KEY` env var |
+| **OpenAI Codex** | `codex` | 0.169.0 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. |
 | **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Requires `CURSOR_API_KEY` env var |
 | **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and management |
 

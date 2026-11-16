@@ -4,6 +4,14 @@ import test from 'node:test';
 
 const read = (file) => readFileSync(file, 'utf8');
 const dockerfile = read('Dockerfile');
+
+test('Cursor replacement Node assertion follows the selected main runtime', () => {
+  const runtime = dockerfile.match(/^FROM node:(\d+\.\d+\.\d+)-bookworm-slim@sha256:[0-9a-f]+$/m)?.[1];
+  const cursor = dockerfile.match(/test "\$\("\$CURSOR_DIR\/node" --version\)" = "v([^"]+)"/)?.[1];
+  assert.ok(runtime);
+  assert.match(dockerfile, /ln -s \/usr\/local\/bin\/node "\$CURSOR_DIR\/node"/);
+  assert.equal(cursor, runtime, 'the symlink uses the main Node runtime, not the removed bundled binary');
+});
 const immutableInputs = read('security/immutable-inputs.yml');
 const workflow = read('.github/workflows/docker-publish.yml');
 const cloudcliArtifactBuilder = read('scripts/build-cloudcli-account-management-artifact.mjs');
@@ -22,28 +30,28 @@ const cloudcliManifest = JSON.parse(read('vendor/artifacts/cloudcli-account-mana
 
 test('updates runtime Node while preserving custom builder provenance', () => {
   const buildImage = 'node:26.9.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6';
-  const runtimeImage = 'node:26.13.0-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9';
+  const runtimeImage = 'node:26.13.1-bookworm-slim@sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1';
   assert.match(cloudcliArtifactBuilder, /const expectedBuildImage = 'node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6'/);
   assert.match(cloudcliArtifactContainerBuilder, /const buildImage = 'node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6'/);
   assert.equal(dockerfile.match(/^FROM node:[^\r\n]+/gm)?.filter((line) => line.startsWith(`FROM ${runtimeImage}`)).length, 1);
   assert.match(dockerfile, /^FROM node:26\.9\.0-bookworm-slim@sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6 AS ffmpeg-security-builder$/m);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.13\.0"/);
-  assert.match(runtimeChecks, /require_eq "Node version" "\$\(node --version\)" "v26\.13\.0"/);
-  assert.match(developerToolsSmoke, /assert\.equal\(process\.version, 'v26\.13\.0'/);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.13\.1"/);
+  assert.match(runtimeChecks, /require_eq "Node version" "\$\(node --version\)" "v26\.13\.1"/);
+  assert.match(developerToolsSmoke, /assert\.equal\(process\.version, 'v26\.13\.1'/);
   assert.doesNotMatch(architectureDocs, /Node 26\.8\.2 runtime/);
   assert.doesNotMatch(thirdPartyNotices, /Node 26\.8\.2 runtime|Version: 26\.8\.2 base image/);
-  assert.match(thirdPartyNotices, /## Node\.js[\s\S]{0,100}Version: 26\.13\.0 base image/);
+  assert.match(thirdPartyNotices, /## Node\.js[\s\S]{0,100}Version: 26\.13\.1 base image/);
   assert.equal(cloudcliManifest.build.image, buildImage);
   assert.equal(cloudcliManifest.build.node, 'v26.9.0');
   assert.match(immutableInputs, /name: FFmpeg security builder\s+reference: node:26\.9\.0-bookworm-slim\s+digest: sha256:c8fedd782bcd1b68d8a7d1ed2577b5f820eba820871323f605292651ff11e3c6\s+status: retained/);
-  assert.match(immutableInputs, /name: HolyClaude runtime\s+reference: node:26\.13\.0-bookworm-slim\s+digest: sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9/);
+  assert.match(immutableInputs, /name: HolyClaude runtime\s+reference: node:26\.13\.1-bookworm-slim\s+digest: sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1/);
 });
 
 test('pins the verified native binary candidates and runtime contracts', () => {
   for (const expected of [
-    'ARG CLAUDE_CODE_VERSION=2.1.318',
-    'ARG CLAUDE_BINARY_SHA256_AMD64=708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd',
-    'ARG CLAUDE_BINARY_SHA256_ARM64=53a0d7e219d7b0804ecba5dbc002745e89f786cc946d2de85a6470d5b2d1fb06',
+    'ARG CLAUDE_CODE_VERSION=2.1.325',
+    'ARG CLAUDE_BINARY_SHA256_AMD64=0dc4f4a9a165fc60746d7ae8489712e5fc352f1e7ad4eb22e7141bd0812eb0cf',
+    'ARG CLAUDE_BINARY_SHA256_ARM64=7b6e484b1989a5a14a4b354709ccc8672518a3ec5b9ccd7981fc6254327fde67',
     'ARG GITHUB_CLI_VERSION=2.103.3',
     'ARG GITHUB_CLI_PACKAGE_SHA256_AMD64=e3bafef96328d1a67de3a968bdfe1cc2ffd58cf6aba8b5e201356897ed06bb3d',
     'ARG GITHUB_CLI_PACKAGE_SHA256_ARM64=cac3ff84b60b68e64cca69f31f303210c26320361cc3286b773655d4226b7b06',
@@ -56,10 +64,10 @@ test('pins the verified native binary candidates and runtime contracts', () => {
     'ARG JUNIE_ARCHIVE_SHA256_ARM64=f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15',
   ]) assert.ok(dockerfile.includes(expected), `Dockerfile should bind ${expected}`);
 
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.318');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.325');
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'cursor-agent')?.version, '2026.09.15-d2fe57e');
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'junie')?.version, '4011.1');
-  assert.match(runtimeChecks, /require_eq "Claude Code version"[^\n]+"2\.1\.318"/);
+  assert.match(runtimeChecks, /require_eq "Claude Code version"[^\n]+"2\.1\.325"/);
   assert.match(runtimeChecks, /require_eq "GitHub CLI version"[^\n]+"2\.103\.3"/);
   assert.match(runtimeChecks, /require_eq "Cursor Agent build"[^\n]+"2026\.09\.15-d2fe57e"/);
   assert.match(runtimeChecks, /require_eq "Junie build"[^\n]+"4011\.1"/);

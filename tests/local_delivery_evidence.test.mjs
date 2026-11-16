@@ -17,7 +17,7 @@ function isolationFixture() {
   const prefix = 'hc-native-fixture';
   const proof = {
     schemaVersion: 1, executionOrigin: 'local_native', scope: 'optional_docker_client', createdAt: '2026-11-05T02:59:00Z',
-    release: 'v1.6.9', sourceCommit: source, prefix, architecture: 'amd64',
+    release: 'v1.7.0', sourceCommit: source, prefix, architecture: 'amd64',
     sourceRoot: '/work/source', workRoot: `/work/${prefix}`, socketDirectory: `/work/${prefix}/socket`, dockerConfigDirectory: `/work/${prefix}/client`,
     outerEndpoint: 'unix:///var/run/docker.sock', outerEngineId: 'outer-engine', outerContainerId: 'b'.repeat(64), innerEngineId: 'private-engine',
     daemonImageRef: `docker.io/library/docker@${digest('c')}`, daemonImageId: digest('d'),
@@ -27,7 +27,7 @@ function isolationFixture() {
   };
   const observed = {
     platform: 'linux', kernelArchitecture: 'x86_64',
-    source: { head: source, subject: 'v1.6.9', parentCount: 1, clean: true, rawBlobsMatch: true },
+    source: { head: source, subject: 'v1.7.0', parentCount: 1, clean: true, rawBlobsMatch: true },
     environment: { dockerHost: `unix://${proof.socketDirectory}/docker.sock`, dockerConfig: proof.dockerConfigDirectory, conflictingVariables: [] },
     pathsCanonical: true, privateSocket: true,
     outerInfo: { ID: proof.outerEngineId, Architecture: 'x86_64', OSType: 'linux' },
@@ -45,7 +45,7 @@ function isolationFixture() {
     dataVolume: { Name: proof.dataVolume, Driver: 'local', Scope: 'local', Options: null, Labels: { 'com.coderluii.validation.prefix': prefix } },
     network: { Name: proof.network, Driver: 'bridge', Scope: 'local', Options: {}, Labels: { 'com.coderluii.validation.prefix': prefix }, Containers: { [proof.outerContainerId]: { Name: `${prefix}-daemon` } } },
     daemonImage: { Id: proof.daemonImageId, Architecture: 'amd64', RepoDigests: [proof.daemonImageRef] },
-    candidateImage: { Id: proof.candidateImageId, Architecture: 'amd64', RepoDigests: [proof.candidateRef], Config: { Labels: { 'org.opencontainers.image.source': 'https://github.com/CoderLuii/HolyClaude', 'org.opencontainers.image.revision': source, 'org.opencontainers.image.version': 'v1.6.9' } } },
+    candidateImage: { Id: proof.candidateImageId, Architecture: 'amd64', RepoDigests: [proof.candidateRef], Config: { Labels: { 'org.opencontainers.image.source': 'https://github.com/CoderLuii/HolyClaude', 'org.opencontainers.image.revision': source, 'org.opencontainers.image.version': 'v1.7.0' } } },
     initial: { containers: [], volumes: [], networkNames: ['none', 'bridge', 'host'], imageIds: [proof.candidateImageId] },
   };
   return { proof, observed, expected: { sourceRoot: proof.sourceRoot, image: proof.candidateRef, prefix } };
@@ -149,6 +149,7 @@ for (const [label, mutate] of [
 for (const [label, mutate] of [
   ['boolean authorization', (data) => { data.proof.authorized = true; }],
   ['fabricated hosted metadata', (data) => { data.proof.run_id = 123; }],
+  ['previous release', (data) => { data.proof.release = 'v1.6.9'; }],
   ['stale proof', (data) => { data.proof.createdAt = '2026-11-05T02:00:00Z'; }],
   ['future proof', (data) => { data.proof.createdAt = '2026-11-05T04:00:00Z'; }],
   ['wrong source', (data) => { data.observed.source.head = 'b'.repeat(40); }],
@@ -218,7 +219,7 @@ function releaseFixture(t) {
   const write = (path, value) => { mkdirSync(join(artifactRoot, path, '..'), { recursive: true }); writeFileSync(join(artifactRoot, path), typeof value === 'string' ? value : JSON.stringify(value) + '\n'); paths.add(path); return path; };
   const read = (path) => JSON.parse(readFileSync(join(artifactRoot, path), 'utf8'));
   const stepDigests = workflowStepDigests(workflow);
-  const receipt = { schemaVersion: 1, executionOrigin: 'local_native', localRunId: 'hc-native-fixture', release: 'v1.6.9', sourceCommit: source, workflowSha256: hash(workflow), sourceChecks: [], targets: [], artifacts: [] };
+  const receipt = { schemaVersion: 1, executionOrigin: 'local_native', localRunId: 'hc-native-fixture', release: 'v1.7.0', sourceCommit: source, workflowSha256: hash(workflow), sourceChecks: [], targets: [], artifacts: [] };
   const command = (path, job, step, target = null) => write(path, {
     schemaVersion: 1, executionOrigin: 'local_native', localRunId: receipt.localRunId, sourceCommit: source, workflowSha256: receipt.workflowSha256,
     job, step, stepSha256: stepDigests.get(`${job}:${step}`), target: target ? `${target.variant}-${target.architecture}` : null, imageDigest: target?.image.digest ?? null,
@@ -262,7 +263,7 @@ function releaseFixture(t) {
   const refresh = () => { receipt.artifacts = [...paths].sort().map((path) => ({ path, bytes: statSync(join(artifactRoot, path)).size, sha256: hash(readFileSync(join(artifactRoot, path))) })); };
   refresh();
   const securityCalls = [];
-  const options = { artifactRoot, sourceRoot, expectedSource: source, sourceState: { head: source, subject: 'v1.6.9', parent: 'b9e0d11d8d4173899e210742a8f7af8cefcf94f1', parentCount: 1, clean: true, rawBlobsMatch: true }, now, securityVerifier: (target) => { securityCalls.push(`${target.variant}-${target.architecture}`); } };
+  const options = { artifactRoot, sourceRoot, expectedSource: source, sourceState: { head: source, subject: 'v1.7.0', parent: 'c24271654121cf9f34a24728e9aa2850a43cce55', parentCount: 1, clean: true, rawBlobsMatch: true }, now, securityVerifier: (target) => { securityCalls.push(`${target.variant}-${target.architecture}`); } };
   return { receipt, options, write, read, refresh, securityCalls, artifactRoot, sourceRoot };
 }
 
@@ -311,12 +312,15 @@ for (const job of ['build-candidate', 'qualify-candidate']) {
 
 for (const [label, mutate] of [
   ['fake hosted run field', (data) => { data.receipt.run_id = 123; }],
+  ['previous release', (data) => { data.receipt.release = 'v1.6.9'; }],
   ['missing target', (data) => { data.receipt.targets.pop(); }],
   ['duplicate target', (data) => { data.receipt.targets[3] = structuredClone(data.receipt.targets[0]); }],
   ['emulated architecture', (data) => { data.receipt.targets[1].native.kernel = 'x86_64'; }],
   ['source mismatch', (data) => { data.options.sourceState.head = 'b'.repeat(40); }],
   ['wrong release subject', (data) => { data.options.sourceState.subject = 'unpublished draft'; }],
   ['wrong release parent', (data) => { data.options.sourceState.parent = 'b'.repeat(40); }],
+  ['previous release guard parent', (data) => { data.options.sourceState.parent = 'b9e0d11d8d4173899e210742a8f7af8cefcf94f1'; }],
+  ['previous published release as immediate parent', (data) => { data.options.sourceState.parent = 'c87a6587d7ccdadd04a7b1c1d2dd1215c1d4e908'; }],
   ['merge release', (data) => { data.options.sourceState.parentCount = 2; }],
   ['raw-byte source corruption', (data) => { data.options.sourceState.rawBlobsMatch = false; }],
   ['dirty source', (data) => { data.options.sourceState.clean = false; }],

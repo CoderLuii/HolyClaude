@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "release": "v1.6.9",
+  "release": "v1.7.0",
   "scope": "third_party_dependencies_only",
   "disposition": "accepted_upstream_vulnerability_not_fixed",
   "approvedBy": "CoderLuii",

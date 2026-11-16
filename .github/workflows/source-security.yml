@@ -44,7 +44,7 @@ jobs:
           for file in scripts/holyclaude-chromium scripts/holyclaude-mosh-server; do sh -n "${file}"; done
           for file in s6-overlay/s6-rc.d/*/run; do sh -n "${file}"; done
           PYTHONPYCACHEPREFIX="${RUNNER_TEMP}/pycache" python3 -m py_compile scripts/secure-cli-persistence.py
-          node scripts/verify-product-facts.mjs --release v1.6.9
+          node scripts/verify-product-facts.mjs --release v1.7.0
           node --test tests/*.test.mjs
           python3 -m unittest tests/test_notify.py tests/junie_applicability_guard_unit.py tests/libxml2_python_binding_guard_unit.py
           as_of="$(date -u +%F)"
@@ -52,7 +52,7 @@ jobs:
           expires_at="$(awk '$1 == "expires-at:" { print $2; count++ } END { if (count != 1) exit 1 }' security/immutable-inputs.yml)"
           [[ "${reviewed_at}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
           [[ "${expires_at}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]
-          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${reviewed_at}" --release v1.6.9
+          node scripts/verify-immutable-inputs.mjs --file security/immutable-inputs.yml --as-of "${reviewed_at}" --release v1.7.0
           if [[ "${expires_at}" < "${as_of}" ]]; then
             echo "::warning::Immutable input review expired on ${expires_at}; release is NOT eligible as of ${as_of}. Recorded integrity validation does not renew approval."
             printf 'Immutable input integrity checked at recorded review date %s. Review expired on %s; release is NOT eligible as of %s. This check does not renew approval.\n' "${reviewed_at}" "${expires_at}" "${as_of}" >> "$GITHUB_STEP_SUMMARY"
@@ -60,7 +60,7 @@ jobs:
           for target in full-amd64 full-arm64 slim-amd64 slim-arm64; do
             node scripts/evaluate-upstream-dependency-report.mjs \
               --policy security/upstream-dependency-policy.json \
-              --release v1.6.9 \
+              --release v1.7.0 \
               --variant "${target%-*}" \
               --arch "${target#*-}" \
               --preflight true \
@@ -81,19 +81,19 @@ jobs:
           - variant: full
             arch: amd64
             runner: ubuntu-24.04
-            tag: "1.6.9"
+            tag: "1.7.0"
           - variant: full
             arch: arm64
             runner: ubuntu-24.04-arm
-            tag: "1.6.9"
+            tag: "1.7.0"
           - variant: slim
             arch: amd64
             runner: ubuntu-24.04
-            tag: "1.6.9-slim"
+            tag: "1.7.0-slim"
           - variant: slim
             arch: arm64
             runner: ubuntu-24.04-arm
-            tag: "1.6.9-slim"
+            tag: "1.7.0-slim"
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -184,7 +184,7 @@ jobs:
           grype --config "${RUNNER_TEMP}/grype-empty.yaml" sbom:evidence/sbom.cyclonedx.json -o json > evidence/grype.json
           node scripts/evaluate-upstream-dependency-report.mjs \
             --policy security/upstream-dependency-policy.json \
-            --release v1.6.9 \
+            --release v1.7.0 \
             --report evidence/grype.json \
             --sbom evidence/sbom.cyclonedx.json \
             --syft-json evidence/sbom.syft.json \

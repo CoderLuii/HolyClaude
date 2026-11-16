@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0] - 11/16/2026
+
+### Changed
+
+- Updated the Node runtime to 26.13.1, Claude Code to 2.1.325, Gemini CLI to 0.68.0 and Codex to 0.169.0 from verified official inputs.
+- Updated Apprise to 2.2.0 while preserving existing email PGP notification URLs and explicit `pgppub` values.
+- Updated Docker login to 4.8.0. Release qualifications reuse successful native builds by exact digest, and per-target registry caches preserve unchanged installation layers between releases.
+
+### Security
+
+- Refreshed immutable-input and upstream-advisory review. Corrected the recorded Uvicorn wheel/source and tree-sitter-language-pack source archive hashes against official artifacts without changing those package versions.
+- Kept retained CloudCLI features, custom builders and existing security overlays unchanged. Accepted upstream vulnerability findings remain visible and unresolved.
 All notable changes to HolyClaude will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).

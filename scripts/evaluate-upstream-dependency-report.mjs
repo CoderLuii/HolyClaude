@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { validateReport } from './evaluate-security-report.mjs';
 
-const EXPECTED_RELEASE = 'v1.6.9';
+const EXPECTED_RELEASE = 'v1.7.0';
 const EXPECTED_SYFT_VERSION = '1.56.0';
 const EXPECTED_GRYPE_VERSION = '0.121.1';
 const EXPECTED_GRYPE_DB_SCHEMA_VERSION = 'v6.1.10';

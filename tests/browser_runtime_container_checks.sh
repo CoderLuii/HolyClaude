@@ -169,8 +169,8 @@ const inventory = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const variant = process.argv[3];
 const common = {
   '@cloudcli-ai/cloudcli': '1.37.3',
-  '@google/gemini-cli': '0.67.0',
-  '@openai/codex': '0.166.0',
+  '@google/gemini-cli': '0.68.0',
+  '@openai/codex': '0.169.0',
   concurrently: '10.0.6',
   'dotenv-cli': '11.1.0',
   esbuild: '0.28.2',
@@ -224,7 +224,7 @@ common = {
     'pytest': '9.2.0',
     'pytest-asyncio': '1.4.1.post1',
     'flake8': '7.5.0',
-    'apprise': '2.1.0',
+    'apprise': '2.2.0',
     'bandit': '1.9.4',
     'beautifulsoup4': '4.15.0',
     'click': '8.5.0',
@@ -303,7 +303,7 @@ assert_runtime_identity() {
   cloudcli_version="$(cloudcli --version 2>/dev/null || node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   cloudcli_package_version="$(node -p "require('/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/package.json').version")"
   require_eq "CloudCLI package version" "$cloudcli_package_version" "1.37.3"
-  require_eq "Node version" "$(node --version)" "v26.13.0"
+  require_eq "Node version" "$(node --version)" "v26.13.1"
   require_eq "npm version" "$(npm --version)" "12.2.2"
   require_eq "npm tar package version" "$(node -p "require('/usr/local/lib/node_modules/npm/node_modules/tar/package.json').version")" "7.5.22"
   require_eq "npm tar dependency declaration" "$(node -p "require('/usr/local/lib/node_modules/npm/package.json').dependencies.tar")" "^7.5.22"
@@ -312,13 +312,13 @@ assert_runtime_identity() {
   require_eq "pnpm version" "$(pnpm --version)" "12.16.1"
   require_eq "Vite package version" "$(node -p "require('/usr/local/lib/node_modules/vite/package.json').version")" "8.3.5"
   require_eq "Prettier package version" "$(node -p "require('/usr/local/lib/node_modules/prettier/package.json').version")" "3.9.10"
-  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.166.0"
-  require_eq "Codex CLI version" "$(codex --version | awk '{print $NF}')" "0.166.0"
-  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.67.0"
+  require_eq "Codex package version" "$(node -p "require('/usr/local/lib/node_modules/@openai/codex/package.json').version")" "0.169.0"
+  require_eq "Codex CLI version" "$(codex --version | awk '{print $NF}')" "0.169.0"
+  require_eq "Gemini package version" "$(node -p "require('/usr/local/lib/node_modules/@google/gemini-cli/package.json').version")" "0.68.0"
   require_eq "tree-sitter language pack" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tree-sitter-language-pack"))')" "1.23.1"
   require_eq "tqdm package version" "$(python3 -c 'import importlib.metadata; print(importlib.metadata.version("tqdm"))')" "4.70.1"
   require_eq "fzf version" "$(fzf --version | awk '{print $1}')" "0.74.5"
-  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.318"
+  require_eq "Claude Code version" "$(claude --version | awk '{print $1}')" "2.1.325"
   require_eq "GitHub CLI version" "$(gh --version | awk 'NR == 1 {print $3}')" "2.103.3"
   require_eq "Cursor Agent build" "$(cursor-agent --version)" "2026.09.15-d2fe57e"
   local web_terminal_esbuild_arch

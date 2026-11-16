@@ -55,10 +55,10 @@ test('runtime CloudCLI and Netlify version checks match the selected release inp
 });
 
 test('verified direct dependency pins match build, runtime, product, and immutable assertions', () => {
-  for (const version of ['12.16.1', '4.157.0', '4.70.1', '1.23.1', '3.11.2', '0.54.0', '0.74.5', '2.1.318']) {
+  for (const version of ['12.16.1', '4.157.0', '4.70.1', '1.23.1', '3.11.2', '0.54.0', '0.74.5', '2.1.325']) {
     assert.ok(browserRuntimeChecks.includes(version), `runtime checks should contain ${version}`);
   }
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.318');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'claude-code')?.version, '2.1.325');
   for (const expected of [
     'version: 12.16.1',
     'version: 4.157.0',
@@ -67,7 +67,7 @@ test('verified direct dependency pins match build, runtime, product, and immutab
     'version: 3.11.2',
     'version: 0.54.0',
     'version: 0.74.5',
-    'version: 2.1.318',
+    'version: 2.1.325',
   ]) assert.ok(immutableInputs.includes(expected), `immutable input inventory should contain ${expected}`);
 });
 
@@ -243,10 +243,10 @@ test('release base and archive inputs are versioned and checksum-verified', () =
 });
 
 test('native installers and their outputs are pinned without unsupported flags', () => {
-  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.318/);
+  assert.match(dockerfile, /ARG CLAUDE_CODE_VERSION=2\.1\.325/);
   assert.match(dockerfile, /CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd/);
-  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=53a0d7e219d7b0804ecba5dbc002745e89f786cc946d2de85a6470d5b2d1fb06/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_AMD64=0dc4f4a9a165fc60746d7ae8489712e5fc352f1e7ad4eb22e7141bd0812eb0cf/);
+  assert.match(dockerfile, /CLAUDE_BINARY_SHA256_ARM64=7b6e484b1989a5a14a4b354709ccc8672518a3ec5b9ccd7981fc6254327fde67/);
   assert.match(dockerfile, /bash \/tmp\/claude-install\.sh "\$CLAUDE_CODE_VERSION"/);
   assert.match(dockerfile, /\/home\/claude\/\.local\/bin\/claude --version/);
 
@@ -278,7 +278,7 @@ test('native installers and their outputs are pinned without unsupported flags',
   assert.match(dockerfile, /test "\$\(cursor-agent --version\)" = "\$CURSOR_BUILD_ID"/);
   assert.match(dockerfile, /rm -f "\$CURSOR_DIR\/node"/);
   assert.match(dockerfile, /ln -s \/usr\/local\/bin\/node "\$CURSOR_DIR\/node"/);
-  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.13\.0"/);
+  assert.match(dockerfile, /test "\$\("\$CURSOR_DIR\/node" --version\)" = "v26\.13\.1"/);
   assert.match(dockerfile, /SETUPTOOLS_VERSION=84\.2\.1/);
   assert.match(dockerfile, /SETUPTOOLS_WHEEL_SHA256=ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2/);
   assert.match(dockerfile, /patch-global-node-security-dependencies\.mjs --root \/ --variant "\$VARIANT" --check-baseline/);
@@ -296,10 +296,10 @@ test('native installers and their outputs are pinned without unsupported flags',
 });
 
 test('immutable input inventory binds the release-critical inputs', () => {
-  assert.match(dockerfile, /^ARG HOLYCLAUDE_VERSION=1\.6\.9$/m);
-  assert.match(immutableInputs, /^release: v1\.6\.9$/m);
-  assert.match(immutableInputs, /^reviewed-at: 2026-11-05$/m);
-  assert.match(immutableInputs, /^expires-at: 2026-11-15$/m);
+  assert.match(dockerfile, /^ARG HOLYCLAUDE_VERSION=1\.7\.0$/m);
+  assert.match(immutableInputs, /^release: v1\.7\.0$/m);
+  assert.match(immutableInputs, /^reviewed-at: 2026-11-16$/m);
+  assert.match(immutableInputs, /^expires-at: 2026-11-26$/m);
   assert.match(
     immutableInputs,
     /^  - name: Prettier\n    version: 3\.9\.10\n    archive-sha256: 9dc72045591793dff972432fb78722f7ab91aaa90a7fa8c1261ede55969246b7\n    npm-integrity: "sha512-skGHTH1Yb9QvaTC4hWnRTzEYtCpApF0UMBPz\+t\/0ZPzP8ihefo\/btKd\+QA7pUE0fEwA1SbS\/NmhyEcstdXOIdA=="\n    verification: npm registry tarball integrity and committed SHA-256\n    verification-mode: committed-hash\n    status: updated$/m,
@@ -312,23 +312,23 @@ test('immutable input inventory binds the release-critical inputs', () => {
     immutableInputs,
     /^  - name: Python Playwright\n    version: 1\.64\.1\n    amd64-wheel-sha256: 577b8d88778c245cfbd145ae17cf53044f084b1b46c55c69081d4069d56057e2\n    arm64-wheel-sha256: a29fda44725e11b0b625c4bff6458a1f6dbee97b88c9788d12e18a8344458c2d\n    verification: official PyPI wheels; bundled Node bytes match official Node 24\.22\.1 Linux archives\n    verification-mode: committed-hash\n    status: updated\n    driver-node-version: 24\.22\.1\n    amd64-driver-node-sha256: e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb\n    arm64-driver-node-sha256: c8c5721679d8d1a09e9987e345d5f9a64899bb85f7a384783ba8a93e6e62348a$/m,
   );
-  for (const value of [
+  const values = [
     'sha256:69a7b9788769bec032d238959b61854e9ae87f57be9029ec04e9885fabf99195',
-    'sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9',
+    'sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1',
     'sha256:516b51cb9db2ef061e465c803e50f64361b82cefd91e525b889b967b83e83527',
     'sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667',
     '1c2493cfcf52d3367d6cb25780d9190c111c2219c34c820574c43e8bae15c528',
     'ace61b9397ae28189c674ae332d67a8074dafd71e87724dfb8b22412d8253bb5',
     'bc3ea3f9e6fd56ac781c08c6c5e614271b79f438200757f6932085c19b0a4657',
     '33670612aad351c48cf3c37f4a85d8b043d1b64b21e6034e675bb00b956d78c1',
-    '81c6f93d4bc991e510b342a00b419b3bb4efc5c6',
+    '8aa5831fb8d48d8f76594c7ddde61ae58019f550',
     'f87e5991a6d7451dcb8d9637bfbc97413f497069',
     '4895cd3fd33362471e739b786493aba048487bcc',
     '6757ed0ef067cf7d8e1bf20fa0dd64b97e61889d',
     '391c7a29fd4a2136e5eb09b9f34fc9ec1e680da9e7b850a8cd1148d94c61e5b7',
     'b792c2d1c7fc770910522ca1ffc29eee02ee38de4fa3a01e7832eb705879c6c6',
-    '708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd',
-    '53a0d7e219d7b0804ecba5dbc002745e89f786cc946d2de85a6470d5b2d1fb06',
+    '0dc4f4a9a165fc60746d7ae8489712e5fc352f1e7ad4eb22e7141bd0812eb0cf',
+    '7b6e484b1989a5a14a4b354709ccc8672518a3ec5b9ccd7981fc6254327fde67',
     'd47d7f882972c7d674dbbba998ffa4116e68379616ffac7695d0671e9a722c5f',
     'cf058001da21724a469b714a29cf4aab9cbe860d218a0d6c1b5b661efad7784c',
     'c0538a65abaaafce561513dfbe80e38961fe866933aedd6c5b06232e7583c477',
@@ -338,12 +338,12 @@ test('immutable input inventory binds the release-critical inputs', () => {
     'cefd0eca11b2a37a3aee776544d4f4ae913f02688135b5556b8788dfa474afc4',
     'b9597ef3971a4ec842fdf2b51a9fd5210f9c5a38ab35e11bffa3188ddf145411',
     '0091c27b7f9d625d1181582abafaae8a0f3d0aa9d39c2d2048016ffbb0e17790',
-    'e0cba16312890fc7747da5fb5edb7aabfc68aac7db0ebab5212986a67cd01ed4',
+    'ebd76299a70d7387932d35bf6ed388e7822445c363526a0e7cc7f31f14d81bf5',
     'bf3fe71fbfb8ec0e310e0bc8537c3405a01f38f25f9394ed2135e6202fed542b',
     '8c8255de28f986d935a64c9ca71c0ec2d2f41d355691f5ea684725dc91413f71',
     'cec596316640f2b394b8f0daa0ea61a8eae82d017b620b9f202befb972a59ea4',
-    '505bdb13f6c7eb689ca2dd5529cd0e7ba01c7a9745e04949479857759aaf7faf',
-    'a2e33c58a63f655599996792684e9eed7991a52a752a35ea67fb83d351a78620',
+    '505bdb0f318731d45f1f712071fc781a8981f6847a31c902c9f5e652d4f67faf',
+    'a2e33cbfaa0306f8e6b0c13e0cb89d7d7a2da3e62b90c66e18c33d9807b28620',
     '9fcc8c47cc41e4b839f15297fe3a59ec400d2bde6b59c6e79166652daed4223d',
     'f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15',
     'bcc05016bc32af140709e6f6a1178c3b0abddb8091cd9285817ce11ebb6dcd30',
@@ -356,13 +356,13 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '84583eb5e0888842e1af34c23cf3ee55511e878780a22d0a1c284472ac630df1',
     'de9e644353b09379bd589cf040b5fe482c8316f93307a271e210321ab0ef2c48',
     '1741bcfcdf0e4281e862dffafca77966753f260be738e80edac35a4ca8e8f04c',
-    '3f42374e88171031459ad16e5fac32b161adba330292a1822fb7aae7fb476fc2',
-    '67ee6f4069d9328956401f54ac202c20369233159058af9f4ec1af731b87f5b7',
-    'cbc00a26d3d0e2ceefc4be8891f8a81ef1e349b3b175bc0ae308762bc001fd93',
-    '9044e840397864fc6c539d13719b25fb26abb35d5353366cbabf7b4555406acd',
-    'sha512-2Szlp1l1cz5TX1ccpX4Zok3DZrot9xeZe0km+6/1v8JmqxADwyJxKBJah4dBymkwtS25j/u6dipJusTOI97Z8Q==',
-    'sha512-CxDm3+D1cpbGJeHrdzINoG+3wn9BVncP4qpZaaNYkxe8iPtRJOYyCJnnPoVjWRIBvI9vPKbRoifsMSA5xDaUpw==',
-    'sha512-w0ScAsBr9aZKtIFrh6HN6KU2yjKKeSCzYfbb7DB0Ccj4BYPzeZtUeQprbycLCwuX3AFQdbdjapmLho2iot74jQ==',
+    '325099ddcb56937c27d119e7297bfa8a5e29b529bae3c92fdf3b71a36d5fa006',
+    '5928066ef039439ee241552ef071434925a9c4471ed579bb72caabc6e4a02280',
+    '89801b4b97faba562eb80fe0a833159ac79399be674022f4b1a0ccab1d153faa',
+    'c1555c8ad3913e703d736584ff15e98eaeda685bf6eaedc83ae15943badbc1ff',
+    'sha512-KhzYlkKPxoNssR8CEm45IjqnFWn7UtlF4CiD3tOJPea51xBs7MaHy0UQG9GSbCqk6Lrjn5QdJDV0QD1/FgWlGw==',
+    'sha512-o05NyAOCDygSPRo1yinzxvkRSdmsZyBD9E7mbpmjRanSfM8lypqWtQgEo4XfNkwhuCR2aFu8mlGOsQGFXVbVww==',
+    'sha512-NZ/DaQUpcQmxmqee7Z9uC1rzw3GhSbooawcaTe1LN5Yk+WlinUKGdTXJgClRT/9ogQEEM9TWxYzvxPfj5G/xFg==',
     '1f97e49381f8a42a629482eff8be98aa96d62e2e94410a8ec98e738f9c787680',
     '2d7cfc303decc6cbbcdb22ff1be258b03ce2b5eae57583545afc8f12c01dd5e0',
     'ba14f4ce5c8fe567a00bac1c50aafe7eda6e1de7aa37964994c66148a28d529a',
@@ -376,9 +376,8 @@ test('immutable input inventory binds the release-critical inputs', () => {
     '54182762c9d91a4f779748f622749ff6963956db005feb13e62d037196b05618',
     'b44b3f264652b847b2e524ec397aa498c13076ed75cf213239ed2b9a0de2f99d',
     cloudcliManifest.artifact.sha256,
-  ]) {
-    assert.ok(immutableInputs.includes(value), `immutable input inventory should contain ${value}`);
-  }
+  ];
+  assert.deepEqual(values.filter((value) => !immutableInputs.includes(value)), [], `immutable input inventory is missing reviewed hashes`);
 });
 
 test('compatible package updates and plugin locks are exact', () => {
@@ -396,8 +395,8 @@ test('compatible package updates and plugin locks are exact', () => {
     'prisma@7.10.1',
     'lighthouse@13.6.0',
     '@marp-team/marp-cli@4.5.1',
-    '@google/gemini-cli@0.67.0',
-    '@openai/codex@0.166.0',
+    '@google/gemini-cli@0.68.0',
+    '@openai/codex@0.169.0',
     'opencode-ai@1.19.5',
     '@earendil-works/pi-coding-agent@0.85.1',
     'pandas==3.1.1',
@@ -537,11 +536,11 @@ test('CloudCLI js-yaml overlay guard accepts only the reviewed baseline or pinne
   }
 });
 
-test('release workflow keeps v1.6.9 source, native evidence, and promotion gates fail closed', () => {
+test('release workflow keeps v1.7.0 source, native evidence, and promotion gates fail closed', () => {
   assert.match(workflow, /^run-name:.*github\.event_name == 'workflow_dispatch'.*inputs\.mode.*github\.ref_name/m);
-  assert.match(workflow, /default: "1\.6\.9"/);
-  assert.match(workflow, /baseline="b9e0d11d8d4173899e210742a8f7af8cefcf94f1"/);
-  assert.match(workflow, /git rev-parse 'v1\.6\.8\^\{commit\}'\)" = "b9e0d11d8d4173899e210742a8f7af8cefcf94f1"/);
+  assert.match(workflow, /default: "1\.7\.0"/);
+  assert.match(workflow, /baseline="c24271654121cf9f34a24728e9aa2850a43cce55"/);
+  assert.match(workflow, /git rev-parse 'v1\.6\.9\^\{commit\}'\)" = "c87a6587d7ccdadd04a7b1c1d2dd1215c1d4e908"/);
   assert.match(workflow, /SYFT_VERSION: 1\.56\.0/);
   assert.match(workflow, /GRYPE_VERSION: 0\.121\.1/);
   assert.match(workflow, /node scripts\/evaluate-upstream-dependency-report\.mjs/);
@@ -569,11 +568,11 @@ test('release workflow keeps v1.6.9 source, native evidence, and promotion gates
   }
 });
 
-test('release workflow separates the v1.6.8 parent from retained v1.6.4 inputs', () => {
+test('release workflow separates the approved parent from retained v1.6.4 inputs', () => {
   const expectedBaseline = 'baseline="20e9e10681aec9b091bb54da8755f8a1c59f69bb"';
   const baselineAssignments = workflow.match(/^\s*baseline="[0-9a-f]{40}"\r?$/gm) ?? [];
   assert.equal(baselineAssignments.length, 3, 'workflow must bind source, CloudCLI, and FFmpeg guards to the release baseline');
-  assert.equal(baselineAssignments[0].trim(), 'baseline="b9e0d11d8d4173899e210742a8f7af8cefcf94f1"');
+  assert.equal(baselineAssignments[0].trim(), 'baseline="c24271654121cf9f34a24728e9aa2850a43cce55"');
   assert.ok(baselineAssignments.slice(1).every((entry) => entry.trim() === expectedBaseline));
   assert.match(workflow, /Require retained CloudCLI artifact and overlay inputs to remain unchanged/);
   assert.match(workflow, /Require retained FFmpeg builder and patch inputs to remain unchanged/);

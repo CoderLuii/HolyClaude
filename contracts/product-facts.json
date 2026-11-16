@@ -2,8 +2,8 @@
   "$schema": "./product-facts.v1.schema.json",
   "schemaVersion": 1,
   "release": {
-    "tag": "v1.6.9",
-    "dockerVersion": "1.6.9"
+    "tag": "v1.7.0",
+    "dockerVersion": "1.7.0"
   },
   "registries": {
     "dockerHub": {
@@ -37,7 +37,7 @@
       "id": "claude-code",
       "name": "Claude Code",
       "command": "claude",
-      "version": "2.1.318",
+      "version": "2.1.325",
       "variants": [
         "full",
         "slim"
@@ -47,7 +47,7 @@
       "id": "gemini-cli",
       "name": "Gemini CLI",
       "command": "gemini",
-      "version": "0.67.0",
+      "version": "0.68.0",
       "variants": [
         "full",
         "slim"
@@ -57,7 +57,7 @@
       "id": "openai-codex",
       "name": "OpenAI Codex",
       "command": "codex",
-      "version": "0.166.0",
+      "version": "0.169.0",
       "variants": [
         "full",
         "slim"

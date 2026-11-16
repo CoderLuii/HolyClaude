@@ -13,9 +13,9 @@ test('release version metadata cannot invalidate filesystem build instructions',
 });
 
 test('release metadata preserves the version default and OCI source identity', () => {
-  assert.equal((dockerfile.match(/^ARG HOLYCLAUDE_VERSION=1\.6\.9$/gm) ?? []).length, 1);
+  assert.equal((dockerfile.match(/^ARG HOLYCLAUDE_VERSION=1\.7\.0$/gm) ?? []).length, 1);
   assert.equal((dockerfile.match(/^LABEL org\.opencontainers\.image\.source=https:\/\/github\.com\/CoderLuii\/HolyClaude$/gm) ?? []).length, 1);
   assert.equal((dockerfile.match(/^LABEL org\.opencontainers\.image\.version=\$\{HOLYCLAUDE_VERSION\}$/gm) ?? []).length, 1);
   const metadata = dockerfile.slice(dockerfile.indexOf('ARG HOLYCLAUDE_VERSION='));
-  assert.match(metadata, /^ARG HOLYCLAUDE_VERSION=1\.6\.9\nLABEL org\.opencontainers\.image\.source=https:\/\/github\.com\/CoderLuii\/HolyClaude\nLABEL org\.opencontainers\.image\.version=\$\{HOLYCLAUDE_VERSION\}\n$/);
+  assert.match(metadata, /^ARG HOLYCLAUDE_VERSION=1\.7\.0\nLABEL org\.opencontainers\.image\.source=https:\/\/github\.com\/CoderLuii\/HolyClaude\nLABEL org\.opencontainers\.image\.version=\$\{HOLYCLAUDE_VERSION\}\n$/);
 });

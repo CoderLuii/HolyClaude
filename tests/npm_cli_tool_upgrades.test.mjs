@@ -25,8 +25,8 @@ const upgradedPackages = new Map([
   ['vite', '8.3.5'],
   ['eslint', '10.14.0'],
   ['prettier', '3.9.10'],
-  ['@google/gemini-cli', '0.67.0'],
-  ['@openai/codex', '0.166.0'],
+  ['@google/gemini-cli', '0.68.0'],
+  ['@openai/codex', '0.169.0'],
   ['opencode-ai', '1.19.5'],
   ['wrangler', '4.157.0'],
   ['drizzle-kit', '0.31.11'],
@@ -50,8 +50,8 @@ test('pins the reviewed npm CLI and developer tool upgrades', () => {
 });
 
 test('keeps public AI CLI facts synchronized with the image pins', () => {
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'gemini-cli')?.version, '0.67.0');
-  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'openai-codex')?.version, '0.166.0');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'gemini-cli')?.version, '0.68.0');
+  assert.equal(productFacts.aiClis.find((cli) => cli.id === 'openai-codex')?.version, '0.169.0');
   assert.equal(productFacts.aiClis.find((cli) => cli.id === 'opencode')?.version, '1.19.5');
 });
 

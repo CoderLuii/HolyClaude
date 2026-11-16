@@ -59,7 +59,7 @@ function validateProof(proof, expected, now) {
   requireThat(proof.schemaVersion === 1 && proof.executionOrigin === 'local_native' && proof.scope === 'optional_docker_client', 'proof origin or scope is invalid');
   const age = now.valueOf() - Date.parse(proof.createdAt);
   requireThat(Number.isFinite(age) && age >= 0 && age <= 300000, 'proof is future-dated or older than five minutes');
-  requireThat(proof.release === 'v1.6.9' && SOURCE_SHA.test(proof.sourceCommit), 'release or source commit is invalid');
+  requireThat(proof.release === 'v1.7.0' && SOURCE_SHA.test(proof.sourceCommit), 'release or source commit is invalid');
   requireThat(/^[a-z0-9][a-z0-9_.-]{5,62}$/.test(proof.prefix) && proof.prefix === expected.prefix, 'prefix does not match this test');
   requireThat(proof.candidateRef === expected.image && /^[^\s@]+@sha256:[a-f0-9]{64}$/.test(proof.candidateRef), 'candidate must match the exact requested digest');
   requireThat(absolutePath(proof.sourceRoot) && proof.sourceRoot === expected.sourceRoot, 'source root does not match this checkout');

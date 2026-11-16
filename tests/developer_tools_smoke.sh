@@ -121,7 +121,7 @@ function pythonBuild(major, minor, patch, prerelease) {
 
 async function main() {
   const installedNpmVersion = execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim();
-  assert.equal(process.version, 'v26.13.0', 'unexpected Node version');
+  assert.equal(process.version, 'v26.13.1', 'unexpected Node version');
   assert.equal(installedNpmVersion, '12.2.2', 'unexpected npm version');
   assert.equal(easPackage.version, '24.14.0', 'unexpected EAS version');
   assert.equal(vercelPackage.version, '63.1.2', 'unexpected Vercel version');

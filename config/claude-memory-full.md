@@ -79,9 +79,9 @@ The `--break-system-packages` flag is required (no venv in container context).
 
 | CLI | Command | Version | Notes |
 |-----|---------|---------|-------|
-| **Claude Code** | `claude` | 2.1.318 | Primary — you are running inside this |
-| **Gemini CLI** | `gemini` | 0.67.0 | Requires `GEMINI_API_KEY` env var. Config persists across rebuilds. Notifications via Apprise. |
-| **OpenAI Codex** | `codex` | 0.166.0 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. Auth persists across rebuilds. Notifications via Apprise. |
+| **Claude Code** | `claude` | 2.1.325 | Primary — you are running inside this |
+| **Gemini CLI** | `gemini` | 0.68.0 | Requires `GEMINI_API_KEY` env var. Config persists across rebuilds. Notifications via Apprise. |
+| **OpenAI Codex** | `codex` | 0.169.0 | `OPENAI_API_KEY` or ChatGPT subscription (`codex login --device-auth`). Raw CLI config is seeded on first boot. Auth persists across rebuilds. Notifications via Apprise. |
 | **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Requires `CURSOR_API_KEY` env var. Config persists across rebuilds. |
 | **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and management |
 | **Junie** | `junie` | 4011.1 | JetBrains AI coding agent (requires JetBrains account) |

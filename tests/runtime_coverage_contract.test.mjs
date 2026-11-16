@@ -353,7 +353,7 @@ test('developer tools fixture exercises upgraded Vite, EAS, and native parser be
   assert.match(developerTools, /EasJsonUtils\.getBuildProfileAsync/);
   assert.match(developerTools, /eas\\\.json is not valid/);
   assert.match(developerTools, /process\.exitCode = 1/);
-  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.13\.0'/);
+  assert.match(developerTools, /assert\.equal\(process\.version, 'v26\.13\.1'/);
   assert.match(developerTools, /assert\.equal\(installedNpmVersion, '12\.2\.2'/);
   assert.match(developerTools, /test "\$\(pnpm --version\)" = 12\.16\.1/);
   assert.match(developerTools, /assert\.equal\(easPackage\.version, '24\.14\.0'/);

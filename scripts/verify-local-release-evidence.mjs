@@ -13,7 +13,7 @@ const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const SHA = /^[a-f0-9]{64}$/;
 const SOURCE = /^[a-f0-9]{40}$/;
 const REPOSITORY = 'https://github.com/CoderLuii/HolyClaude';
-const PARENT = 'b9e0d11d8d4173899e210742a8f7af8cefcf94f1';
+const PARENT = 'c24271654121cf9f34a24728e9aa2850a43cce55';
 const SOURCE_STEPS = ['Require matching release ref and commit', 'Validate upstream dependency advisory policy', 'Run release source checks'];
 const SECURITY_FILES = ['syft', 'cycloneDxRaw', 'cycloneDx', 'spdx', 'licenseNormalization', 'grype', 'database', 'upstream', 'policy'];
 
@@ -115,7 +115,7 @@ function revalidateSecurity(target, files, sourceRoot, now) {
   try {
     execFileSync(process.execPath, [
       join(sourceRoot, 'scripts/evaluate-upstream-dependency-report.mjs'),
-      '--policy', join(sourceRoot, 'security/upstream-dependency-policy.json'), '--release', 'v1.6.9',
+      '--policy', join(sourceRoot, 'security/upstream-dependency-policy.json'), '--release', 'v1.7.0',
       '--report', files.grype, '--sbom', files.cycloneDx, '--syft-json', files.syft,
       '--image-ref', target.image.reference, '--db-evidence', files.database,
       '--immutable-inputs', join(sourceRoot, 'security/immutable-inputs.yml'), '--output-dir', output,
@@ -138,7 +138,7 @@ export function validateLocalReleaseEvidence(receipt, {
   artifactRoot, sourceRoot, expectedSource, sourceState, now = new Date(), securityVerifier = revalidateSecurity,
 }) {
   exactKeys(receipt, ['schemaVersion', 'executionOrigin', 'localRunId', 'release', 'sourceCommit', 'workflowSha256', 'sourceChecks', 'targets', 'artifacts'], 'receipt');
-  check(receipt.schemaVersion === 1 && receipt.executionOrigin === 'local_native' && receipt.release === 'v1.6.9', 'receipt origin or release is invalid');
+  check(receipt.schemaVersion === 1 && receipt.executionOrigin === 'local_native' && receipt.release === 'v1.7.0', 'receipt origin or release is invalid');
   check(/^[a-z0-9][a-z0-9_.-]{5,100}$/.test(receipt.localRunId), 'local run identity is invalid');
   check(SOURCE.test(receipt.sourceCommit) && receipt.sourceCommit === expectedSource && sourceState.head === expectedSource && sourceState.subject === receipt.release && sourceState.parent === PARENT && sourceState.parentCount === 1 && sourceState.clean === true && sourceState.rawBlobsMatch === true, 'source does not match the final clean committed release');
   const workflow = readFileSync(join(sourceRoot, '.github/workflows/docker-publish.yml'));
@@ -235,8 +235,8 @@ function main() {
   const sourceRoot = realpathSync(args['--source-root']);
   const now = new Date();
   const sourceState = verifyCommittedSource(sourceRoot);
-  check(sourceState.head === args['--source'] && sourceState.subject === 'v1.6.9' && sourceState.parent === PARENT && sourceState.parentCount === 1 && sourceState.clean === true && sourceState.rawBlobsMatch === true, 'source must be the exact clean release before revalidation');
-  execFileSync(process.execPath, [join(sourceRoot, 'scripts/verify-immutable-inputs.mjs'), '--file', join(sourceRoot, 'security/immutable-inputs.yml'), '--release', 'v1.6.9', '--as-of', now.toISOString().slice(0, 10)], { cwd: sourceRoot, stdio: ['ignore', 'pipe', 'pipe'] });
+  check(sourceState.head === args['--source'] && sourceState.subject === 'v1.7.0' && sourceState.parent === PARENT && sourceState.parentCount === 1 && sourceState.clean === true && sourceState.rawBlobsMatch === true, 'source must be the exact clean release before revalidation');
+  execFileSync(process.execPath, [join(sourceRoot, 'scripts/verify-immutable-inputs.mjs'), '--file', join(sourceRoot, 'security/immutable-inputs.yml'), '--release', 'v1.7.0', '--as-of', now.toISOString().slice(0, 10)], { cwd: sourceRoot, stdio: ['ignore', 'pipe', 'pipe'] });
   const result = validateLocalReleaseEvidence(readJson(args['--receipt']), { artifactRoot: args['--artifact-root'], sourceRoot, expectedSource: args['--source'], sourceState, now });
   check(isDeepStrictEqual(verifyCommittedSource(sourceRoot), sourceState), 'source changed during revalidation');
   writeFileSync(args['--output'], JSON.stringify(result, null, 2) + '\n');

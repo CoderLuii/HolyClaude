@@ -42,21 +42,24 @@ docker run --rm -v "$PWD:/repo:ro" -w /repo rhysd/actionlint@sha256:b1934ee5f1c5
 
 ## Prepare the next version
 
-For `v1.7.0` after `v1.6.9`, use single-digit version segments; do not use `v1.6.10`.
-Update `Dockerfile` (`HOLYCLAUDE_VERSION`), `contracts/product-facts.json`
-(`release.tag` and `release.dockerVersion`), `docs/CHANGELOG.md` (dated entry),
-`security/immutable-inputs.yml` and `security/upstream-dependency-policy.json`
-(release identity and genuinely refreshed inputs/evidence as required).
-Review `.github/workflows/docker-publish.yml`: the dispatch version default
-and release-parent/tag checks still name `v1.6.9` and the `v1.6.8` parent
-`b9e0d11d8d4173899e210742a8f7af8cefcf94f1`. Deliberately approve the next exact
-parent after integrating this workflow change with `master` (currently based on
-`5ffb0d1a001db18a947e214c3704cdd5d98e3d27`); do not reuse the old parent check.
-Update `.github/workflows/source-security.yml` release arguments and published scan tags.
-Keep historical artifact baselines, including CloudCLI/FFmpeg `20e9e10681aec9b091bb54da8755f8a1c59f69bb`,
-unless their own replacement is approved. Run the source checks above before committing;
-commit subject, tag and GitHub Release title must all equal `v1.7.0`.
+After `v1.7.0`, the next patch is normally `v1.7.1`. Keep single-digit version
+segments and check that the chosen version has not already been published.
+Update `Dockerfile` (`HOLYCLAUDE_VERSION`), `contracts/product-facts.json`,
+`docs/CHANGELOG.md`, the reviewed inventory/policy, release arguments, local
+receipt validators and their release-identity fixtures together.
 
+Approve the exact immediate parent from canonical `master`. Separately verify
+the previous published tag and its commit. These identities can differ when
+workflow or documentation maintenance landed after that tag. The `v1.7.0`
+guards name parent `c24271654121cf9f34a24728e9aa2850a43cce55` and previous
+`v1.6.9` tag `c87a6587d7ccdadd04a7b1c1d2dd1215c1d4e908`; a later release must
+review and replace both values rather than reuse them. Exercise the actual
+branch/tag Git guards locally before the release push. Retain the separate
+CloudCLI/FFmpeg artifact baseline `20e9e10681aec9b091bb54da8755f8a1c59f69bb`.
+
+Update source monitoring's published scan tags coherently with the release.
+Run local source checks before committing and pushing. Commit subject, tag
+and GitHub Release title must all equal the selected version.
 The tag keeps fresh release-ref, input-review and advisory checks, then verifies
 the successful candidate source job and exact artifacts. It does not repeat the
 full source suite already passed at that same commit. PR/master monitoring

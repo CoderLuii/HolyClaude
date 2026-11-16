@@ -9,7 +9,7 @@ import test from 'node:test';
 const evaluator = 'scripts/evaluate-upstream-dependency-report.mjs';
 const sourceLabels = {
   'org.opencontainers.image.revision': 'fixture-sha',
-  'org.opencontainers.image.version': 'v1.6.9',
+  'org.opencontainers.image.version': 'v1.7.0',
 };
 const layerId = `sha256:${'4'.repeat(64)}`;
 const configText = JSON.stringify({
@@ -124,7 +124,7 @@ function fixture() {
         component: { 'bom-ref': '5b7642aa89f8ce21', type: 'container', name: 'coderluii/holyclaude', version: 'fixture-image' },
         properties: [
           { name: 'syft:image:labels:org.opencontainers.image.revision', value: 'fixture-sha' },
-          { name: 'syft:image:labels:org.opencontainers.image.version', value: 'v1.6.9' },
+          { name: 'syft:image:labels:org.opencontainers.image.version', value: 'v1.7.0' },
         ],
       },
       components: [fixtureComponent],
@@ -156,7 +156,7 @@ function fixture() {
       checksum: `sha256:${'2'.repeat(64)}`,
       valid: true,
     },
-    immutableInputs: readFileSync('security/immutable-inputs.yml', 'utf8'),
+    immutableInputs: readFileSync('security/immutable-inputs.yml', 'utf8').replaceAll('\r\n', '\n'),
   };
 }
 
@@ -246,7 +246,7 @@ function useCycloneDxImageProjection(data) {
 }
 
 function runFixture(mutate = () => {}, {
-  preflight = false, release = 'v1.6.9', variant = 'full', arch = 'amd64', syncSyft = true,
+  preflight = false, release = 'v1.7.0', variant = 'full', arch = 'amd64', syncSyft = true,
 } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'holyclaude-upstream-policy-'));
   const output = join(root, 'output');
@@ -297,7 +297,7 @@ function rerunRelocated(run, sourceTarget) {
   }
   return spawnSync(process.execPath, [
     evaluator,
-    '--policy', join(relocated, 'policy.json'), '--release', 'v1.6.9',
+    '--policy', join(relocated, 'policy.json'), '--release', 'v1.7.0',
     '--report', join(relocated, 'report.json'), '--sbom', join(relocated, 'sbom.json'),
     '--syft-json', join(relocated, 'syft.json'), '--image-ref', imageRef,
     '--expected-source-target', sourceTarget,
@@ -370,7 +370,7 @@ test('accepts the exact Grype image projection emitted from a Syft CycloneDX SBO
   const run = runFixture((data) => {
     useCycloneDxImageProjection(data);
     data.syft.source.metadata.labels = {
-      'org.opencontainers.image.version': 'v1.6.9',
+      'org.opencontainers.image.version': 'v1.7.0',
       'org.opencontainers.image.revision': 'fixture-sha',
     };
   });
@@ -806,7 +806,7 @@ for (const [label, options, expected] of [
 
 for (const [type, purl, path] of [
   ['binary', 'pkg:generic/holyclaude@1.6.8', '/usr/local/lib/node_modules/@cloudcli-ai/cloudcli/holyclaude'],
-  ['go-module', 'pkg:golang/example.com/holyclaude@v1.6.9', '/home/claude/.claude-code-ui/plugins/project-stats/holyclaude'],
+  ['go-module', 'pkg:golang/example.com/holyclaude@v1.7.0', '/home/claude/.claude-code-ui/plugins/project-stats/holyclaude'],
 ]) {
   test(`project-controlled identity blocks before retained ${type} path classification`, (t) => {
     const run = runFixture(({ policy, report, sbom }) => {
@@ -906,7 +906,7 @@ test('rejects wrong release, target, and image digest', (t) => {
   const wrongRelease = runFixture(() => {}, { release: 'v1.6.4', preflight: true });
   cleanup(t, wrongRelease.root);
   assert.notEqual(wrongRelease.result.status, 0);
-  assert.match(wrongRelease.result.stderr, /must target v1\.6\.9/);
+  assert.match(wrongRelease.result.stderr, /must target v1\.7\.0/);
 
   const wrongTarget = runFixture(() => {}, { arch: 'ppc64le', preflight: true });
   cleanup(t, wrongTarget.root);
@@ -916,7 +916,7 @@ test('rejects wrong release, target, and image digest', (t) => {
   const invalidDigest = runFixture(() => {});
   cleanup(t, invalidDigest.root);
   const rerun = spawnSync(process.execPath, [
-    evaluator, '--policy', join(invalidDigest.root, 'policy.json'), '--release', 'v1.6.9',
+    evaluator, '--policy', join(invalidDigest.root, 'policy.json'), '--release', 'v1.7.0',
     '--variant', 'full', '--arch', 'amd64', '--as-of', '2026-10-21',
     '--report', join(invalidDigest.root, 'report.json'), '--sbom', join(invalidDigest.root, 'sbom.json'),
     '--syft-json', join(invalidDigest.root, 'syft.json'), '--image-ref', imageRef,
@@ -955,7 +955,7 @@ test('changed raw evidence requires a regenerated acceptance record', (t) => {
 test('committed policy preflight has standing authorization and all native targets', () => {
   for (const [variant, arch] of [['full', 'amd64'], ['full', 'arm64'], ['slim', 'amd64'], ['slim', 'arm64']]) {
     const result = spawnSync(process.execPath, [
-      evaluator, '--policy', 'security/upstream-dependency-policy.json', '--release', 'v1.6.9',
+      evaluator, '--policy', 'security/upstream-dependency-policy.json', '--release', 'v1.7.0',
       '--variant', variant, '--arch', arch, '--as-of', '2026-10-21', '--preflight', 'true',
     ], { cwd: process.cwd(), encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);

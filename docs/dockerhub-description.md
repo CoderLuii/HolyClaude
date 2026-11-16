@@ -42,7 +42,7 @@ That's it. Open your browser, sign in, start building.
 
 ## What's Inside
 
-🤖 **8 AI CLIs** — Claude Code 2.1.318, Gemini CLI 0.67.0, OpenAI Codex 0.166.0, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 4011.1, OpenCode 1.19.5, Pi Coding Agent 0.85.1
+🤖 **8 AI CLIs** — Claude Code 2.1.325, Gemini CLI 0.68.0, OpenAI Codex 0.169.0, Cursor `2026.09.15-d2fe57e`, TaskMaster AI 0.43.1, Junie 4011.1, OpenCode 1.19.5, Pi Coding Agent 0.85.1
 
 🌐 **CloudCLI Web UI** — Access your AI coding agents from your Docker host at `127.0.0.1:3001`
 

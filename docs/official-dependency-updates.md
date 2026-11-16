@@ -5,6 +5,18 @@ still run. Accepted upstream vulnerabilities retain their installed version,
 advisory, severity and available fix versions; acceptance does not mean fixed.
 HolyClaude source checks, artifact integrity and runtime tests still block delivery.
 
+## Selected maintenance updates
+
+Node advances to 26.13.1 in the runtime image. The FFmpeg builder stays at
+26.9.0, and the retained Cursor launcher uses the shared 26.13.1 runtime. Claude Code 2.1.325,
+Gemini CLI 0.68.0 and Codex 0.169.0 use official upstream payloads. Their
+credential-free version and command contracts remain part of native validation.
+
+pnpm, Wrangler, Netlify CLI and the other developer tools keep their current
+pins for this pass. Their owner graphs and runtime consumers need separate
+qualification. GitHub CLI, Junie and paired Node/Python Playwright also keep
+their current pins until their native artifact checks qualify an update.
+
 ## Deferred replacements
 
 CloudCLI stays at the existing 1.37.3 artifact. The official 1.37.7 package does
@@ -45,7 +57,7 @@ contains security fixes that this official Sharp prebuild does not yet include.
 Those upstream findings remain accepted and unresolved; HolyClaude does not
 replace the bundled native library.
 
-Apprise is updated to 2.1.0. Apprise 2 renamed the email PGP public-key URL
+Apprise is updated to 2.2.0. Apprise 2 renamed the email PGP public-key URL
 parameter from `pgpkey` to `pgppub`, so HolyClaude translates the legacy name for
 `mailto`, `mailtos`, `deltachat` and `deltachats` URLs before every `Apprise.add`
 call. An explicit `pgppub` value wins when both names are present.

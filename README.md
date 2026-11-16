@@ -41,7 +41,7 @@ One command. Full AI development workstation. Claude Code, web UI, headless brow
 
 You know the drill. You want Claude Code. But you also want it in a browser. With a headless browser for screenshots and testing. With Playwright configured. With every AI CLI. With TypeScript, Python, deployment tools, database clients, GitHub CLI.
 
-v1.6.9 updates the bundled AI CLIs and developer tools using official upstream releases. Node and Python Playwright are aligned at 1.64.1, with Debian Chromium 156.0.8078.79 for AMD64 and ARM64. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it. See the [deferred replacements](docs/official-dependency-updates.md) for integrations that still need an equivalent official release.
+v1.7.0 updates the Node runtime, Claude Code, Gemini CLI, Codex and Apprise using official upstream releases. Node and Python Playwright are aligned at 1.64.1, with Debian Chromium 156.0.8078.79 for AMD64 and ARM64. The Docker client remains an opt-in Full-derived recipe; stock images still ship without it. See the [deferred replacements](docs/official-dependency-updates.md) for integrations that still need an equivalent official release.
 
 > [!WARNING]
 > Dependency scans still run. Accepted upstream vulnerabilities remain listed with their installed versions, raw severity and available fixes; acceptance does not mean fixed. Retained modified third-party artifacts are identified separately from official releases. HolyClaude source checks, artifact integrity and runtime tests still block delivery. See the [dependency policy](security/upstream-dependency-policy.json) and the release's scan evidence before deploying.
@@ -613,9 +613,9 @@ This is not a minimal container. This is an entire development workstation.
 
 | CLI | Command | Version | What it's for |
 |-----|---------|---------|---------------|
-| **Claude Code** | `claude` | 2.1.318 | The main event — you're running inside this |
-| **Gemini CLI** | `gemini` | 0.67.0 | Google's AI coding agent |
-| **OpenAI Codex** | `codex` | 0.166.0 | OpenAI's coding agent |
+| **Claude Code** | `claude` | 2.1.325 | The main event — you're running inside this |
+| **Gemini CLI** | `gemini` | 0.68.0 | Google's AI coding agent |
+| **OpenAI Codex** | `codex` | 0.169.0 | OpenAI's coding agent |
 | **Cursor** | `cursor` | `2026.09.15-d2fe57e` | Cursor's AI agent |
 | **TaskMaster AI** | `task-master` | 0.43.1 | Task planning and orchestration |
 

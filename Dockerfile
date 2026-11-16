@@ -49,7 +49,7 @@ RUN test -x /usr/local/bin/build-ffmpeg-security-backport.sh && \
 
 FROM python:3.14.10-slim-bookworm@sha256:516b51cb9db2ef061e465c803e50f64361b82cefd91e525b889b967b83e83527 AS python-runtime
 
-FROM node:26.13.0-bookworm-slim@sha256:bc0a2afd3b74ce12222fc8bab99271e66257f021078f5f4a5d687a77d280c1d9
+FROM node:26.13.1-bookworm-slim@sha256:5df79989ed685e09f0a98019db4cebfb22fb9df1a53c0161664a011f7ff6b0f1
 
 COPY --from=python-runtime /usr/local/ /usr/local/
 RUN test "$(python3 --version)" = "Python 3.14.10" && \
@@ -72,10 +72,10 @@ ARG CHROMIUM_COMMON_PACKAGE_SHA256_AMD64=22f8b358b96ee1afca2cefa496b303f29381cea
 ARG CHROMIUM_COMMON_PACKAGE_SHA256_ARM64=853af7690a8ea35a73911c7bf816fe032888099ebb3d6c9ba98e2b94668fa44f
 ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_AMD64=5a8e3b720c9b6867e9747e697556ba4d58eac21d7755a1fd335b2517ce901d00
 ARG CHROMIUM_SANDBOX_PACKAGE_SHA256_ARM64=0bed7fc607e3fdd94963916502f91324eac161566b4379621e04df27d204ae1a
-ARG CLAUDE_CODE_VERSION=2.1.318
+ARG CLAUDE_CODE_VERSION=2.1.325
 ARG CLAUDE_INSTALLER_SHA256=3a68d3406cf674e17bed1733a4dcf37805e2e47d87417700007d7e1aa766a944
-ARG CLAUDE_BINARY_SHA256_AMD64=708c77b204db30086ff6f1ed34577bda03e1be74ced80557cbf7b54249ebf0bd
-ARG CLAUDE_BINARY_SHA256_ARM64=53a0d7e219d7b0804ecba5dbc002745e89f786cc946d2de85a6470d5b2d1fb06
+ARG CLAUDE_BINARY_SHA256_AMD64=0dc4f4a9a165fc60746d7ae8489712e5fc352f1e7ad4eb22e7141bd0812eb0cf
+ARG CLAUDE_BINARY_SHA256_ARM64=7b6e484b1989a5a14a4b354709ccc8672518a3ec5b9ccd7981fc6254327fde67
 ARG JUNIE_VERSION=4011.1
 ARG JUNIE_ARCHIVE_SHA256_AMD64=9fcc8c47cc41e4b839f15297fe3a59ec400d2bde6b59c6e79166652daed4223d
 ARG JUNIE_ARCHIVE_SHA256_ARM64=f8ce8f3149efcf74cbf96ed12690c1a91132235a09bf3f805066455af0e4ff15
@@ -426,7 +426,7 @@ RUN pip install --no-cache-dir --break-system-packages \
     desloppify==1.0 bandit==1.9.4 defusedxml==0.7.1 \
     tree-sitter==0.26.0 tree-sitter-language-pack==1.23.1 stevedore==5.9.1 \
     playwright==1.64.1 \
-    apprise==2.1.0 \
+    apprise==2.2.0 \
     pytest==9.2.0 pytest-asyncio==1.4.1.post1 flake8==7.5.0 \
     aiomqtt==2.5.1 aiohttp==3.14.5
 
@@ -469,7 +469,7 @@ RUN curl --disable --retry 8 --retry-all-errors --retry-max-time 300 --remove-on
     rm -f "/tmp/setuptools-${SETUPTOOLS_VERSION}-py3-none-any.whl"
 
 # ---------- AI CLI providers ----------
-RUN npm i -g @google/gemini-cli@0.67.0 @openai/codex@0.166.0 task-master-ai@0.43.1
+RUN npm i -g @google/gemini-cli@0.68.0 @openai/codex@0.169.0 task-master-ai@0.43.1
 USER claude
 RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "arm64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
     CURSOR_ARCHIVE_SHA256=$(case "$TARGETARCH" in amd64) echo "$CURSOR_ARCHIVE_SHA256_AMD64";; arm64) echo "$CURSOR_ARCHIVE_SHA256_ARM64";; *) echo "Unsupported TARGETARCH: $TARGETARCH" >&2; exit 1;; esac) && \
@@ -494,7 +494,7 @@ RUN CURSOR_ASSET_ARCH=$(case "$TARGETARCH" in amd64) echo "x64";; arm64) echo "a
     rm -f "$CURSOR_DIR/node" && \
     ln -s /usr/local/bin/node "$CURSOR_DIR/node" && \
     test "$(readlink -f "$CURSOR_DIR/node")" = "$(readlink -f /usr/local/bin/node)" && \
-    test "$("$CURSOR_DIR/node" --version)" = "v26.13.0" && \
+    test "$("$CURSOR_DIR/node" --version)" = "v26.13.1" && \
     test "$(cursor-agent --version)" = "$CURSOR_BUILD_ID" && \
     cursor-agent --help >/dev/null && \
     rm -f /tmp/cursor-agent.tar.gz
@@ -905,6 +905,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 # ---------- s6-overlay as PID 1 ----------
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
-ARG HOLYCLAUDE_VERSION=1.6.9
+ARG HOLYCLAUDE_VERSION=1.7.0
 LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
 LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
