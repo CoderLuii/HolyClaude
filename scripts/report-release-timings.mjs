@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { canonicalizeRetainedJobs } from './resolve-candidate-evidence.mjs';
 
 const fail = message => { throw new Error(message); };
 const numeric = value => /^[1-9][0-9]*$/.test(String(value));
@@ -48,19 +49,26 @@ export function summarizeRun(run, jobs) {
     return { jobId: job.id, name: job.name, attempt: Number(job.run_attempt), conclusion: job.conclusion, startedAt: job.started_at, completedAt: job.completed_at, runnerSeconds: seconds, kind: match?.[1] === 'candidate' ? 'build' : match?.[1] === 'qualify' ? 'qualification' : 'other', target: match ? `${match[2]}-${match[3]}` : null, architecture, labels: job.labels ?? [], buildSeconds: active ? phase(job, 'Build and push candidate') : null, qualificationSeconds: !active ? null : match?.[1] === 'qualify' ? seconds : verify ? duration(verify.started_at, job.completed_at) : null, qualificationBasis: match?.[1] === 'qualify' ? 'separate job including setup' : verify ? 'combined-job tail' : null, smokeSeconds: active ? phase(job, 'Run complete candidate smoke matrix') : null, securitySeconds: active ? phase(job, 'Generate digest-bound security evidence') : null };
   });
   if (Math.max(...rows.map(row => row.attempt)) !== Number(run.run_attempt)) fail('latest run attempt has no jobs');
+  const canonical = canonicalizeRetainedJobs(jobs);
+  const carriedJobs = canonical.carriedJobs.map(job => ({ ...job, canonicalJobId: job.originalJobId }));
+  for (const row of rows) {
+    const carried = carriedJobs.find(job => job.jobId === row.jobId);
+    row.carried = Boolean(carried);
+    if (carried) Object.assign(row, { canonicalJobId: carried.originalJobId, runnerSeconds: 0, buildSeconds: null, qualificationSeconds: null, smokeSeconds: null, securitySeconds: null });
+  }
   const attempts = [...new Set(rows.map(row => row.attempt))].sort((a, b) => a - b).map(attempt => {
-    const subset = rows.filter(row => row.attempt === attempt && row.conclusion !== 'skipped');
-    return { attempt, buildJobs: subset.filter(row => row.kind === 'build').length, qualificationJobs: subset.filter(row => row.kind === 'qualification').length, aggregateRunnerSeconds: subset.reduce((sum, row) => sum + row.runnerSeconds, 0), elapsedSeconds: subset.length ? (Math.max(...subset.map(row => time(row.completedAt))) - Math.min(...subset.map(row => time(row.startedAt)))) / 1000 : 0 };
+    const subset = rows.filter(row => row.attempt === attempt && row.conclusion !== 'skipped' && !row.carried);
+    return { attempt, carriedJobs: carriedJobs.filter(job => job.attempt === attempt).length, buildJobs: subset.filter(row => row.kind === 'build').length, qualificationJobs: subset.filter(row => row.kind === 'qualification').length, aggregateRunnerSeconds: subset.reduce((sum, row) => sum + row.runnerSeconds, 0), elapsedSeconds: subset.length ? (Math.max(...subset.map(row => time(row.completedAt))) - Math.min(...subset.map(row => time(row.startedAt)))) / 1000 : 0 };
   });
   const retainedBuilds = [];
   for (const target of new Set(rows.filter(row => row.target).map(row => row.target))) {
-    const builds = rows.filter(row => row.target === target && row.kind === 'build').sort((a, b) => b.attempt - a.attempt);
-    const qualifiers = rows.filter(row => row.target === target && row.kind === 'qualification').sort((a, b) => b.attempt - a.attempt);
+    const builds = rows.filter(row => row.target === target && row.kind === 'build' && !row.carried).sort((a, b) => b.attempt - a.attempt);
+    const qualifiers = rows.filter(row => row.target === target && row.kind === 'qualification' && !row.carried).sort((a, b) => b.attempt - a.attempt);
     const build = builds[0]; const qualifier = qualifiers[0];
     if (build?.conclusion === 'success' && qualifier && build.attempt < qualifier.attempt && time(build.completedAt) <= time(qualifier.startedAt)) retainedBuilds.push({ target, jobId: build.jobId, buildAttempt: build.attempt, qualificationJobId: qualifier.jobId, qualificationAttempt: qualifier.attempt, basis: 'job scheduling evidence; artifact reuse requires separate digest evidence' });
   }
   const active = rows.filter(row => row.conclusion !== 'skipped');
-  return { runId: run.id, source: run.head_sha, workflow: run.path, runAttempt: Number(run.run_attempt), conclusion: run.conclusion, createdAt: run.created_at, updatedAt: run.updated_at, cacheState: 'unknown', queueSeconds: null, aggregateRunnerSeconds: rows.reduce((sum, row) => sum + row.runnerSeconds, 0), elapsedSeconds: active.length ? (Math.max(...active.map(row => time(row.completedAt))) - Math.min(...active.map(row => time(row.startedAt)))) / 1000 : 0, attempts, retainedBuilds, jobs: rows };
+  return { runId: run.id, source: run.head_sha, workflow: run.path, runAttempt: Number(run.run_attempt), conclusion: run.conclusion, createdAt: run.created_at, updatedAt: run.updated_at, cacheState: 'unknown', queueSeconds: null, aggregateRunnerSeconds: rows.reduce((sum, row) => sum + row.runnerSeconds, 0), elapsedSeconds: active.length ? (Math.max(...active.map(row => time(row.completedAt))) - Math.min(...active.map(row => time(row.startedAt)))) / 1000 : 0, attempts, carriedJobs, retainedBuilds, jobs: rows };
 }
 
 export function compareTimings(left, right) {
@@ -89,7 +97,7 @@ function api(endpoint, paginate = false) {
   return JSON.parse(result.stdout);
 }
 function report(summary, repository, collectedAt) {
-  return `# Release timing\n\nCollected ${collectedAt}. [Run ${summary.runId}](https://github.com/${repository}/actions/runs/${summary.runId}), source \`${summary.source}\`, attempt ${summary.runAttempt}, conclusion **${summary.conclusion}**.\n\nAggregate runner execution: ${summary.aggregateRunnerSeconds}s. First job start to last job completion across attempts: ${summary.elapsedSeconds}s. These are different measures. Cache hits and isolated runner queue time: unknown.\n\n| Attempt | Builds | Qualifications | Aggregate runner seconds | Elapsed seconds |\n|---|---|---|---|---|\n${summary.attempts.map(row => `| ${row.attempt} | ${row.buildJobs} | ${row.qualificationJobs} | ${row.aggregateRunnerSeconds} | ${row.elapsedSeconds} |`).join('\n')}\n\nRetained build scheduling evidence: ${JSON.stringify(summary.retainedBuilds)}. Artifact digest reuse is not proved by timing alone. Failed conclusions remain failures. See timing.json for per-target steps.\n`;
+  return `# Release timing\n\nCollected ${collectedAt}. [Run ${summary.runId}](https://github.com/${repository}/actions/runs/${summary.runId}), source \`${summary.source}\`, attempt ${summary.runAttempt}, conclusion **${summary.conclusion}**.\n\nAggregate runner execution: ${summary.aggregateRunnerSeconds}s. First job start to last job completion across attempts: ${summary.elapsedSeconds}s. These are different measures. Cache hits and isolated runner queue time: unknown.\n\n| Attempt | Builds | Qualifications | Carried API records | Aggregate runner seconds | Elapsed seconds |\n|---|---|---|---|---|---|\n${summary.attempts.map(row => `| ${row.attempt} | ${row.buildJobs} | ${row.qualificationJobs} | ${row.carriedJobs} | ${row.aggregateRunnerSeconds} | ${row.elapsedSeconds} |`).join('\n')}\n\nCarried API records (not executions): ${JSON.stringify(summary.carriedJobs)}.\n\nRetained build scheduling evidence: ${JSON.stringify(summary.retainedBuilds)}. Artifact digest reuse is not proved by timing alone. Failed conclusions remain failures. See timing.json for per-target steps.\n`;
 }
 function main() {
   const options = {};

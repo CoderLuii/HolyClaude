@@ -30,6 +30,27 @@ test('old combined jobs expose measured qualification tail separately', () => {
   const s = helper.summarizeRun(f.run, f.jobs);
   assert.equal(s.jobs[0].qualificationSeconds, 60); assert.equal(s.jobs[0].qualificationBasis, 'combined-job tail');
 });
+test('real API retained Full ARM64 build clone is carried, not another execution', () => {
+  // Excerpt of run43813763342 filter=all responses captured November16 UTC.
+  const steps = [
+    { name: 'Build and push candidate', number: 11, status: 'completed', conclusion: 'success', started_at: '2026-11-16T06:01:40Z', completed_at: '2026-11-16T06:22:16Z' },
+    { name: 'Upload candidate build', number: 14, status: 'completed', conclusion: 'success', started_at: '2026-11-16T06:22:21Z', completed_at: '2026-11-16T06:22:22Z' },
+  ];
+  const original = { id: 133121230548, run_id: 43813763342, head_sha: 'dd7b75d2eb7515d73cde4b6be66e874ae73e85f0', run_attempt: 1, name: 'candidate (full, arm64)', status: 'completed', conclusion: 'success', created_at: '2026-11-16T06:00:10Z', started_at: '2026-11-16T06:00:15Z', completed_at: '2026-11-16T06:24:15Z', runner_id: 1000005598, runner_name: 'GitHub Actions 1000005598', labels: ['ubuntu-24.04-arm'], steps };
+  const clone = { ...original, id: 133139557504, run_attempt: 2, created_at: '2026-11-16T06:51:25Z' };
+  const run = { ...fixture().run, id: original.run_id, head_sha: original.head_sha };
+  const s = helper.summarizeRun(run, [clone, original]);
+  assert.equal(s.aggregateRunnerSeconds, 1440); assert.equal(s.attempts[1].buildJobs, 0);
+  assert.equal(s.carriedJobs[0].canonicalJobId, original.id); assert.equal(s.carriedJobs[0].jobId, clone.id);
+  assert.equal(s.jobs.find(row => row.jobId === clone.id).runnerSeconds, 0);
+});
+test('genuine reruns with new timestamps and later failures remain separate executions', () => {
+  const f = fixture(); const original = f.jobs[0];
+  f.jobs.push({ ...original, id: 4, run_attempt: 2, started_at: stamp(6), completed_at: stamp(7), steps: [], conclusion: 'failure' });
+  const s = helper.summarizeRun(f.run, f.jobs);
+  assert.equal(s.carriedJobs.length, 0); assert.equal(s.attempts[1].buildJobs, 1);
+  assert.equal(s.jobs.find(row => row.jobId === 4).conclusion, 'failure');
+});
 for (const [name, change] of [
   ['source mismatch', f => { f.jobs[0].head_sha = 'b'.repeat(40); }],
   ['wrong run', f => { f.jobs[0].run_id = 9; }],

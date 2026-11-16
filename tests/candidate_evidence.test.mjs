@@ -98,6 +98,40 @@ test('release promotion rejects benchmark or missing-purpose evidence despite va
     assert.throws(() => helper.validateRecords({ selection, target, build, qualified: { ...qualified, purpose } }));
   }
 });
+
+function retainedFixture() {
+  const f = fixture();
+  for (const job of f.jobs) Object.assign(job, { created_at: '2026-11-15T00:59:00Z', runner_id: 41, runner_name: 'runner-41', labels: ['ubuntu-24.04'], steps: [{ name: 'Actual execution', number: 1, status: 'completed', conclusion: 'success', started_at: job.started_at, completed_at: job.completed_at }] });
+  const original = f.jobs.find(j => j.name === 'candidate (full, amd64)');
+  const clone = { ...structuredClone(original), id: 999, run_attempt: 2, created_at: '2026-11-15T04:00:00Z', runner_group_id: null };
+  f.jobs.push(clone);
+  return { f, original, clone };
+}
+test('GitHub retained success copies select the original execution and artifact attempt', () => {
+  const { f, original } = retainedFixture();
+  const selection = select(f);
+  assert.equal(selection.targets[0].build.id, original.id);
+  assert.equal(selection.targets[0].build.run_attempt, 1);
+  assert.equal(selection.targets[0].buildArtifact.name, 'candidate-build-full-amd64-1');
+});
+test('actual hosted rerun API fixture canonicalizes its copied job ID to execution attempt one', () => {
+  const fixture = JSON.parse(readFileSync('tests/fixtures/retained-github-jobs.json', 'utf8'));
+  const result = helper.canonicalizeRetainedJobs(fixture.jobs);
+  assert.equal(result.jobs.length, 1);
+  assert.equal(result.jobs[0].id, 133121230479);
+  assert.equal(result.jobs[0].run_attempt, 1);
+  assert.deepEqual(result.carriedJobs, [{ jobId: 133139554452, attempt: 2, originalJobId: 133121230479, originalAttempt: 1 }]);
+});
+test('conflicting retained snapshots cannot authenticate an earlier artifact', () => {
+  for (const mutate of [j => { j.steps[0].conclusion = 'failure'; }, j => { j.runner_id = 42; }, j => { j.runner_name = 'other'; }, j => { j.steps = []; }]) {
+    const { f, clone } = retainedFixture(); mutate(clone); assert.throws(() => select(f), /retained|ambiguous/);
+  }
+});
+test('a real later job is never collapsed solely because its timestamps match', () => {
+  const { f, clone } = retainedFixture(); clone.created_at = '2026-11-15T00:59:00Z';
+  assert.throws(() => select(f), /exactly one artifact/);
+  clone.conclusion = 'failure'; assert.throws(() => select(f), /latest.*successful/);
+});
 test('downloaded records bind qualification to the exact selected build', () => {
   const s = select(); const target = s.targets[1];
   const build = record(['full', 'arm64']);

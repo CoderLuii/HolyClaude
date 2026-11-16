@@ -4,6 +4,21 @@ As of November 16, 2026, the maintainer reports release work stretching across 2
 
 Several different failures accumulated. Calling all of them GitHub bugs hides the repairs that actually matter.
 
+GitHub records show the following candidate windows. These measure the first
+candidate start to the first successful job completion, not continuous work or
+conversation time. Counts include all retained runs on each release branch;
+cancelled runs are not counted as product failures.
+
+| Release branch | Runs / source revisions | Failed / cancelled / successful | Hours to first green |
+| --- | --- | --- | --- |
+| v1.6.0 | 15 / 15 | 3 / 10 / 2 | 3.12 |
+| v1.6.1 | 6 / 6 | 3 / 2 / 1 | 9.36 |
+| v1.6.4 | 4 / 4 | 3 / 0 / 1 | 10.84 |
+
+For v1.6.0, twelve runs followed the first green result. Its later successful
+revision completed 54.60 hours after the first candidate. That wider window
+includes later changes and does not establish 54.60 hours of active work.
+
 ## What repeated
 
 **Successful work ran again.** In the [v1.6.9 candidate run](https://github.com/CoderLuii/HolyClaude/actions/runs/42175777960), attempt 1 failed Slim ARM64 while pushing to GHCR: a DNS lookup timed out. Three other targets passed. Attempt 2 repeated all four targets because promotion required a coherent same-attempt evidence set. The three previously successful targets consumed another **116m01s of aggregate runner execution**, including 49m58s of build/push steps. That is repeated work across parallel runners, not 116 minutes added directly to wall time. Attempt 2's candidate matrix took 62m14s elapsed.
@@ -52,6 +67,15 @@ local lint result did not cover GitHub's complete check. No native builds began.
 Removing unnecessary Markdown backticks fixed the message; the same pinned
 lint container now runs locally before a correction push. An environment
 mismatch is a reason to align verification, not retry the unchanged workflow.
+
+The first hosted failed-job exercise also exposed a missing API fixture.
+GitHub returned retained successful jobs with new IDs and attempt numbers,
+but their original execution timestamps. Treating those records as new builds
+looked for artifacts that did not exist and double-counted execution time.
+The resolver and timing report now match exact execution identity to the
+original successful record. A later real failure still blocks promotion.
+The actual API response is retained as a regression fixture; the workflow
+must pass a new hosted retry exercise before this repair is considered ready.
 
 ## A release label could invalidate the toolchain cache
 

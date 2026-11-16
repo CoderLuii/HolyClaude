@@ -4,11 +4,32 @@ import { closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 
 const targets = [['full', 'amd64'], ['full', 'arm64'], ['slim', 'amd64'], ['slim', 'arm64']];
 const digestPattern = /^sha256:[0-9a-f]{64}$/;
 const fail = message => { throw new Error(message); };
 const numeric = value => /^[1-9][0-9]*$/.test(String(value));
+
+export function canonicalizeRetainedJobs(jobs) {
+  const executions = []; const carriedJobs = []; const seen = new Set();
+  const signature = job => ({ name: job.name, run_id: job.run_id, head_sha: job.head_sha, status: job.status, conclusion: job.conclusion, started_at: job.started_at, completed_at: job.completed_at, runner_id: job.runner_id, runner_name: job.runner_name, labels: job.labels, steps: job.steps });
+  for (const job of [...jobs].sort((a, b) => Number(a.run_attempt) - Number(b.run_attempt))) {
+    const key = `${job.run_attempt}:${job.name}`;
+    if (seen.has(key)) fail(`duplicate job ${job.name} in attempt ${job.run_attempt}`);
+    seen.add(key);
+    // GitHub can synthesize a successful carried job with a new ID/attempt.
+    // Its creation is AFTER its recorded execution ended. Preserve API originals
+    // and require complete execution identity before attributing it to old proof.
+    if (job.status === 'completed' && job.conclusion === 'success' && Date.parse(job.created_at) > Date.parse(job.completed_at)) {
+      if (!numeric(job.runner_id) || typeof job.runner_name !== 'string' || !job.runner_name || !Array.isArray(job.labels) || !Array.isArray(job.steps) || !job.steps.length) fail(`ambiguous retained execution: ${job.name}`);
+      const matches = executions.filter(previous => Number(previous.run_attempt) < Number(job.run_attempt) && isDeepStrictEqual(signature(previous), signature(job)));
+      if (matches.length !== 1) fail(`conflicting or ambiguous retained execution: ${job.name}`);
+      carriedJobs.push({ jobId: job.id, attempt: Number(job.run_attempt), originalJobId: matches[0].id, originalAttempt: Number(matches[0].run_attempt) });
+    } else executions.push(job);
+  }
+  return { jobs: executions, carriedJobs };
+}
 
 function latestJob(jobs, name, runId, source, runAttempt) {
   const matches = jobs.filter(job => job.name === name);
@@ -16,8 +37,9 @@ function latestJob(jobs, name, runId, source, runAttempt) {
   for (const job of matches) {
     if (!numeric(job.id) || !numeric(job.run_attempt) || Number(job.run_attempt) > Number(runAttempt) || String(job.run_id) !== String(runId) || job.head_sha !== source) fail(`invalid job identity: ${name}`);
   }
-  const attempt = Math.max(...matches.map(job => Number(job.run_attempt)));
-  const latest = matches.filter(job => Number(job.run_attempt) === attempt);
+  const executions = canonicalizeRetainedJobs(matches).jobs;
+  const attempt = Math.max(...executions.map(job => Number(job.run_attempt)));
+  const latest = executions.filter(job => Number(job.run_attempt) === attempt);
   if (latest.length !== 1) fail(`duplicate job ${name} in attempt ${attempt}`);
   if (latest[0].status !== 'completed' || latest[0].conclusion !== 'success') fail(`latest job must be successful: ${name}`);
   const [start, end] = [latest[0].started_at, latest[0].completed_at].map(value => typeof value === 'string' ? Date.parse(value) : NaN);

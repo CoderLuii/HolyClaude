@@ -1,0 +1,381 @@
+{
+  "jobs": [
+    {
+      "id": 133121230479,
+      "run_id": 43813763342,
+      "workflow_name": "benchmark - codex/release-workflow-20261115",
+      "head_branch": "codex/release-workflow-20261115",
+      "run_url": "https://api.github.com/repos/CoderLuii/HolyClaude/actions/runs/43813763342",
+      "run_attempt": 1,
+      "node_id": "CR_kwDORtT6M88AAAAe_qTGjw",
+      "head_sha": "dd7b75d2eb7515d73cde4b6be66e874ae73e85f0",
+      "url": "https://api.github.com/repos/CoderLuii/HolyClaude/actions/jobs/133121230479",
+      "html_url": "https://github.com/CoderLuii/HolyClaude/actions/runs/43813763342/job/133121230479",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T06:00:10Z",
+      "started_at": "2026-11-16T06:00:12Z",
+      "completed_at": "2026-11-16T06:21:37Z",
+      "name": "candidate (full, amd64)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T06:00:13Z",
+          "completed_at": "2026-11-16T06:00:17Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T06:00:17Z",
+          "completed_at": "2026-11-16T06:00:23Z"
+        },
+        {
+          "name": "Free up disk space",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T06:00:23Z",
+          "completed_at": "2026-11-16T06:02:42Z"
+        },
+        {
+          "name": "Set up Docker Buildx",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T06:02:42Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Require retained CloudCLI artifact and overlay inputs to remain unchanged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Require retained FFmpeg builder and patch inputs to remain unchanged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Record cryptography reproducibility disposition",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Login to Docker Hub",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Login to GHCR",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:52Z"
+        },
+        {
+          "name": "Prepare candidate refs",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-16T06:02:52Z",
+          "completed_at": "2026-11-16T06:02:52Z"
+        },
+        {
+          "name": "Build and push candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-16T06:02:52Z",
+          "completed_at": "2026-11-16T06:21:08Z"
+        },
+        {
+          "name": "Capture registry digests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-16T06:21:08Z",
+          "completed_at": "2026-11-16T06:21:15Z"
+        },
+        {
+          "name": "Write candidate build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-16T06:21:15Z",
+          "completed_at": "2026-11-16T06:21:15Z"
+        },
+        {
+          "name": "Upload candidate build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-11-16T06:21:15Z",
+          "completed_at": "2026-11-16T06:21:16Z"
+        },
+        {
+          "name": "Post Build and push candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-11-16T06:21:16Z",
+          "completed_at": "2026-11-16T06:21:19Z"
+        },
+        {
+          "name": "Post Login to GHCR",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-11-16T06:21:19Z",
+          "completed_at": "2026-11-16T06:21:19Z"
+        },
+        {
+          "name": "Post Login to Docker Hub",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-11-16T06:21:19Z",
+          "completed_at": "2026-11-16T06:21:20Z"
+        },
+        {
+          "name": "Post Set up Docker Buildx",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-11-16T06:21:20Z",
+          "completed_at": "2026-11-16T06:21:34Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 28,
+          "started_at": "2026-11-16T06:21:34Z",
+          "completed_at": "2026-11-16T06:21:34Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-11-16T06:21:34Z",
+          "completed_at": "2026-11-16T06:21:34Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/CoderLuii/HolyClaude/check-runs/133121230479",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000005595,
+      "runner_name": "GitHub Actions 1000005595",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133139554452,
+      "run_id": 43813763342,
+      "workflow_name": "benchmark - codex/release-workflow-20261115",
+      "head_branch": "codex/release-workflow-20261115",
+      "run_url": "https://api.github.com/repos/CoderLuii/HolyClaude/actions/runs/43813763342",
+      "run_attempt": 2,
+      "node_id": "CR_kwDORtT6M88AAAAe_7xglA",
+      "head_sha": "dd7b75d2eb7515d73cde4b6be66e874ae73e85f0",
+      "url": "https://api.github.com/repos/CoderLuii/HolyClaude/actions/jobs/133139554452",
+      "html_url": "https://github.com/CoderLuii/HolyClaude/actions/runs/43813763342/job/133139554452",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T06:51:25Z",
+      "started_at": "2026-11-16T06:00:12Z",
+      "completed_at": "2026-11-16T06:21:37Z",
+      "name": "candidate (full, amd64)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T06:00:13Z",
+          "completed_at": "2026-11-16T06:00:17Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T06:00:17Z",
+          "completed_at": "2026-11-16T06:00:23Z"
+        },
+        {
+          "name": "Free up disk space",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T06:00:23Z",
+          "completed_at": "2026-11-16T06:02:42Z"
+        },
+        {
+          "name": "Set up Docker Buildx",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T06:02:42Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Require retained CloudCLI artifact and overlay inputs to remain unchanged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Require retained FFmpeg builder and patch inputs to remain unchanged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Record cryptography reproducibility disposition",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Login to Docker Hub",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:51Z"
+        },
+        {
+          "name": "Login to GHCR",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-16T06:02:51Z",
+          "completed_at": "2026-11-16T06:02:52Z"
+        },
+        {
+          "name": "Prepare candidate refs",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-16T06:02:52Z",
+          "completed_at": "2026-11-16T06:02:52Z"
+        },
+        {
+          "name": "Build and push candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-16T06:02:52Z",
+          "completed_at": "2026-11-16T06:21:08Z"
+        },
+        {
+          "name": "Capture registry digests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-11-16T06:21:08Z",
+          "completed_at": "2026-11-16T06:21:15Z"
+        },
+        {
+          "name": "Write candidate build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-11-16T06:21:15Z",
+          "completed_at": "2026-11-16T06:21:15Z"
+        },
+        {
+          "name": "Upload candidate build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-11-16T06:21:15Z",
+          "completed_at": "2026-11-16T06:21:16Z"
+        },
+        {
+          "name": "Post Build and push candidate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-11-16T06:21:16Z",
+          "completed_at": "2026-11-16T06:21:19Z"
+        },
+        {
+          "name": "Post Login to GHCR",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-11-16T06:21:19Z",
+          "completed_at": "2026-11-16T06:21:19Z"
+        },
+        {
+          "name": "Post Login to Docker Hub",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-11-16T06:21:19Z",
+          "completed_at": "2026-11-16T06:21:20Z"
+        },
+        {
+          "name": "Post Set up Docker Buildx",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-11-16T06:21:20Z",
+          "completed_at": "2026-11-16T06:21:34Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 28,
+          "started_at": "2026-11-16T06:21:34Z",
+          "completed_at": "2026-11-16T06:21:34Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-11-16T06:21:34Z",
+          "completed_at": "2026-11-16T06:21:34Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/CoderLuii/HolyClaude/check-runs/133139554452",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000005595,
+      "runner_name": "GitHub Actions 1000005595",
+      "runner_group_id": null,
+      "runner_group_name": "GitHub Actions"
+    }
+  ],
+  "api": "GET /repos/CoderLuii/HolyClaude/actions/runs/43813763342/jobs?filter=all&per_page=100"
+}
