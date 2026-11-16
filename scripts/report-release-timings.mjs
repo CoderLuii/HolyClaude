@@ -19,6 +19,7 @@ function duration(start, end) {
 function phase(job, name) {
   const steps = (job.steps ?? []).filter(step => step.name === name && step.conclusion !== 'skipped');
   if (steps.length > 1) fail(`duplicate phase: ${name}`);
+  if (steps.length && (steps[0].status !== 'completed' || !steps[0].started_at || !steps[0].completed_at)) return null;
   return steps.length ? duration(steps[0].started_at, steps[0].completed_at) : null;
 }
 
@@ -45,8 +46,9 @@ export function summarizeRun(run, jobs) {
       if ((match[3] === 'arm64' && (!arm || amd)) || (match[3] === 'amd64' && (!amd || arm))) fail(`runner architecture mismatch: ${job.name}`);
       architecture = match[3];
     }
-    const verify = (job.steps ?? []).find(step => step.name === 'Verify architecture and product facts contract' && step.conclusion !== 'skipped');
-    return { jobId: job.id, name: job.name, attempt: Number(job.run_attempt), conclusion: job.conclusion, startedAt: job.started_at, completedAt: job.completed_at, runnerSeconds: seconds, kind: match?.[1] === 'candidate' ? 'build' : match?.[1] === 'qualify' ? 'qualification' : 'other', target: match ? `${match[2]}-${match[3]}` : null, architecture, labels: job.labels ?? [], buildSeconds: active ? phase(job, 'Build and push candidate') : null, qualificationSeconds: !active ? null : match?.[1] === 'qualify' ? seconds : verify ? duration(verify.started_at, job.completed_at) : null, qualificationBasis: match?.[1] === 'qualify' ? 'separate job including setup' : verify ? 'combined-job tail' : null, smokeSeconds: active ? phase(job, 'Run complete candidate smoke matrix') : null, securitySeconds: active ? phase(job, 'Generate digest-bound security evidence') : null };
+    const incompletePhases = (job.steps ?? []).filter(step => step.conclusion !== 'skipped' && (step.status !== 'completed' || !step.started_at || !step.completed_at)).map(step => ({ name: step.name, status: step.status ?? null, conclusion: step.conclusion ?? null, startedAt: step.started_at ?? null, completedAt: step.completed_at ?? null, seconds: null }));
+    const verify = (job.steps ?? []).find(step => step.name === 'Verify architecture and product facts contract' && step.conclusion !== 'skipped' && step.status === 'completed' && step.started_at && step.completed_at);
+    return { jobId: job.id, name: job.name, attempt: Number(job.run_attempt), conclusion: job.conclusion, startedAt: job.started_at, completedAt: job.completed_at, runnerSeconds: seconds, kind: match?.[1] === 'candidate' ? 'build' : match?.[1] === 'qualify' ? 'qualification' : 'other', target: match ? `${match[2]}-${match[3]}` : null, architecture, labels: job.labels ?? [], incompletePhases, buildSeconds: active ? phase(job, 'Build and push candidate') : null, qualificationSeconds: !active ? null : match?.[1] === 'qualify' ? seconds : verify ? duration(verify.started_at, job.completed_at) : null, qualificationBasis: match?.[1] === 'qualify' ? 'separate job including setup' : verify ? 'combined-job tail' : null, smokeSeconds: active ? phase(job, 'Run complete candidate smoke matrix') : null, securitySeconds: active ? phase(job, 'Generate digest-bound security evidence') : null };
   });
   if (Math.max(...rows.map(row => row.attempt)) !== Number(run.run_attempt)) fail('latest run attempt has no jobs');
   const canonical = canonicalizeRetainedJobs(jobs);
@@ -72,7 +74,11 @@ export function summarizeRun(run, jobs) {
 }
 
 export function compareTimings(left, right) {
-  const latest = (summary, target, key) => summary.jobs.filter(row => row.target === target && row[key] !== null).sort((a, b) => b.attempt - a.attempt)[0]?.[key] ?? null;
+  const latest = (summary, target, key) => {
+    const executions = summary.jobs.filter(row => row.target === target && !row.carried && row.conclusion !== 'skipped');
+    const kind = key === 'buildSeconds' || !executions.some(row => row.kind === 'qualification') ? 'build' : 'qualification';
+    return executions.filter(row => row.kind === kind).sort((a, b) => b.attempt - a.attempt)[0]?.[key] ?? null;
+  };
   return { leftRunId: left.runId, rightRunId: right.runId, leftSource: left.source, rightSource: right.source, sameSource: left.source === right.source, targets: [...new Set([...left.jobs, ...right.jobs].filter(row => row.target).map(row => row.target))].sort().map(target => ({ target, leftBuildSeconds: latest(left, target, 'buildSeconds'), rightBuildSeconds: latest(right, target, 'buildSeconds'), leftQualificationSeconds: latest(left, target, 'qualificationSeconds'), rightQualificationSeconds: latest(right, target, 'qualificationSeconds') })), caveats: ['Different source SHAs invalidate an unchanged-source comparison.', 'Even unchanged source does not control cache state, runner queue, setup or image pulls.', 'Old combined qualification tails and separate qualification jobs have different setup boundaries.', 'Job API does not establish cache hits or causal speedup; no fastest-release claim.'] };
 }
 
@@ -97,7 +103,7 @@ function api(endpoint, paginate = false) {
   return JSON.parse(result.stdout);
 }
 function report(summary, repository, collectedAt) {
-  return `# Release timing\n\nCollected ${collectedAt}. [Run ${summary.runId}](https://github.com/${repository}/actions/runs/${summary.runId}), source \`${summary.source}\`, attempt ${summary.runAttempt}, conclusion **${summary.conclusion}**.\n\nAggregate runner execution: ${summary.aggregateRunnerSeconds}s. First job start to last job completion across attempts: ${summary.elapsedSeconds}s. These are different measures. Cache hits and isolated runner queue time: unknown.\n\n| Attempt | Builds | Qualifications | Carried API records | Aggregate runner seconds | Elapsed seconds |\n|---|---|---|---|---|---|\n${summary.attempts.map(row => `| ${row.attempt} | ${row.buildJobs} | ${row.qualificationJobs} | ${row.carriedJobs} | ${row.aggregateRunnerSeconds} | ${row.elapsedSeconds} |`).join('\n')}\n\nCarried API records (not executions): ${JSON.stringify(summary.carriedJobs)}.\n\nRetained build scheduling evidence: ${JSON.stringify(summary.retainedBuilds)}. Artifact digest reuse is not proved by timing alone. Failed conclusions remain failures. See timing.json for per-target steps.\n`;
+  return `# Release timing\n\nCollected ${collectedAt}. [Run ${summary.runId}](https://github.com/${repository}/actions/runs/${summary.runId}), source \`${summary.source}\`, attempt ${summary.runAttempt}, conclusion **${summary.conclusion}**.\n\nAggregate runner execution: ${summary.aggregateRunnerSeconds}s. First job start to last job completion across attempts: ${summary.elapsedSeconds}s. These are different measures. Cache hits and isolated runner queue time: unknown.\n\n| Attempt | Builds | Qualifications | Carried API records | Aggregate runner seconds | Elapsed seconds |\n|---|---|---|---|---|---|\n${summary.attempts.map(row => `| ${row.attempt} | ${row.buildJobs} | ${row.qualificationJobs} | ${row.carriedJobs} | ${row.aggregateRunnerSeconds} | ${row.elapsedSeconds} |`).join('\n')}\n\nCarried API records (not executions): ${JSON.stringify(summary.carriedJobs)}.\n\nRetained build scheduling evidence: ${JSON.stringify(summary.retainedBuilds)}. Artifact digest reuse is not proved by timing alone. Failed and cancelled conclusions remain unchanged. Unfinished step durations are null (unknown), not zero; timing.json preserves their statuses and timestamps in incompletePhases.\n`;
 }
 function main() {
   const options = {};
@@ -121,7 +127,7 @@ function main() {
   if (results.length === 2) {
     const comparison = compareTimings(results[0].summary, results[1].summary);
     writeFileSync(join(output, 'comparison.json'), `${JSON.stringify({ ...comparison, collectedAt }, null, 2)}\n`, { flag: 'wx' });
-    const table = comparison.targets.map(row => `| ${row.target} | ${row.leftBuildSeconds ?? 'not run'} | ${row.rightBuildSeconds ?? 'not run'} | ${row.leftQualificationSeconds ?? 'not run'} | ${row.rightQualificationSeconds ?? 'not run'} |`).join('\n');
+    const table = comparison.targets.map(row => `| ${row.target} | ${row.leftBuildSeconds ?? 'unknown/not run'} | ${row.rightBuildSeconds ?? 'unknown/not run'} | ${row.leftQualificationSeconds ?? 'unknown/not run'} | ${row.rightQualificationSeconds ?? 'unknown/not run'} |`).join('\n');
     writeFileSync(join(output, 'comparison.md'), `# Timing comparison\n\nCollected ${collectedAt}. [Run ${comparison.leftRunId}](https://github.com/${repository}/actions/runs/${comparison.leftRunId}) source \`${comparison.leftSource}\`; [run ${comparison.rightRunId}](https://github.com/${repository}/actions/runs/${comparison.rightRunId}) source \`${comparison.rightSource}\`. Same source: ${comparison.sameSource}.\n\n| Target | Left build seconds | Right build seconds | Left qualification seconds | Right qualification seconds |\n|---|---|---|---|---|\n${table}\n\n${comparison.caveats.join('\n\n')}\n`, { flag: 'wx' });
   }
 }

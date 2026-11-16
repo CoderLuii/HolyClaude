@@ -47,8 +47,8 @@ Update `Dockerfile` (`HOLYCLAUDE_VERSION`), `contracts/product-facts.json`
 (`release.tag` and `release.dockerVersion`), `docs/CHANGELOG.md` (dated entry),
 `security/immutable-inputs.yml` and `security/upstream-dependency-policy.json`
 (release identity and genuinely refreshed inputs/evidence as required).
-Review `.github/workflows/docker-publish.yml`: `run-name`, dispatch version default,
-and its release-parent/tag checks still name `v1.6.9` and the `v1.6.8` parent
+Review `.github/workflows/docker-publish.yml`: the dispatch version default
+and release-parent/tag checks still name `v1.6.9` and the `v1.6.8` parent
 `b9e0d11d8d4173899e210742a8f7af8cefcf94f1`. Deliberately approve the next exact
 parent after integrating this workflow change with `master` (currently based on
 `5ffb0d1a001db18a947e214c3704cdd5d98e3d27`); do not reuse the old parent check.
@@ -75,6 +75,12 @@ and qualification for the new SHA. If security evidence expires, refresh the
 scans and required evidence against the same immutable images, then rerun the
 policy checks. Moving a review date forward does not refresh evidence.
 
+If a phase appears stalled well beyond its recorded normal duration, save its
+status and cancel the trial once. Collect the log before diagnosing or retrying;
+an unavailable log leaves the cause unknown. One diagnostic retry can test an
+unfinished qualification against its retained image on a fresh runner. If it
+stalls again, stop and report the gap instead of repeatedly rebuilding.
+
 ## Measure the workflow before a release
 
 The manual workflow defaults to `published-smoke`, which checks an existing
@@ -95,7 +101,11 @@ checks still execute against the exact built images with current database/date.
 `exercise_retry=true` deliberately fails Slim ARM64 once after its qualification
 finishes. Let the other jobs finish, preserve attempt 1, then use
 `gh run rerun <run-id> --failed`. Confirm the second attempt runs only that
-qualification and that all four original build job IDs and digests are retained.
+qualification and reuses all four original build execution records and digests.
+GitHub can expose carried jobs with new API IDs and attempt numbers but old
+execution timestamps. The resolver maps exact matching execution/runner/step
+identity back to the original receipt; the timing report excludes these copies
+from execution totals. Preserve the raw API records as well as that mapping.
 This controlled failure is a benchmark test, not a product fault. Leave the
 option false for ordinary benchmarks. Never use it to retry a genuine assertion
 or provenance failure without diagnosis.
@@ -159,9 +169,13 @@ waiting for a runner. Keep historical timing replay separate from a measured
 hosted run of this layout. Historical replay of the v1.6.9 candidate found that
 waiting for every build before qualification would add 3m36s to its successful
 second attempt. Independent target dependencies remove that modeled barrier.
-New runner setup, image pulls and queue delays still need hosted measurement.
-The split lets qualification retry without another build; it does not establish
-a hosted speedup or a fastest-possible release.
+The [measured trial and repeat](release-workflow-history.md#november-16-github-measurements)
+record setup/pull/runtime/security time separately from cached build steps.
+The warm complete trial passed in 27m41s; normal build/push steps took 17–29s
+per target. Failed-only recovery reused all four original builds. Raw sources,
+attempts, durations, cache proof and receipt digests are in
+[the timing record](release-workflow-timings.json). These observations do not
+promise a fixed future duration or the fastest possible release.
 
 ## Use local verification when hosted CI is blocked
 

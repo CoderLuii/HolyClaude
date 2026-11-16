@@ -2,7 +2,7 @@
 
 As of November 16, 2026, the maintainer reports release work stretching across 24–36 hours. That is elapsed working time, not a measured duration for one GitHub Actions run. The records do not establish total token usage or how much of that time belongs to each cause.
 
-Several different failures accumulated. Calling all of them GitHub bugs hides the repairs that actually matter.
+Several different failures accumulated in the GitHub release process.
 
 GitHub records show the following candidate windows. These measure the first
 candidate start to the first successful job completion, not continuous work or
@@ -33,7 +33,7 @@ includes later changes and does not establish 54.60 hours of active work.
 
 Starting expensive builds before cheap source and policy checks wastes runner time. Changing source during qualification invalidates its claim about the final commit and requires fresh qualification. Speculative patches, increasingly broad local controllers, repeated complete suites without a changed input, and expanding into unrelated upgrades can turn one repair into several new integration problems.
 
-Authorization handling also matters. A later execution request was treated as planning-only despite explicit authorization to change GitHub and obtain hosted timing proof. That delayed the requested measurement. The lesson is to carry the current instruction through to its concrete result while keeping publication scope explicit.
+The work also drifted into planning and local release orchestration after GitHub changes had been authorized. That delayed hosted measurement. Keep GitHub as the release system, use local checks for early feedback, and keep unrelated maintenance in its own plan.
 
 ## What changes the next attempt
 
@@ -41,7 +41,7 @@ Follow the [release procedure](local-release.md): run source checks before pushi
 
 For a confirmed transient failure, retry only the failed job once. Stop on a repeated transport failure, assertion, checksum, provenance or policy failure and investigate the first actionable error. Preserve failed evidence. Repair a fixture without changing product behavior; refresh security evidence without merely extending dates. After a source change, qualify the new SHA. Do not rerun completed unchanged tests solely to repair evidence transfer or report parsing.
 
-The first split-job design had its own performance trap: every qualification waited for every build. Historical v1.6.9 replay showed a possible 3m36s healthy-path penalty. Independent target dependencies remove that modeled barrier. New runner queues, setup and image pulls still need actual hosted measurement; replay does not prove a speedup or the fastest possible release.
+The first split-job design had its own performance trap: every qualification waited for every build. Historical v1.6.9 replay showed a possible 3m36s healthy-path penalty. Independent target dependencies remove that modeled barrier. The hosted measurements below include new runner setup and image pulls; the replay itself does not prove a speedup or the fastest possible release.
 
 Native coverage, complete security checks, paired Docker Hub/GHCR graphs, eight final image smokes and rollback remain required. The optimization removes repeated work and unnecessary waiting, not the checks that establish a release.
 
@@ -74,8 +74,8 @@ but their original execution timestamps. Treating those records as new builds
 looked for artifacts that did not exist and double-counted execution time.
 The resolver and timing report now match exact execution identity to the
 original successful record. A later real failure still blocks promotion.
-The actual API response is retained as a regression fixture; the workflow
-must pass a new hosted retry exercise before this repair is considered ready.
+The actual API response is retained as a regression fixture. The corrected
+hosted exercise passed with the original builds and new qualification receipts.
 
 ## A release label could invalidate the toolchain cache
 
@@ -91,3 +91,69 @@ its affected layers and pass native qualification. Moving release metadata does
 not make changed dependencies safe or renew expired input approval.
 
 Docker documents the ARG behavior in its [Dockerfile reference](https://docs.docker.com/reference/dockerfile/#impact-on-build-caching).
+
+## November 16 GitHub measurements
+
+The first native [trial](https://github.com/CoderLuii/HolyClaude/actions/runs/43813763342)
+at `dd7b75d2eb7515d73cde4b6be66e874ae73e85f0` started without the new registry cache.
+Attempt 1 took 51m19s from the first job starting to the last completing. All
+four targets passed runtime/security checks; the deliberate fault after Slim
+ARM64's checks made the attempt fail. Its 70-second retry exposed the API
+mapping defect above; that failed
+attempt is retained, not counted as a successful release.
+
+The [corrected trial](https://github.com/CoderLuii/HolyClaude/actions/runs/43820193636)
+at `f4de8757bb8faa5477292a9b2af6be7dd25c9799` passed after a targeted retry.
+Its first attempt was cancelled after Full ARM64's smoke step ran for 30
+minutes, versus 9m39s in the first trial. GitHub completed cancellation after
+five minutes, and the job log remained unavailable. The underlying cause is
+unknown; the cancellation is not evidence of a product assertion failure.
+The first attempt took 53m01s including cancellation, so it was not an overall
+speedup. The two unfinished qualifications then passed in 23m20s, with **zero
+new builds**. Across both attempts and the intervening gap, elapsed time was
+77m37s. Downloaded, digest-verified receipts bind both retried qualifications
+to their original attempt-1 image digests and retained artifact hashes.
+
+The [warm repeat](https://github.com/CoderLuii/HolyClaude/actions/runs/43829674132)
+uses the same `f4de875` commit. Its normal build logs show all 60 RUN vertices
+cached on every target. Both trials also passed a separate fresh-builder probe
+with a changed version argument: 60/60 RUN vertices cached on each target.
+The complete warm trial passed in **27m41s**, from first job start to last job
+completion, with four native builds, four complete qualifications and no retry.
+This includes runner setup, image pulls, runtime and security work. It excludes
+initial runner queue time and the later tag-promotion/final-smoke release path.
+Do not calculate a causal whole-run speedup against the 77m37s fault exercise.
+
+| Native target | First build/push at f4de875 | Warm build/push at the same commit |
+| --- | --- | --- |
+| Full AMD64 | 8m47s | 17s |
+| Full ARM64 | 10m33s | 24s |
+| Slim AMD64 | 7m21s | 29s |
+| Slim ARM64 | 5m42s | 25s |
+
+Across four parallel runners, build/push steps totalled 32m23s, then 1m35s:
+95.1% less aggregate build/push time. That is not a 95.1% reduction in complete
+release time. These steps exclude runner setup, qualification image pulls, runtime tests,
+security databases and scans. Cache population and runner variation affect
+the comparison; future dependency changes must rebuild affected layers.
+
+Local final verification passed 917 Node tests and 40 Python tests on Linux,
+plus syntax, product facts, recorded input integrity and four policy preflights.
+Lint uses the same pinned actionlint/ShellCheck container as GitHub.
+
+Further speculative caching is not justified by these samples. Scanner binary
+installation took about three seconds in the first Full ARM64 qualification;
+most of that step was a fresh database update, which remains required. Builder
+deletion varied from 106 seconds to 28 seconds between trials. All normal RUN
+instructions already hit cache in the warm build. Keep native runtime/security
+coverage, exact receipt checks, registry verification and rollback; there is no
+evidence that removing those checks would be a safe optimization. These results
+do not establish the fastest possible workflow on every runner or future input.
+
+The [timing and digest records](release-workflow-timings.json) preserve sources,
+attempts, phase durations, cancelled unknown phases, receipt identities, cache
+proof and all eight unchanged stable registry references. The measured native
+runs qualify the stated `f4de875` source; later documentation/reporting changes
+do not turn them into qualification of another SHA. No product release or site
+deployment was made. Current input approval still requires a fresh review
+before the next real release; these benchmarks do not renew it.

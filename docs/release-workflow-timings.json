@@ -1,0 +1,2727 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-11-16T08:44:10.405Z",
+  "repository": "CoderLuii/HolyClaude",
+  "qualifiedBenchmarkSource": "f4de8757bb8faa5477292a9b2af6be7dd25c9799",
+  "pipelineGitBlobs": {
+    ".github/workflows/docker-publish.yml": "fa99f8271faa63cfdf2c4b7d90fd67309265136f",
+    ".github/workflows/source-security.yml": "4aa1ff89229ddca99e6bfe50c7378a3ad3f1f0bf",
+    "Dockerfile": "9472868b7c876718465d8c05769cdb4182a8e993",
+    "scripts/resolve-candidate-evidence.mjs": "54b5faeb2cde140d7b314c5fc773a42b0990119f",
+    "scripts/verify-immutable-inputs.mjs": "350d7271be9f38c1daf83fec2920f19fddc5c216",
+    "scripts/verify-version-cache-probe.mjs": "2a3f93bd3ecc9619fb5138acdd1d47dd3e49fef9"
+  },
+  "samples": [
+    {
+      "label": "Initial empty-registry-cache layout, deliberate fault and resolver failure",
+      "runId": 43813763342,
+      "source": "dd7b75d2eb7515d73cde4b6be66e874ae73e85f0",
+      "workflow": ".github/workflows/docker-publish.yml",
+      "runAttempt": 2,
+      "conclusion": "failure",
+      "createdAt": "2026-11-16T05:59:31Z",
+      "updatedAt": "2026-11-16T06:52:31Z",
+      "cacheState": "unknown",
+      "queueSeconds": null,
+      "aggregateRunnerSeconds": 8653,
+      "elapsedSeconds": 3176,
+      "attempts": [
+        {
+          "attempt": 1,
+          "carriedJobs": 0,
+          "buildJobs": 4,
+          "qualificationJobs": 4,
+          "aggregateRunnerSeconds": 8583,
+          "elapsedSeconds": 3079
+        },
+        {
+          "attempt": 2,
+          "carriedJobs": 8,
+          "buildJobs": 0,
+          "qualificationJobs": 1,
+          "aggregateRunnerSeconds": 70,
+          "elapsedSeconds": 70
+        }
+      ],
+      "carriedJobs": [
+        {
+          "jobId": 133139500279,
+          "attempt": 2,
+          "originalJobId": 133121030003,
+          "originalAttempt": 1,
+          "canonicalJobId": 133121030003
+        },
+        {
+          "jobId": 133139501056,
+          "attempt": 2,
+          "originalJobId": 133121230638,
+          "originalAttempt": 1,
+          "canonicalJobId": 133121230638
+        },
+        {
+          "jobId": 133139501195,
+          "attempt": 2,
+          "originalJobId": 133121230436,
+          "originalAttempt": 1,
+          "canonicalJobId": 133121230436
+        },
+        {
+          "jobId": 133139501274,
+          "attempt": 2,
+          "originalJobId": 133129670245,
+          "originalAttempt": 1,
+          "canonicalJobId": 133129670245
+        },
+        {
+          "jobId": 133139501374,
+          "attempt": 2,
+          "originalJobId": 133128733655,
+          "originalAttempt": 1,
+          "canonicalJobId": 133128733655
+        },
+        {
+          "jobId": 133139502431,
+          "attempt": 2,
+          "originalJobId": 133125190336,
+          "originalAttempt": 1,
+          "canonicalJobId": 133125190336
+        },
+        {
+          "jobId": 133139554452,
+          "attempt": 2,
+          "originalJobId": 133121230479,
+          "originalAttempt": 1,
+          "canonicalJobId": 133121230479
+        },
+        {
+          "jobId": 133139557504,
+          "attempt": 2,
+          "originalJobId": 133121230548,
+          "originalAttempt": 1,
+          "canonicalJobId": 133121230548
+        }
+      ],
+      "retainedBuilds": [
+        {
+          "target": "slim-arm64",
+          "jobId": 133121230436,
+          "buildAttempt": 1,
+          "qualificationJobId": 133139499896,
+          "qualificationAttempt": 2,
+          "basis": "job scheduling evidence; artifact reuse requires separate digest evidence"
+        }
+      ],
+      "jobs": [
+        {
+          "jobId": 133121030003,
+          "name": "validate release source",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T05:59:34Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 36,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121031252,
+          "name": "published smoke (${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T05:59:33Z",
+          "completedAt": "2026-11-16T05:59:32Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121230436,
+          "name": "candidate (slim, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:14Z",
+          "completedAt": "2026-11-16T06:07:45Z",
+          "runnerSeconds": 451,
+          "kind": "build",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": 367,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121230479,
+          "name": "candidate (full, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:12Z",
+          "completedAt": "2026-11-16T06:21:37Z",
+          "runnerSeconds": 1285,
+          "kind": "build",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": 1096,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121230548,
+          "name": "candidate (full, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:15Z",
+          "completedAt": "2026-11-16T06:24:15Z",
+          "runnerSeconds": 1440,
+          "kind": "build",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": 1236,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121230638,
+          "name": "candidate (slim, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:12Z",
+          "completedAt": "2026-11-16T06:11:35Z",
+          "runnerSeconds": 683,
+          "kind": "build",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": 434,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121232223,
+          "name": "promote tested manifests",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:00:10Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121232345,
+          "name": "resolve tested candidate run",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:00:10Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121233245,
+          "name": "final smoke (${{ matrix.registry }}, ${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:00:10Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121233894,
+          "name": "update-dockerhub-description",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:00:11Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133121233954,
+          "name": "Roll back mutable aliases after failed final smoke",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:00:11Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133123869797,
+          "name": "qualify (slim, arm64)",
+          "attempt": 1,
+          "conclusion": "failure",
+          "startedAt": "2026-11-16T06:07:49Z",
+          "completedAt": "2026-11-16T06:21:28Z",
+          "runnerSeconds": 819,
+          "kind": "qualification",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": 819,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 380,
+          "securitySeconds": 149,
+          "carried": false
+        },
+        {
+          "jobId": 133125190336,
+          "name": "qualify (slim, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:11:38Z",
+          "completedAt": "2026-11-16T06:25:42Z",
+          "runnerSeconds": 844,
+          "kind": "qualification",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": 844,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 377,
+          "securitySeconds": 167,
+          "carried": false
+        },
+        {
+          "jobId": 133128733655,
+          "name": "qualify (full, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:21:39Z",
+          "completedAt": "2026-11-16T06:45:31Z",
+          "runnerSeconds": 1432,
+          "kind": "qualification",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": 1432,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 523,
+          "securitySeconds": 232,
+          "carried": false
+        },
+        {
+          "jobId": 133129670245,
+          "name": "qualify (full, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:24:20Z",
+          "completedAt": "2026-11-16T06:50:53Z",
+          "runnerSeconds": 1593,
+          "kind": "qualification",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": 1593,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 579,
+          "securitySeconds": 315,
+          "carried": false
+        },
+        {
+          "jobId": 133139499896,
+          "name": "qualify (slim, arm64)",
+          "attempt": 2,
+          "conclusion": "failure",
+          "startedAt": "2026-11-16T06:51:20Z",
+          "completedAt": "2026-11-16T06:52:30Z",
+          "runnerSeconds": 70,
+          "kind": "qualification",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": 70,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133139500279,
+          "name": "validate release source",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T05:59:34Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133121030003
+        },
+        {
+          "jobId": 133139501056,
+          "name": "candidate (slim, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:12Z",
+          "completedAt": "2026-11-16T06:11:35Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133121230638
+        },
+        {
+          "jobId": 133139501094,
+          "name": "resolve tested candidate run",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:51:16Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133139501195,
+          "name": "candidate (slim, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:14Z",
+          "completedAt": "2026-11-16T06:07:45Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133121230436
+        },
+        {
+          "jobId": 133139501274,
+          "name": "qualify (full, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:24:20Z",
+          "completedAt": "2026-11-16T06:50:53Z",
+          "runnerSeconds": 0,
+          "kind": "qualification",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133129670245
+        },
+        {
+          "jobId": 133139501339,
+          "name": "final smoke (${{ matrix.registry }}, ${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:51:16Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133139501374,
+          "name": "qualify (full, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:21:39Z",
+          "completedAt": "2026-11-16T06:45:31Z",
+          "runnerSeconds": 0,
+          "kind": "qualification",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133128733655
+        },
+        {
+          "jobId": 133139501787,
+          "name": "promote tested manifests",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:51:16Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133139502431,
+          "name": "qualify (slim, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:11:38Z",
+          "completedAt": "2026-11-16T06:25:42Z",
+          "runnerSeconds": 0,
+          "kind": "qualification",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133125190336
+        },
+        {
+          "jobId": 133139502465,
+          "name": "Roll back mutable aliases after failed final smoke",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:51:17Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133139503537,
+          "name": "update-dockerhub-description",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:51:17Z",
+          "completedAt": "2026-11-16T06:00:10Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133139554452,
+          "name": "candidate (full, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:12Z",
+          "completedAt": "2026-11-16T06:21:37Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133121230479
+        },
+        {
+          "jobId": 133139557504,
+          "name": "candidate (full, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:00:15Z",
+          "completedAt": "2026-11-16T06:24:15Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133121230548
+        },
+        {
+          "jobId": 133139558124,
+          "name": "published smoke (${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:51:26Z",
+          "completedAt": "2026-11-16T05:59:32Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        }
+      ],
+      "repository": "CoderLuii/HolyClaude",
+      "collectedAt": "2026-11-16T06:56:13.473Z"
+    },
+    {
+      "label": "New version-ARG layout, cancelled ARM64 stall then successful failed-only retry",
+      "runId": 43820193636,
+      "source": "f4de8757bb8faa5477292a9b2af6be7dd25c9799",
+      "workflow": ".github/workflows/docker-publish.yml",
+      "runAttempt": 2,
+      "conclusion": "success",
+      "createdAt": "2026-11-16T06:56:04Z",
+      "updatedAt": "2026-11-16T08:13:45Z",
+      "cacheState": "unknown",
+      "queueSeconds": null,
+      "aggregateRunnerSeconds": 10346,
+      "elapsedSeconds": 4657,
+      "attempts": [
+        {
+          "attempt": 1,
+          "carriedJobs": 0,
+          "buildJobs": 4,
+          "qualificationJobs": 4,
+          "aggregateRunnerSeconds": 8158,
+          "elapsedSeconds": 3181
+        },
+        {
+          "attempt": 2,
+          "carriedJobs": 7,
+          "buildJobs": 0,
+          "qualificationJobs": 2,
+          "aggregateRunnerSeconds": 2188,
+          "elapsedSeconds": 1400
+        }
+      ],
+      "carriedJobs": [
+        {
+          "jobId": 133161866340,
+          "attempt": 2,
+          "originalJobId": 133141522920,
+          "originalAttempt": 1,
+          "canonicalJobId": 133141522920
+        },
+        {
+          "jobId": 133161867130,
+          "attempt": 2,
+          "originalJobId": 133141522958,
+          "originalAttempt": 1,
+          "canonicalJobId": 133141522958
+        },
+        {
+          "jobId": 133161867729,
+          "attempt": 2,
+          "originalJobId": 133146177647,
+          "originalAttempt": 1,
+          "canonicalJobId": 133146177647
+        },
+        {
+          "jobId": 133161899889,
+          "attempt": 2,
+          "originalJobId": 133141283186,
+          "originalAttempt": 1,
+          "canonicalJobId": 133141283186
+        },
+        {
+          "jobId": 133161901383,
+          "attempt": 2,
+          "originalJobId": 133141522900,
+          "originalAttempt": 1,
+          "canonicalJobId": 133141522900
+        },
+        {
+          "jobId": 133161927067,
+          "attempt": 2,
+          "originalJobId": 133145255217,
+          "originalAttempt": 1,
+          "canonicalJobId": 133145255217
+        },
+        {
+          "jobId": 133161930358,
+          "attempt": 2,
+          "originalJobId": 133141522870,
+          "originalAttempt": 1,
+          "canonicalJobId": 133141522870
+        }
+      ],
+      "retainedBuilds": [
+        {
+          "target": "slim-arm64",
+          "jobId": 133141522900,
+          "buildAttempt": 1,
+          "qualificationJobId": 133161865670,
+          "qualificationAttempt": 2,
+          "basis": "job scheduling evidence; artifact reuse requires separate digest evidence"
+        },
+        {
+          "target": "full-arm64",
+          "jobId": 133141522958,
+          "buildAttempt": 1,
+          "qualificationJobId": 133161865235,
+          "qualificationAttempt": 2,
+          "basis": "job scheduling evidence; artifact reuse requires separate digest evidence"
+        }
+      ],
+      "jobs": [
+        {
+          "jobId": 133141283186,
+          "name": "validate release source",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:08Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 36,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141284816,
+          "name": "published smoke (${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:56:06Z",
+          "completedAt": "2026-11-16T06:56:05Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141522870,
+          "name": "candidate (full, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:46Z",
+          "completedAt": "2026-11-16T07:09:04Z",
+          "runnerSeconds": 738,
+          "kind": "build",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 527,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141522900,
+          "name": "candidate (slim, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:48Z",
+          "completedAt": "2026-11-16T07:04:08Z",
+          "runnerSeconds": 440,
+          "kind": "build",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 342,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141522920,
+          "name": "candidate (slim, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:46Z",
+          "completedAt": "2026-11-16T07:06:37Z",
+          "runnerSeconds": 591,
+          "kind": "build",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 441,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141522958,
+          "name": "candidate (full, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:48Z",
+          "completedAt": "2026-11-16T07:09:08Z",
+          "runnerSeconds": 740,
+          "kind": "build",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 633,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141524720,
+          "name": "resolve tested candidate run",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:56:44Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141525173,
+          "name": "promote tested manifests",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:56:44Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141526112,
+          "name": "final smoke (${{ matrix.registry }}, ${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:56:45Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141526341,
+          "name": "update-dockerhub-description",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:56:45Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133141527113,
+          "name": "Roll back mutable aliases after failed final smoke",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T06:56:45Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133144312378,
+          "name": "qualify (slim, arm64)",
+          "attempt": 1,
+          "conclusion": "failure",
+          "startedAt": "2026-11-16T07:04:12Z",
+          "completedAt": "2026-11-16T07:16:54Z",
+          "runnerSeconds": 762,
+          "kind": "qualification",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 762,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 371,
+          "securitySeconds": 150,
+          "carried": false
+        },
+        {
+          "jobId": 133145255217,
+          "name": "qualify (slim, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T07:06:40Z",
+          "completedAt": "2026-11-16T07:18:35Z",
+          "runnerSeconds": 715,
+          "kind": "qualification",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 715,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 311,
+          "securitySeconds": 119,
+          "carried": false
+        },
+        {
+          "jobId": 133146177647,
+          "name": "qualify (full, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T07:09:06Z",
+          "completedAt": "2026-11-16T07:38:06Z",
+          "runnerSeconds": 1740,
+          "kind": "qualification",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 1740,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 619,
+          "securitySeconds": 317,
+          "carried": false
+        },
+        {
+          "jobId": 133146208699,
+          "name": "qualify (full, arm64)",
+          "attempt": 1,
+          "conclusion": "cancelled",
+          "startedAt": "2026-11-16T07:09:13Z",
+          "completedAt": "2026-11-16T07:49:09Z",
+          "runnerSeconds": 2396,
+          "kind": "qualification",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [
+            {
+              "name": "Run complete candidate smoke matrix",
+              "status": "in_progress",
+              "conclusion": null,
+              "startedAt": "2026-11-16T07:13:57Z",
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Validate optional Docker client",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Reclaim candidate scanner disk",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Install pinned security scanners",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Generate digest-bound security evidence",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Exercise benchmark qualification retry",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Write candidate evidence",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Upload candidate evidence",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Upload security evidence",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Post Login to GHCR",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Post Login to Docker Hub",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Post Set up Docker Buildx",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            },
+            {
+              "name": "Post Checkout",
+              "status": "pending",
+              "conclusion": null,
+              "startedAt": null,
+              "completedAt": null,
+              "seconds": null
+            }
+          ],
+          "buildSeconds": null,
+          "qualificationSeconds": 2396,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161865235,
+          "name": "qualify (full, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T07:50:25Z",
+          "completedAt": "2026-11-16T08:13:45Z",
+          "runnerSeconds": 1400,
+          "kind": "qualification",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 1400,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 527,
+          "securitySeconds": 293,
+          "carried": false
+        },
+        {
+          "jobId": 133161865355,
+          "name": "published smoke (${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T07:50:21Z",
+          "completedAt": "2026-11-16T06:56:05Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161865670,
+          "name": "qualify (slim, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T07:50:25Z",
+          "completedAt": "2026-11-16T08:03:33Z",
+          "runnerSeconds": 788,
+          "kind": "qualification",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 788,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 370,
+          "securitySeconds": 145,
+          "carried": false
+        },
+        {
+          "jobId": 133161866340,
+          "name": "candidate (slim, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:46Z",
+          "completedAt": "2026-11-16T07:06:37Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133141522920
+        },
+        {
+          "jobId": 133161866545,
+          "name": "resolve tested candidate run",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T07:50:21Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161866810,
+          "name": "promote tested manifests",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T07:50:21Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161867122,
+          "name": "final smoke (${{ matrix.registry }}, ${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T07:50:21Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161867130,
+          "name": "candidate (full, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:48Z",
+          "completedAt": "2026-11-16T07:09:08Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133141522958
+        },
+        {
+          "jobId": 133161867566,
+          "name": "Roll back mutable aliases after failed final smoke",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T07:50:21Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161867729,
+          "name": "qualify (full, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T07:09:06Z",
+          "completedAt": "2026-11-16T07:38:06Z",
+          "runnerSeconds": 0,
+          "kind": "qualification",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133146177647
+        },
+        {
+          "jobId": 133161868273,
+          "name": "update-dockerhub-description",
+          "attempt": 2,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T07:50:21Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133161899889,
+          "name": "validate release source",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:08Z",
+          "completedAt": "2026-11-16T06:56:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133141283186
+        },
+        {
+          "jobId": 133161901383,
+          "name": "candidate (slim, arm64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:48Z",
+          "completedAt": "2026-11-16T07:04:08Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133141522900
+        },
+        {
+          "jobId": 133161927067,
+          "name": "qualify (slim, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T07:06:40Z",
+          "completedAt": "2026-11-16T07:18:35Z",
+          "runnerSeconds": 0,
+          "kind": "qualification",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133145255217
+        },
+        {
+          "jobId": 133161930358,
+          "name": "candidate (full, amd64)",
+          "attempt": 2,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T06:56:46Z",
+          "completedAt": "2026-11-16T07:09:04Z",
+          "runnerSeconds": 0,
+          "kind": "build",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": true,
+          "canonicalJobId": 133141522870
+        }
+      ],
+      "repository": "CoderLuii/HolyClaude",
+      "collectedAt": "2026-11-16T08:43:09.820Z"
+    },
+    {
+      "label": "Same-source warm repeat, no fault or retries",
+      "runId": 43829674132,
+      "source": "f4de8757bb8faa5477292a9b2af6be7dd25c9799",
+      "workflow": ".github/workflows/docker-publish.yml",
+      "runAttempt": 1,
+      "conclusion": "success",
+      "createdAt": "2026-11-16T08:14:41Z",
+      "updatedAt": "2026-11-16T08:42:27Z",
+      "cacheState": "unknown",
+      "queueSeconds": null,
+      "aggregateRunnerSeconds": 5250,
+      "elapsedSeconds": 1661,
+      "attempts": [
+        {
+          "attempt": 1,
+          "carriedJobs": 0,
+          "buildJobs": 4,
+          "qualificationJobs": 4,
+          "aggregateRunnerSeconds": 5250,
+          "elapsedSeconds": 1661
+        }
+      ],
+      "carriedJobs": [],
+      "retainedBuilds": [],
+      "jobs": [
+        {
+          "jobId": 133171726081,
+          "name": "validate release source",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:14:46Z",
+          "completedAt": "2026-11-16T08:15:18Z",
+          "runnerSeconds": 32,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171728174,
+          "name": "published smoke (${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T08:14:45Z",
+          "completedAt": "2026-11-16T08:14:44Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171973981,
+          "name": "candidate (full, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:15:22Z",
+          "completedAt": "2026-11-16T08:17:53Z",
+          "runnerSeconds": 151,
+          "kind": "build",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 24,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171974058,
+          "name": "candidate (slim, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:15:23Z",
+          "completedAt": "2026-11-16T08:17:46Z",
+          "runnerSeconds": 143,
+          "kind": "build",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 25,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171974061,
+          "name": "candidate (full, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:15:20Z",
+          "completedAt": "2026-11-16T08:17:41Z",
+          "runnerSeconds": 141,
+          "kind": "build",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 17,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171974136,
+          "name": "candidate (slim, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:15:20Z",
+          "completedAt": "2026-11-16T08:19:25Z",
+          "runnerSeconds": 245,
+          "kind": "build",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": 29,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171977001,
+          "name": "promote tested manifests",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T08:15:19Z",
+          "completedAt": "2026-11-16T08:15:18Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171977350,
+          "name": "resolve tested candidate run",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T08:15:19Z",
+          "completedAt": "2026-11-16T08:15:18Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171978367,
+          "name": "final smoke (${{ matrix.registry }}, ${{ matrix.variant }}, ${{ matrix.arch }})",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T08:15:19Z",
+          "completedAt": "2026-11-16T08:15:18Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171978760,
+          "name": "update-dockerhub-description",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T08:15:19Z",
+          "completedAt": "2026-11-16T08:15:18Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133171978780,
+          "name": "Roll back mutable aliases after failed final smoke",
+          "attempt": 1,
+          "conclusion": "skipped",
+          "startedAt": "2026-11-16T08:15:19Z",
+          "completedAt": "2026-11-16T08:15:18Z",
+          "runnerSeconds": 0,
+          "kind": "other",
+          "target": null,
+          "architecture": null,
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": null,
+          "qualificationBasis": null,
+          "smokeSeconds": null,
+          "securitySeconds": null,
+          "carried": false
+        },
+        {
+          "jobId": 133172994907,
+          "name": "qualify (full, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:17:44Z",
+          "completedAt": "2026-11-16T08:36:40Z",
+          "runnerSeconds": 1136,
+          "kind": "qualification",
+          "target": "full-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 1136,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 417,
+          "securitySeconds": 230,
+          "carried": false
+        },
+        {
+          "jobId": 133173029720,
+          "name": "qualify (slim, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:17:50Z",
+          "completedAt": "2026-11-16T08:32:49Z",
+          "runnerSeconds": 899,
+          "kind": "qualification",
+          "target": "slim-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 899,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 420,
+          "securitySeconds": 157,
+          "carried": false
+        },
+        {
+          "jobId": 133173076475,
+          "name": "qualify (full, arm64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:17:57Z",
+          "completedAt": "2026-11-16T08:42:27Z",
+          "runnerSeconds": 1470,
+          "kind": "qualification",
+          "target": "full-arm64",
+          "architecture": "arm64",
+          "labels": [
+            "ubuntu-24.04-arm"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 1470,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 541,
+          "securitySeconds": 320,
+          "carried": false
+        },
+        {
+          "jobId": 133173736229,
+          "name": "qualify (slim, amd64)",
+          "attempt": 1,
+          "conclusion": "success",
+          "startedAt": "2026-11-16T08:19:29Z",
+          "completedAt": "2026-11-16T08:36:42Z",
+          "runnerSeconds": 1033,
+          "kind": "qualification",
+          "target": "slim-amd64",
+          "architecture": "amd64",
+          "labels": [
+            "ubuntu-24.04"
+          ],
+          "incompletePhases": [],
+          "buildSeconds": null,
+          "qualificationSeconds": 1033,
+          "qualificationBasis": "separate job including setup",
+          "smokeSeconds": 450,
+          "securitySeconds": 162,
+          "carried": false
+        }
+      ],
+      "repository": "CoderLuii/HolyClaude",
+      "collectedAt": "2026-11-16T08:43:09.820Z"
+    }
+  ],
+  "cancelledAttempt": {
+    "runId": 43820193636,
+    "source": "f4de8757bb8faa5477292a9b2af6be7dd25c9799",
+    "workflow": ".github/workflows/docker-publish.yml",
+    "runAttempt": 1,
+    "conclusion": "cancelled",
+    "createdAt": "2026-11-16T06:56:04Z",
+    "updatedAt": "2026-11-16T07:49:10Z",
+    "cacheState": "unknown",
+    "queueSeconds": null,
+    "aggregateRunnerSeconds": 8158,
+    "elapsedSeconds": 3181,
+    "attempts": [
+      {
+        "attempt": 1,
+        "carriedJobs": 0,
+        "buildJobs": 4,
+        "qualificationJobs": 4,
+        "aggregateRunnerSeconds": 8158,
+        "elapsedSeconds": 3181
+      }
+    ],
+    "carriedJobs": [],
+    "retainedBuilds": [],
+    "jobs": [
+      {
+        "jobId": 133141283186,
+        "name": "validate release source",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T06:56:08Z",
+        "completedAt": "2026-11-16T06:56:44Z",
+        "runnerSeconds": 36,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141284816,
+        "name": "published smoke (${{ matrix.variant }}, ${{ matrix.arch }})",
+        "attempt": 1,
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T06:56:06Z",
+        "completedAt": "2026-11-16T06:56:05Z",
+        "runnerSeconds": 0,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141522870,
+        "name": "candidate (full, amd64)",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T06:56:46Z",
+        "completedAt": "2026-11-16T07:09:04Z",
+        "runnerSeconds": 738,
+        "kind": "build",
+        "target": "full-amd64",
+        "architecture": "amd64",
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": 527,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141522900,
+        "name": "candidate (slim, arm64)",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T06:56:48Z",
+        "completedAt": "2026-11-16T07:04:08Z",
+        "runnerSeconds": 440,
+        "kind": "build",
+        "target": "slim-arm64",
+        "architecture": "arm64",
+        "labels": [
+          "ubuntu-24.04-arm"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": 342,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141522920,
+        "name": "candidate (slim, amd64)",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T06:56:46Z",
+        "completedAt": "2026-11-16T07:06:37Z",
+        "runnerSeconds": 591,
+        "kind": "build",
+        "target": "slim-amd64",
+        "architecture": "amd64",
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": 441,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141522958,
+        "name": "candidate (full, arm64)",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T06:56:48Z",
+        "completedAt": "2026-11-16T07:09:08Z",
+        "runnerSeconds": 740,
+        "kind": "build",
+        "target": "full-arm64",
+        "architecture": "arm64",
+        "labels": [
+          "ubuntu-24.04-arm"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": 633,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141524720,
+        "name": "resolve tested candidate run",
+        "attempt": 1,
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T06:56:44Z",
+        "completedAt": "2026-11-16T06:56:44Z",
+        "runnerSeconds": 0,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141525173,
+        "name": "promote tested manifests",
+        "attempt": 1,
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T06:56:44Z",
+        "completedAt": "2026-11-16T06:56:44Z",
+        "runnerSeconds": 0,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141526112,
+        "name": "final smoke (${{ matrix.registry }}, ${{ matrix.variant }}, ${{ matrix.arch }})",
+        "attempt": 1,
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T06:56:45Z",
+        "completedAt": "2026-11-16T06:56:44Z",
+        "runnerSeconds": 0,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141526341,
+        "name": "update-dockerhub-description",
+        "attempt": 1,
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T06:56:45Z",
+        "completedAt": "2026-11-16T06:56:44Z",
+        "runnerSeconds": 0,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133141527113,
+        "name": "Roll back mutable aliases after failed final smoke",
+        "attempt": 1,
+        "conclusion": "skipped",
+        "startedAt": "2026-11-16T06:56:45Z",
+        "completedAt": "2026-11-16T06:56:44Z",
+        "runnerSeconds": 0,
+        "kind": "other",
+        "target": null,
+        "architecture": null,
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": null,
+        "qualificationBasis": null,
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      },
+      {
+        "jobId": 133144312378,
+        "name": "qualify (slim, arm64)",
+        "attempt": 1,
+        "conclusion": "failure",
+        "startedAt": "2026-11-16T07:04:12Z",
+        "completedAt": "2026-11-16T07:16:54Z",
+        "runnerSeconds": 762,
+        "kind": "qualification",
+        "target": "slim-arm64",
+        "architecture": "arm64",
+        "labels": [
+          "ubuntu-24.04-arm"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": 762,
+        "qualificationBasis": "separate job including setup",
+        "smokeSeconds": 371,
+        "securitySeconds": 150,
+        "carried": false
+      },
+      {
+        "jobId": 133145255217,
+        "name": "qualify (slim, amd64)",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T07:06:40Z",
+        "completedAt": "2026-11-16T07:18:35Z",
+        "runnerSeconds": 715,
+        "kind": "qualification",
+        "target": "slim-amd64",
+        "architecture": "amd64",
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": 715,
+        "qualificationBasis": "separate job including setup",
+        "smokeSeconds": 311,
+        "securitySeconds": 119,
+        "carried": false
+      },
+      {
+        "jobId": 133146177647,
+        "name": "qualify (full, amd64)",
+        "attempt": 1,
+        "conclusion": "success",
+        "startedAt": "2026-11-16T07:09:06Z",
+        "completedAt": "2026-11-16T07:38:06Z",
+        "runnerSeconds": 1740,
+        "kind": "qualification",
+        "target": "full-amd64",
+        "architecture": "amd64",
+        "labels": [
+          "ubuntu-24.04"
+        ],
+        "incompletePhases": [],
+        "buildSeconds": null,
+        "qualificationSeconds": 1740,
+        "qualificationBasis": "separate job including setup",
+        "smokeSeconds": 619,
+        "securitySeconds": 317,
+        "carried": false
+      },
+      {
+        "jobId": 133146208699,
+        "name": "qualify (full, arm64)",
+        "attempt": 1,
+        "conclusion": "cancelled",
+        "startedAt": "2026-11-16T07:09:13Z",
+        "completedAt": "2026-11-16T07:49:09Z",
+        "runnerSeconds": 2396,
+        "kind": "qualification",
+        "target": "full-arm64",
+        "architecture": "arm64",
+        "labels": [
+          "ubuntu-24.04-arm"
+        ],
+        "incompletePhases": [
+          {
+            "name": "Run complete candidate smoke matrix",
+            "status": "in_progress",
+            "conclusion": null,
+            "startedAt": "2026-11-16T07:13:57Z",
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Validate optional Docker client",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Reclaim candidate scanner disk",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Install pinned security scanners",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Generate digest-bound security evidence",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Exercise benchmark qualification retry",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Write candidate evidence",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Upload candidate evidence",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Upload security evidence",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Post Login to GHCR",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Post Login to Docker Hub",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Post Set up Docker Buildx",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          },
+          {
+            "name": "Post Checkout",
+            "status": "pending",
+            "conclusion": null,
+            "startedAt": null,
+            "completedAt": null,
+            "seconds": null
+          }
+        ],
+        "buildSeconds": null,
+        "qualificationSeconds": 2396,
+        "qualificationBasis": "separate job including setup",
+        "smokeSeconds": null,
+        "securitySeconds": null,
+        "carried": false
+      }
+    ]
+  },
+  "retryReceiptProof": {
+    "runId": "43820193636",
+    "source": "f4de8757bb8faa5477292a9b2af6be7dd25c9799",
+    "purpose": "benchmark",
+    "stablePromotionPerformed": false,
+    "targets": [
+      {
+        "target": "full-amd64",
+        "buildJobId": 133141522870,
+        "buildAttempt": 1,
+        "qualificationJobId": 133146177647,
+        "qualificationAttempt": 1,
+        "buildArtifactId": 14205340133,
+        "buildArtifactDigest": "sha256:d7b328e731bd4f324aac7980b5e8fa9ba043f104f0e867c18762e3e56faaac2d",
+        "qualificationArtifactId": 14205897236,
+        "qualificationArtifactDigest": "sha256:dfc069e9ba35569e99612552c61fe20b0172b5240e211594045e650f1cfd6c2b",
+        "dockerhubDigest": "sha256:60eb3e7d215766c35daca5eb05beb77fc34a18c8995f5cb1aa845ad60d24eb66",
+        "ghcrDigest": "sha256:60eb3e7d215766c35daca5eb05beb77fc34a18c8995f5cb1aa845ad60d24eb66",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      },
+      {
+        "target": "full-arm64",
+        "buildJobId": 133141522958,
+        "buildAttempt": 1,
+        "qualificationJobId": 133161865235,
+        "qualificationAttempt": 2,
+        "buildArtifactId": 14205011541,
+        "buildArtifactDigest": "sha256:41e682861040205295998888a4b3c98f10d0d5382241bbbc8373eab07faa82f0",
+        "qualificationArtifactId": 14207901875,
+        "qualificationArtifactDigest": "sha256:e4aa88e57c7f678eb4c2c83b85ddf7a7c3cf9e8a61f2fe257340580b4edfa00e",
+        "dockerhubDigest": "sha256:bb4594030da86ef1c1040e1a136ce1b47730a23ce08fbf6c015307d83da5e308",
+        "ghcrDigest": "sha256:bb4594030da86ef1c1040e1a136ce1b47730a23ce08fbf6c015307d83da5e308",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      },
+      {
+        "target": "slim-amd64",
+        "buildJobId": 133141522920,
+        "buildAttempt": 1,
+        "qualificationJobId": 133145255217,
+        "qualificationAttempt": 1,
+        "buildArtifactId": 14203974263,
+        "buildArtifactDigest": "sha256:1d6e52a025652ecc99f596d2a7fb42f7a5f1694eac9743b3510d1110297f7fca",
+        "qualificationArtifactId": 14205302913,
+        "qualificationArtifactDigest": "sha256:c26a86c4169d5ba6e916dc5aef36d9f10ece8a7ebff2e9a94e37bf068deba875",
+        "dockerhubDigest": "sha256:b7df728ceed2e7686cca1ec0d65afddf2cd6de17f85a85734d13b3b9b5e9f457",
+        "ghcrDigest": "sha256:b7df728ceed2e7686cca1ec0d65afddf2cd6de17f85a85734d13b3b9b5e9f457",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      },
+      {
+        "target": "slim-arm64",
+        "buildJobId": 133141522900,
+        "buildAttempt": 1,
+        "qualificationJobId": 133161865670,
+        "qualificationAttempt": 2,
+        "buildArtifactId": 14203948177,
+        "buildArtifactDigest": "sha256:d621b4d049c26073f113c20d4c3d24e299c03234e23b3866217231333aa8c3e7",
+        "qualificationArtifactId": 14206804883,
+        "qualificationArtifactDigest": "sha256:119d4e110a38211d2bc5705f4f1e65536d35586b3d5809a717b889acde21004f",
+        "dockerhubDigest": "sha256:e8d314c31415fdb3ecc56584b40926a3d5066f81d25784b75df7600f2e1bb318",
+        "ghcrDigest": "sha256:e8d314c31415fdb3ecc56584b40926a3d5066f81d25784b75df7600f2e1bb318",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      }
+    ]
+  },
+  "warmReceiptProof": {
+    "runId": "43829674132",
+    "source": "f4de8757bb8faa5477292a9b2af6be7dd25c9799",
+    "purpose": "benchmark",
+    "stablePromotionPerformed": false,
+    "targets": [
+      {
+        "target": "full-amd64",
+        "buildJobId": 133171974061,
+        "buildAttempt": 1,
+        "qualificationJobId": 133172994907,
+        "qualificationAttempt": 1,
+        "buildArtifactId": 14207953029,
+        "buildArtifactDigest": "sha256:653e29c06c16e5975d9073955f8f41bb87ce12ac087c16e8a112e445c2ea0d6d",
+        "qualificationArtifactId": 14209536953,
+        "qualificationArtifactDigest": "sha256:e65f68ab72911d307d577b916b24f05f45626ceb19f30cd86a21ff21990a1c59",
+        "dockerhubDigest": "sha256:b66f9e2110e59f474a0df2dade998f69ae701d56d35167d86e81b202f604ac90",
+        "ghcrDigest": "sha256:b66f9e2110e59f474a0df2dade998f69ae701d56d35167d86e81b202f604ac90",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      },
+      {
+        "target": "full-arm64",
+        "buildJobId": 133171973981,
+        "buildAttempt": 1,
+        "qualificationJobId": 133173076475,
+        "qualificationAttempt": 1,
+        "buildArtifactId": 14207254388,
+        "buildArtifactDigest": "sha256:bdbb7abb591881bb4f7781b971c59ea36bea5e12be27e407e31b83243f5cdc2d",
+        "qualificationArtifactId": 14209652001,
+        "qualificationArtifactDigest": "sha256:d8c217addabf0ff43561c12d2bee974b2a6a616f132ad206c4e1272e9cec2502",
+        "dockerhubDigest": "sha256:9eb14e36f31930ca117149023ba5b6ff3ba587026d66e20d49f4c50e72f31152",
+        "ghcrDigest": "sha256:9eb14e36f31930ca117149023ba5b6ff3ba587026d66e20d49f4c50e72f31152",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      },
+      {
+        "target": "slim-amd64",
+        "buildJobId": 133171974136,
+        "buildAttempt": 1,
+        "qualificationJobId": 133173736229,
+        "qualificationAttempt": 1,
+        "buildArtifactId": 14207504809,
+        "buildArtifactDigest": "sha256:91ea702efe9aa13bb2d3097ac629726b326d2103ae500d97e4889290c640264c",
+        "qualificationArtifactId": 14210080991,
+        "qualificationArtifactDigest": "sha256:84b8b579f616aa8c2e98fabada4cbb50d0f851711e76207becbb31886eaa9e55",
+        "dockerhubDigest": "sha256:e42aacf2ba8f2536317abe708636c13e2192301c852648b7044e629069fefbc0",
+        "ghcrDigest": "sha256:e42aacf2ba8f2536317abe708636c13e2192301c852648b7044e629069fefbc0",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      },
+      {
+        "target": "slim-arm64",
+        "buildJobId": 133171974058,
+        "buildAttempt": 1,
+        "qualificationJobId": 133173029720,
+        "qualificationAttempt": 1,
+        "buildArtifactId": 14207489688,
+        "buildArtifactDigest": "sha256:2a537e8a85425a9b97ee9484f2c7c6f0063472ee40f0eb99427080f910403e6f",
+        "qualificationArtifactId": 14208708647,
+        "qualificationArtifactDigest": "sha256:09abffebcc9419008b234f3e28431509cd3a62801caf6f83e9371b08928a3786",
+        "dockerhubDigest": "sha256:24f1cc688616eb2ea48e1ed6755f6f0445a2ef28993c3e42c5ec0c985bd7a3ae",
+        "ghcrDigest": "sha256:24f1cc688616eb2ea48e1ed6755f6f0445a2ef28993c3e42c5ec0c985bd7a3ae",
+        "retainedArtifactSha256": "545b926cd4b48afe9aa20a544782f6160e8631fe77f51f12d3dd0c92e187ccb2"
+      }
+    ]
+  },
+  "warmNormalBuildCacheProof": {
+    "run": "43829674132",
+    "targets": [
+      {
+        "target": "full-arm64",
+        "jobId": 133171973981,
+        "buildSeconds": 24,
+        "runVertices": 60,
+        "cachedRunVertices": 60,
+        "allCached": true
+      },
+      {
+        "target": "slim-arm64",
+        "jobId": 133171974058,
+        "buildSeconds": 25,
+        "runVertices": 60,
+        "cachedRunVertices": 60,
+        "allCached": true
+      },
+      {
+        "target": "full-amd64",
+        "jobId": 133171974061,
+        "buildSeconds": 17,
+        "runVertices": 60,
+        "cachedRunVertices": 60,
+        "allCached": true
+      },
+      {
+        "target": "slim-amd64",
+        "jobId": 133171974136,
+        "buildSeconds": 29,
+        "runVertices": 60,
+        "cachedRunVertices": 60,
+        "allCached": true
+      }
+    ]
+  },
+  "versionOnlyCacheProbes": [
+    {
+      "sample": "first",
+      "runId": "43820193636",
+      "targets": [
+        {
+          "target": "full-amd64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        },
+        {
+          "target": "full-arm64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        },
+        {
+          "target": "slim-amd64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        },
+        {
+          "target": "slim-arm64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        }
+      ]
+    },
+    {
+      "sample": "warm",
+      "runId": "43829674132",
+      "targets": [
+        {
+          "target": "full-amd64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        },
+        {
+          "target": "full-arm64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        },
+        {
+          "target": "slim-amd64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        },
+        {
+          "target": "slim-arm64",
+          "runVertices": 60,
+          "cachedRunVertices": 60,
+          "allCached": true
+        }
+      ]
+    }
+  ],
+  "stableRegistryReferences": [
+    {
+      "ref": "coderluii/holyclaude:latest",
+      "digest": "sha256:7d38f2cf64e7362d8a3e992c680136d48f493560c400baf1a5a507c741418f6c",
+      "observedAt": "2026-11-16T08:43:23.190Z",
+      "unchanged": true
+    },
+    {
+      "ref": "coderluii/holyclaude:slim",
+      "digest": "sha256:5be94bbc9fc60b8bab908faa7ace232bca07bf464694c4469694d02037fab114",
+      "observedAt": "2026-11-16T08:43:23.294Z",
+      "unchanged": true
+    },
+    {
+      "ref": "coderluii/holyclaude:1.6.9",
+      "digest": "sha256:7d38f2cf64e7362d8a3e992c680136d48f493560c400baf1a5a507c741418f6c",
+      "observedAt": "2026-11-16T08:43:23.391Z",
+      "unchanged": true
+    },
+    {
+      "ref": "coderluii/holyclaude:1.6.9-slim",
+      "digest": "sha256:5be94bbc9fc60b8bab908faa7ace232bca07bf464694c4469694d02037fab114",
+      "observedAt": "2026-11-16T08:43:23.489Z",
+      "unchanged": true
+    },
+    {
+      "ref": "ghcr.io/coderluii/holyclaude:latest",
+      "digest": "sha256:7d38f2cf64e7362d8a3e992c680136d48f493560c400baf1a5a507c741418f6c",
+      "observedAt": "2026-11-16T08:43:23.669Z",
+      "unchanged": true
+    },
+    {
+      "ref": "ghcr.io/coderluii/holyclaude:slim",
+      "digest": "sha256:5be94bbc9fc60b8bab908faa7ace232bca07bf464694c4469694d02037fab114",
+      "observedAt": "2026-11-16T08:43:23.748Z",
+      "unchanged": true
+    },
+    {
+      "ref": "ghcr.io/coderluii/holyclaude:1.6.9",
+      "digest": "sha256:7d38f2cf64e7362d8a3e992c680136d48f493560c400baf1a5a507c741418f6c",
+      "observedAt": "2026-11-16T08:43:23.835Z",
+      "unchanged": true
+    },
+    {
+      "ref": "ghcr.io/coderluii/holyclaude:1.6.9-slim",
+      "digest": "sha256:5be94bbc9fc60b8bab908faa7ace232bca07bf464694c4469694d02037fab114",
+      "observedAt": "2026-11-16T08:43:23.906Z",
+      "unchanged": true
+    }
+  ],
+  "localVerification": {
+    "node": "22.23.4",
+    "platform": "Linux x64",
+    "nodeTestsPassed": 917,
+    "pythonTestsPassed": 40,
+    "lint": "Exact pinned actionlint container including ShellCheck passed",
+    "inputReview": "Recorded integrity only; current release approval expired 2026-11-15; not renewed"
+  },
+  "limits": [
+    "These are nonpromotable benchmarks, not a new product release or deployment.",
+    "The warm repeat is 1661 seconds first-job-start to final-job-completion, not a guaranteed future release SLA.",
+    "The successful retry trial includes a deliberate fault, an unexplained ARM64 stall, cancellation and a retry. Do not use its whole-run percentage as a causal speedup.",
+    "Normal build cache proof is separate from the timing reporter, which does not infer cache state or isolated runner queue time.",
+    "The initial empty-cache sample uses a different source and version-ARG layout.",
+    "All hosted native measurements are bound to their stated SHA. Later documentation/reporting changes do not relabel those runs as qualification of a new SHA.",
+    "No stable aliases, version tags, GitHub Release or site deployment were changed."
+  ]
+}

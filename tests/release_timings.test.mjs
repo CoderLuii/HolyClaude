@@ -26,7 +26,7 @@ test('failed-only rerun records retained build without turning failure green', (
 });
 test('old combined jobs expose measured qualification tail separately', () => {
   const f = fixture(); f.run.run_attempt = 1; f.jobs = [f.jobs[0]];
-  f.jobs[0].steps.push({ name: 'Verify architecture and product facts contract', started_at: stamp(3), completed_at: stamp(4), conclusion: 'success' });
+  f.jobs[0].steps.push({ name: 'Verify architecture and product facts contract', status: 'completed', started_at: stamp(3), completed_at: stamp(4), conclusion: 'success' });
   const s = helper.summarizeRun(f.run, f.jobs);
   assert.equal(s.jobs[0].qualificationSeconds, 60); assert.equal(s.jobs[0].qualificationBasis, 'combined-job tail');
 });
@@ -50,6 +50,19 @@ test('genuine reruns with new timestamps and later failures remain separate exec
   const s = helper.summarizeRun(f.run, f.jobs);
   assert.equal(s.carriedJobs.length, 0); assert.equal(s.attempts[1].buildJobs, 1);
   assert.equal(s.jobs.find(row => row.jobId === 4).conclusion, 'failure');
+});
+test('terminal cancelled runner job preserves unfinished phases as unknown', () => {
+  // Run43820193636 job133146208699 was terminal while its runner steps remained incomplete.
+  const f = fixture(); f.run = { ...f.run, id: 43820193636, run_attempt: 1, conclusion: 'cancelled' };
+  f.jobs = [{ ...f.jobs[0], id: 133146208699, run_id: f.run.id, conclusion: 'cancelled', started_at: '2026-11-16T07:09:09Z', completed_at: '2026-11-16T07:49:09Z', steps: [
+    { name: 'Build and push candidate', number: 10, status: 'in_progress', conclusion: null, started_at: '2026-11-16T07:11:00Z', completed_at: null },
+    { name: 'Capture registry digests', number: 11, status: 'pending', conclusion: null, started_at: null, completed_at: null },
+  ] }];
+  const summary = helper.summarizeRun(f.run, f.jobs);
+  assert.equal(summary.conclusion, 'cancelled'); assert.equal(summary.aggregateRunnerSeconds, 2400);
+  assert.equal(summary.jobs[0].buildSeconds, null);
+  assert.equal(summary.jobs[0].incompletePhases.length, 2);
+  assert.equal(summary.jobs[0].incompletePhases[0].completedAt, null);
 });
 for (const [name, change] of [
   ['source mismatch', f => { f.jobs[0].head_sha = 'b'.repeat(40); }],
@@ -78,6 +91,17 @@ test('older successful build superseded by failed build is not reported as retai
 test('comparison keeps unknown cache/queue caveats and exact sources', () => {
   const f = fixture(); const a = helper.summarizeRun(f.run, f.jobs); const b = structuredClone(a); b.source = 'b'.repeat(40);
   const c = helper.compareTimings(a, b); assert.equal(c.sameSource, false); assert.match(c.caveats.join(' '), /cache/); assert.equal(c.targets[0].leftBuildSeconds, 60);
+});
+test('comparison preserves unknown latest cancelled build instead of older successful duration', () => {
+  const f = fixture();
+  f.jobs.push({ ...f.jobs[0], id: 4, run_attempt: 2, conclusion: 'cancelled', started_at: stamp(6), completed_at: stamp(7), steps: [{ name: 'Build and push candidate', status: 'in_progress', conclusion: null, started_at: stamp(6), completed_at: null }] });
+  const s = helper.summarizeRun(f.run, f.jobs);
+  assert.equal(helper.compareTimings(s, s).targets[0].leftBuildSeconds, null);
+});
+test('comparison retains earlier build duration for qualification-only retry', () => {
+  const f = fixture(); const s = helper.summarizeRun(f.run, f.jobs);
+  assert.equal(helper.compareTimings(s, s).targets[0].leftBuildSeconds, 60);
+  assert.equal(helper.compareTimings(s, s).targets[0].leftQualificationSeconds, 120);
 });
 test('actual CLI uses readonly fake gh API and writes raw/report evidence', () => {
   const dir = mkdtempSync(join(tmpdir(), 'release-timings-'));
