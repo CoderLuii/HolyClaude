@@ -120,6 +120,27 @@ cache import/export outcomes and cached build steps before calling a run warm.
 GitHub Actions caches were branch-scoped and can be evicted; an empty Actions
 cache inventory is not proof of the exact historical eviction cause.
 
+Release version metadata stays after the final filesystem instruction in the
+Dockerfile. Declaring its ARG before install steps makes a version bump invalidate
+those RUN caches even when their packages are unchanged. Benchmark mode also
+creates a fresh builder and changes only that argument to `0.0.0`, importing the
+remote registry cache with cache-only output. It requires every reported RUN
+vertex to be cached. It publishes no probe image and does not replace the real
+native qualification of the normally built image. The first build after moving
+this metadata may need to populate new cache keys once.
+
+Collect complete run timing with:
+
+```sh
+node scripts/report-release-timings.mjs --run <run-id> --output "$evidence_root"
+node scripts/report-release-timings.mjs --run <first-run-id> --compare <repeat-run-id> --output "$comparison_root"
+```
+
+Use a new output directory each time. The tool reads GitHub only and keeps raw
+run/job JSON, phase timings, runner totals and a comparison report. Failed runs
+stay failed in the report. Job timing alone does not prove cache hits or image
+reuse; retain cache-probe artifacts and exact candidate digests too.
+
 ## Record release timing
 
 Save job `started_at` and `completed_at` values for every attempt, together with

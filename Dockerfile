@@ -55,9 +55,6 @@ COPY --from=python-runtime /usr/local/ /usr/local/
 RUN test "$(python3 --version)" = "Python 3.14.10" && \
     python3 -m pip --version >/dev/null
 
-ARG HOLYCLAUDE_VERSION=1.6.9
-LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
-LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}
 
 # ---------- Build args ----------
 ARG S6_OVERLAY_VERSION=3.2.3.2
@@ -907,3 +904,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 
 # ---------- s6-overlay as PID 1 ----------
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+ARG HOLYCLAUDE_VERSION=1.6.9
+LABEL org.opencontainers.image.source=https://github.com/CoderLuii/HolyClaude
+LABEL org.opencontainers.image.version=${HOLYCLAUDE_VERSION}

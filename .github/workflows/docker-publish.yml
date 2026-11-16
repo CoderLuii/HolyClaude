@@ -476,6 +476,50 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
+      - name: Probe version-only cache reuse
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'benchmark'
+        timeout-minutes: 5
+        env:
+          VARIANT: ${{ matrix.variant }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          [[ "$VARIANT" =~ ^(full|slim)$ ]]
+          [[ "$ARCH" =~ ^(amd64|arm64)$ ]]
+          [[ "$GITHUB_RUN_ID" =~ ^[0-9]+$ ]]
+          probe_builder="version-probe-${GITHUB_RUN_ID}-${VARIANT}-${ARCH}"
+          mkdir -p version-cache-probe
+          probe_log="version-cache-probe/${VARIANT}-${ARCH}.log"
+          : > "$probe_log"
+          if docker buildx inspect "$probe_builder" >/dev/null 2>&1; then
+            echo "Refusing to replace an existing probe builder: $probe_builder" >&2
+            exit 1
+          fi
+          docker buildx create --name "$probe_builder" --driver docker-container
+          cleanup_probe() { docker buildx rm "$probe_builder" >/dev/null 2>&1 || true; }
+          trap cleanup_probe EXIT
+          timeout --signal=TERM --kill-after=15s 240 docker buildx build \
+            --builder "$probe_builder" \
+            -f Dockerfile \
+            --platform "linux/$ARCH" \
+            --build-arg "VARIANT=$VARIANT" \
+            --build-arg HOLYCLAUDE_VERSION=0.0.0 \
+            --cache-from "type=registry,ref=ghcr.io/coderluii/holyclaude-buildcache:${VARIANT}-${ARCH}" \
+            --output type=cacheonly \
+            --progress=plain . 2>&1 | tee "$probe_log"
+          node scripts/verify-version-cache-probe.mjs "$probe_log" | tee "version-cache-probe/${VARIANT}-${ARCH}.json"
+          printf '### Version-only cache probe: %s-%s\n' "$VARIANT" "$ARCH" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '"All RUN vertices cached: \(.cachedRunVertices)/\(.runVertices). No probe image or cache was published."' "version-cache-probe/${VARIANT}-${ARCH}.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload version-only cache proof
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.mode == 'benchmark'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: version-cache-probe-${{ matrix.variant }}-${{ matrix.arch }}-${{ github.run_attempt }}
+          path: version-cache-probe/
+          if-no-files-found: warn
+          retention-days: 90
+
   build-full-arm64:
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/v')) || (github.event_name == 'workflow_dispatch' && inputs.mode == 'benchmark')
     name: candidate (${{ matrix.variant }}, ${{ matrix.arch }})

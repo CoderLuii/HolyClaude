@@ -52,3 +52,18 @@ local lint result did not cover GitHub's complete check. No native builds began.
 Removing unnecessary Markdown backticks fixed the message; the same pinned
 lint container now runs locally before a correction push. An environment
 mismatch is a reason to align verification, not retry the unchanged workflow.
+
+## A release label could invalidate the toolchain cache
+
+`HOLYCLAUDE_VERSION` used to be declared before the install steps. Docker passes
+an ARG implicitly to following RUN instructions, so changing that release
+number could rebuild packages that had not changed. The ARG and OCI labels now
+follow the filesystem instructions. A fresh-builder benchmark probe changes
+only the version argument and requires explicit cache hits for every RUN vertex.
+The probe has cache-only output and cannot publish a version `0.0.0` image.
+
+This is distinct from a genuine tool or source update, which must invalidate
+its affected layers and pass native qualification. Moving release metadata does
+not make changed dependencies safe or renew expired input approval.
+
+Docker documents the ARG behavior in its [Dockerfile reference](https://docs.docker.com/reference/dockerfile/#impact-on-build-caching).
