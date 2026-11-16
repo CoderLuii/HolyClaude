@@ -78,6 +78,17 @@ function runCleanup(variant, arch, overrides = {}) {
   return { result, commands: existsSync(log) ? readFileSync(log, 'utf8') : '', image };
 }
 
+test('qualification cleanup accepts its verified earlier build attempt and rejects future attempts', () => {
+  const image = `coderluii/holyclaude:candidate-${sha}-123-1-full-amd64@sha256:${'b'.repeat(64)}`;
+  const accepted = runCleanup('full', 'amd64', { CANDIDATE_BUILD_ATTEMPT: '1', IMAGE_OVERRIDE: image });
+  assert.equal(accepted.result.status, 0, accepted.result.stderr || accepted.result.stdout);
+  for (const attempt of ['0', '3', 'bad']) {
+    const rejected = runCleanup('full', 'amd64', { CANDIDATE_BUILD_ATTEMPT: attempt, IMAGE_OVERRIDE: image });
+    assert.notEqual(rejected.result.status, 0);
+    assert.equal(rejected.commands, '');
+  }
+});
+
 test('executes exact target cleanup without removing or changing the candidate', () => {
   const helperSource = readFileSync(helper, 'utf8');
   assert.doesNotMatch(helperSource, /docker (?:image|system) prune|docker image rm\s+-|rm -[rf]/);
@@ -135,6 +146,6 @@ test('workflow parses and binds the job-owned Buildx builder between smoke and s
   const cleanupStep = workflow.slice(cleanup, scanners);
   assert.match(cleanupStep, /timeout-minutes: 10/);
   assert.match(cleanupStep, /BUILDER: \$\{\{ steps\.buildx\.outputs\.name \}\}/);
-  assert.match(cleanupStep, /IMAGE: \$\{\{ steps\.refs\.outputs\.dockerhub_ref \}\}@\$\{\{ steps\.digests\.outputs\.dockerhub_digest \}\}/);
+  assert.match(cleanupStep, /IMAGE: \$\{\{ steps\.refs\.outputs\.dockerhub_ref \}\}@\$\{\{ steps\.refs\.outputs\.dockerhub_digest \}\}/);
   assert.match(cleanupStep, /bash tests\/cleanup_candidate_scanner_disk\.sh "\$IMAGE" "\$VARIANT" "\$ARCH" "\$SOURCE_SHA" "\$BUILDER"/);
 });

@@ -208,8 +208,9 @@ function releaseFixture(t) {
   mkdirSync(sourceRoot); mkdirSync(artifactRoot);
   const writeSource = (path, value) => { mkdirSync(join(sourceRoot, path, '..'), { recursive: true }); writeFileSync(join(sourceRoot, path), value); };
   const sourceSteps = ['Require matching release ref and commit', 'Validate upstream dependency advisory policy', 'Run release source checks'];
-  const candidateSteps = [...new Set(['Build and push candidate', ...requiredTargetSteps('full', 'amd64'), ...requiredTargetSteps('full', 'arm64'), ...requiredTargetSteps('slim', 'amd64')])];
-  const workflow = ['name: fixture', 'jobs:', '  validate-release-ref:', '    steps:', ...sourceSteps.flatMap((step) => [`      - name: ${step}`, '        run: |', '          true']), '  build-candidate:', '    steps:', ...candidateSteps.flatMap((step) => [`      - name: ${step}`, '        run: |', '          true'])].join('\n') + '\n';
+  const qualificationSteps = ['Verify architecture and product facts contract', 'Run complete candidate smoke matrix', 'Generate digest-bound security evidence', 'Validate optional Docker client'];
+  const candidateSteps = ['Build and push candidate', 'Require retained FFmpeg builder and patch inputs to remain unchanged', 'Require retained CloudCLI artifact and overlay inputs to remain unchanged', 'Record cryptography reproducibility disposition'];
+  const workflow = ['name: fixture', 'jobs:', '  validate-release-ref:', '    steps:', ...sourceSteps.flatMap((step) => [`      - name: ${step}`, '        run: |', '          true']), '  build-candidate:', '    steps: &candidate-build-steps', ...candidateSteps.flatMap((step) => [`      - name: ${step}`, '        run: |', '          true']), ...['full-arm64', 'slim-amd64', 'slim-arm64'].flatMap((target) => [`  build-${target}:`, '    steps: *candidate-build-steps']), '  qualify-candidate:', '    steps: &candidate-qualification-steps', ...qualificationSteps.flatMap((step) => [`      - name: ${step}`, '        run: |', '          true']), ...['full-arm64', 'slim-amd64', 'slim-arm64'].flatMap((target) => [`  qualify-${target}:`, '    steps: *candidate-qualification-steps'])].join('\n') + '\n';
   writeSource('.github/workflows/docker-publish.yml', workflow);
   writeSource('scripts/normalize-sbom-license-ids.mjs', readFileSync('scripts/normalize-sbom-license-ids.mjs'));
   for (const path of ['security/upstream-dependency-policy.json', 'security/retained-modified-third-party-baseline.json', 'security/immutable-inputs.yml']) writeSource(path, '{}\n');
@@ -227,12 +228,14 @@ function releaseFixture(t) {
   receipt.sourceChecks = sourceSteps.map((step, index) => command(`source/${index}.json`, 'validate-release-ref', step));
   for (const [variant, arch] of [['full', 'amd64'], ['full', 'arm64'], ['slim', 'amd64'], ['slim', 'arm64']]) {
     const prefix = `${variant}-${arch}`;
+    const buildJob = prefix === 'full-amd64' ? 'build-candidate' : `build-${prefix}`;
+    const qualifyJob = prefix === 'full-amd64' ? 'qualify-candidate' : `qualify-${prefix}`;
     const config = JSON.stringify({ os: 'linux', architecture: arch, rootfs: { type: 'layers', diff_ids: [digest('2')] }, config: { Labels: { 'org.opencontainers.image.source': 'https://github.com/CoderLuii/HolyClaude', 'org.opencontainers.image.revision': source, 'org.opencontainers.image.version': receipt.release } } });
     const manifest = JSON.stringify({ schemaVersion: 2, mediaType: 'application/vnd.oci.image.manifest.v1+json', config: { mediaType: 'application/vnd.oci.image.config.v1+json', digest: `sha256:${hash(config)}`, size: Buffer.byteLength(config) }, layers: [{ mediaType: 'application/vnd.oci.image.layer.v1.tar+gzip', digest: digest('1'), size: 123 }] });
     const imageDigest = `sha256:${hash(manifest)}`;
     const target = { variant, architecture: arch, native: { kernel: arch === 'amd64' ? 'x86_64' : 'aarch64', engine: arch, image: arch }, image: { reference: `registry.fixture/coderluii/holyclaude@${imageDigest}`, digest: imageDigest, manifest: write(`${prefix}/manifest.json`, manifest), config: write(`${prefix}/config.json`, config), layerDigests: [digest('1')] } };
-    target.build = write(`${prefix}/build.json`, { schemaVersion: 1, executionOrigin: 'local_native', localRunId: receipt.localRunId, sourceCommit: source, workflowSha256: receipt.workflowSha256, stepSha256: stepDigests.get('build-candidate:Build and push candidate'), variant, architecture: arch, platform: `linux/${arch}`, buildArgs: { VARIANT: variant }, provenance: false, sbom: false, exitCode: 0, skipped: false, imageDigest, stdout: write(`${prefix}/build.stdout`, 'fixture build output\n'), stderr: write(`${prefix}/build.stderr`, '') });
-    target.checks = requiredTargetSteps(variant, arch).map((step, index) => command(`${prefix}/checks/${index}.json`, 'build-candidate', step, target));
+    target.build = write(`${prefix}/build.json`, { schemaVersion: 1, executionOrigin: 'local_native', localRunId: receipt.localRunId, sourceCommit: source, workflowSha256: receipt.workflowSha256, stepSha256: stepDigests.get(`${buildJob}:Build and push candidate`), variant, architecture: arch, platform: `linux/${arch}`, buildArgs: { VARIANT: variant }, provenance: false, sbom: false, exitCode: 0, skipped: false, imageDigest, stdout: write(`${prefix}/build.stdout`, 'fixture build output\n'), stderr: write(`${prefix}/build.stderr`, '') });
+    target.checks = requiredTargetSteps(variant, arch).map((step, index) => command(`${prefix}/checks/${index}.json`, qualificationSteps.includes(step) ? qualifyJob : buildJob, step, target));
     target.security = Object.fromEntries(['syft', 'cycloneDxRaw', 'cycloneDx', 'spdx', 'licenseNormalization', 'grype', 'database'].map((key) => [key, write(`${prefix}/security/${key}.json`, { fixture: key })]));
     const rawCycloneDx = { bomFormat: 'CycloneDX', specVersion: '1.7', components: [{ name: 'fixture', licenses: [{ license: { id: 'Artistic-dist' } }] }] };
     const normalizedCycloneDx = structuredClone(rawCycloneDx);
@@ -263,6 +266,22 @@ function releaseFixture(t) {
   return { receipt, options, write, read, refresh, securityCalls, artifactRoot, sourceRoot };
 }
 
+test('binds each native target to its actual workflow jobs and shared step bytes', () => {
+  const steps = workflowStepDigests(readFileSync('.github/workflows/docker-publish.yml', 'utf8'));
+  for (const target of ['full-arm64', 'slim-amd64', 'slim-arm64']) {
+    assert.equal(steps.get(`build-${target}:Build and push candidate`), steps.get('build-candidate:Build and push candidate'));
+    assert.equal(steps.get(`qualify-${target}:Run complete candidate smoke matrix`), steps.get('qualify-candidate:Run complete candidate smoke matrix'));
+    assert.match(steps.get(`build-${target}:Build and push candidate`), /^[a-f0-9]{64}$/);
+    assert.match(steps.get(`qualify-${target}:Run complete candidate smoke matrix`), /^[a-f0-9]{64}$/);
+  }
+});
+
+test('rejects unresolved and forward workflow step aliases', () => {
+  for (const suffix of ['', '  later:\n    steps: &shared\n      - name: command\n        run: true\n']) {
+    assert.throws(() => workflowStepDigests('name: fixture\njobs:\n  first:\n    steps: *shared\n' + suffix), /steps alias is unresolved/);
+  }
+});
+
 test('accepts all four complete local-native fixtures and requires four strict security callbacks', (t) => {
   const data = releaseFixture(t);
   const result = validateLocalReleaseEvidence(data.receipt, data.options);
@@ -272,6 +291,23 @@ test('accepts all four complete local-native fixtures and requires four strict s
   assert.equal(result.qualified[0].upstreamFindings, 1);
   assert.deepEqual(data.securityCalls.sort(), ['full-amd64', 'full-arm64', 'slim-amd64', 'slim-arm64']);
 });
+
+for (const job of ['build-candidate', 'qualify-candidate']) {
+  test(`rejects rehashed local receipts when the ${job} workflow stage is missing`, (t) => {
+    const data = releaseFixture(t);
+    const path = join(data.sourceRoot, '.github/workflows/docker-publish.yml');
+    const workflow = readFileSync(path, 'utf8').replace(`  ${job}:`, `  missing-${job}:`);
+    writeFileSync(path, workflow);
+    data.receipt.workflowSha256 = hash(workflow);
+    for (const recordPath of [...data.receipt.sourceChecks, ...data.receipt.targets.flatMap((target) => [target.build, ...target.checks])]) {
+      const record = data.read(recordPath);
+      record.workflowSha256 = data.receipt.workflowSha256;
+      data.write(recordPath, record);
+    }
+    data.refresh();
+    assert.throws(() => validateLocalReleaseEvidence(data.receipt, data.options), /local release evidence:/);
+  });
+}
 
 for (const [label, mutate] of [
   ['fake hosted run field', (data) => { data.receipt.run_id = 123; }],
@@ -302,6 +338,10 @@ for (const [label, mutate] of [
 }
 
 for (const [label, select, mutate] of [
+  ['build stage claiming qualification', (data) => data.receipt.targets[0].checks[0], (record) => { record.job = 'build-candidate'; }],
+  ['qualification stage claiming retained build guard', (data) => data.receipt.targets[0].checks[3], (record) => { record.job = 'qualify-candidate'; }],
+  ['qualification bound to another target job', (data) => data.receipt.targets[1].checks[0], (record) => { record.job = 'qualify-candidate'; }],
+  ['retained guard bound to another target job', (data) => data.receipt.targets[1].checks[3], (record) => { record.job = 'build-candidate'; }],
   ['skipped native test', (data) => data.receipt.targets[0].checks[0], (record) => { record.skipped = true; }],
   ['failed native test', (data) => data.receipt.targets[0].checks[0], (record) => { record.exitCode = 1; }],
   ['changed test body', (data) => data.receipt.targets[0].checks[0], (record) => { record.stepSha256 = '0'.repeat(64); }],

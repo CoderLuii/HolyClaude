@@ -48,13 +48,28 @@ export function workflowStepDigests(text) {
   check(start >= 0, 'workflow jobs section is missing');
   const jobs = [...text.slice(start).matchAll(/^  ([a-z][a-z0-9-]+):$/gm)].map((match) => ({ name: match[1], index: start + match.index }));
   const result = new Map();
+  const anchors = new Map();
   for (let i = 0; i < jobs.length; i += 1) {
     const source = text.slice(jobs[i].index, jobs[i + 1]?.index ?? text.length);
+    const reuse = /^    steps: \*([A-Za-z_][A-Za-z0-9_-]*)\s*$/m.exec(source);
+    if (reuse) {
+      check(anchors.has(reuse[1]), 'workflow steps alias is unresolved');
+      for (const [step, digest] of anchors.get(reuse[1])) result.set(`${jobs[i].name}:${step}`, digest);
+      continue;
+    }
+    const definition = /^    steps: &([A-Za-z_][A-Za-z0-9_-]*)\s*$/m.exec(source);
+    const definitions = new Map();
     const steps = [...source.matchAll(/^      - name: (.+)$/gm)];
     for (let j = 0; j < steps.length; j += 1) {
       const key = `${jobs[i].name}:${steps[j][1]}`;
       check(!result.has(key), 'workflow step names are duplicated');
-      result.set(key, hash(source.slice(steps[j].index, steps[j + 1]?.index ?? source.length)));
+      const digest = hash(source.slice(steps[j].index, steps[j + 1]?.index ?? source.length));
+      result.set(key, digest);
+      definitions.set(steps[j][1], digest);
+    }
+    if (definition) {
+      check(!anchors.has(definition[1]) && definitions.size > 0, 'workflow steps anchor is duplicated or empty');
+      anchors.set(definition[1], definitions);
     }
   }
   return result;
@@ -147,7 +162,7 @@ export function validateLocalReleaseEvidence(receipt, {
     exactKeys(record, ['schemaVersion', 'executionOrigin', 'localRunId', 'sourceCommit', 'workflowSha256', 'job', 'step', 'stepSha256', 'target', 'imageDigest', 'startedAt', 'finishedAt', 'exitCode', 'skipped', 'stdout', 'stderr'], 'command record');
     const begin = Date.parse(record.startedAt), finish = Date.parse(record.finishedAt);
     check(record.schemaVersion === 1 && record.executionOrigin === 'local_native' && record.localRunId === receipt.localRunId && record.sourceCommit === expectedSource && record.workflowSha256 === receipt.workflowSha256, 'command source or local execution identity differs');
-    check(record.job === job && record.step === step && record.stepSha256 === steps.get(`${job}:${step}`), 'command is not bound to the exact required workflow step');
+    check(steps.has(`${job}:${step}`) && record.job === job && record.step === step && record.stepSha256 === steps.get(`${job}:${step}`), 'command is not bound to the exact required workflow step');
     check(record.exitCode === 0 && record.skipped === false && Number.isFinite(begin) && Number.isFinite(finish) && begin <= finish && finish <= now.valueOf(), 'command failed, was skipped or has invalid timing');
     check(record.target === (target ? `${target.variant}-${target.architecture}` : null) && record.imageDigest === (target?.image.digest ?? null), 'command target or image differs');
     artifact(record.stdout); artifact(record.stderr);
@@ -175,14 +190,21 @@ export function validateLocalReleaseEvidence(receipt, {
     check(Array.isArray(manifest.layers) && manifest.layers.length > 0 && manifest.layers.every((layer) => typeof layer.mediaType === 'string' && layer.mediaType && DIGEST.test(layer.digest) && Number.isSafeInteger(layer.size) && layer.size >= 0) && isDeepStrictEqual(manifest.layers.map((layer) => layer.digest), target.image.layerDigests), 'ordered image layer identity differs');
     check(config.rootfs?.type === 'layers' && Array.isArray(config.rootfs.diff_ids) && config.rootfs.diff_ids.length === manifest.layers.length && config.rootfs.diff_ids.every((id) => DIGEST.test(id)), 'image filesystem identity is invalid');
     check(config.config?.Labels?.['org.opencontainers.image.source'] === REPOSITORY && config.config.Labels['org.opencontainers.image.revision'] === expectedSource && config.config.Labels['org.opencontainers.image.version'] === receipt.release, 'image source labels differ');
+    const targetName = `${target.variant}-${target.architecture}`;
+    const buildJob = targetName === 'full-amd64' ? 'build-candidate' : `build-${targetName}`;
+    const qualifyJob = targetName === 'full-amd64' ? 'qualify-candidate' : `qualify-${targetName}`;
     const build = read(target.build);
     exactKeys(build, ['schemaVersion', 'executionOrigin', 'localRunId', 'sourceCommit', 'workflowSha256', 'stepSha256', 'variant', 'architecture', 'platform', 'buildArgs', 'provenance', 'sbom', 'exitCode', 'skipped', 'imageDigest', 'stdout', 'stderr'], 'build record');
-    check(build.schemaVersion === 1 && build.executionOrigin === 'local_native' && build.localRunId === receipt.localRunId && build.sourceCommit === expectedSource && build.workflowSha256 === receipt.workflowSha256 && build.stepSha256 === steps.get('build-candidate:Build and push candidate'), 'build is not bound to the final source and workflow');
+    check(build.schemaVersion === 1 && build.executionOrigin === 'local_native' && build.localRunId === receipt.localRunId && build.sourceCommit === expectedSource && build.workflowSha256 === receipt.workflowSha256 && build.stepSha256 === steps.get(`${buildJob}:Build and push candidate`), 'build is not bound to the final source and workflow');
     check(build.variant === target.variant && build.architecture === target.architecture && build.platform === `linux/${target.architecture}` && isDeepStrictEqual(build.buildArgs, { VARIANT: target.variant }) && build.provenance === false && build.sbom === false && build.exitCode === 0 && build.skipped === false && build.imageDigest === target.image.digest, 'build options, result or image identity differ');
     artifact(build.stdout); artifact(build.stderr);
     const required = requiredTargetSteps(target.variant, target.architecture);
     check(Array.isArray(target.checks) && target.checks.length === required.length && isDeepStrictEqual(target.checks.map((path) => read(path).step).sort(), [...required].sort()), 'required native checks are missing or duplicated');
-    for (const path of target.checks) command(path, 'build-candidate', read(path).step, target);
+    for (const path of target.checks) {
+      const step = read(path).step;
+      const job = ['Verify architecture and product facts contract', 'Run complete candidate smoke matrix', 'Generate digest-bound security evidence', 'Validate optional Docker client'].includes(step) ? qualifyJob : buildJob;
+      command(path, job, step, target);
+    }
     exactKeys(target.security, SECURITY_FILES, 'security evidence');
     const files = Object.fromEntries(SECURITY_FILES.map((key) => [key, artifact(target.security[key]).absolute]));
     const upstream = read(target.security.upstream), policy = read(target.security.policy);

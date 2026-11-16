@@ -335,6 +335,51 @@ test('accepts and skips a local GitHub Action step', () => {
   assert.equal(result.status, 0, result.stderr);
 });
 
+test('accepts earlier named job steps lists and repeated exact aliases without losing action inventory', () => {
+  const result = runSourceFixture({ mutateWorkflow: (name, value) => name === 'source-security.yml'
+    ? value.replace(/^    steps:\s*$/m, '    steps: &reviewed_steps') + '\n  reuse-one:\n    runs-on: ubuntu-24.04\n    steps: *reviewed_steps\n  reuse-two:\n    runs-on: ubuntu-24.04\n    steps: *reviewed_steps\n'
+    : value });
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test('inventories stale action refs inside an anchored step definition', () => {
+  const result = runSourceFixture({ mutateWorkflow: (name, value) => name === 'source-security.yml'
+    ? value.replace(/^    steps:\s*$/m, '    steps: &reviewed_steps').replace(/uses: actions\/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7\.0\.1/, 'uses: actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa # v7.0.0') + '\n  reuse:\n    steps: *reviewed_steps\n'
+    : value });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /github-actions actions\/checkout: version and commit do not match source/);
+});
+
+for (const [description, content] of [
+  ['unresolved alias', '  reuse:\n    steps: *missing_steps\n'],
+  ['forward alias', '  reuse:\n    steps: *future_steps\n  later:\n    steps: &future_steps\n      - uses: ./.github/actions/local-check\n'],
+  ['duplicate anchor', '  first:\n    steps: &same_steps\n      - uses: ./.github/actions/local-check\n  second:\n    steps: &same_steps\n      - uses: ./.github/actions/local-check\n'],
+  ['empty anchor', '  first:\n    steps: &empty_steps\n  second:\n    steps: *empty_steps\n'],
+  ['mapping anchor instead of a list', '  first:\n    steps: &mapping_steps\n      uses: ./.github/actions/local-check\n'],
+  ['mapping appended to anchored list', '  first:\n    steps: &mixed_steps\n      - uses: ./.github/actions/local-check\n      unexpected: ignored\n'],
+  ['flow list anchor', '  first:\n    steps: &flow_steps [{ uses: ./.github/actions/local-check }]\n'],
+  ['alias hidden in uses', '  first:\n    steps:\n      - uses: *reviewed_steps\n'],
+  ['anchor hidden in uses', '  first:\n    steps:\n      - uses: &hidden actions/checkout@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n'],
+  ['anchor outside steps', '  first:\n    env: &hidden\n      ACTION: ignored\n'],
+  ['merge alias', '  first:\n    <<: *reviewed_steps\n'],
+  ['step merge alias', '  first:\n    steps:\n      - <<: *reviewed_steps\n'],
+  ['duplicate steps alias key', '  first:\n    steps: &one_steps\n      - uses: ./.github/actions/local-check\n  second:\n    steps: *one_steps\n    steps: *one_steps\n'],
+]) {
+  test(`rejects unsupported steps anchor structure: ${description}`, () => {
+    const result = runSourceFixture({ mutateWorkflow: (name, value) => name === 'source-security.yml' ? value + `\n${content}` : value });
+    assert.notEqual(result.status, 0, result.stderr);
+    assert.match(result.stderr, /github-actions source has unsupported|steps anchor|steps alias/);
+  });
+}
+
+test('steps anchors cannot leak across separate workflow documents', () => {
+  const result = runSourceFixture({ mutateWorkflow: (name, value) => name === 'docker-publish.yml'
+    ? value.replace(/^    steps:(?:\s*&[^\s#]+)?\s*$/m, '    steps: &file_private_steps')
+    : value + '\n  reuse:\n    steps: *file_private_steps\n' });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /steps alias|unsupported complex/);
+});
+
 test('rejects an inline flow collection containing a stale GitHub Action', () => {
   const result = runSourceFixture({
     mutateWorkflow: (name, value) => name === 'source-security.yml'

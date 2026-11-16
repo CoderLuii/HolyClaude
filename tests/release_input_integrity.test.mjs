@@ -538,7 +538,7 @@ test('CloudCLI js-yaml overlay guard accepts only the reviewed baseline or pinne
 });
 
 test('release workflow keeps v1.6.9 source, native evidence, and promotion gates fail closed', () => {
-  assert.match(workflow, /^run-name: v1\.6\.9$/m);
+  assert.match(workflow, /^run-name:.*github\.event_name == 'workflow_dispatch'.*inputs\.mode.*github\.ref_name/m);
   assert.match(workflow, /default: "1\.6\.9"/);
   assert.match(workflow, /baseline="b9e0d11d8d4173899e210742a8f7af8cefcf94f1"/);
   assert.match(workflow, /git rev-parse 'v1\.6\.8\^\{commit\}'\)" = "b9e0d11d8d4173899e210742a8f7af8cefcf94f1"/);

@@ -32,7 +32,12 @@ case "$VARIANT-$ARCH" in
   *) echo "unsupported candidate cleanup target: $VARIANT-$ARCH" >&2; exit 1 ;;
 esac
 
-expected_ref="${DOCKERHUB_IMAGE:?missing Docker Hub image}:candidate-${SOURCE_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${VARIANT}-${ARCH}"
+build_attempt="${CANDIDATE_BUILD_ATTEMPT:-${GITHUB_RUN_ATTEMPT}}"
+if [[ ! "$build_attempt" =~ ^[1-9][0-9]*$ || "$build_attempt" -gt "$GITHUB_RUN_ATTEMPT" ]]; then
+  echo "candidate scanner cleanup build attempt mismatch" >&2
+  exit 1
+fi
+expected_ref="${DOCKERHUB_IMAGE:?missing Docker Hub image}:candidate-${SOURCE_SHA}-${GITHUB_RUN_ID}-${build_attempt}-${VARIANT}-${ARCH}"
 candidate_ref="${IMAGE%@*}"
 candidate_digest="${IMAGE##*@}"
 if [[ "$candidate_ref" != "$expected_ref" || ! "$candidate_digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then

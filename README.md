@@ -46,7 +46,7 @@ v1.6.9 updates the bundled AI CLIs and developer tools using official upstream r
 > [!WARNING]
 > Dependency scans still run. Accepted upstream vulnerabilities remain listed with their installed versions, raw severity and available fixes; acceptance does not mean fixed. Retained modified third-party artifacts are identified separately from official releases. HolyClaude source checks, artifact integrity and runtime tests still block delivery. See the [dependency policy](security/upstream-dependency-policy.json) and the release's scan evidence before deploying.
 
-Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images.
+Release-sensitive facts are also published in [`contracts/product-facts.json`](contracts/product-facts.json). The release workflow checks that contract against the Dockerfile and Compose files before building images. Native Full/Slim × AMD64/ARM64 builds feed separate qualification jobs using immutable image digests. Matching release tags promote those tested images to Docker Hub and GHCR. See the [release procedure](docs/local-release.md).
 
 So you start installing things. One by one. Then Chromium won't launch because Docker's shared memory is 64MB. Then Xvfb isn't configured. Then the UID inside the container doesn't match your host and everything is permission denied. Then you realize Claude Code's installer hangs when WORKDIR is root-owned. Then SQLite locks on your NAS mount. Then—
 

@@ -342,7 +342,7 @@ test('native Full candidates run optional client validation after digest capture
   assert.match(step, /if: matrix\.variant == 'full'/);
   assert.match(step, /RUN_SOCKET_COMPOSE: '1'/);
   assert.match(step, /REQUIRE_SOCKET_COMPOSE: '1'/);
-  assert.match(step, /steps\.refs\.outputs\.dockerhub_ref.*steps\.digests\.outputs\.dockerhub_digest/);
+  assert.match(step, /steps\.refs\.outputs\.dockerhub_ref.*steps\.refs\.outputs\.dockerhub_digest/);
   assert.match(step, /optional-client-\$\{\{ github\.run_id \}\}-\$\{\{ github\.run_attempt \}\}-\$\{\{ matrix\.arch \}\}/);
   assert.match(step, /bash tests\/validate_optional_docker_client\.sh "\$IMAGE" "\$NAME_PREFIX"/);
 });

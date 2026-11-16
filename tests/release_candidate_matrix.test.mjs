@@ -12,6 +12,67 @@ const candidate = workflow.slice(
 );
 const published = workflow.slice(workflow.indexOf('  post-publish-smoke:'), workflow.indexOf('  rollback-mutable-aliases:'));
 
+test('manual benchmark uses real candidate phases but cannot promote a release', () => {
+  assert.match(workflow, /mode:\n\s+description:.*benchmark/);
+  assert.match(workflow, /inputs\.mode == 'benchmark'/);
+  assert.match(workflow, /Benchmark only: recorded input integrity/);
+  assert.match(workflow, /args\+=\(--benchmark --release/);
+  assert.match(workflow, /"purpose": os\.environ\["PURPOSE"\]/);
+  assert.match(workflow, /name: Exercise benchmark qualification retry\n\s+if:.*inputs\.mode == 'benchmark'.*inputs\.exercise_retry.*github\.run_attempt == 1/);
+  for (const id of ['promote', 'post-publish-smoke', 'update-dockerhub-description']) {
+    const start = workflow.indexOf(`  ${id}:`);
+    const header = workflow.slice(start, workflow.indexOf('    steps:', start));
+    assert.match(header, /if: github\.event_name == 'push' && startsWith\(github\.ref, 'refs\/tags\/v'\)/);
+  }
+  const smoke = workflow.slice(workflow.indexOf('  published-browser-smoke:'), workflow.indexOf('  update-dockerhub-description:'));
+  assert.match(smoke, /inputs\.mode != 'benchmark'/);
+});
+
+test('native builds share a durable per-target GitHub registry cache across release branches', () => {
+  assert.match(candidate, /cache-from: type=registry,ref=ghcr\.io\/coderluii\/holyclaude-buildcache:\$\{\{ matrix\.variant \}\}-\$\{\{ matrix\.arch \}\}/);
+  assert.match(candidate, /cache-to: type=registry,ref=ghcr\.io\/coderluii\/holyclaude-buildcache:.*mode=max/);
+  assert.doesNotMatch(candidate, /cache-(?:from|to): type=gha/);
+});
+
+test('qualification retries consume built digests without repeating image builds', () => {
+  const start = workflow.indexOf('  qualify-candidate:');
+  assert.ok(start > workflow.indexOf('  build-candidate:'), 'qualification must be independently retryable');
+  const build = workflow.slice(workflow.indexOf('  build-candidate:'), start);
+  const qualify = workflow.slice(start, workflow.indexOf('  resolve-candidate-run:'));
+  assert.match(build, /name: Upload candidate build/);
+  assert.doesNotMatch(build, /name: Run complete candidate smoke matrix/);
+  assert.match(qualify, /needs:\s+- validate-release-ref\s+- build-candidate/);
+  assert.match(qualify, /args=\(build --run/);
+  assert.match(qualify, /name: Run complete candidate smoke matrix/);
+  assert.doesNotMatch(qualify, /uses: docker\/build-push-action|name: Build and push candidate/);
+  assert.match(workflow, /resolve-candidate-evidence\.mjs promotion/);
+});
+
+test('each qualification starts after its own build without an all-target barrier', () => {
+  for (const target of ['full-arm64', 'slim-amd64', 'slim-arm64']) {
+    const id = `qualify-${target}`;
+    const start = workflow.indexOf(`  ${id}:`);
+    assert.ok(start >= 0, `${target} needs an independent qualification job`);
+    const rest = workflow.slice(start + `  ${id}:`.length);
+    const end = rest.search(/^  [a-z][a-z0-9-]+:$/m);
+    const job = end < 0 ? rest : rest.slice(0, end);
+    assert.match(job, new RegExp(`needs:\\s+- validate-release-ref\\s+- build-${target}\\s+`));
+    assert.doesNotMatch(job, /- build-candidate\s/);
+    assert.match(job, /steps: \*candidate-qualification-steps/);
+  }
+  assert.equal((workflow.match(/steps: &candidate-build-steps/g) ?? []).length, 1);
+  assert.equal((workflow.match(/steps: &candidate-qualification-steps/g) ?? []).length, 1);
+});
+
+test('tag promotion reuses the candidate source tests while retaining fresh input checks', () => {
+  const source = workflow.slice(workflow.indexOf('  validate-release-ref:'), workflow.indexOf('  build-candidate:'));
+  assert.match(source, /name: Run release source checks\n\s+if: github\.ref_type != 'tag'/);
+  assert.match(source, /verify-immutable-inputs\.mjs/);
+  assert.match(source, /name: Validate upstream dependency advisory policy/);
+  assert.match(workflow, /No successful \$\{expected_branch\} candidate run exists/);
+  assert.match(workflow, /resolve-candidate-evidence\.mjs promotion/);
+});
+
 function runWorkflowVersionParser(command, output) {
   const marker = '          const command = process.env.VERSION_COMMAND;';
   const start = candidate.indexOf(marker);
@@ -49,68 +110,9 @@ function runCloudcliGuardNormalization(baseline, current) {
   return { result, normalized };
 }
 
-function validateCandidateAttempts({ records, candidateRunAttempt }) {
-  const normalizedCandidateAttempt = String(candidateRunAttempt);
-  if (!/^\d+$/.test(normalizedCandidateAttempt)) {
-    throw new Error('candidate run attempt is invalid');
-  }
-  const attempts = new Set(records.map((record) => String(record.run_attempt)));
-  if (attempts.size !== 1 || !attempts.has(normalizedCandidateAttempt)) {
-    throw new Error('candidate records do not share the candidate run attempt');
-  }
-  for (const record of records) {
-    const suffix = `candidate-${record.source_sha}-${record.run_id}-${normalizedCandidateAttempt}-${record.variant}-${record.arch}`;
-    if (!record.dockerhub_ref.endsWith(suffix) || !record.ghcr_ref.endsWith(suffix)) {
-      throw new Error('candidate ref attempt does not match candidate run attempt');
-    }
-  }
-}
-
-function validateCandidateJobs(jobs, candidateRunAttempt) {
-  const expected = new Set([
-    'candidate (full, amd64)',
-    'candidate (full, arm64)',
-    'candidate (slim, amd64)',
-    'candidate (slim, arm64)',
-  ]);
-  const candidateJobs = jobs.filter((job) => expected.has(job.name) && job.conclusion === 'success');
-  assert.equal(candidateJobs.length, 4);
-  assert.deepEqual(new Set(candidateJobs.map((job) => job.name)), expected);
-  const attempts = new Set(candidateJobs.map((job) => String(job.run_attempt)));
-  if (attempts.size !== 1 || !attempts.has(String(candidateRunAttempt))) {
-    throw new Error('candidate jobs do not share the candidate run API attempt');
-  }
-}
-
-function attemptFixture(runAttempt) {
-  return ['full-amd64', 'full-arm64', 'slim-amd64', 'slim-arm64'].map((target) => {
-    const [variant, arch] = target.split('-');
-    const suffix = `candidate-sha-123-${runAttempt}-${variant}-${arch}`;
-    return {
-      source_sha: 'sha',
-      run_id: '123',
-      run_attempt: String(runAttempt),
-      variant,
-      arch,
-      dockerhub_ref: `coderluii/holyclaude:${suffix}`,
-      ghcr_ref: `ghcr.io/coderluii/holyclaude:${suffix}`,
-    };
-  });
-}
-
-function candidateJobFixture(runAttempt) {
-  return ['full-amd64', 'full-arm64', 'slim-amd64', 'slim-arm64'].map((target) => {
-    const [variant, arch] = target.split('-');
-    return {
-      name: `candidate (${variant}, ${arch})`,
-      conclusion: 'success',
-      run_attempt: runAttempt,
-    };
-  });
-}
-
 test('candidate matrix has exactly the four native full and slim targets', () => {
-  const targets = [...candidate.matchAll(/- variant: (full|slim)\s+arch: (amd64|arm64)\s+runner: (ubuntu-24\.04(?:-arm)?)/g)]
+  const build = candidate.slice(0, candidate.indexOf('  qualify-candidate:'));
+  const targets = [...build.matchAll(/- variant: (full|slim)\s+arch: (amd64|arm64)\s+runner: (ubuntu-24\.04(?:-arm)?)/g)]
     .map(([, variant, arch, runner]) => ({ variant, arch, runner }));
   assert.deepEqual(targets, [
     { variant: 'full', arch: 'amd64', runner: 'ubuntu-24.04' },
@@ -134,7 +136,7 @@ test('every native candidate runs the complete smoke suite against its digest', 
   ]) {
     assert.equal((candidate.match(new RegExp(`tests/${script.replaceAll('.', '\\.')}`, 'g')) ?? []).length, 1, script);
   }
-  assert.match(candidate, /IMAGE: \$\{\{ steps\.refs\.outputs\.dockerhub_ref \}\}@\$\{\{ steps\.digests\.outputs\.dockerhub_digest \}\}/);
+  assert.match(candidate, /IMAGE: \$\{\{ steps\.refs\.outputs\.dockerhub_ref \}\}@\$\{\{ steps\.refs\.outputs\.dockerhub_digest \}\}/);
   assert.match(candidate, /VARIANT: \$\{\{ matrix\.variant \}\}/);
   assert.match(candidate, /ARCH: \$\{\{ matrix\.arch \}\}/);
 });
@@ -318,40 +320,6 @@ test('Junie normalization fails closed on malformed, extra, ambiguous, and wrong
   assert.equal(wrongBuild.stdout, '3888.0');
 });
 
-test('candidate attempt validation treats promotion workflow attempts as independent', () => {
-  assert.doesNotThrow(() => validateCandidateAttempts({
-    records: attemptFixture(2),
-    candidateRunAttempt: 2,
-    promotionRunAttempt: 1,
-  }));
-  assert.doesNotThrow(() => validateCandidateAttempts({
-    records: attemptFixture(1),
-    candidateRunAttempt: 1,
-    promotionRunAttempt: 2,
-  }));
-});
-
-test('candidate attempt validation rejects mixed rerun artifacts and mismatched refs', () => {
-  const records = attemptFixture(1);
-
-  const mixed = structuredClone(records);
-  mixed[3].run_attempt = '2';
-  mixed[3].dockerhub_ref = mixed[3].dockerhub_ref.replace('-1-slim-arm64', '-2-slim-arm64');
-  mixed[3].ghcr_ref = mixed[3].ghcr_ref.replace('-1-slim-arm64', '-2-slim-arm64');
-  assert.throws(() => validateCandidateAttempts({ records: mixed, candidateRunAttempt: 1 }), /do not share/);
-
-  const wrongRef = structuredClone(records);
-  wrongRef[0].dockerhub_ref = wrongRef[0].dockerhub_ref.replace('-1-full-amd64', '-2-full-amd64');
-  assert.throws(() => validateCandidateAttempts({ records: wrongRef, candidateRunAttempt: 1 }), /ref attempt/);
-});
-
-test('candidate job validation rejects jobs from a different candidate attempt', () => {
-  assert.doesNotThrow(() => validateCandidateJobs(candidateJobFixture(2), 2));
-  const mixedJobs = candidateJobFixture(2);
-  mixedJobs[3].run_attempt = 1;
-  assert.throws(() => validateCandidateJobs(mixedJobs, 2), /do not share/);
-});
-
 test('candidate proof includes retained-input, integrity, security, and exact-run invalidation gates', () => {
   assert.match(workflow, /Require retained CloudCLI artifact and overlay inputs to remain unchanged/);
   assert.match(workflow, /Require retained FFmpeg builder and patch inputs to remain unchanged/);
@@ -366,8 +334,9 @@ test('candidate proof includes retained-input, integrity, security, and exact-ru
   assert.match(candidate, /RUN_ID: \$\{\{ github\.run_id \}\}/);
   assert.match(candidate, /RUN_ATTEMPT: \$\{\{ github\.run_attempt \}\}/);
   assert.match(workflow, /candidate-\$\{GITHUB_SHA\}-\$\{GITHUB_RUN_ID\}-\$\{GITHUB_RUN_ATTEMPT\}/);
-  assert.match(workflow, /candidate-jobs\.json/);
-  assert.match(workflow, /expected exactly four successful native candidate jobs/);
-  assert.match(workflow, /candidate jobs must match the candidate run API attempt/);
-  assert.match(workflow, /candidate records must share exactly one attempt matching candidate-run\.json/);
+  assert.match(workflow, /resolve-candidate-evidence\.mjs promotion/);
+  assert.match(workflow, /BUILD_ATTEMPT: \$\{\{ steps\.refs\.outputs\.build_attempt \}\}/);
+  assert.doesNotMatch(workflow, /candidate records must share exactly one attempt/);
+  assert.match(workflow, /name: candidate-evidence-.*github\.run_attempt/);
+  assert.match(workflow, /name: security-evidence-.*github\.run_attempt/);
 });

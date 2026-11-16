@@ -204,7 +204,7 @@ function readWorkflowSource() {
   return readdirSync(workflowDirectory, { withFileTypes: true })
     .filter((entry) => entry.isFile() && /\.ya?ml$/i.test(entry.name))
     .map((entry) => readFileSync(resolve(workflowDirectory, entry.name), 'utf8'))
-    .join('\n');
+    .join('\n---\n');
 }
 
 // The action inventory accepts the repository's plain-key block style only. Unsupported
@@ -212,6 +212,15 @@ function readWorkflowSource() {
 function workflowStructuralLines(source) {
   const structuralLines = [];
   let literalIndent = null;
+  const stepsAnchors = new Set();
+  let pendingStepsAnchor = null;
+  let stepsSeen = false;
+  const finishStepsAnchor = () => {
+    if (!pendingStepsAnchor) return;
+    if (!pendingStepsAnchor.hasStep) throw new Error(`github-actions steps anchor must contain a block step list: ${pendingStepsAnchor.name}`);
+    stepsAnchors.add(pendingStepsAnchor.name);
+    pendingStepsAnchor = null;
+  };
 
   for (const line of source.split(/\r?\n/)) {
     const indent = /^ */.exec(line)[0].length;
@@ -223,6 +232,35 @@ function workflowStructuralLines(source) {
     if (!line.trim() || /^\s*#/.test(line)) continue;
     if (line.includes('\t')) throw new Error(`github-actions source has unsupported tab indentation: ${line.trim()}`);
 
+    if (line === '---' || line === '...') {
+      finishStepsAnchor();
+      stepsAnchors.clear();
+      stepsSeen = false;
+      continue;
+    }
+    if (pendingStepsAnchor) {
+      if (indent <= 4) finishStepsAnchor();
+      else if (!pendingStepsAnchor.hasStep || indent === 6) {
+        if (!/^ {6}-\s+/.test(line)) throw new Error(`github-actions steps anchor must contain a block step list: ${pendingStepsAnchor.name}`);
+        pendingStepsAnchor.hasStep = true;
+      }
+    }
+    if (indent <= 2) stepsSeen = false;
+    const stepsReuse = /^ {4}steps:\s*([&*])([A-Za-z_][A-Za-z0-9_-]*)\s*(?:#.*)?$/.exec(line);
+    if (/^ {4}steps\s*:/.test(line)) {
+      if (stepsSeen) throw new Error('github-actions steps alias has a duplicate steps key');
+      stepsSeen = true;
+    }
+    if (stepsReuse) {
+      const [, marker, name] = stepsReuse;
+      if (marker === '&') {
+        if (stepsAnchors.has(name)) throw new Error(`github-actions steps anchor is duplicated: ${name}`);
+        pendingStepsAnchor = { name, hasStep: false };
+      } else if (!stepsAnchors.has(name)) throw new Error(`github-actions steps alias is unresolved: ${name}`);
+      structuralLines.push(line);
+      continue;
+    }
+
     const structural = line.trimStart();
     if (/^(?:-\s*)?(?:"(?:[^"\\]|\\.)*"|'(?:[^']|'')*')\s*:/.test(structural)) {
       throw new Error(`github-actions source has unsupported quoted mapping key: ${line.trim()}`);
@@ -231,7 +269,7 @@ function workflowStructuralLines(source) {
         /^(?:-\s*)?[a-zA-Z_][a-zA-Z0-9_-]*\s*:\s*[\[{]/.test(structural)) {
       throw new Error(`github-actions source has unsupported flow collection: ${line.trim()}`);
     }
-    if (/^(?:-\s*)?[?&*!]/.test(structural)) {
+    if (/^(?:-\s*)?[?&*!]/.test(structural) || /^(?:-\s*)?<<\s*:/.test(structural)) {
       throw new Error(`github-actions source has unsupported complex mapping key: ${line.trim()}`);
     }
     if (/^(?:-\s*)?[a-zA-Z_][a-zA-Z0-9_-]*\s*:\s*[?&*!]/.test(structural)) {
@@ -243,6 +281,8 @@ function workflowStructuralLines(source) {
       literalIndent = indent;
     }
   }
+
+  finishStepsAnchor();
 
   return structuralLines;
 }

@@ -37,7 +37,7 @@ test('candidate evidence binds policy, immutable inputs, report, SBOM, database,
 });
 
 test('release promotion retains four native targets, successful-run gate, and rollback', () => {
-  assert.match(releaseWorkflow, /expected exactly four successful native candidate jobs/);
+  assert.match(releaseWorkflow, /resolve-candidate-evidence\.mjs promotion/);
   assert.match(releaseWorkflow, /expected_targets = \{\("full", "amd64"\), \("full", "arm64"\), \("slim", "amd64"\), \("slim", "arm64"\)\}/);
   assert.match(releaseWorkflow, /Snapshot mutable aliases/);
   assert.match(releaseWorkflow, /Roll back mutable aliases after failed final smoke/);
@@ -96,4 +96,23 @@ test('both workflows pin accepted Syft and Grype versions and architecture check
     assert.match(workflow, /bc3ea3f9e6fd56ac781c08c6c5e614271b79f438200757f6932085c19b0a4657/);
     assert.match(workflow, /33670612aad351c48cf3c37f4a85d8b043d1b64b21e6034e675bb00b956d78c1/);
   }
+});
+
+
+test('source monitoring separates recorded input integrity from current release readiness', () => {
+  const source = monitorWorkflow.slice(monitorWorkflow.indexOf('      - name: Validate source and standing policy'), monitorWorkflow.indexOf('  published-image-scan:'));
+  assert.match(source, /reviewed_at="\$\(awk/);
+  assert.match(source, /expires_at="\$\(awk/);
+  assert.match(source, /verify-immutable-inputs\.mjs --file security\/immutable-inputs\.yml --as-of "\$\{reviewed_at\}"/);
+  assert.match(source, /if \[\[ "\$\{expires_at\}" < "\$\{as_of\}" \]\]/);
+  assert.match(source, /::warning::Immutable input review expired/);
+  assert.match(source, /release is NOT eligible/);
+  assert.match(source, /GITHUB_STEP_SUMMARY/);
+  assert.match(source, /--preflight true \\\n\s+--as-of "\$\{as_of\}"/);
+  assert.match(releaseWorkflow, /verify-immutable-inputs\.mjs \\\n\s+--file security\/immutable-inputs\.yml \\\n\s+--as-of "\$\{as_of\}"/);
+  assert.doesNotMatch(releaseWorkflow, /--as-of "\$\{reviewed_at\}"/);
+  const scan = monitorWorkflow.slice(monitorWorkflow.indexOf('      - name: Scan published image and evaluate advisory policy'));
+  assert.match(scan, /grype db status/);
+  assert.match(scan, /--as-of "\$\(date -u \+%F\)"/);
+  assert.doesNotMatch(monitorWorkflow, /continue-on-error/);
 });
